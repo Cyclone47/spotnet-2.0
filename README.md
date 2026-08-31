@@ -1,165 +1,210 @@
-# Spotnet 3.0 — Modernized Usenet Client
+# Spotnet 3.0
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Tests](https://img.shields.io/badge/tests-69%2F69%20passing-brightgreen.svg)]()
-[![Target Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2%20(x64)-blue.svg)]()
-[![Language](https://img.shields.io/badge/language-C%23%2011.0%20%7C%20WPF-blue.svg)]()
-[![License](https://img.shields.io/badge/license-GPLv3%20%2F%20Open%20Source-orange.svg)]()
+A reconstructed and modernized Windows Usenet client, built around the familiar Spotnet experience: browse spots, search a local index, read comments, manage NZB downloads, and preview media in one desktop application.
 
-**Spotnet 3.0** is the maintained, security-hardened continuation of the reconstructed C# WPF Usenet client. It combines the recovered application with modern TLS and SQLite handling, WebView2 support, dependency upgrades, safer SQL and archive processing, and an expanded automated regression suite.
+**Current target:** Windows x64 · C# / WPF · .NET Framework 4.7.2
 
----
+**Application version:** 3.0.0.0
 
-## 📖 Overview
+**Validation checkpoint:** 69 automated tests passing on the x64 Release test host.
 
-**Spotnet** is a decentralized, Usenet-based indexer and content manager widely popular in the Dutch Usenet ecosystem. **Spotnet 3.0** continues the C# WPF application with:
+## The project idea
 
-- **MVVM Architecture:** Built with `GalaSoft.MvvmLight` and `AvalonDock` multi-tab docking.
-- **Built-in Native Downloader:** Full internal multi-connection NNTP segment downloader eliminating the external SABnzbd dependency.
-- **Modern browser support:** Edge WebView2 is the sole embedded web engine.
-- **64-bit media playback:** LibVLCSharp with the official VideoLAN x64 runtime.
-- **SQLite FTS4 Search Engine:** Fast full-text search across titles, descriptions, and spam reports.
-- **High-Speed yEnc Decoding:** Native/managed SIMD-accelerated yEnc decoding (`Spotnet.Enc`).
-- **Phuse NNTP Client:** High-throughput pooled connection manager supporting SSL/TLS.
+The goal is to keep Spotnet usable and maintainable by recovering its application source, replacing obsolete components, and improving reliability without discarding the existing workflow or breaking compatibility with the Spotnet network.
 
----
+This is an incremental modernization, not a from-scratch rewrite. The existing interface, NNTP protocol, spot metadata, local databases, and integrated downloader provide the foundation. Work on top of that foundation focuses on:
 
-## 🏗️ Architecture
+- Moving the application and its in-process native dependencies to 64-bit.
+- Replacing the old browser and media integrations.
+- Improving database durability, startup behavior, and recovery.
+- Hardening network, SQL, XML, and archive handling.
+- Adding regression tests and documenting both completed work and remaining limitations.
 
-```mermaid
-graph TD
-    subgraph UI_Layer ["Presentation Layer (WPF / MVVM)"]
-        V["Views / MetroWindows"] --> VM["ViewModels"]
-        VM --> Controls["Custom Controls & AvalonDock"]
-        V --> WebView2["Edge WebView2 Host"]
-    end
+Spotnet is a client, not a Usenet service: you supply access to a news server. It maintains a local index of spot metadata and retrieves articles through that server.
 
-    subgraph Core_Engine ["Business Logic & Downloader"]
-        VM --> Downloader["SpotnetDownloader & Queue"]
-        Downloader --> PostProcess["PostProcessCoordinator (phpar2 & UnRAR)"]
-        VM --> DbUpdater["DbUpdater Async BlockingCollection"]
-    end
+## What it is based on
 
-    subgraph Data_Protocol ["Network & Storage"]
-        DbUpdater --> Phuse["Phuse NNTP Connection Pool"]
-        Phuse --> Usenet["Usenet Newsgroups"]
-        DbUpdater --> SQLite[("SQLite DBS / FTS4 Tables")]
-        Downloader --> YEnc["Spotnet.Enc Decoder"]
-    end
-```
+The main reconstruction target is **Spotnet 2.0, build 2.0.0.284**, originally a 32-bit C# / WPF application targeting .NET Framework 4.5. The older **Spotnet 1.8.1 VB.NET codebase** was used as a historical reference for the protocol, models, and database behavior.
 
----
+The reconstruction recovered C# code from the application assemblies, extracted embedded resources and localization, and converted 61 compiled WPF BAML layouts back into XAML. The original mixed-mode `Spotnet.Enc` decoder was replaced with a managed C# implementation.
 
-## 🚀 Quick Start & Building
+Spotnet 3.0 is the name of the modernized application in this repository; it is not a claim of an official upstream release. The GitHub repository name `spotnet-2.0` and source folder `reconstructed/Spotnet2/` retain their historical names. References to 1.8.1 or 2.0 in provenance documents describe those original versions, not the current product version.
 
-### Prerequisites
+See the [source provenance record](docs/SOURCE_PROVENANCE.md), [original binary inventory](docs/INVENTORY.md), and [1.8.1 versus 2.0 comparison](docs/181_VS_20_DIFF.md).
 
-- **OS:** Windows 10 / 11
-- **SDK:** [.NET SDK](https://dotnet.microsoft.com/download) (6.0, 8.0, or 9.0+)
-- **Targeting Pack:** .NET Framework 4.7.2
-- **Platform:** `x64` (64-bit Windows only)
-- **Runtime:** Microsoft Edge WebView2 Evergreen Runtime
+## What changed for 3.0
 
-### 1-Click Build Script
+### Platform and component replacements
 
-Simply run the batch script from the repository root:
+These are the dependencies used by the current application project, not a list of every historical binary still present in `lib/`.
 
-```cmd
-build.bat
-```
+| Area | Original / reconstructed baseline | Current implementation |
+| --- | --- | --- |
+| Application platform | x86, constrained by native components | `Spotnet`, `Spotnet.Enc`, and `Spotnet.Tests` target x64 with `Prefer32Bit=false`; database tools also target x64 |
+| Embedded web tabs | Awesomium / old Chromium integration | **Microsoft Edge WebView2 1.0.3351.48** for web tabs, release notes, feedback, and Advanced Downloads |
+| Media preview | `Meta.Vlc` and `Meta.Vlc.Wpf` | **LibVLCSharp.WPF 3.10.1** with **VideoLAN.LibVLC.Windows 3.0.23.1**, using the x64 native runtime |
+| SQLite | Loose legacy provider and native interop DLLs | **System.Data.SQLite.Core 1.0.119** via NuGet, with x64 interop |
+| yEnc decoder | Mixed-mode x86 `Spotnet.Enc.dll` | Managed C# `Spotnet.Enc`, compiled for x64; currently a scalar decoder, not a SIMD implementation |
+| ZIP archives | Ionic.Zip / DotNetZip application integration | Framework `System.IO.Compression` behind the path-validated `SafeZip` helper |
+| NNTP zlib responses | Legacy SharpZipLib | **SharpZipLib 1.4.2**, retained for compressed NNTP responses |
+| JSON | Legacy Newtonsoft.Json DLL | **Newtonsoft.Json 13.0.3** via NuGet |
+| Logging | Legacy NLog DLL | **NLog 5.5.1**, with integration updates |
+| HTML parsing | Legacy HtmlAgilityPack DLL | **HtmlAgilityPack 1.12.4** via NuGet |
+| Long paths | Pri.LongPath calls | Framework long-path settings and a `longPathAware` application manifest |
 
-The script will:
-1. Verify the .NET SDK.
-2. Compile the entire solution (`Spotnet.Enc.dll`, `Spotnet.exe`, `Spotnet.Tests.dll`) in **Release** mode with **0 errors**.
-3. Run the automated xUnit test suite.
-4. Verify deployment of native binaries and asset bundles to `bin/Release/net472/`.
-5. Offer to launch Spotnet 3.0 immediately.
+Awesomium's source integration, managed assemblies, native engine, helper process, and supporting assets were removed. The Meta.Vlc assemblies were removed as well. Web page events now use an engine-independent `IPage` contract, and the feedback page's JavaScript bridge was adapted to WebView2 messages.
 
-### Manual CLI Build
+**Browser scope matters:** spot-detail and comment pages still use `SpotNativePage : IEWebBrowser`, backed by the Windows WebBrowser/MSHTML control. WebView2 replaces the Awesomium-backed pages; it does **not** yet replace every HTML-rendering path in the application.
+
+### What “x64” means here
+
+The built application, decoder, and test assemblies have AMD64 PE headers. SQLite, the WebView2 loader, and LibVLC use x64 in-process components. The solution build removes unused x86 and ARM64 runtime payload directories from its output.
+
+The bundled `phpar2.exe`, `UnRAR.exe`, and `7za.exe` are still **32-bit external executables**. They run as separate child processes and do not force Spotnet itself to run as a 32-bit process. Replacing those utilities is separate remaining work.
+
+This is a Windows x64 build, not a native ARM64 or cross-platform port. Moving to modern .NET or another UI framework is also separate from the completed application x64 migration.
+
+### Database reliability and the startup fix
+
+- The writable database/import path uses **write-ahead logging (WAL)** and `synchronous=NORMAL` instead of the old `synchronous=OFF` import setting.
+- Database page sizes are set before WAL when creating new stores; existing databases are not automatically subjected to a large startup `VACUUM`.
+- Connection handling includes a busy timeout and respects read-only intent, with a writable fallback when recovery requires it.
+- Corruption detection checks SQLite result codes, and database schema definitions are shared between creation and rebuilding.
+- **Rebuild Database** copies readable records into a fresh database, regenerates search indexes, and preserves the original as a backup. It is a recovery attempt, not a guarantee that every damaged record can be recovered.
+- Quick Repair preserves WAL and reports database integrity results.
+- The reported **`PRAGMA synchronous` startup error** was fixed: successful PRAGMA assignments can return `-1` from the SQLite provider. The import setup now verifies the actual setting instead of treating that return value alone as failure, with a regression test covering initialization.
+
+WAL with `synchronous=NORMAL` improves the previous durability trade-off, but it is not a substitute for backups or a guarantee that the latest transactions survive power loss.
+
+### Security and performance work
+
+- **TLS:** NNTP uses operating-system protocol negotiation and requires encryption for TLS connections. Server certificates are validated by default; HTTP paths use the system TLS policy.
+- **SQL:** network-supplied identifiers and values are parameterized. Advanced filter expressions are checked against allowed identifiers/operators, and their literals are bound as parameters.
+- **ZIP extraction:** entry destinations are resolved and checked to reject paths that escape the extraction directory.
+- **XML:** external resource resolution is disabled at identified parsing boundaries, including the update-manifest path.
+- **RSA verification:** a bounded verifier cache reduces repeated provider allocation while retaining the existing wire-protocol signatures.
+- **Import bookkeeping:** row-count refreshes are throttled instead of scanning on every batch. The displayed total may lag by up to 30 seconds during import.
+- **Network streams:** sends reuse a buffer, and article/decompression reads handle partial reads.
+- **UI:** theme fixes improve selected-tab, menu, and spot-description contrast.
+- **Build visibility:** .NET analyzers, NuGet auditing, and deterministic compilation settings expose maintenance issues.
+
+These are targeted improvements, not a claim that the entire reconstructed codebase has passed a security audit. Older libraries and analyzer findings remain.
+
+## What stays familiar
+
+The application retains its WPF desktop shell with MVVM Light, MahApps.Metro, and Xceed controls, along with:
+
+- Spot browsing, categories, filters, favorites, and comments.
+- Local SQLite databases and **FTS4** full-text search.
+- The Phuse NNTP engine and Spotnet metadata/signature protocol.
+- The integrated multi-connection NZB downloader and post-processing workflow.
+- Media preview, docking/tab behavior, and light/dark themes.
+
+The UI toolkit has not been replaced, the database has not migrated to FTS5, and the application still runs on **.NET Framework 4.7.2**. C# 11 source syntax does not mean it targets modern .NET.
+
+## Build and run
+
+### Requirements
+
+- Windows x64; the documented development target is Windows 10/11.
+- A .NET SDK capable of compiling C# 11, plus the .NET Framework 4.7.2 targeting pack. Visual Studio 2022 / Build Tools with the .NET desktop development workload is the documented build environment.
+- The .NET Framework runtime compatible with the `net472` application.
+- **Microsoft Edge WebView2 Evergreen Runtime** for WebView2-backed pages.
+- NuGet access for package restore, and news-server access for live Usenet use.
+
+### From the repository root
 
 ```powershell
-# Build entire solution:
 dotnet build reconstructed/Spotnet2/Spotnet.sln -c Release
-
-# Run automated tests:
-dotnet test reconstructed/Spotnet2/Spotnet.sln
+dotnet test reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj -c Release --no-build
+& "./reconstructed/Spotnet2/Spotnet/bin/Release/net472/Spotnet.exe"
 ```
 
----
+The project files set `PlatformTarget=x64`; the commands above build the 64-bit application.
 
-## 🧪 Automated Test Suite
+Alternatively, run `build.bat` from the repository root. It builds, runs tests, checks for the output executable, and offers to launch it. Its progress label still says “x86”; that is stale display text, not the compiled architecture. The script reports test failures as a warning, so inspect the test result.
 
-The solution includes an automated xUnit test suite (`reconstructed/Spotnet2/Spotnet.Tests/`):
+Keep the **entire output directory** together when running or copying a build. `Spotnet.exe` alone is not a standalone distribution: native runtimes, managed dependencies, configuration, and data/resources are also required.
 
-| Test Suite | Coverage | Status |
-| :--- | :--- | :---: |
-| `SpotnetDecoder_DecodesSimpleYEncData` | yEnc baseline stream byte transformation \((byte - 42)\) | ✅ PASSED |
-| `SpotnetDecoder_HandlesEscapedCharacters` | yEnc `=` escape sequence decoding \((byte - 64 - 42)\) | ✅ PASSED |
-| `SpotParser_ParsesValidSpotXml` | Spotnet XML schema parsing (Title, Poster, Size, Segments) | ✅ PASSED |
-| `CategoriesResources_ContainsGenreStrings` | Categories localization & genre lookup resources | ✅ PASSED |
-| `SpotCat_CanAddChildren` | Hierarchical category taxonomy trees | ✅ PASSED |
-| `SQLite_InMemoryDatabaseOperations` | SQLite table creation, FTS4 indexing, and queries | ✅ PASSED |
+Before trying a new build against an existing installation, close Spotnet and back up its configuration and databases. Configure your provider in the application. Leave certificate validation enabled; investigate provider certificate problems instead of routinely bypassing validation.
 
----
+More detail: [build and setup guide](docs/BUILDING.md).
 
-## 📂 Project Structure
+## Validation and remaining work
 
+At this documentation update, the existing Release build passed **69/69 automated tests under VSTest x64**. The last recorded build checkpoint had zero errors; analyzer warnings remain a maintenance backlog. This is a local validation checkpoint, not a live CI badge.
+
+Coverage includes yEnc decoding, spot XML parsing, categories, SQLite operations and initialization, database rebuilds, SQL/filter parameterization, query generation, RSA verifier caching, header-parser behavior, WebView2 runtime probing, AMD64 targeting, and ZIP path validation.
+
+The development record also includes a healthy real-database check on approximately 2.29 million spots, with WAL active and SQLite integrity checks passing. That does not establish complete end-to-end compatibility.
+
+Remaining validation and modernization work includes:
+
+- Live news-server TLS connections and a full header import.
+- Desktop checks for WebView2 navigation, feedback, downloads, and media playback controls.
+- Recovery testing with genuinely corrupt databases, beyond the automated fixtures.
+- Migrating the remaining MSHTML spot-detail/comment renderer.
+- Replacing legacy child-process utilities and remaining loose dependencies.
+- Installer/update-distribution validation for the new x64 dependency layout.
+- FTS5 migration, UI-toolkit updates, and a possible modern .NET migration.
+- Profiling a real import before attempting parallel verification or SIMD decoding.
+
+Do not interpret a passing build or unit suite as a production-readiness guarantee.
+
+## Repository layout
+
+```text
+README.md
+build.bat
+docs/                         Provenance, architecture, build notes, and work history
+reconstructed/Spotnet2/
+    Spotnet.sln               Main application solution
+    Spotnet/                  WPF application, XAML, resources, and data
+    Spotnet.Enc/              Managed yEnc decoder
+    Spotnet.Tests/            xUnit regression tests
+    lib/                      Retained legacy dependencies and reference binaries
+    Directory.Build.props     Analyzer, audit, and runtime-output settings
+tools/
+    DbDiagnostic/             Database inspection and benchmark utility
+    DbRepair/                 Standalone database repair utility
+    BamlExtractor/            UI reconstruction tooling
+    WpfCleaner/               Code-behind cleanup tooling
 ```
-sourcecode/
-├── docs/                        # Complete archaeological documentation suite
-│   ├── INVENTORY.md             # Assembly, resource, and dependency catalog
-│   ├── SPOTNET_181_ARCHITECTURE.md # Spotnet 1.8.1 baseline architectural map
-│   ├── 181_VS_20_DIFF.md        # Detailed 1.8.1 vs 2.0 diff matrix
-│   ├── SPOTNET_20_ARCHITECTURE.md # Legacy architecture baseline and diagrams
-│   ├── DATABASE.md              # SQLite schemas, FTS4 tables, and migrations
-│   ├── PROTOCOL.md              # NNTP topology, XML schemas, RSA verification
-│   ├── SOURCE_PROVENANCE.md     # Component origin & library provenance audit
-│   ├── RECONSTRUCTION_STATUS.md # Milestone tracker (100% complete)
-│   ├── RECONSTRUCTION_UNCERTAINTIES.md # Native interop & technical findings
-│   ├── BUILDING.md              # Build instructions & environment requirements
-│   └── MODERNIZATION.md         # .NET 9 & Avalonia UI modernization blueprint
-├── reconstructed/
-│   └── Spotnet2/
-│       ├── Spotnet.sln          # Main Visual Studio Solution
-│       ├── Spotnet.Enc/         # Managed C# yEnc Stream Decoder
-│       ├── Spotnet/             # WPF Application Source Code & XAML
-│       ├── Spotnet.Tests/       # xUnit Automated Tests
-│       ├── lib/                 # Third-party native/managed dependencies
-│       └── build.bat            # Solution-level build script
-├── tools/                       # Reconstruction extraction tools
-│   ├── BamlExtractor/           # 100% WPF BAML -> clean XAML decompiler
-│   └── WpfCleaner/              # Roslyn-based code-behind sanitizer
-├── build.bat                    # Top-level 1-click build script
-└── README.md                    # Project documentation
+
+For development, edit `reconstructed/Spotnet2/` and launch its build output. Do not confuse the retained historical `lib/Spotnet.exe` with the newly built Spotnet 3.0 executable.
+
+### Database diagnostics
+
+```powershell
+# Inspect an explicitly selected database.
+dotnet run --project tools/DbDiagnostic -c Release -- inspect "C:/path/to/spots.dbs"
+
+# Run a synthetic benchmark; this is not a live-server throughput test.
+dotnet run --project tools/DbDiagnostic -c Release -- bench 50000
 ```
 
----
+Use backups and understand the selected recovery operation before running repair tools against your own data.
 
-## 📚 Technical Documentation Index
+## Documentation
 
-For deep dives into the current implementation and its reconstructed historical baseline, see the [`docs/`](docs/) directory:
+- [Build and setup](docs/BUILDING.md)
+- [Database schema and recovery background](docs/DATABASE.md)
+- [NNTP, spot XML, and signatures](docs/PROTOCOL.md)
+- [Development handoff and open work](docs/HANDOFF.md)
+- [Optimization history and measurements](docs/OPTIMIZATION_PROGRESS.md)
+- [Modernization options](docs/MODERNIZATION.md)
+- [Source provenance](docs/SOURCE_PROVENANCE.md)
+- [Historical assembly inventory](docs/INVENTORY.md)
+- [Spotnet 1.8.1 architecture](docs/SPOTNET_181_ARCHITECTURE.md)
+- [Spotnet 2.0 architecture baseline](docs/SPOTNET_20_ARCHITECTURE.md)
+- [Reconstruction uncertainties](docs/RECONSTRUCTION_UNCERTAINTIES.md)
 
-- [**Inventory & Assemblies (`docs/INVENTORY.md`)**](docs/INVENTORY.md)
-- [**Spotnet 1.8.1 Architecture (`docs/SPOTNET_181_ARCHITECTURE.md`)**](docs/SPOTNET_181_ARCHITECTURE.md)
-- [**Spotnet 1.8.1 vs 2.0 Diff Matrix (`docs/181_VS_20_DIFF.md`)**](docs/181_VS_20_DIFF.md)
-- [**Legacy architecture baseline (`docs/SPOTNET_20_ARCHITECTURE.md`)**](docs/SPOTNET_20_ARCHITECTURE.md)
-- [**Database Schema & SQL (`docs/DATABASE.md`)**](docs/DATABASE.md)
-- [**Usenet Protocol & Signatures (`docs/PROTOCOL.md`)**](docs/PROTOCOL.md)
-- [**Source Provenance (`docs/SOURCE_PROVENANCE.md`)**](docs/SOURCE_PROVENANCE.md)
-- [**Modernization Roadmap (`docs/MODERNIZATION.md`)**](docs/MODERNIZATION.md)
+The archaeological documents describe earlier versions, and the chronological work logs contain intermediate states. Some still mention x86 restrictions, Awesomium fallback, or smaller test suites that have since been superseded. Use this README for the current overview and the project files/code for implementation details.
 
----
+## Contributing and attribution
 
-## 🔮 Future Modernization
+Useful contributions include reproducible bug reports, provider/runtime compatibility testing, regression tests, and focused modernization changes. Include the build/commit, Windows version, reproduction steps, and redacted logs in a report. Do not publish credentials, access tokens, or personal database content.
 
-The codebase is structured to facilitate modern rewrites. Full modernization paths are documented in [`docs/MODERNIZATION.md`](docs/MODERNIZATION.md):
-- **Runtime:** Upgrade from .NET Framework 4.7.2 to **.NET 9 / .NET 10**.
-- **UI Framework:** Port from WPF to **Avalonia UI** or **WinUI 3 / Windows App SDK** for cross-platform support (Windows, Linux, macOS).
-- **Browser:** Continue hardening the completed **Microsoft Edge WebView2** integration.
-- **Post-Processing:** Upgrade to modern native 64-bit PAR2 and 7-Zip/UnRAR bindings.
+Preserve Spotnet protocol compatibility and add tests for behavior changes. Database changes should include migration/recovery considerations; native dependency changes should be checked in the actual x64 output and on a desktop.
 
----
-
-## ⚖️ Legal & Provenance
-
-This project is a software archaeological reconstruction intended for interoperability, preservation, and modernization research. No DRM, licensing, or credential systems were bypassed, and no private telemetry was introduced.
+Credit belongs to the original Spotnet and Phuse authors, the authors of the bundled libraries and tools, and contributors to this reconstruction and modernization. Component origins are recorded in the provenance documentation. There is currently no repository-level `LICENSE` file; this README does not assign a blanket license to the recovered application or its third-party components.
