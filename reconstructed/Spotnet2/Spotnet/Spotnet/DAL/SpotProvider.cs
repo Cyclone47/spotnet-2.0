@@ -501,12 +501,34 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 
 	private void CreateSpotsTablesOnEmptyDatabase(ISqlDb db)
 	{
+		if (db.ExecuteScalar("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table'", null) != 0)
+			throw new Exception("Refusing to initialize a database that already contains tables");
 		// page_size must be set before the first table is written, and it can no longer
 		// be changed once the database is in WAL mode, so it has to come first here.
 		// 8192 suits the row sizes in `spots` better than the old 4096.
-		if (new string[3] { "PRAGMA page_size = " + SpotsSchema.SpotsPageSize, "PRAGMA locking_mode = NORMAL", "PRAGMA user_version = 0" }.Any((string command) => db.ExecuteNonQuery(command, null) != 0))
+		// SQliteDb opens writable connections in WAL. On this empty database only,
+		// leave WAL temporarily so page_size can actually take effect before DDL.
+		if (!"delete".Equals(db.ExecuteCommand("PRAGMA journal_mode = DELETE", null)?.Trim(), StringComparison.OrdinalIgnoreCase))
+		{
+			throw new Exception("Could not initialize the empty database journal mode");
+		}
+		// ADO.NET uses -1 for successful statements without a row count. -2 is
+		// the DAL's error sentinel; verify the settings instead of requiring zero.
+		if (new string[3] { "PRAGMA page_size = " + SpotsSchema.SpotsPageSize, "PRAGMA locking_mode = NORMAL", "PRAGMA user_version = 0" }.Any((string command) => db.ExecuteNonQuery(command, null) < -1))
 		{
 			throw new Exception("Pragma exception");
+		}
+		// The provider may already have written an empty 4096-byte-page header while
+		// opening WAL. VACUUM applies the requested size, but ONLY on this verified-empty
+		// database; existing user databases never take this path.
+		if (db.ExecuteScalar("PRAGMA page_size", null) != SpotsSchema.SpotsPageSize &&
+			db.ExecuteNonQuery("VACUUM", null) < -1)
+			throw new Exception("Could not set the empty database page size");
+		if (db.ExecuteScalar("PRAGMA page_size", null) != SpotsSchema.SpotsPageSize ||
+			db.ExecuteScalar("PRAGMA user_version", null) != 0 ||
+			!"normal".Equals(db.ExecuteCommand("PRAGMA locking_mode", null)?.Trim(), StringComparison.OrdinalIgnoreCase))
+		{
+			throw new Exception("Empty database settings verification failed");
 		}
 		// Create in WAL so the database is crash-safe from its very first write, rather
 		// than inheriting the rollback journal until the first import switches it over.
@@ -520,12 +542,13 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		// cannot end up with a different shape from one created here.
 		foreach (string statement in SpotsSchema.Tables)
 		{
-			if (db.ExecuteNonQuery(statement, sqlDbTransaction) != 0)
+			if (db.ExecuteNonQuery(statement, sqlDbTransaction) < -1)
 			{
 				throw new Exception(statement);
 			}
 		}
-		if (db.ExecuteNonQuery("PRAGMA user_version = " + SpotsSchema.CurrentUserVersion, sqlDbTransaction) != 0)
+		if (db.ExecuteNonQuery("PRAGMA user_version = " + SpotsSchema.CurrentUserVersion, sqlDbTransaction) < -1 ||
+			db.ExecuteScalar("PRAGMA user_version", sqlDbTransaction) != SpotsSchema.CurrentUserVersion)
 		{
 			throw new Exception("PRAGMA user_version");
 		}
@@ -805,7 +828,8 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 				{
 					throw new Exception("CREATE TABLE spamgroup");
 				}
-				if (db.ExecuteNonQuery("PRAGMA user_version = " + num2, sqlDbTransaction) != 0)
+				if (db.ExecuteNonQuery("PRAGMA user_version = " + num2, sqlDbTransaction) < -1 ||
+					db.ExecuteScalar("PRAGMA user_version", sqlDbTransaction) != num2)
 				{
 					throw new Exception("PRAGMA user_version");
 				}
@@ -827,7 +851,8 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 				{
 					throw new Exception("ADD COLUMN sender");
 				}
-				if (db.ExecuteNonQuery("PRAGMA user_version = " + num2, sqlDbTransaction2) != 0)
+				if (db.ExecuteNonQuery("PRAGMA user_version = " + num2, sqlDbTransaction2) < -1 ||
+					db.ExecuteScalar("PRAGMA user_version", sqlDbTransaction2) != num2)
 				{
 					throw new Exception("PRAGMA user_version");
 				}

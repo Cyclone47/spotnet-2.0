@@ -73,6 +73,20 @@ public partial class App : Application
     {
         try
         {
+            if (InstalledProfile.Enabled)
+            {
+                string restart = e.Args.FirstOrDefault(argument => argument.StartsWith("--restart-from=", StringComparison.Ordinal));
+                if (restart != null && int.TryParse(restart.Substring("--restart-from=".Length), out int previousId))
+                {
+                    try
+                    {
+                        using (Process previous = Process.GetProcessById(previousId))
+                            if (previous.ProcessName.Equals("Spotnet", StringComparison.OrdinalIgnoreCase) && !previous.WaitForExit(15000))
+                                throw new IOException("The previous Spotnet instance is still shutting down. Please launch Spotnet again after it exits.");
+                    }
+                    catch (ArgumentException) { /* The previous process has already exited. */ }
+                }
+            }
             if (Environment.OSVersion.Version.Major < 6)
             {
                 AppHelper.Error("Windows XP and below are not supported");
@@ -126,6 +140,12 @@ public partial class App : Application
             // Show our custom SplashWindow (replaces the plain WPF SplashScreen).
             // Language is initialized before showing so the step labels are already localized.
             UserLanguageHelper.Initialize(Settings.Default.UserLanguage);
+            if (InstalledProfile.Enabled && !Settings.Default.FiltersAreInitialized)
+            {
+                if (!Filters.InitializeDefaultFilters()) throw new IOException("Unable to initialize the Spotnet 3.0 filters.");
+                Settings.Default.FiltersAreInitialized = true;
+                Settings.Default.Save();
+            }
             ThemeHelper.Initialize();
             Views.SplashWindow.ShowSplash();
             Views.SplashWindow.SetProgress(1); // "Loading settings..."

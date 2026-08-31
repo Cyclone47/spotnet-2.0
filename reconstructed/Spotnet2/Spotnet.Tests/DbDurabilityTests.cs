@@ -134,5 +134,33 @@ namespace Spotnet.Tests
             Assert.Equal("8192", Scalar(reopened, "PRAGMA page_size"));
             Assert.Equal("wal", Scalar(reopened, "PRAGMA journal_mode").ToLowerInvariant());
         }
+
+        [Fact]
+        public void FreshInstallerProfile_CanCreateItsFirstSpotsDatabase()
+        {
+            using var db = new SQliteDb(_dbFile);
+            var method = typeof(SpotProvider).GetMethod("CreateSpotsTablesOnEmptyDatabase",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.NotNull(method);
+            // The schema method does not need UI/settings state from the constructor.
+            var provider = (SpotProvider)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(SpotProvider));
+            method.Invoke(provider, new object[] { db });
+            Assert.Equal(SpotsSchema.CurrentUserVersion, db.ExecuteScalar("PRAGMA user_version", null));
+            Assert.Equal(SpotsSchema.SpotsPageSize, db.ExecuteScalar("PRAGMA page_size", null));
+            Assert.Equal("wal", db.ExecuteCommand("PRAGMA journal_mode", null).Trim().ToLowerInvariant());
+        }
+
+        [Fact]
+        public void FreshDatabaseInitializerRefusesExistingUserTables()
+        {
+            using var db = new SQliteDb(_dbFile);
+            db.ExecuteNonQuery("CREATE TABLE personal(value TEXT)", null);
+            db.ExecuteNonQuery("INSERT INTO personal VALUES('keep')", null);
+            var method = typeof(SpotProvider).GetMethod("CreateSpotsTablesOnEmptyDatabase",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var provider = (SpotProvider)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(SpotProvider));
+            Assert.Throws<System.Reflection.TargetInvocationException>(() => method.Invoke(provider, new object[] { db }));
+            Assert.Equal("keep", db.ExecuteCommand("SELECT value FROM personal", null).Trim());
+        }
     }
 }

@@ -3,8 +3,35 @@
 Single self-contained document: the prompt to start a new AI session, the current state,
 the sequenced plan for what remains, and the full record of what changed and why.
 
-**Build:** 0 errors. **Tests:** 69/69 passing under the x64 test host.
+**Build:** 0 errors. **Tests:** 108/108 passing under the x64 test host.
 Target: `net472`, `x64` only.
+
+## Installer checkpoint
+
+`build-installer.ps1` builds an Inno Setup 7 x64 package at
+`artifacts/installer/Spotnet-3.0-x64-Setup.exe`. See [INSTALLER.md](INSTALLER.md)
+for the full migration, backup, prerequisite, and recovery behavior.
+Release notes and package scope are recorded in [releases/v3.0.0.md](releases/v3.0.0.md);
+the README links directly to the `v3.0.0` Setup download and checksum.
+
+- Per-user application install with an isolated `%LOCALAPPDATA%\Spotnet3\Data` profile.
+- Detects legacy 2.x data/settings, requests a graceful Spotnet exit, and copies selected
+  profile data with held read locks and SHA-256 verification. Originals remain unchanged.
+- Existing 3.0 profiles get a verified pre-upgrade backup. Uninstall retains personal data.
+- `Spotnet.install` activates the stable settings provider and bypasses legacy Squirrel updates.
+- Active legacy download queues are intentionally not imported. Older VB/1.x formats are
+  not promised to be compatible. The package is unsigned.
+- Updates current-user Desktop/Start Menu `.lnk` launchers for old/current/Squirrel Spotnet
+  in place; creates both on a fresh install. Uninstall restores originals unless user-edited.
+  Shared shortcuts, pins, and ClickOnce `.appref-ms` launchers are outside this scope.
+- 108 tests pass, including 19 installer/profile/shutdown tests, two fresh-database tests,
+  and 18 shortcut matching/replacement/recovery cases.
+  Isolated actual Setup tests passed fresh installation, repeat upgrade/backup and uninstall.
+- First-run testing caught an additional SQLite PRAGMA return-value bug in fresh database
+  creation; the path now verifies values and refuses to initialize a database with user tables.
+
+The older chronological notes below predate this installer checkpoint (including their
+69-test counts and statements about installer work remaining).
 
 ---
 

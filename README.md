@@ -1,12 +1,18 @@
 # Spotnet 3.0
 
+## Download for Windows x64
+
+**[Download Spotnet 3.0 Setup](https://github.com/Cyclone47/spotnet-2.0/releases/download/v3.0.0/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-2.0/releases/tag/v3.0.0)
+
+For fresh installs and upgrades from compatible Spotnet 2.x profiles. Setup closes Spotnet safely, copies your selected profile, and updates your existing Desktop and Start Menu launch shortcuts to 3.0. Requires Windows 10/11 x64 and .NET Framework 4.7.2+. The installer is **unsigned**; Windows may show an unknown-publisher warning. Read the [installation and migration guide](docs/INSTALLER.md) before upgrading.
+
 A reconstructed and modernized Windows Usenet client, built around the familiar Spotnet experience: browse spots, search a local index, read comments, manage NZB downloads, and preview media in one desktop application.
 
 **Current target:** Windows x64 · C# / WPF · .NET Framework 4.7.2
 
 **Application version:** 3.0.0.0
 
-**Validation checkpoint:** 69 automated tests passing on the x64 Release test host.
+**Validation checkpoint:** 108 automated tests passing on the x64 Release test host.
 
 ## The project idea
 
@@ -104,6 +110,12 @@ The UI toolkit has not been replaced, the database has not migrated to FTS5, and
 
 ## Build and run
 
+### First-time install or migrate from Spotnet 2.x
+
+The new per-user **Spotnet 3.0 x64 Setup** detects legacy installations, asks Spotnet to close safely, and offers a verified copy of the selected profile into a separate 3.0 data folder. Existing 3.0 profiles are backed up before an upgrade; uninstall keeps personal data. Old application files and source profiles remain untouched. Your existing Spotnet Desktop and Start Menu launch shortcuts are updated in place; missing launchers are created. Active download queues are not imported.
+
+Build it with `./build-installer.ps1 -BootstrapCompiler`. Output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`. The package is currently unsigned. See the [installer and migration guide](docs/INSTALLER.md) for compatibility, prerequisites, backups, and testing.
+
 ### Requirements
 
 - Windows x64; the documented development target is Windows 10/11.
@@ -132,7 +144,7 @@ More detail: [build and setup guide](docs/BUILDING.md).
 
 ## Validation and remaining work
 
-At this documentation update, the existing Release build passed **69/69 automated tests under VSTest x64**. The last recorded build checkpoint had zero errors; analyzer warnings remain a maintenance backlog. This is a local validation checkpoint, not a live CI badge.
+At this documentation update, the Release build passed **108/108 automated tests under VSTest x64**. The build has zero errors; analyzer warnings remain a maintenance backlog. This is a local validation checkpoint, not a live CI badge.
 
 Coverage includes yEnc decoding, spot XML parsing, categories, SQLite operations and initialization, database rebuilds, SQL/filter parameterization, query generation, RSA verifier caching, header-parser behavior, WebView2 runtime probing, AMD64 targeting, and ZIP path validation.
 
@@ -145,7 +157,7 @@ Remaining validation and modernization work includes:
 - Recovery testing with genuinely corrupt databases, beyond the automated fixtures.
 - Migrating the remaining MSHTML spot-detail/comment renderer.
 - Replacing legacy child-process utilities and remaining loose dependencies.
-- Installer/update-distribution validation for the new x64 dependency layout.
+- Broader desktop/account acceptance testing of the new x64 installer and migration flow.
 - FTS5 migration, UI-toolkit updates, and a possible modern .NET migration.
 - Profiling a real import before attempting parallel verification or SIMD decoding.
 
@@ -188,6 +200,7 @@ Use backups and understand the selected recovery operation before running repair
 ## Documentation
 
 - [Build and setup](docs/BUILDING.md)
+- [Installer, migration, and rollback](docs/INSTALLER.md)
 - [Database schema and recovery background](docs/DATABASE.md)
 - [NNTP, spot XML, and signatures](docs/PROTOCOL.md)
 - [Development handoff and open work](docs/HANDOFF.md)

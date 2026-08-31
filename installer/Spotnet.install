@@ -1,0 +1,3 @@
+Spotnet3 per-user installation
+Profile: %LOCALAPPDATA%\Spotnet3\Data
+Updates are installed through Spotnet3 Setup, not the legacy Squirrel feed.

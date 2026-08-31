@@ -125,6 +125,8 @@ internal static class SquirrelStuff
 		_isUpdateManagerDisposed = 1;
 		_lastUpdateCheckDateTime = DateTime.Now - TimeSpan.FromDays(1.0);
 		LockUpdate = new object();
+		// Inno installations own their shortcuts/profile and must never enter the legacy update feed.
+		if (InstalledProfile.Enabled) return;
 		string deploymentPackagesFolder = DeploymentPackagesFolder;
 		if (deploymentPackagesFolder == null)
 		{
@@ -135,6 +137,7 @@ internal static class SquirrelStuff
 
 	internal static void DisposeUpdateManager()
 	{
+		if (InstalledProfile.Enabled) return;
 		WaitForCheckForUpdateLockAcquire();
 		if (1 == Interlocked.Exchange(ref _isUpdateManagerDisposed, 0))
 		{
@@ -144,6 +147,13 @@ internal static class SquirrelStuff
 
 	internal static void RestartApplication()
 	{
+		if (InstalledProfile.Enabled)
+		{
+			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Assembly.GetExecutingAssembly().Location,
+				"--restart-from=" + System.Diagnostics.Process.GetCurrentProcess().Id) { UseShellExecute = true });
+			Sys.Shutdown();
+			return;
+		}
 		UpdateManager.RestartApp();
 	}
 
@@ -178,6 +188,7 @@ internal static class SquirrelStuff
 
 	internal static void StartNewVersionCheckTimer()
 	{
+		if (InstalledProfile.Enabled) return;
 		if (_newVersionCheckTimer == null)
 		{
 			_newVersionCheckTimer = new Timer(OnNewVersionCheckTimer, null, TimeSpan.Zero, TimeSpan.FromHours(2.0));
@@ -712,6 +723,7 @@ internal static class SquirrelStuff
 
 	internal static bool ProcessStateChangedEvents(List<string> args)
 	{
+		if (InstalledProfile.Enabled) return false;
 		bool shutdownAfterMethodExit = false;
 		try
 		{
@@ -948,6 +960,12 @@ internal static class SquirrelStuff
 
 	internal static bool CreateProgramDataAndGetPermissionsToIt()
 	{
+		if (InstalledProfile.Enabled)
+		{
+			// A per-user profile inherits the user's ACL; never grant access to Builtin Users.
+			System.IO.Directory.CreateDirectory(InstalledProfile.DataDirectory);
+			return true;
+		}
 		if (!System.IO.Directory.Exists(AppHelper.SettingsFolder))
 		{
 			try
@@ -997,6 +1015,12 @@ internal static class SquirrelStuff
 
 	internal static bool VerifyAndRestoreSettings()
 	{
+		if (InstalledProfile.Enabled)
+		{
+			// Seed only missing resources, preserving migrated filters and themes.
+			CopyDataToProgramData();
+			return true;
+		}
 		bool flag = false;
 		try
 		{
@@ -1059,6 +1083,7 @@ internal static class SquirrelStuff
 
 	internal static void AfterDeploymentActions()
 	{
+		if (InstalledProfile.Enabled) return;
 		AppHelper.GetTempPath();
 		if (IsNewVersion)
 		{

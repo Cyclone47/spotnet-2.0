@@ -28,12 +28,21 @@
 
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.IO.Compression" />
     <!-- Needed to name WPF-derived types from Spotnet (e.g. the browser pages). -->
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
     <Reference Include="System.Xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../../../tools/Spotnet.SetupHelper/ProfileMigration.cs" Link="Setup/ProfileMigration.cs" />
+    <Compile Include="../../../tools/Spotnet.SetupHelper/LegacyDiscovery.cs" Link="Setup/LegacyDiscovery.cs" />
+    <Compile Include="../../../tools/Spotnet.SetupHelper/GracefulShutdown.cs" Link="Setup/GracefulShutdown.cs" />
+    <Compile Include="../../../tools/Spotnet.SetupHelper/ShortcutManager.cs" Link="Setup/ShortcutManager.cs" />
   </ItemGroup>
 
 

@@ -10,7 +10,24 @@ namespace Spotnet.Properties;
 [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
 internal sealed class Settings : ApplicationSettingsBase
 {
-	private static Settings defaultInstance = (Settings)SettingsBase.Synchronized(new Settings());
+	private static Settings defaultInstance = CreateDefault();
+
+	private static Settings CreateDefault()
+	{
+		var settings = Spotnet.Deployment.InstalledProfile.Enabled
+			? CreateInstalled(Spotnet.Deployment.InstalledProfile.SettingsPath) : new Settings();
+		return (Settings)SettingsBase.Synchronized(settings);
+	}
+
+	internal static Settings CreateInstalled(string path)
+	{
+		var settings = new Settings();
+		var provider = new Spotnet.Deployment.InstalledSettingsProvider(path);
+		provider.Initialize(null, null);
+		settings.Providers.Add(provider);
+		foreach (SettingsProperty property in settings.Properties) property.Provider = provider;
+		return settings;
+	}
 
 	public static Settings Default => defaultInstance;
 

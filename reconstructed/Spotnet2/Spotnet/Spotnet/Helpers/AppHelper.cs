@@ -314,6 +314,11 @@ public static class AppHelper
 		LockuPhuse = new object();
 		DesktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 		SettingsFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Spotnet/");
+		if (Spotnet.Deployment.InstalledProfile.Enabled)
+		{
+			SettingsFolder = Spotnet.Deployment.InstalledProfile.DataDirectory + System.IO.Path.DirectorySeparatorChar;
+			IsLocalSettingsFolder = true;
+		}
 		FiltersFolder = System.IO.Path.Combine(SettingsFolder, "Filters.v2/");
 	}
 
