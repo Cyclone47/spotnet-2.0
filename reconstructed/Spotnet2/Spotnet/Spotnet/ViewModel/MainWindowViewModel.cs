@@ -213,13 +213,19 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		FiltersDb = new Filters();
 		WarningsList = new ObservableCollection<FrameworkElement>();
+		ThemeHelper.ThemeChanged += () =>
+		{
+			SetFiltersBackground(null);
+		};
 	}
 
 	public void SetFiltersBackground(string color)
 	{
 		if (color.IsNullOrEmpty())
 		{
-			FiltersBackground = FiltersBackgroundDefault;
+			FiltersBackground = ThemeHelper.IsModernDark
+				? new SolidColorBrush(Color.FromRgb(0x11, 0x1B, 0x27))
+				: (Brush)FiltersBackgroundDefault;
 			return;
 		}
 		DispatcherHelper.CheckBeginInvokeOnUI(delegate

@@ -1,9 +1,13 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 using MahApps.Metro;
 using NLog;
+using Spotnet.Model;
 using Spotnet.Properties;
+using Spotnet.Utilities;
 
 namespace Spotnet.Helpers;
 
@@ -132,6 +136,14 @@ public static class ThemeHelper
                 }
 
                 ThemeChanged?.Invoke();
+
+                // Refresh spots list rows so text color re-evaluates immediately
+                try
+                {
+                    Sys.MainWindow?.RefreshSpotsList(force: true);
+                }
+                catch { }
+
                 Log.Info("Applied theme: {0}", themeName);
             });
         }

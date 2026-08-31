@@ -172,23 +172,24 @@ public abstract class SpotsContainer : UserControl, ISpotsContainer
 				row.IsNewSpotBorderColor = _brushForOldSpot;
 			}
 			PosterIdentType posterIdent = row.PosterIdent;
+			bool isDark = ThemeHelper.IsModernDark;
 			if (posterIdent == PosterIdentType.White)
 			{
-				row.Foreground = Brushes.Green;
+				row.Foreground = isDark ? new SolidColorBrush(Color.FromRgb(74, 222, 128)) : Brushes.Green;
 			}
 			else if (!Settings.Default.HideBlacklistedSpots && posterIdent == PosterIdentType.Black)
 			{
-				row.Foreground = Brushes.DarkGray;
+				row.Foreground = isDark ? new SolidColorBrush(Color.FromRgb(148, 163, 184)) : Brushes.DarkGray;
 				row.ImageOpacity = 0.4;
 			}
 			else
 			{
-				row.Foreground = Brushes.Black;
+				row.Foreground = isDark ? Brushes.White : Brushes.Black;
 				row.ImageOpacity = 1.0;
 			}
 			if (row.IsInFavorites)
 			{
-				row.Foreground = Brushes.DarkGoldenrod;
+				row.Foreground = isDark ? new SolidColorBrush(Color.FromRgb(250, 204, 21)) : Brushes.DarkGoldenrod;
 			}
 		}
 	}

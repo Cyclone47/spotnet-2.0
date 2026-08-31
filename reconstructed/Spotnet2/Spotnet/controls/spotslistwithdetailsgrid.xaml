@@ -83,10 +83,7 @@
     </ResourceDictionary>
   </FrameworkElement.Resources>
   <Grid>
-    <DockPanel Name="Dock" Height="Auto" Width="Auto" HorizontalAlignment="Stretch" ClipToBounds="False" LastChildFill="True">
-      <Panel.Background>
-        <ImageBrush ImageSource="/Resources\ImagesInternal\spotsbg.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,150,150" />
-      </Panel.Background>
+    <DockPanel Name="Dock" Height="Auto" Width="Auto" HorizontalAlignment="Stretch" ClipToBounds="False" LastChildFill="True" Background="{DynamicResource WhiteColorBrush}">
       <controls:WarningTip DockPanel.Dock="Top" Text="{x:Static p:Words.DbIsNotUpToDateWarning}" Focusable="False" Margin="0,1,0,1" Visibility="{Binding SpotsDbIsNotUpToDateWarningVisibility, Mode=TwoWay}" />
       <Grid DockPanel.Dock="Top">
         <DataGrid Name="MainDataGrid" CanUserAddRows="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsReadOnly="True" SelectionMode="Single" Focusable="True" GridLinesVisibility="None" HeadersVisibility="Column" AreRowDetailsFrozen="True" ColumnHeaderHeight="NaN" CanUserResizeRows="False" IsTextSearchEnabled="False" AutoGenerateColumns="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" VirtualizingPanel.ScrollUnit="Item" ScrollViewer.IsDeferredScrollingEnabled="True" RowHeaderWidth="0" CanUserSortColumns="True" RowStyle="{StaticResource SpotsListDataGridRowStyle}" CellStyle="{StaticResource SpotsListDataGridCellStyle}" Background="#00FFFFFF" ScrollViewer.HorizontalScrollBarVisibility="Disabled" RowDetailsTemplate="{StaticResource ThumbnailTemplate}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" RowDetailsVisibilityMode="{Binding SpotDetailsVisibilityMode}" PreviewKeyDown="Spots_PreviewKeyDown" PreviewMouseRightButtonUp="MainDataGrid_OnPreviewMouseRightButtonUp" PreviewMouseDown="Spots_PreviewMouseDown" ColumnReordered="Spots_ColumnReordered" Sorting="Spots_Sorting" LoadingRow="Spots_LoadingRow" MouseDoubleClick="Spots_MouseDoubleClick">

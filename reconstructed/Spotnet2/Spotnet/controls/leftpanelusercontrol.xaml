@@ -20,10 +20,7 @@
     <FrameworkElement Name="VisibilityVmProxy" DataContext="{Binding Visibility, Source={StaticResource Locator}}" />
     <Border Grid.Row="0" BorderThickness="0" CornerRadius="5" Padding="1" BorderBrush="#FF000000" Visibility="{Binding ElementName=VisibilityVmProxy, Path=DataContext.IsVisibleSearch, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource VisibilityConverter}}">
       <Expander Name="SearchExpander" Header="{x:Static properties:Words.Search}" Height="Auto" IsExpanded="True" Width="Auto" HeaderStringFormat="" Margin="2,0,2,2" Foreground="#FFFFFFFF" Expanded="Panel_OnExpandChanged" Collapsed="Panel_OnExpandChanged">
-        <Border Padding="0,5" BorderThickness="1" BorderBrush="{DynamicResource GrayBrush7}">
-          <Border.Background>
-            <ImageBrush ImageSource="{StaticResource SpotsBackground}" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,150,150" />
-          </Border.Background>
+        <Border Padding="0,5" BorderThickness="1" BorderBrush="{DynamicResource GrayBrush7}" Background="{DynamicResource AccentColor4BackgroundBrush}">
           <Grid Height="Auto" MaxHeight="700">
             <Grid.RowDefinitions>
               <RowDefinition Height="*" />
@@ -36,9 +33,9 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
-              <RadioButton Name="SearchByTitleRadio" Grid.Column="0" Content="{x:Static properties:Words.ColumnSubject}" ToolTip="{x:Static properties:Words.SearchSubjectToolTip}" IsChecked="True" HorizontalAlignment="Left" Click="SearchByTitleRadio_Click" />
-              <RadioButton Name="SearchBySenderRadio" Grid.Column="1" Content="{x:Static properties:Words.ColumnSender}" ToolTip="{x:Static properties:Words.SearchSenderToolTip}" IsEnabled="True" HorizontalAlignment="Center" Click="SearchBySenderRadio_Click" />
-              <RadioButton Name="SearchByTagRadio" Grid.Column="2" Content="{x:Static properties:Words.ColumnTag}" ToolTip="{x:Static properties:Words.SearchTagToolTip}" IsEnabled="True" HorizontalAlignment="Right" Click="SearchByTagRadio_Click" />
+              <RadioButton Name="SearchByTitleRadio" Foreground="{DynamicResource BlackBrush}" Grid.Column="0" Content="{x:Static properties:Words.ColumnSubject}" ToolTip="{x:Static properties:Words.SearchSubjectToolTip}" IsChecked="True" HorizontalAlignment="Left" Click="SearchByTitleRadio_Click" />
+              <RadioButton Name="SearchBySenderRadio" Foreground="{DynamicResource BlackBrush}" Grid.Column="1" Content="{x:Static properties:Words.ColumnSender}" ToolTip="{x:Static properties:Words.SearchSenderToolTip}" IsEnabled="True" HorizontalAlignment="Center" Click="SearchBySenderRadio_Click" />
+              <RadioButton Name="SearchByTagRadio" Foreground="{DynamicResource BlackBrush}" Grid.Column="2" Content="{x:Static properties:Words.ColumnTag}" ToolTip="{x:Static properties:Words.SearchTagToolTip}" IsEnabled="True" HorizontalAlignment="Right" Click="SearchByTagRadio_Click" />
             </Grid>
             <Grid Row="1" Margin="15,5,20,5">
               <Grid.ColumnDefinitions>
@@ -68,8 +65,8 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
-              <CheckBox Name="ExtensiveSearchCheckBox" Grid.Column="0" Content="{x:Static properties:Words.SearchExtensive}" ToolTip="{x:Static properties:Words.SearchExtensiveToolTip}" IsChecked="True" IsEnabled="True" Click="ExtensiveSearchCheckBox_Click" />
-              <CheckBox Name="UseFilterCheckBox" Grid.Column="1" Content="Filter" ToolTip="{x:Static properties:Words.SearchFilterToolTip}" IsChecked="False" IsEnabled="True" Click="UseFilterCheckBox_Click" />
+              <CheckBox Name="ExtensiveSearchCheckBox" Foreground="{DynamicResource BlackBrush}" Grid.Column="0" Content="{x:Static properties:Words.SearchExtensive}" ToolTip="{x:Static properties:Words.SearchExtensiveToolTip}" IsChecked="True" IsEnabled="True" Click="ExtensiveSearchCheckBox_Click" />
+              <CheckBox Name="UseFilterCheckBox" Foreground="{DynamicResource BlackBrush}" Grid.Column="1" Content="Filter" ToolTip="{x:Static properties:Words.SearchFilterToolTip}" IsChecked="False" IsEnabled="True" Click="UseFilterCheckBox_Click" />
             </Grid>
           </Grid>
         </Border>
@@ -138,12 +135,9 @@
     <Border Name="AddFilterPanel" Grid.Row="2" BorderThickness="0" CornerRadius="5" Padding="1" VerticalAlignment="Top" BorderBrush="#FF000000" Margin="0" Visibility="{Binding ElementName=VisibilityVmProxy, Path=DataContext.IsVisibleAddFilter, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource VisibilityConverter}}">
       <Expander Name="AddFilterExpander" Header="{x:Static properties:Words.AddFilterGridCaption}" Height="Auto" Width="Auto" IsExpanded="False" Margin="2" MouseDown="AddFilterExpander_MouseDown">
         <Grid Width="Auto" HorizontalAlignment="Stretch" Height="Auto">
-          <TextBox Name="AddFilterTextBox" Margin="1,3,1,2" ToolTip="{x:Static properties:Words.AddFilterNameToolTip}" VerticalAlignment="Top" TextChanged="AddFilterTextBox_TextChanged" KeyDown="AddFilterTextBox_KeyDown" />
+          <TextBox Name="AddFilterTextBox" Margin="1,3,1,2" ToolTip="{x:Static properties:Words.AddFilterNameToolTip}" VerticalAlignment="Top" Background="{DynamicResource WhiteColorBrush}" Foreground="{DynamicResource BlackBrush}" BorderBrush="{DynamicResource GrayBrush5}" TextChanged="AddFilterTextBox_TextChanged" KeyDown="AddFilterTextBox_KeyDown" />
           <Image Name="AddFilter" Margin="10,8,8,10" Source="{StaticResource FilterAdd}" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="None" Opacity="0.3" MouseDown="AddFilter_MouseDown" />
-          <Border Margin="0,34,0,0" Padding="0,5" BorderThickness="1" BorderBrush="{DynamicResource GrayBrush7}">
-            <Border.Background>
-              <ImageBrush ImageSource="{StaticResource SpotsBackground}" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,150,150" />
-            </Border.Background>
+          <Border Margin="0,34,0,0" Padding="0,5" BorderThickness="1" BorderBrush="{DynamicResource GrayBrush7}" Background="{DynamicResource AccentColor4BackgroundBrush}">
             <TreeView Name="AddFilterTreeView" BorderThickness="0" Background="#00FFFFFF" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ItemTemplate="{StaticResource FilterCatTreeItemTemplate}" ItemContainerStyle="{StaticResource FilterCatTreeItemStyle}" ItemsSource="{Binding Mode=OneTime}" SelectedItemChanged="AddFilterTreeView_SelectedItemChanged" MouseUp="AddFilterTreeView_MouseUp" MouseMove="AddFilterTreeView_MouseMove" />
           </Border>
           <Button Name="AddFilterButton" Content="OK" HorizontalAlignment="Left" Margin="185,8,0,0" VerticalAlignment="Top" IsEnabled="False" Width="40" Height="24" Visibility="Hidden" />

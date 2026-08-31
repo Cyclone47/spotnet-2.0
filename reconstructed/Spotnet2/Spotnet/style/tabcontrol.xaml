@@ -97,7 +97,7 @@
               <Setter Property="Panel.ZIndex" Value="1" />
               <Setter TargetName="Bd" Value="{DynamicResource BackgroundSelected}" Property="Border.Background" />
               <Setter TargetName="PART_Close" Property="Visibility" Value="Visible" />
-              <Setter Value="{DynamicResource AccentColor5BackgroundBrush}" Property="Foreground" />
+              <Setter Value="{DynamicResource IdealForegroundColorBrush}" Property="Foreground" />
             </Trigger>
             <MultiTrigger>
               <MultiTrigger.Conditions>
@@ -139,7 +139,7 @@
             <Trigger Property="TabItem.IsSelected" Value="True">
               <Setter Property="Panel.ZIndex" Value="1" />
               <Setter TargetName="Bd" Value="{DynamicResource BackgroundSelected}" Property="Border.Background" />
-              <Setter Value="{DynamicResource AccentColor5BackgroundBrush}" Property="Foreground" />
+              <Setter Value="{DynamicResource IdealForegroundColorBrush}" Property="Foreground" />
             </Trigger>
             <MultiTrigger>
               <MultiTrigger.Conditions>
