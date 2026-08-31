@@ -181,7 +181,7 @@ public partial class DownloadsGrid : UserControl, IDisposable
             FontSize = (double)Application.Current.Resources["ContextMenuFontSize"],
             FontStyle = base.FontStyle,
             Tag = items,
-            Resources = AppHelper.GetAeroResourceDictionary
+            Resources = AppHelper.GetMenuResourceDictionary
         };
         bool flag = false;
         bool flag2 = false;
@@ -356,7 +356,7 @@ public partial class DownloadsGrid : UserControl, IDisposable
             FontSize = (double)Application.Current.Resources["ContextMenuFontSize"],
             FontStyle = base.FontStyle,
             Tag = item,
-            Resources = AppHelper.GetAeroResourceDictionary
+            Resources = AppHelper.GetMenuResourceDictionary
         };
         if (item.IsHistory)
         {
@@ -778,7 +778,7 @@ public partial class DownloadsGrid : UserControl, IDisposable
             FontFamily = base.FontFamily,
             FontSize = (double)Application.Current.Resources["ContextMenuFontSize"],
             FontStyle = base.FontStyle,
-            Resources = AppHelper.GetAeroResourceDictionary
+            Resources = AppHelper.GetMenuResourceDictionary
         };
         HeaderMenu.PreviewMouseDown += HeaderMenu_PreviewMouseDown;
         MenuItem[] array = new MenuItem[Downloads.Columns.Count];

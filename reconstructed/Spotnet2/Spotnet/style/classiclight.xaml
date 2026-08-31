@@ -1,5 +1,11 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <SolidColorBrush x:Key="SpotnetMenuBackground" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="SpotnetMenuForeground" Color="#FF172B40" />
+  <SolidColorBrush x:Key="SpotnetMenuBorder" Color="#FF9AAABD" />
+  <SolidColorBrush x:Key="SpotnetMenuHighlightBackground" Color="#FFDBEAFE" />
+  <SolidColorBrush x:Key="SpotnetMenuHighlightForeground" Color="#FF102B46" />
+  <SolidColorBrush x:Key="SpotnetMenuDisabledForeground" Color="#FF596579" />
   <Color x:Key="HighlightColor">#FF186F9E</Color>
   <Color x:Key="AccentColor">#BB327ECA</Color>
   <Color x:Key="AccentColor2">#99327ECA</Color>

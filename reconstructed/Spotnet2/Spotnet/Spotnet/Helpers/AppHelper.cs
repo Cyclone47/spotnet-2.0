@@ -265,7 +265,12 @@ public static class AppHelper
 
 	public static bool ShiftKeyDown => (System.Windows.Forms.Control.ModifierKeys & System.Windows.Forms.Keys.Shift) != 0;
 
-	internal static ResourceDictionary GetAeroResourceDictionary => System.Windows.Application.LoadComponent(new Uri("PresentationFramework.Aero;V3.0.0.0;31bf3856ad364e35;component\\themes/aero.normalcolor.xaml", UriKind.Relative)) as ResourceDictionary;
+	// Popup menus have their own resource scope. Never inject Windows Aero here:
+	// its light menu templates override the application's dark palette.
+	internal static ResourceDictionary GetMenuResourceDictionary => new ResourceDictionary
+	{
+		Source = new Uri("pack://application:,,,/Spotnet;component/Style/MainMenuStyle.xaml", UriKind.Absolute)
+	};
 
 	internal static bool IsSnelNlProvider
 	{

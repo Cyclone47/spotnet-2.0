@@ -2,6 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
   <!-- Core Palette Colors: Modern Dark Navy-Slate & Electric Blue/Cyan Accents -->
+  <!-- Menu-specific keys cannot be shadowed by MahApps or Windows Aero aliases. -->
+  <SolidColorBrush x:Key="SpotnetMenuBackground" Color="#FF131D28" />
+  <SolidColorBrush x:Key="SpotnetMenuForeground" Color="#FFF1F5F9" />
+  <SolidColorBrush x:Key="SpotnetMenuBorder" Color="#FF526681" />
+  <SolidColorBrush x:Key="SpotnetMenuHighlightBackground" Color="#FF244866" />
+  <SolidColorBrush x:Key="SpotnetMenuHighlightForeground" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="SpotnetMenuDisabledForeground" Color="#FF94A3B8" />
   <Color x:Key="HighlightColor">#FF00D4FF</Color>
   <Color x:Key="AccentColor">#FF0284C7</Color>
   <Color x:Key="AccentColor2">#FF0369A1</Color>

@@ -580,7 +580,7 @@ public partial class MainWindow : MetroWindow
             FontFamily = base.FontFamily,
             FontSize = (double)System.Windows.Application.Current.Resources["ContextMenuFontSize"],
             FontStyle = base.FontStyle,
-            Resources = AppHelper.GetAeroResourceDictionary
+            Resources = AppHelper.GetMenuResourceDictionary
         };
         HeaderMenu.PreviewMouseUp += HeaderMenu_PreviewMouseUp;
         HeaderMenu.PreviewMouseDown += HeaderMenu_PreviewMouseDown;

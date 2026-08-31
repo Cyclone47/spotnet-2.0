@@ -1,11 +1,5 @@
 <MenuItem x:Class="Spotnet.Controls.ElementsVisibilityMenu" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:p="clr-namespace:Spotnet.Properties" x:Name="ElementsVisibilityMenuItem" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Header="{x:Static p:Words.MenuVisibleControls}" xmlns:controls="clr-namespace:Spotnet.Controls" DataContext="{Binding Visibility, Source={StaticResource Locator}}">
-  <FrameworkElement.Resources>
-    <ResourceDictionary>
-      <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="..\Style\MainMenuStyle.xaml" />
-      </ResourceDictionary.MergedDictionaries>
-    </ResourceDictionary>
-  </FrameworkElement.Resources>
+  <MenuItem.Style><DynamicResource ResourceKey="SpotnetMenuItemStyle" /></MenuItem.Style>
   <MenuItem.Icon>
     <TextBlock Text="" Style="{StaticResource FontAwesomeMenuPics}" />
   </MenuItem.Icon>

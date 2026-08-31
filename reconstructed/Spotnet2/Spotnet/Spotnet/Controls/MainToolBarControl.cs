@@ -51,7 +51,6 @@ public partial class MainToolBarControl : UserControl
     internal void DisableUpdate()
     {
         UpdateMenuItem.IsEnabled = false;
-        UpdateMenuItem.Opacity = 0.5;
         UpdateMenuItem.ToolTip = Words.DbUpdateInProgress;
         ToolTipService.SetShowOnDisabled(UpdateMenuItem, value: true);
     }

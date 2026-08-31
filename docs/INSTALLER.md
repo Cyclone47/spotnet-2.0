@@ -4,7 +4,7 @@ The installer is built with Inno Setup 7 and installs **for the current Windows 
 
 ## Run Setup
 
-[Download Setup and its checksum from the GitHub release](https://github.com/Cyclone47/spotnet-2.0/releases/tag/v3.0.0). Local build output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`.
+[Download Setup and its checksum from the GitHub release](https://github.com/Cyclone47/spotnet-2.0/releases/tag/v3.0.1). Local build output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`.
 
 1. Run Setup under the Windows account that owns the old Spotnet profile; do not switch to a different administrator account.
 2. Confirm the installation folder, normally `%LOCALAPPDATA%\Programs\Spotnet3`.
@@ -91,7 +91,7 @@ The Spotnet package is **unsigned** until a publisher code-signing certificate i
 
 ## Verification
 
-The 108-test x64 regression suite includes installer tests for fresh profiles, data/sidecar preservation, readable SQLite copies, preferences conversion, safe defaults, upgrade backups, unknown destinations, locked files, malformed XML, overlapping paths, excluded queues/caches, discovery, stable settings, and graceful-shutdown timeouts. Eighteen shortcut cases cover legacy/current/Squirrel matching, in-place replacement, fresh launchers, repeat upgrades, unrelated/uninstall links, locked files, backup-path bounds, and uninstall recovery/user edits.
+The 109-test x64 regression suite includes installer tests for fresh profiles, data/sidecar preservation, readable SQLite copies, preferences conversion, safe defaults, upgrade backups, unknown destinations, locked files, malformed XML, overlapping paths, excluded queues/caches, discovery, stable settings, and graceful-shutdown timeouts. Eighteen shortcut cases cover legacy/current/Squirrel matching, in-place replacement, fresh launchers, repeat upgrades, unrelated/uninstall links, locked files, backup-path bounds, and uninstall recovery/user edits. The 3.0.1 patch adds WPF menu rendering and live theme-switch coverage.
 
 First-launch testing also caught and fixed a second SQLite PRAGMA return-value issue in fresh spots-database creation. That path now accepts successful no-row results, verifies the resulting settings/schema version, and applies the page size only to a verified-empty database. A regression test refuses initialization when user tables already exist.
 

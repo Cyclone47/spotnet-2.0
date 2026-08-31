@@ -109,7 +109,7 @@ public partial class LeftPanelUserControl : UserControl
             FontFamily = base.FontFamily,
             FontSize = (double)Application.Current.Resources["ContextMenuFontSize"],
             FontStyle = base.FontStyle,
-            Resources = AppHelper.GetAeroResourceDictionary
+            Resources = AppHelper.GetMenuResourceDictionary
         };
         MenuItem menuItem = new MenuItem
         {
@@ -178,7 +178,7 @@ public partial class LeftPanelUserControl : UserControl
             FontFamily = base.FontFamily,
             FontSize = (double)Application.Current.Resources["ContextMenuFontSize"],
             FontStyle = base.FontStyle,
-            Resources = AppHelper.GetAeroResourceDictionary
+            Resources = AppHelper.GetMenuResourceDictionary
         };
         foreach (object headerMenuItem in GetHeaderMenuItems())
         {

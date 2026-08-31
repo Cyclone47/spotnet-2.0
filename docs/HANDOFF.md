@@ -3,16 +3,29 @@
 Single self-contained document: the prompt to start a new AI session, the current state,
 the sequenced plan for what remains, and the full record of what changed and why.
 
-**Build:** 0 errors. **Tests:** 108/108 passing under the x64 test host.
+**Build:** 0 errors. **Tests:** 109/109 passing under the x64 test host.
 Target: `net472`, `x64` only.
+
+## Menu contrast fix: 3.0.1
+
+- Application version is `3.0.1.0`; the README download targets GitHub release `v3.0.1`.
+- Menus share application-wide styles and dedicated light/dark palette keys. All legacy
+  context-menu Aero dictionary injection was removed.
+- The toolbar's `ToolBar.MenuStyleKey` and menu item style selection are explicitly covered;
+  the default library templates otherwise override an ordinary implicit MenuItem style.
+- Text, keyboard shortcuts, checkmarks, arrows, hover/open/focus and disabled states use
+  matched foreground/background colors. Disabled rows are not faded into unreadability.
+- A real WPF template regression verifies contrast of at least 4.5:1, three submenu levels,
+  on-demand context menus, separators, and repeated light/dark switching. Rendered previews
+  were visually checked. No real Spotnet profile is opened by the test.
 
 ## Installer checkpoint
 
 `build-installer.ps1` builds an Inno Setup 7 x64 package at
 `artifacts/installer/Spotnet-3.0-x64-Setup.exe`. See [INSTALLER.md](INSTALLER.md)
 for the full migration, backup, prerequisite, and recovery behavior.
-Release notes and package scope are recorded in [releases/v3.0.0.md](releases/v3.0.0.md);
-the README links directly to the `v3.0.0` Setup download and checksum.
+Initial package scope is recorded in [releases/v3.0.0.md](releases/v3.0.0.md);
+the current patch is described in [releases/v3.0.1.md](releases/v3.0.1.md).
 
 - Per-user application install with an isolated `%LOCALAPPDATA%\Spotnet3\Data` profile.
 - Detects legacy 2.x data/settings, requests a graceful Spotnet exit, and copies selected
@@ -24,7 +37,7 @@ the README links directly to the `v3.0.0` Setup download and checksum.
 - Updates current-user Desktop/Start Menu `.lnk` launchers for old/current/Squirrel Spotnet
   in place; creates both on a fresh install. Uninstall restores originals unless user-edited.
   Shared shortcuts, pins, and ClickOnce `.appref-ms` launchers are outside this scope.
-- 108 tests pass, including 19 installer/profile/shutdown tests, two fresh-database tests,
+- 109 tests pass, including 19 installer/profile/shutdown tests, two fresh-database tests,
   and 18 shortcut matching/replacement/recovery cases.
   Isolated actual Setup tests passed fresh installation, repeat upgrade/backup and uninstall.
 - First-run testing caught an additional SQLite PRAGMA return-value bug in fresh database

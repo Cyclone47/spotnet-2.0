@@ -245,7 +245,7 @@ public abstract class SpotsContainer : UserControl, ISpotsContainer
 			FontFamily = base.FontFamily,
 			FontSize = (double)Application.Current.Resources["ContextMenuFontSize"],
 			FontStyle = base.FontStyle,
-			Resources = AppHelper.GetAeroResourceDictionary,
+			Resources = AppHelper.GetMenuResourceDictionary,
 			Tag = spotRowViewModel
 		};
 		SpotMenu.PreviewMouseUp += SpotMenu_PreviewMouseUp;

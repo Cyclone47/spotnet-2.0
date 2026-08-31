@@ -675,7 +675,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 				FontFamily = Sys.MainWindow.FontFamily,
 				FontSize = (double)System.Windows.Application.Current.Resources["ContextMenuFontSize"],
 				FontStyle = Sys.MainWindow.FontStyle,
-				Resources = AppHelper.GetAeroResourceDictionary
+				Resources = AppHelper.GetMenuResourceDictionary
 			};
 			SpamReportsGrid spamReportsGrid = new SpamReportsGrid
 			{
@@ -981,7 +981,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 			FontFamily = Sys.MainWindow.FontFamily,
 			FontSize = (double)System.Windows.Application.Current.Resources["ContextMenuFontSize"],
 			FontStyle = Sys.MainWindow.FontStyle,
-			Resources = AppHelper.GetAeroResourceDictionary
+			Resources = AppHelper.GetMenuResourceDictionary
 		};
 		_menuFrom = sFrom;
 		_menuModulus = sModulus;
@@ -1048,7 +1048,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 			FontFamily = Sys.MainWindow.FontFamily,
 			FontSize = (double)System.Windows.Application.Current.Resources["ContextMenuFontSize"],
 			FontStyle = Sys.MainWindow.FontStyle,
-			Resources = AppHelper.GetAeroResourceDictionary
+			Resources = AppHelper.GetMenuResourceDictionary
 		};
 		System.Windows.Controls.Image icon;
 		try

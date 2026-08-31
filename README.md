@@ -2,7 +2,9 @@
 
 ## Download for Windows x64
 
-**[Download Spotnet 3.0 Setup](https://github.com/Cyclone47/spotnet-2.0/releases/download/v3.0.0/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-2.0/releases/tag/v3.0.0)
+**[Download Spotnet 3.0.1 Setup](https://github.com/Cyclone47/spotnet-2.0/releases/download/v3.0.1/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-2.0/releases/tag/v3.0.1)
+
+**Latest fix:** readable dark-mode menus, nested submenus, and right-click menus, including hover, checked, and disabled items. Light-mode contrast is corrected too.
 
 For fresh installs and upgrades from compatible Spotnet 2.x profiles. Setup closes Spotnet safely, copies your selected profile, and updates your existing Desktop and Start Menu launch shortcuts to 3.0. Requires Windows 10/11 x64 and .NET Framework 4.7.2+. The installer is **unsigned**; Windows may show an unknown-publisher warning. Read the [installation and migration guide](docs/INSTALLER.md) before upgrading.
 
@@ -10,9 +12,9 @@ A reconstructed and modernized Windows Usenet client, built around the familiar 
 
 **Current target:** Windows x64 · C# / WPF · .NET Framework 4.7.2
 
-**Application version:** 3.0.0.0
+**Application version:** 3.0.1.0
 
-**Validation checkpoint:** 108 automated tests passing on the x64 Release test host.
+**Validation checkpoint:** 109 automated tests passing on the x64 Release test host.
 
 ## The project idea
 
@@ -144,7 +146,7 @@ More detail: [build and setup guide](docs/BUILDING.md).
 
 ## Validation and remaining work
 
-At this documentation update, the Release build passed **108/108 automated tests under VSTest x64**. The build has zero errors; analyzer warnings remain a maintenance backlog. This is a local validation checkpoint, not a live CI badge.
+At this documentation update, the Release build passed **109/109 automated tests under VSTest x64**. This includes a WPF rendering regression that checks menu text contrast, three submenu levels, on-demand context menus, and live light/dark switching. The build has zero errors; analyzer warnings remain a maintenance backlog. This is a local validation checkpoint, not a live CI badge.
 
 Coverage includes yEnc decoding, spot XML parsing, categories, SQLite operations and initialization, database rebuilds, SQL/filter parameterization, query generation, RSA verifier caching, header-parser behavior, WebView2 runtime probing, AMD64 targeting, and ZIP path validation.
 
