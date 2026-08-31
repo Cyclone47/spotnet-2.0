@@ -1997,24 +1997,43 @@ public partial class MainWindow : MetroWindow
 
     private void InitializeDatabase()
     {
-        SpotProvider.ClearDbFilesIfMalformed();
-        while (!SpotProvider.OpenDb())
+        if (Settings.Default.SpotsDbFileMalformed || Settings.Default.CommentsDbFileMalformed || Settings.Default.RecreateDbScheduled)
         {
-            if (SpotProvider.Corrupted)
+            var action = DbRecoveryWindow.Prompt(this, "Spotnet detected a previous malformed database flag.");
+            if (action == DbRecoveryAction.Closed)
             {
-                Log.Error("Spots database corrupted");
-                if (!AppHelper.ClearSpotsDb())
+                Sys.Shutdown();
+                return;
+            }
+        }
+
+        bool opened = false;
+        while (!opened)
+        {
+            Task<bool> openTask = Task.Run(() => SpotProvider.OpenDb());
+            if (openTask.Wait(TimeSpan.FromSeconds(20.0)))
+            {
+                opened = openTask.Result;
+            }
+            else
+            {
+                Log.Warn("Database startup timed out after 20 seconds.");
+            }
+
+            if (!opened)
+            {
+                string reason = SpotProvider.Corrupted
+                    ? "Spots database reported a corruption or locking issue."
+                    : "Database startup took longer than 20 seconds or failed to connect.";
+
+                Log.Error("Database open issue: {0}", reason);
+                var action = DbRecoveryWindow.Prompt(this, reason);
+                if (action == DbRecoveryAction.Closed)
                 {
                     Sys.Shutdown();
                     return;
                 }
-
-                continue;
             }
-
-            AppHelper.Error(Words.CannotConnectToDatabase);
-            Sys.Shutdown();
-            return;
         }
 
         SpotSaver.InitializeCommentsDb();
