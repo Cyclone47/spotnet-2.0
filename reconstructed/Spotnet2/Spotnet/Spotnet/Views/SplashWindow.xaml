@@ -7,102 +7,80 @@
         ResizeMode="NoResize"
         ShowInTaskbar="False"
         Topmost="True"
-        Width="720" Height="450"
+        Width="680" Height="440"
         WindowStartupLocation="CenterScreen"
         Icon="/Resources/ImagesInternal/spotnet.ico">
-    <Grid>
-        <!-- Drop shadow outer border -->
-        <Border CornerRadius="14" Background="#FF0D1B2A">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="28" ShadowDepth="0" Color="#000000" Opacity="0.65"/>
-            </Border.Effect>
-        </Border>
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <!-- Main content panel -->
-        <Border CornerRadius="14" ClipToBounds="True" Background="#FF0D1B2A">
-            <Grid>
-                <!-- Background gradient -->
-                <Rectangle>
-                    <Rectangle.Fill>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#FF0D1B2A" Offset="0"/>
-                            <GradientStop Color="#FF0A2540" Offset="0.5"/>
-                            <GradientStop Color="#FF071928" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Rectangle.Fill>
-                </Rectangle>
+        <!-- Floating spotlight logo with transparent background and subtle shadow -->
+        <Image Grid.Row="0"
+               Source="/Resources/ImagesInternal/splashlogo.png"
+               Stretch="Uniform"
+               MaxHeight="310"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               RenderOptions.BitmapScalingMode="HighQuality">
+            <Image.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="4" Color="#000000" Opacity="0.45"/>
+            </Image.Effect>
+        </Image>
 
-                <!-- Subtle top highlight line -->
-                <Rectangle Height="2" VerticalAlignment="Top">
-                    <Rectangle.Fill>
+        <!-- Floating translucent progress container below the logo -->
+        <StackPanel Grid.Row="1" Width="440" HorizontalAlignment="Center" Margin="0,0,0,15">
+            <!-- Localized status text with soft shadow for readability over any background -->
+            <TextBlock x:Name="StatusText"
+                       Text="Opstarten..."
+                       Foreground="#FFFFFFFF"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       FontFamily="Segoe UI"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,8">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Color="#000000" Opacity="0.85"/>
+                </TextBlock.Effect>
+            </TextBlock>
+
+            <!-- Sleek progress capsule -->
+            <Border Height="6"
+                    CornerRadius="3"
+                    Background="#55000000"
+                    BorderBrush="#33FFFFFF"
+                    BorderThickness="1"
+                    ClipToBounds="True">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Color="#000000" Opacity="0.5"/>
+                </Border.Effect>
+                <Border x:Name="ProgressFill"
+                        HorizontalAlignment="Left"
+                        Height="6"
+                        Width="0"
+                        CornerRadius="3">
+                    <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="Transparent" Offset="0"/>
-                            <GradientStop Color="#881E90FF" Offset="0.5"/>
-                            <GradientStop Color="Transparent" Offset="1"/>
+                            <GradientStop Color="#FF0088FF" Offset="0"/>
+                            <GradientStop Color="#FF00E5FF" Offset="1"/>
                         </LinearGradientBrush>
-                    </Rectangle.Fill>
-                </Rectangle>
+                    </Border.Background>
+                </Border>
+            </Border>
 
-                <Grid Margin="40,30,40,30">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="20"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Logo image -->
-                    <Image Grid.Row="0"
-                           Source="/Resources/ImagesInternal/splashlogo.png"
-                           Stretch="Uniform"
-                           MaxHeight="280"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Margin="0,0,0,10"/>
-
-                    <!-- Status text -->
-                    <TextBlock Grid.Row="1"
-                               x:Name="StatusText"
-                               Text="Opstarten..."
-                               Foreground="#FFAACCEE"
-                               FontSize="12"
-                               FontFamily="Segoe UI"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,8"
-                               Opacity="0.85"/>
-
-                    <!-- Progress bar track -->
-                    <Border Grid.Row="2"
-                            Height="5"
-                            CornerRadius="3"
-                            Background="#22FFFFFF"
-                            Margin="0,0,0,0">
-                        <Border x:Name="ProgressFill"
-                                HorizontalAlignment="Left"
-                                Height="5"
-                                Width="0"
-                                CornerRadius="3">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#FF1E90FF" Offset="0"/>
-                                    <GradientStop Color="#FF00CFFF" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-                    </Border>
-
-                    <!-- Version text -->
-                    <TextBlock Grid.Row="3"
-                               x:Name="VersionText"
-                               Text="v2.0.0.284"
-                               Foreground="#44FFFFFF"
-                               FontSize="10"
-                               FontFamily="Segoe UI"
-                               HorizontalAlignment="Right"
-                               Margin="0,8,0,0"/>
-                </Grid>
-            </Grid>
-        </Border>
+            <!-- Subtle version tag -->
+            <TextBlock x:Name="VersionText"
+                       Text="v2.0.0.284"
+                       Foreground="#99FFFFFF"
+                       FontSize="10"
+                       FontFamily="Segoe UI"
+                       HorizontalAlignment="Right"
+                       Margin="0,4,2,0">
+                <TextBlock.Effect>
+                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Color="#000000" Opacity="0.75"/>
+                </TextBlock.Effect>
+            </TextBlock>
+        </StackPanel>
     </Grid>
 </Window>

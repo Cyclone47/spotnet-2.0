@@ -17,8 +17,8 @@ public partial class SplashWindow : Window
     private static SplashWindow _instance;
     private static readonly object _lock = new();
 
-    // Total progress bar track width (matches XAML container minus margins)
-    private const double TrackWidth = 640.0; // 720 - 40*2
+    // Total progress bar track width (matches XAML StackPanel Width)
+    private const double TrackWidth = 440.0;
 
     // Localized startup step messages — NL / EN
     private static readonly string[] StepsNL =
