@@ -80,8 +80,16 @@ public static class ThemeHelper
                     Log.Warn("MahApps ChangeAppStyle notice: {0}", ex.Message);
                 }
 
-                // 2. Swap our custom theme palette dictionary
-                string targetDictName = isDark ? "moderndark.xaml" : "blueedited.xaml";
+                // 2. Swap our custom theme palette dictionary.
+                //
+                // The light theme loads classiclight.xaml, not blueedited.xaml. The latter
+                // defines only 31 of the 51 keys the controls reference - it is missing
+                // BackgroundSelected, BackgroundNotSelected, SpotBackgroundBrush and the
+                // whole GrayBrush set. Those resolved to nothing after a theme switch, so
+                // the selected tab lost its background while keeping a white foreground
+                // and became unreadable. classiclight.xaml is the complete counterpart to
+                // moderndark.xaml and defines every key.
+                string targetDictName = isDark ? "moderndark.xaml" : "classiclight.xaml";
                 var merged = app.Resources.MergedDictionaries;
 
                 // Remove existing theme dictionaries

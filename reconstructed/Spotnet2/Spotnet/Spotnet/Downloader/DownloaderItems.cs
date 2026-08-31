@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using GalaSoft.MvvmLight.Threading;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Downloader.Controls;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;

@@ -1,4 +1,4 @@
-# Spotnet 2.0 Modernization & Technology Assessment
+# Spotnet 3.0 Modernization & Technology Assessment
 
 This document assesses modern architectural alternatives for future rewrites and modernizations once behavioral and protocol parity is preserved.
 

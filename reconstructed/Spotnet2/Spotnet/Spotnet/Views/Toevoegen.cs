@@ -20,7 +20,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Threading;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Controls;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -96,12 +95,12 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
     {
         try
         {
-            if (!Pri.LongPath.File.Exists(path))
+            if (!System.IO.File.Exists(path))
             {
                 return false;
             }
 
-            using FileStream fileStream = Pri.LongPath.File.Open(path, FileMode.Open, FileAccess.Read);
+            using FileStream fileStream = System.IO.File.Open(path, FileMode.Open, FileAccess.Read);
             BitmapFrame bitmapFrame = BitmapFrame.Create(fileStream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None);
             if (bitmapFrame.PixelWidth > 10 && bitmapFrame.PixelHeight > 10)
             {
@@ -258,7 +257,7 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
             return false;
         }
 
-        if (!Pri.LongPath.File.Exists(ImageTextBox.Text.Trim()))
+        if (!System.IO.File.Exists(ImageTextBox.Text.Trim()))
         {
             if (!CheckRemoteImage(AppHelper.AddHttp(ImageTextBox.Text.Trim()), ref rez, ref sizeX, ref sizeY))
             {
@@ -633,7 +632,7 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
         if (openFileDialog.ShowDialog() == DialogResult.OK)
         {
             NzbTextBox.Text = openFileDialog.FileName;
-            Settings.Default.LastFolder = Pri.LongPath.Path.GetDirectoryName(openFileDialog.FileName);
+            Settings.Default.LastFolder = System.IO.Path.GetDirectoryName(openFileDialog.FileName);
             Settings.Default.Save();
         }
     }
@@ -663,7 +662,7 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
             }
 
             string text = ImageTextBox.Text.Trim();
-            if (!Pri.LongPath.File.Exists(text))
+            if (!System.IO.File.Exists(text))
             {
                 if (!CheckRemoteImage(AppHelper.AddHttp(text), ref rez, ref sizeX, ref sizeY))
                 {
@@ -751,7 +750,7 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
             byte[] rez = null;
             long sizeX = 0L;
             long sizeY = 0L;
-            if (!Pri.LongPath.File.Exists(path))
+            if (!System.IO.File.Exists(path))
             {
                 if (path.IndexOf(":", StringComparison.Ordinal) <= 1 || !CheckRemoteImage(AppHelper.AddHttp(path), ref rez, ref sizeX, ref sizeY))
                 {
@@ -924,7 +923,7 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
         if (openFileDialog.ShowDialog() == DialogResult.OK)
         {
             EncryptedNzbTextBox.Text = openFileDialog.FileName;
-            Settings.Default.LastFolder = Pri.LongPath.Path.GetDirectoryName(openFileDialog.FileName);
+            Settings.Default.LastFolder = System.IO.Path.GetDirectoryName(openFileDialog.FileName);
             Settings.Default.Save();
         }
     }
@@ -937,7 +936,7 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
         }
 
         string dummy = Spotnet.Properties.Resources.dummy;
-        Pri.LongPath.File.WriteAllText(_dummyNzbPath, dummy);
+        System.IO.File.WriteAllText(_dummyNzbPath, dummy);
         NzbTextBox.Text = _dummyNzbPath;
     }
 

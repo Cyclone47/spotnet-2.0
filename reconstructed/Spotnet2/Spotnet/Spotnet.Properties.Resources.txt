@@ -15,7 +15,7 @@ TYPE: System.String
 VAL: <section class="notes-section" id="new-features">
 <h3>What’s New</h3>
 
-<br><h5>2.0.0.284</h5>
+<br><h5>3.0.0.0</h5>
     <ul class="section-items tagged">
         <li>
             <b class="tag tag-fixed">[New]</b>
@@ -366,7 +366,7 @@ VAL: <section class="notes-section" id="new-features">
             <b class="tag tag-new">[New]</b>
             Ability to remove spots posted by you. Available via spot context menu and toolbars. You can use it when you think it is wrong posted and you want to hide it from other users. Also please note:
             <ul>
-                <li> it is supported in Spotnet 2.0 only, so other clients still is able to see removed spot;</li>
+                <li> it is supported in Spotnet 3.0 only, so other clients are still able to see the removed spot;</li>
                 <li> for security reasons you can remove spot in 5 days after the spot is posted only. So, it is not possible to remove all your spots even if your key is compromised.</li>
             </ul>
         </li>

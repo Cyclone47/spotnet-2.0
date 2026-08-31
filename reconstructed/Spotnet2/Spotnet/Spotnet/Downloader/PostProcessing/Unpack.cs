@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Pri.LongPath;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -24,7 +23,7 @@ public class Unpack
 
 	private List<string> _filesUnpackedSuccessfully;
 
-	public string UnpackTargetDir => Pri.LongPath.Path.Combine(_downloaderItem.IncompleteDir, "__unpack/");
+	public string UnpackTargetDir => System.IO.Path.Combine(_downloaderItem.IncompleteDir, "__unpack/");
 
 	public Unpack(SpotnetDownloaderItemViewModel item, CancellationToken cToken)
 	{
@@ -71,9 +70,9 @@ public class Unpack
 				RemoveFiles(_filesUnpackedSuccessfully);
 				AppHelper.MoveFilesRecursively(UnpackTargetDir, _downloaderItem.IncompleteDir, _cToken);
 			}
-			if (Pri.LongPath.Directory.Exists(UnpackTargetDir))
+			if (System.IO.Directory.Exists(UnpackTargetDir))
 			{
-				Pri.LongPath.Directory.Delete(UnpackTargetDir, recursive: true);
+				System.IO.Directory.Delete(UnpackTargetDir, recursive: true);
 			}
 		}
 		catch (IOException ex)
@@ -175,9 +174,9 @@ public class Unpack
 					_logQueue.Warn("Probably it's a long path problem, so try to extract with no path.");
 					try
 					{
-						if (Pri.LongPath.Directory.Exists(UnpackTargetDir))
+						if (System.IO.Directory.Exists(UnpackTargetDir))
 						{
-							Pri.LongPath.Directory.Delete(UnpackTargetDir, recursive: true);
+							System.IO.Directory.Delete(UnpackTargetDir, recursive: true);
 						}
 					}
 					catch (IOException ex)
@@ -207,13 +206,13 @@ public class Unpack
 	{
 		Regex nonStdRegex = new Regex("^.*\\.[0-9]+$");
 		return (from f in _downloaderItem.FilesToDownloadNoParPieces
-			where Pri.LongPath.File.Exists(f.FullFilePath) && nonStdRegex.IsMatch(f.Filename)
+			where System.IO.File.Exists(f.FullFilePath) && nonStdRegex.IsMatch(f.Filename)
 			select f.FullFilePath).ToList().Any(IsFileHasRarSignature);
 	}
 
 	private bool IsFileHasRarSignature(string filename)
 	{
-		if (!Pri.LongPath.File.Exists(filename))
+		if (!System.IO.File.Exists(filename))
 		{
 			return false;
 		}
@@ -223,7 +222,7 @@ public class Unpack
 		int num;
 		try
 		{
-			using FileStream fileStream = Pri.LongPath.File.OpenRead(filename);
+			using FileStream fileStream = System.IO.File.OpenRead(filename);
 			num = fileStream.Read(array3, 0, array3.Length);
 		}
 		catch (UnauthorizedAccessException ex)
@@ -313,14 +312,14 @@ public class Unpack
 
 	private bool FilesExist(string path, string mask)
 	{
-		return Pri.LongPath.Directory.GetFiles(path, mask, SearchOption.TopDirectoryOnly).Any();
+		return System.IO.Directory.GetFiles(path, mask, SearchOption.TopDirectoryOnly).Any();
 	}
 
 	private void RemoveFiles(List<string> filesToRemove)
 	{
 		bool flag = true;
-		List<Pri.LongPath.FileInfo> list = filesToRemove.Select((string f) => new Pri.LongPath.FileInfo(Pri.LongPath.Path.Combine(_downloaderItem.IncompleteDir, f))).ToList();
-		foreach (Pri.LongPath.FileInfo item in list)
+		List<System.IO.FileInfo> list = filesToRemove.Select((string f) => new System.IO.FileInfo(System.IO.Path.Combine(_downloaderItem.IncompleteDir, f))).ToList();
+		foreach (System.IO.FileInfo item in list)
 		{
 			_cToken.ThrowIfCancellationRequested();
 			try
@@ -338,7 +337,7 @@ public class Unpack
 		{
 			return;
 		}
-		foreach (Pri.LongPath.FileInfo item2 in list)
+		foreach (System.IO.FileInfo item2 in list)
 		{
 			_cToken.ThrowIfCancellationRequested();
 			while (item2.Exists)

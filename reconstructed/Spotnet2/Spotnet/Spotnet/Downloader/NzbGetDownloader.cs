@@ -15,7 +15,6 @@ using GalaSoft.MvvmLight.Threading;
 using NLog;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Pri.LongPath;
 using Spotnet.Controls;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
@@ -238,7 +237,7 @@ public class NzbGetDownloader : IDownloader, INotifyPropertyChanged, IDisposable
 			Log.Debug("The spot in the download queue already: " + item.MessageId);
 			return false;
 		}
-		if (!Pri.LongPath.File.Exists(pathToNzb))
+		if (!System.IO.File.Exists(pathToNzb))
 		{
 			Log.Error("Nzb file not found: " + pathToNzb);
 			return false;
@@ -282,12 +281,12 @@ public class NzbGetDownloader : IDownloader, INotifyPropertyChanged, IDisposable
 	private bool AddDownloadToNzbGet(DownloaderItemViewModel item, out string error)
 	{
 		error = "";
-		byte[] xmlContentBytes = Pri.LongPath.File.ReadAllBytes(item.PathToNzb);
+		byte[] xmlContentBytes = System.IO.File.ReadAllBytes(item.PathToNzb);
 		string text = Convert.ToBase64String(FixXmlEncodingInfo(xmlContentBytes));
-		string fileNameWithoutExtension = Pri.LongPath.Path.GetFileNameWithoutExtension(item.PathToNzb);
+		string fileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(item.PathToNzb);
 		if (item.PathToNzb.EndsWith(".nzb"))
 		{
-			fileNameWithoutExtension = Pri.LongPath.Path.GetFileNameWithoutExtension(item.PathToNzb);
+			fileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(item.PathToNzb);
 		}
 		JObject jObject = JsonRpcRequest("append", default(TimeSpan), fileNameWithoutExtension, text, "", 0, false, false, "", 0, "all");
 		if (jObject == null)
@@ -310,7 +309,7 @@ public class NzbGetDownloader : IDownloader, INotifyPropertyChanged, IDisposable
 		error = jObject.ToErrorString();
 		if (error.IsNullOrEmpty())
 		{
-			if (!Pri.LongPath.Directory.Exists(Settings.Default.DownloadFolder))
+			if (!System.IO.Directory.Exists(Settings.Default.DownloadFolder))
 			{
 				error = "Download folder doesn't exist: " + Settings.Default.DownloadFolder + ". Please create one or change DownloadFolder setting.";
 			}

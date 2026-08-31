@@ -25,11 +25,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml;
 using GalaSoft.MvvmLight.Threading;
-using Ionic.Zip;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Controls;
 using Spotnet.DAL;
 using Spotnet.Downloader;
@@ -146,7 +144,7 @@ public static class AppHelper
 		{
 			if (_smileysPath.IsNullOrEmpty())
 			{
-				_smileysPath = Pri.LongPath.Path.Combine(SettingsFolder.Replace("\\", "/").Replace("\"", "\"\""), "Images/smileys/");
+				_smileysPath = System.IO.Path.Combine(SettingsFolder.Replace("\\", "/").Replace("\"", "\"\""), "Images/smileys/");
 			}
 			return _smileysPath;
 		}
@@ -315,20 +313,20 @@ public static class AppHelper
 		LockhPhuse = new object();
 		LockuPhuse = new object();
 		DesktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-		SettingsFolder = Pri.LongPath.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Spotnet/");
-		FiltersFolder = Pri.LongPath.Path.Combine(SettingsFolder, "Filters.v2/");
+		SettingsFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Spotnet/");
+		FiltersFolder = System.IO.Path.Combine(SettingsFolder, "Filters.v2/");
 	}
 
 	internal static string GetTempPath()
 	{
 		if (_tempPath.IsNullOrEmpty())
 		{
-			string text = Pri.LongPath.Path.GetTempPath().Trim();
+			string text = System.IO.Path.GetTempPath().Trim();
 			if (!EnsureDirectoryExist(text))
 			{
 				throw new Exception("Failed to create temp directory: " + text);
 			}
-			string text2 = Pri.LongPath.Path.Combine(text, "Spotnet");
+			string text2 = System.IO.Path.Combine(text, "Spotnet");
 			if (!EnsureDirectoryExist(text2))
 			{
 				throw new Exception("Failed to create temp directory: " + text2);
@@ -348,7 +346,7 @@ public static class AppHelper
 		{
 			filename = Guid.NewGuid().ToString();
 		}
-		return Pri.LongPath.Path.Combine(GetTempPath(), filename + "." + ext);
+		return System.IO.Path.Combine(GetTempPath(), filename + "." + ext);
 	}
 
 	private static bool IsStringContainsIllegalPathChars(string filename)
@@ -357,7 +355,7 @@ public static class AppHelper
 		{
 			return false;
 		}
-		char[] illegalC = Pri.LongPath.Path.GetInvalidFileNameChars();
+		char[] illegalC = System.IO.Path.GetInvalidFileNameChars();
 		return filename.Any((char ch) => illegalC.Contains(ch));
 	}
 
@@ -366,7 +364,7 @@ public static class AppHelper
 
 	internal static string GenerateNzbFilePath(string fileName)
 	{
-		string text = ((fileName.IsNullOrWhiteSpace() || IsStringContainsIllegalPathChars(fileName)) ? ((Settings.Default.DownloadAction > 1 || Settings.Default.ExternalNzbGet) ? Pri.LongPath.Path.GetTempFileName() : GetTempFileName()) : ((Settings.Default.DownloadAction > 1 || Settings.Default.ExternalNzbGet) ? Pri.LongPath.Path.Combine(Pri.LongPath.Path.GetTempPath().Trim(), fileName) : Pri.LongPath.Path.Combine(GetTempPath(), fileName)));
+		string text = ((fileName.IsNullOrWhiteSpace() || IsStringContainsIllegalPathChars(fileName)) ? ((Settings.Default.DownloadAction > 1 || Settings.Default.ExternalNzbGet) ? System.IO.Path.GetTempFileName() : GetTempFileName()) : ((Settings.Default.DownloadAction > 1 || Settings.Default.ExternalNzbGet) ? System.IO.Path.Combine(System.IO.Path.GetTempPath().Trim(), fileName) : System.IO.Path.Combine(GetTempPath(), fileName)));
 		if (!text.ToLower().EndsWith(".nzb"))
 		{
 			text += ".nzb";
@@ -398,21 +396,21 @@ public static class AppHelper
 	public static void SerializeDict(Dictionary<string, string> dict, string filename)
 	{
 		DataContractSerializer dataContractSerializer = new DataContractSerializer(dict.GetType());
-		using FileStream fileStream = Pri.LongPath.File.Open(filename, FileMode.Create);
+		using FileStream fileStream = System.IO.File.Open(filename, FileMode.Create);
 		dataContractSerializer.WriteObject(fileStream, dict);
 		fileStream.Flush();
 	}
 
 	public static Dictionary<string, string> RestoreDict(string filename)
 	{
-		if (!Pri.LongPath.File.Exists(filename))
+		if (!System.IO.File.Exists(filename))
 		{
 			return new Dictionary<string, string>();
 		}
 		byte[] buffer;
 		try
 		{
-			buffer = Pri.LongPath.File.ReadAllBytes(filename);
+			buffer = System.IO.File.ReadAllBytes(filename);
 		}
 		catch (Exception ex)
 		{
@@ -426,7 +424,7 @@ public static class AppHelper
 		}
 		catch (Exception ex2)
 		{
-			Log.Debug("Failed to parse: " + Pri.LongPath.File.ReadAllText(filename));
+			Log.Debug("Failed to parse: " + System.IO.File.ReadAllText(filename));
 			Log.Exception(ex2, showToClient: true);
 			return new Dictionary<string, string>();
 		}
@@ -434,11 +432,11 @@ public static class AppHelper
 
 	public static bool EnsureDirectoryExist(string newDir)
 	{
-		if (!Pri.LongPath.Directory.Exists(newDir))
+		if (!System.IO.Directory.Exists(newDir))
 		{
 			try
 			{
-				Pri.LongPath.Directory.CreateDirectory(newDir);
+				System.IO.Directory.CreateDirectory(newDir);
 			}
 			catch (Exception ex)
 			{
@@ -451,19 +449,19 @@ public static class AppHelper
 				{
 				}
 			}
-			return Pri.LongPath.Directory.Exists(newDir);
+			return System.IO.Directory.Exists(newDir);
 		}
 		return true;
 	}
 
 	public static void RenameHard(string oldPath, string newPath)
 	{
-		if (Pri.LongPath.File.Exists(oldPath))
+		if (System.IO.File.Exists(oldPath))
 		{
 			FileRenameHard(oldPath, newPath);
 			return;
 		}
-		if (Pri.LongPath.Directory.Exists(oldPath))
+		if (System.IO.Directory.Exists(oldPath))
 		{
 			DirectoryRenameHard(oldPath, newPath);
 			return;
@@ -473,7 +471,7 @@ public static class AppHelper
 
 	private static void DirectoryRenameHard(string oldPath, string newPath)
 	{
-		if (!Pri.LongPath.Directory.Exists(oldPath))
+		if (!System.IO.Directory.Exists(oldPath))
 		{
 			throw new Exception("Directory does not exist: " + oldPath);
 		}
@@ -482,7 +480,7 @@ public static class AppHelper
 		{
 			try
 			{
-				Pri.LongPath.Directory.Move(oldPath, newPath);
+				System.IO.Directory.Move(oldPath, newPath);
 				return;
 			}
 			catch (Exception)
@@ -494,7 +492,7 @@ public static class AppHelper
 
 	private static void FileRenameHard(string oldPath, string newPath)
 	{
-		if (!Pri.LongPath.File.Exists(oldPath))
+		if (!System.IO.File.Exists(oldPath))
 		{
 			throw new Exception("File does not exist: " + oldPath);
 		}
@@ -503,7 +501,7 @@ public static class AppHelper
 		{
 			try
 			{
-				Pri.LongPath.File.Move(oldPath, newPath);
+				System.IO.File.Move(oldPath, newPath);
 				return;
 			}
 			catch (Exception)
@@ -515,7 +513,7 @@ public static class AppHelper
 
 	public static string GetSafePath(string path)
 	{
-		return string.Join("_", path.Split(Pri.LongPath.Path.GetInvalidPathChars()));
+		return string.Join("_", path.Split(System.IO.Path.GetInvalidPathChars()));
 	}
 
 	public static string WriteBytesToTmpFile(byte[] bytes, string extension, string filename = "")
@@ -623,7 +621,7 @@ public static class AppHelper
 	public static void SwitchSpotnetToUseLocalSettingsFolder()
 	{
 		Log.Warn("Switch Spotnet to use local settings folder");
-		SettingsFolder = Pri.LongPath.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Spotnet\\Data\\");
+		SettingsFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Spotnet\\Data\\");
 		IsLocalSettingsFolder = true;
 	}
 
@@ -867,9 +865,9 @@ public static class AppHelper
 		{
 			try
 			{
-				if (Pri.LongPath.File.Exists(file))
+				if (System.IO.File.Exists(file))
 				{
-					Pri.LongPath.File.Delete(file);
+					System.IO.File.Delete(file);
 				}
 				flag = true;
 			}
@@ -897,7 +895,7 @@ public static class AppHelper
 		string content = "";
 		if (UpdateFileFromTheNet(zUrl, sFile, ref content, showError))
 		{
-			if (Pri.LongPath.Path.GetExtension(zUrl).EqualsIgnoreCase(".xml") && !ValidList(content))
+			if (System.IO.Path.GetExtension(zUrl).EqualsIgnoreCase(".xml") && !ValidList(content))
 			{
 				return false;
 			}
@@ -1080,7 +1078,7 @@ public static class AppHelper
 			return _badWordsSet;
 		}
 		string path = SettingsFolder + "badwords.txt";
-		if (!Pri.LongPath.File.Exists(path))
+		if (!System.IO.File.Exists(path))
 		{
 			try
 			{
@@ -1094,7 +1092,7 @@ public static class AppHelper
 				return null;
 			}
 		}
-		_badWordsSet = from s in Pri.LongPath.File.ReadAllLines(path)
+		_badWordsSet = from s in System.IO.File.ReadAllLines(path)
 			orderby s.Trim().Replace("\\b", string.Empty).Length
 			select s;
 		return _badWordsSet;
@@ -1187,7 +1185,7 @@ public static class AppHelper
 			{
 				return null;
 			}
-			return Pri.LongPath.Path.Combine(SettingsFolder, text + "." + sExtension);
+			return System.IO.Path.Combine(SettingsFolder, text + "." + sExtension);
 		}
 		catch (Exception ex)
 		{
@@ -1307,14 +1305,14 @@ public static class AppHelper
 		{
 			return Keys;
 		}
-		string text = Pri.LongPath.Path.Combine(SettingsFolder, "keys.xml");
+		string text = System.IO.Path.Combine(SettingsFolder, "keys.xml");
 		try
 		{
 			if (!Settings.Default.KeysURL.IsNullOrEmpty())
 			{
 				UpdateKeysFileFromTheNet(AddHttp(Settings.Default.KeysURL), text);
 			}
-			if (!Pri.LongPath.File.Exists(text))
+			if (!System.IO.File.Exists(text))
 			{
 				CreateKeys();
 			}
@@ -1421,27 +1419,26 @@ public static class AppHelper
 	internal static string GetSpotThemeFile()
 	{
 		string text = SettingsFolder + "\\TabThemes\\" + Settings.Default.ActiveTheme + "\\spot.htm";
-		if (Pri.LongPath.File.Exists(text))
+		if (System.IO.File.Exists(text))
 		{
 			return text;
 		}
 		Log.Error("Theme file not found: " + text + ". Try to use tmp files.");
-		text = Pri.LongPath.Path.Combine(GetTempPath(), "Default\\spot.htm");
-		if (!Pri.LongPath.File.Exists(text))
+		text = System.IO.Path.Combine(GetTempPath(), "Default\\spot.htm");
+		if (!System.IO.File.Exists(text))
 		{
 			string tempFileName = GetTempFileName("zip", "Default.theme");
 			try
 			{
-				Pri.LongPath.File.WriteAllBytes(tempFileName, Resources.Default_theme);
-				using ZipFile zipFile = new ZipFile(tempFileName);
-				zipFile.ExtractAll(GetTempPath(), ExtractExistingFileAction.OverwriteSilently);
+				System.IO.File.WriteAllBytes(tempFileName, Resources.Default_theme);
+				SafeZip.ExtractAll(tempFileName, GetTempPath(), overwrite: true);
 			}
 			catch (IOException ex)
 			{
 				Log.Exception(ex);
 			}
 		}
-		if (!Pri.LongPath.File.Exists(text))
+		if (!System.IO.File.Exists(text))
 		{
 			throw new Exception("Failed to restore theme file");
 		}
@@ -1485,7 +1482,7 @@ public static class AppHelper
 		{
 			try
 			{
-				_appPath = Pri.LongPath.Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+				_appPath = System.IO.Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 				_didOnce = true;
 			}
 			catch (Exception ex)
@@ -1554,10 +1551,10 @@ public static class AppHelper
 	public static bool CreateKeys(bool force = false)
 	{
 		string[] array = new string[11];
-		string path = Pri.LongPath.Path.Combine(SettingsFolder, "keys.xml");
+		string path = System.IO.Path.Combine(SettingsFolder, "keys.xml");
 		try
 		{
-			if (!Pri.LongPath.File.Exists(path) || force)
+			if (!System.IO.File.Exists(path) || force)
 			{
 				array[2] = "ys8WSlqonQMWT8ubG0tAA2Q07P36E+CJmb875wSR1XH7IFhEi0CCwlUzNqBFhC+P";
 				array[3] = "uiyChPV23eguLAJNttC/o0nAsxXgdjtvUvidV2JL+hjNzc4Tc/PPo2JdYvsqUsat";
@@ -3089,7 +3086,7 @@ public static class AppHelper
 		{
 			try
 			{
-				string[] directories = Pri.LongPath.Directory.GetDirectories(destDir, "*", SearchOption.AllDirectories);
+				string[] directories = System.IO.Directory.GetDirectories(destDir, "*", SearchOption.AllDirectories);
 				foreach (string dirPath in directories)
 				{
 					if (dirsToIgnore == null || !dirsToIgnore.Any((string dirToIgnore) => dirPath.Contains(dirToIgnore)))
@@ -3098,32 +3095,32 @@ public static class AppHelper
 						EnsureDirectoryExist(targetDir + "\\" + dirPath.Substring(destDir.Length));
 					}
 				}
-				directories = Pri.LongPath.Directory.GetFiles(destDir, "*", SearchOption.AllDirectories);
+				directories = System.IO.Directory.GetFiles(destDir, "*", SearchOption.AllDirectories);
 				foreach (string filePath in directories)
 				{
 					if (dirsToIgnore == null || !(from dirToIgnore in dirsToIgnore
-						let directoryName = Pri.LongPath.Path.GetDirectoryName(filePath).Trim()
+						let directoryName = System.IO.Path.GetDirectoryName(filePath).Trim()
 						where directoryName != null && directoryName.Contains(dirToIgnore)
 						select dirToIgnore).Any())
 					{
 						cToken.ThrowIfCancellationRequested();
 						string text = targetDir + "\\" + filePath.Substring(destDir.Length);
-						if (Pri.LongPath.File.Exists(text))
+						if (System.IO.File.Exists(text))
 						{
-							Pri.LongPath.File.Delete(text);
+							System.IO.File.Delete(text);
 						}
-						if (Pri.LongPath.Directory.Exists(text))
+						if (System.IO.Directory.Exists(text))
 						{
-							Pri.LongPath.Directory.Delete(text, recursive: true);
+							System.IO.Directory.Delete(text, recursive: true);
 						}
 						try
 						{
-							Pri.LongPath.File.Move(filePath, text);
+							System.IO.File.Move(filePath, text);
 						}
 						catch (IOException ex)
 						{
 							Log.Warn("Failed to move files, so try to copy, then remove. Error: " + ex.Message);
-							Pri.LongPath.File.Copy(filePath, text, overwrite: true);
+							System.IO.File.Copy(filePath, text, overwrite: true);
 						}
 					}
 				}
@@ -3145,7 +3142,7 @@ public static class AppHelper
 
 	public static bool DeleteDirectoryHard(string destinationDir)
 	{
-		if (!Pri.LongPath.Directory.Exists(destinationDir))
+		if (!System.IO.Directory.Exists(destinationDir))
 		{
 			return true;
 		}
@@ -3158,7 +3155,7 @@ public static class AppHelper
 			catch (Exception)
 			{
 			}
-			if (!Pri.LongPath.Directory.Exists(destinationDir))
+			if (!System.IO.Directory.Exists(destinationDir))
 			{
 				return true;
 			}
@@ -3169,25 +3166,25 @@ public static class AppHelper
 
 	private static void DeleteDirectory(string path)
 	{
-		string[] directories = Pri.LongPath.Directory.GetDirectories(path);
+		string[] directories = System.IO.Directory.GetDirectories(path);
 		for (int i = 0; i < directories.Length; i++)
 		{
 			DeleteDirectory(directories[i]);
 		}
 		try
 		{
-			Pri.LongPath.Directory.Delete(path, recursive: true);
+			System.IO.Directory.Delete(path, recursive: true);
 		}
 		catch (DirectoryNotFoundException)
 		{
 		}
 		catch (IOException)
 		{
-			Pri.LongPath.Directory.Delete(path, recursive: true);
+			System.IO.Directory.Delete(path, recursive: true);
 		}
 		catch (UnauthorizedAccessException)
 		{
-			Pri.LongPath.Directory.Delete(path, recursive: true);
+			System.IO.Directory.Delete(path, recursive: true);
 		}
 	}
 }

@@ -2114,6 +2114,26 @@ internal sealed class Settings : ApplicationSettingsBase
 		}
 	}
 
+	/// <summary>
+	/// Accept a news server's TLS certificate even when it fails validation.
+	/// Only enable this for a provider using a self-signed certificate: it removes the
+	/// protection against another machine impersonating the server.
+	/// </summary>
+	[UserScopedSetting]
+	[DebuggerNonUserCode]
+	[DefaultSettingValue("False")]
+	public bool AllowInvalidServerCertificate
+	{
+		get
+		{
+			return (bool)this["AllowInvalidServerCertificate"];
+		}
+		set
+		{
+			this["AllowInvalidServerCertificate"] = value;
+		}
+	}
+
 	[UserScopedSetting]
 	[DebuggerNonUserCode]
 	[DefaultSettingValue("VPNNederland")]

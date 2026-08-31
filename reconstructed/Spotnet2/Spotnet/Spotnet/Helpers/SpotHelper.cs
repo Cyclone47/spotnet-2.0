@@ -18,7 +18,6 @@ using System.Xml;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
 using Spotnet.Model;
@@ -38,17 +37,17 @@ internal sealed class SpotHelper
 
 	internal static readonly DateTime Epoch;
 
-	private static RSAParameters _rsaParameters;
+	/// <summary>Public exponent 65537, shared by every spot key.</summary>
+	private static readonly byte[] RsaExponent = new byte[3] { 1, 0, 1 };
+
+	private const int RsaCacheLimit = 2048;
+
+	private static readonly Dictionary<string, RSACryptoServiceProvider> RsaCache = new Dictionary<string, RSACryptoServiceProvider>(StringComparer.Ordinal);
 
 	static SpotHelper()
 	{
 		Log = LogManager.GetCurrentClassLogger();
 		Epoch = new DateTime(1970, 1, 1, 0, 0, 0);
-		byte[] array = new byte[3];
-		_rsaParameters = default(RSAParameters);
-		array[0] = 1;
-		array[2] = 1;
-		_rsaParameters.Exponent = array;
 	}
 
 	public static string AddHttp(string text)
@@ -978,17 +977,57 @@ internal sealed class SpotHelper
 			.Trim();
 	}
 
+	/// <summary>
+	/// Builds a public-key-only verifier for a spot modulus.
+	/// </summary>
+	/// <remarks>
+	/// Constructing an <see cref="RSACryptoServiceProvider"/> allocates a Windows CryptoAPI
+	/// key container. Header import calls this once per spot and a small number of posters
+	/// account for most spots, so verifiers are cached by modulus and reused for the life
+	/// of the process. That also stops the handle leak: the old code never disposed them.
+	///
+	/// Measured (tools/DbDiagnostic bench), construction is roughly 6us against 24us for
+	/// the VerifyHash it enables - about a fifth of the cost, not the bulk of it. The cache
+	/// is worth having, but the remaining per-spot cost is the verification itself and only
+	/// comes down by verifying on more than one thread.
+	///
+	/// Entries are never evicted, so callers such as <see cref="GetRsa"/> may hold on to
+	/// what they get back. The cache stops growing at <see cref="RsaCacheLimit"/> and
+	/// falls back to constructing per call, which is only the old behaviour.
+	///
+	/// Instance members of RSACryptoServiceProvider are not documented as thread-safe.
+	/// Verification runs on a single thread today; parallelizing it means giving each
+	/// worker its own cache rather than sharing this one.
+	/// </remarks>
 	internal static RSACryptoServiceProvider MakeRsa(string sModulus)
 	{
 		if (sModulus.IsNullOrEmpty() || sModulus.Length % 4 != 0)
 		{
 			return null;
 		}
+		if (RsaCache.TryGetValue(sModulus, out RSACryptoServiceProvider cached))
+		{
+			return cached;
+		}
+		RSACryptoServiceProvider created = CreateRsa(sModulus);
+		if (RsaCache.Count < RsaCacheLimit)
+		{
+			RsaCache[sModulus] = created;
+		}
+		return created;
+	}
+
+	private static RSACryptoServiceProvider CreateRsa(string sModulus)
+	{
 		try
 		{
-			_rsaParameters.Modulus = Convert.FromBase64String(sModulus);
+			// RSAParameters is built per call: it used to be a static field mutated in
+			// place here, which made this method unsafe to call from more than one thread.
+			RSAParameters parameters = default(RSAParameters);
+			parameters.Exponent = RsaExponent;
+			parameters.Modulus = Convert.FromBase64String(sModulus);
 			RSACryptoServiceProvider rSACryptoServiceProvider = new RSACryptoServiceProvider();
-			rSACryptoServiceProvider.ImportParameters(_rsaParameters);
+			rSACryptoServiceProvider.ImportParameters(parameters);
 			return rSACryptoServiceProvider;
 		}
 		catch (Exception)
@@ -1400,7 +1439,7 @@ internal sealed class SpotHelper
 		{
 			throw new ArgumentNullException("pathToNzb");
 		}
-		if (!Pri.LongPath.File.Exists(pathToNzb))
+		if (!System.IO.File.Exists(pathToNzb))
 		{
 			throw new Exception("NZB file not found: " + pathToNzb);
 		}
@@ -1438,7 +1477,7 @@ internal sealed class SpotHelper
 				text = AskFile(item.Titel);
 				if (!text.IsNullOrEmpty())
 				{
-					Pri.LongPath.File.Copy(pathToNzb, text, overwrite: true);
+					System.IO.File.Copy(pathToNzb, text, overwrite: true);
 				}
 			}
 			catch (Exception ex)
@@ -1548,7 +1587,7 @@ internal sealed class SpotHelper
 			string text = AppHelper.GenerateNzbFilePath(AppHelper.MakeFilename(title).Trim() + ".nzb");
 			try
 			{
-				Pri.LongPath.File.WriteAllText(text, sxOut, AppHelper.LatinEnc());
+				System.IO.File.WriteAllText(text, sxOut, AppHelper.LatinEnc());
 			}
 			catch (Exception ex3)
 			{
@@ -1587,7 +1626,7 @@ internal sealed class SpotHelper
 		{
 			return null;
 		}
-		Settings.Default.LastFolder = Pri.LongPath.Path.GetDirectoryName(saveFileDialog.FileName);
+		Settings.Default.LastFolder = System.IO.Path.GetDirectoryName(saveFileDialog.FileName);
 		Settings.Default.Save();
 		return saveFileDialog.FileName;
 	}

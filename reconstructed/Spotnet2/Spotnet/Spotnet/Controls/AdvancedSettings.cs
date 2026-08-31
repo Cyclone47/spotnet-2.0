@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 using MahApps.Metro.Controls;
-using Meta.Vlc.Wpf.Annotations;
 using Spotnet.Helpers;
 using Spotnet.Model;
 using Spotnet.Properties;
@@ -126,7 +125,6 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
         }
     }
 
-    [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

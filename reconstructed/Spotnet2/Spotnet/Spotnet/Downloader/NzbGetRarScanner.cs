@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Helpers;
 
 namespace Spotnet.Downloader;
@@ -15,7 +14,7 @@ internal class NzbGetRarScanner
 
 	private readonly string _path;
 
-	private IEnumerable<string> RarFiles => Pri.LongPath.Directory.GetFiles(_path, "*.rar", SearchOption.AllDirectories).ToList();
+	private IEnumerable<string> RarFiles => System.IO.Directory.GetFiles(_path, "*.rar", SearchOption.AllDirectories).ToList();
 
 	public NzbGetRarScanner(string path)
 	{

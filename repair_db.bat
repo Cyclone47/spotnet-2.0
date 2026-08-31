@@ -1,10 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 
-title Spotnet 2.0 - Database Quick-Repair Tool
+title Spotnet 3.0 - Database Quick-Repair Tool
 
 echo ======================================================================
-echo             Spotnet 2.0 Database Quick-Repair Utility                
+echo             Spotnet 3.0 Database Quick-Repair Utility
 echo ======================================================================
 echo.
 

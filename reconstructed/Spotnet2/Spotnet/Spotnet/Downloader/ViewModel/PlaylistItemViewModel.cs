@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using GalaSoft.MvvmLight;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 
 namespace Spotnet.Downloader.ViewModel;

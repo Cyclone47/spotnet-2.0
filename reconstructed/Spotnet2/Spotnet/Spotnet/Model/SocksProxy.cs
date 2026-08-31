@@ -2,7 +2,7 @@ using System;
 using System.Net.Sockets;
 using System.Security;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Properties;

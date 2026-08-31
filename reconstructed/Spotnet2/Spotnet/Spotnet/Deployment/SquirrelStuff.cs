@@ -16,9 +16,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Ionic.Zip;
 using NLog;
-using Pri.LongPath;
 using Splat;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -64,10 +62,10 @@ internal static class SquirrelStuff
 				string updateChannel = "release";
 				try
 				{
-					string path = Pri.LongPath.Path.Combine(Pri.LongPath.Directory.GetParent(AppHelper.AppPath()).FullName, "Update.channel");
-					if (Pri.LongPath.File.Exists(path))
+					string path = System.IO.Path.Combine(System.IO.Directory.GetParent(AppHelper.AppPath()).FullName, "Update.channel");
+					if (System.IO.File.Exists(path))
 					{
-						string text = Pri.LongPath.File.ReadAllText(path).Trim().ToLower();
+						string text = System.IO.File.ReadAllText(path).Trim().ToLower();
 						switch (text)
 						{
 						case "alpha":
@@ -107,13 +105,13 @@ internal static class SquirrelStuff
 	{
 		get
 		{
-			Pri.LongPath.DirectoryInfo parent = Pri.LongPath.Directory.GetParent(AppHelper.AppPath()).Parent;
+			System.IO.DirectoryInfo parent = System.IO.Directory.GetParent(AppHelper.AppPath()).Parent;
 			if (parent == null)
 			{
 				Log.Debug("Unknown application parent");
 				return null;
 			}
-			string text = Pri.LongPath.Path.Combine(parent.FullName, "Spotnet\\packages.downloaded\\");
+			string text = System.IO.Path.Combine(parent.FullName, "Spotnet\\packages.downloaded\\");
 			AppHelper.EnsureDirectoryExist(text);
 			return text;
 		}
@@ -253,7 +251,7 @@ internal static class SquirrelStuff
 					{
 						if (!text.IsNullOrEmpty())
 						{
-							Pri.LongPath.File.Delete(text);
+							System.IO.File.Delete(text);
 						}
 					}
 					catch
@@ -267,7 +265,7 @@ internal static class SquirrelStuff
 	private static Version ExtractVersionFromNzbFileName(string nzbFilePath)
 	{
 		Regex regex = new Regex("^Spotnet\\.update\\.([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)");
-		string fileNameWithoutExtension = Pri.LongPath.Path.GetFileNameWithoutExtension(nzbFilePath);
+		string fileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(nzbFilePath);
 		if (fileNameWithoutExtension.IsNullOrWhiteSpace())
 		{
 			Log.Error("NZB file name is empty");
@@ -283,7 +281,7 @@ internal static class SquirrelStuff
 
 	private static string DownloadUpdateFileViaSpotnet(string nzbFilePath)
 	{
-		if (!Pri.LongPath.File.Exists(nzbFilePath))
+		if (!System.IO.File.Exists(nzbFilePath))
 		{
 			return "NZB file not found";
 		}
@@ -291,17 +289,17 @@ internal static class SquirrelStuff
 		string errorMsg;
 		try
 		{
-			using FileStream xml = Pri.LongPath.File.OpenRead(nzbFilePath);
-			string pathToDownload = Pri.LongPath.Path.GetTempPath().Trim();
+			using FileStream xml = System.IO.File.OpenRead(nzbFilePath);
+			string pathToDownload = System.IO.Path.GetTempPath().Trim();
 			list = SpotnetUpgradeNzb.Download(xml, pathToDownload, IsPublisherSpot, out errorMsg);
 		}
 		finally
 		{
 			try
 			{
-				if (Pri.LongPath.File.Exists(nzbFilePath))
+				if (System.IO.File.Exists(nzbFilePath))
 				{
-					Pri.LongPath.File.Delete(nzbFilePath);
+					System.IO.File.Delete(nzbFilePath);
 				}
 			}
 			catch (Exception)
@@ -325,18 +323,14 @@ internal static class SquirrelStuff
 			}
 			try
 			{
-				Pri.LongPath.Directory.Delete(deploymentPackagesFolder, recursive: true);
+				System.IO.Directory.Delete(deploymentPackagesFolder, recursive: true);
 				AppHelper.EnsureDirectoryExist(deploymentPackagesFolder);
 			}
 			catch (Exception ex2)
 			{
 				Log.Warn("Failed to refresh deployment dir: " + ex2.Message);
 			}
-			using ZipFile zipFile = new ZipFile(list.First());
-			foreach (ZipEntry item in zipFile)
-			{
-				item.Extract(deploymentPackagesFolder, ExtractExistingFileAction.OverwriteSilently);
-			}
+			SafeZip.ExtractAll(list.First(), deploymentPackagesFolder, overwrite: true);
 		}
 		finally
 		{
@@ -346,9 +340,9 @@ internal static class SquirrelStuff
 				{
 					foreach (string item2 in list)
 					{
-						if (Pri.LongPath.File.Exists(item2))
+						if (System.IO.File.Exists(item2))
 						{
-							Pri.LongPath.File.Delete(item2);
+							System.IO.File.Delete(item2);
 						}
 					}
 				}
@@ -367,18 +361,21 @@ internal static class SquirrelStuff
 
 	internal static string UnzipNzb(string zipFilePath)
 	{
-		using ZipFile source = new ZipFile(zipFilePath);
-		ZipEntry zipEntry = source.First();
-		string fileName = zipEntry.FileName;
-		long uncompressedSize = zipEntry.UncompressedSize;
+		using System.IO.Compression.ZipArchive source = System.IO.Compression.ZipFile.OpenRead(zipFilePath);
+		System.IO.Compression.ZipArchiveEntry zipEntry = source.Entries.FirstOrDefault((System.IO.Compression.ZipArchiveEntry entry) => !string.IsNullOrEmpty(entry.Name));
+		if (zipEntry == null)
+		{
+			Log.Error("Update archive does not contain an NZB file");
+			return null;
+		}
+		long uncompressedSize = zipEntry.Length;
 		if (uncompressedSize < 3000 || uncompressedSize > 50000)
 		{
 			Log.Error("NZB file size is not good: " + uncompressedSize);
 			return null;
 		}
-		string text = Pri.LongPath.Path.GetTempPath().Trim();
-		zipEntry.Extract(text, ExtractExistingFileAction.OverwriteSilently);
-		return text + "\\" + fileName;
+		string text = System.IO.Path.GetTempPath().Trim();
+		return SafeZip.ExtractEntry(zipEntry, text, overwrite: true);
 	}
 
 	internal static string DownloadUsenetNzb(out bool isCurrentVersionFound)
@@ -445,7 +442,7 @@ internal static class SquirrelStuff
 					continue;
 				}
 				string tempFileName = AppHelper.GetTempFileName();
-				using (FileStream outStream = Pri.LongPath.File.Open(tempFileName, FileMode.Create, FileAccess.Write, FileShare.None))
+				using (FileStream outStream = System.IO.File.Open(tempFileName, FileMode.Create, FileAccess.Write, FileShare.None))
 				{
 					if (!new YEnc(outStream).DecodeBytes(sxOut))
 					{
@@ -459,7 +456,7 @@ internal static class SquirrelStuff
 					if (!SpotnetUpdateVerifier.VerifyFileSign(text2))
 					{
 						Log.Error("Failed to verify nzb file from group: " + text + ". MessageId: " + spot.MessageId);
-						Pri.LongPath.File.Delete(text2);
+						System.IO.File.Delete(text2);
 						continue;
 					}
 					sError = text2;
@@ -573,7 +570,7 @@ internal static class SquirrelStuff
 					string text2 = UnzipNzb(tempFileName);
 					try
 					{
-						Pri.LongPath.File.Delete(tempFileName);
+						System.IO.File.Delete(tempFileName);
 					}
 					catch
 					{
@@ -583,7 +580,7 @@ internal static class SquirrelStuff
 						return text2;
 					}
 					Log.Error("Failed to verify nzb file from url: " + text);
-					Pri.LongPath.File.Delete(text2);
+					System.IO.File.Delete(text2);
 				}
 			}
 			catch (WebException ex)
@@ -603,7 +600,7 @@ internal static class SquirrelStuff
 		SetupSplatLogger logger = new SetupSplatLogger();
 		try
 		{
-			Locator.CurrentMutable.Register(() => logger, typeof(ILogger));
+			Locator.CurrentMutable.Register(() => logger, typeof(Splat.ILogger));
 			UpdateInfoEx info = await CheckForUpdate(ignoreDeltaUpdates: true);
 			if (info.Exception != null)
 			{
@@ -665,15 +662,15 @@ internal static class SquirrelStuff
 		try
 		{
 			string pathToConfig = PathToConfig;
-			if (Pri.LongPath.File.Exists(pathToConfig))
+			if (System.IO.File.Exists(pathToConfig))
 			{
 				try
 				{
 					Settings.Default.IsNewVersion = true;
 					Settings.Default.Save();
-					string fileName = Pri.LongPath.Path.GetFileName(pathToConfig);
-					string destinationPath = Pri.LongPath.Path.Combine(Pri.LongPath.Directory.GetParent(AppHelper.AppPath()).FullName, fileName);
-					Pri.LongPath.File.Copy(pathToConfig, destinationPath, overwrite: true);
+					string fileName = System.IO.Path.GetFileName(pathToConfig);
+					string destinationPath = System.IO.Path.Combine(System.IO.Directory.GetParent(AppHelper.AppPath()).FullName, fileName);
+					System.IO.File.Copy(pathToConfig, destinationPath, overwrite: true);
 					return;
 				}
 				finally
@@ -694,16 +691,16 @@ internal static class SquirrelStuff
 	{
 		try
 		{
-			string fileName = Pri.LongPath.Path.GetFileName(PathToConfig);
-			string text = Pri.LongPath.Path.Combine(Pri.LongPath.Directory.GetParent(AppHelper.AppPath()).FullName, fileName);
-			if (Pri.LongPath.File.Exists(text))
+			string fileName = System.IO.Path.GetFileName(PathToConfig);
+			string text = System.IO.Path.Combine(System.IO.Directory.GetParent(AppHelper.AppPath()).FullName, fileName);
+			if (System.IO.File.Exists(text))
 			{
-				string directoryName = Pri.LongPath.Path.GetDirectoryName(PathToConfig);
+				string directoryName = System.IO.Path.GetDirectoryName(PathToConfig);
 				if (directoryName != null)
 				{
 					AppHelper.EnsureDirectoryExist(directoryName);
 				}
-				Pri.LongPath.File.Copy(text, PathToConfig, overwrite: true);
+				System.IO.File.Copy(text, PathToConfig, overwrite: true);
 				Settings.Default.Reload();
 			}
 		}
@@ -730,7 +727,7 @@ internal static class SquirrelStuff
 						Settings.Default.IsNewVersion = true;
 						Settings.Default.Save();
 					}
-					string fileName3 = Pri.LongPath.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+					string fileName3 = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
 					UpdateManager.CreateShortcutsForExecutable(fileName3, ShortcutLocation.StartMenu | ShortcutLocation.Desktop, updateOnly: false);
 					OnInstallAndUpdateActions();
 				}
@@ -753,7 +750,7 @@ internal static class SquirrelStuff
 						Settings.Default.IsNewVersion = true;
 						Settings.Default.Save();
 					}
-					string fileName2 = Pri.LongPath.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+					string fileName2 = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
 					UpdateManager.CreateShortcutsForExecutable(fileName2, ShortcutLocation.StartMenu | ShortcutLocation.Desktop, updateOnly: true);
 					OnInstallAndUpdateActions();
 				}
@@ -784,7 +781,7 @@ internal static class SquirrelStuff
 						AppHelper.Error("Spotnet is running already, so some app files can't be removed. Please remove it by hands.");
 					}
 					Log.Debug("Uninstalling " + AppHelper.AppVersion);
-					string fileName = Pri.LongPath.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+					string fileName = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
 					UpdateManager.RemoveShortcutsForExecutable(fileName, ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
 					RemoveStartMenuFolderOnUninstallIfEmpty();
 				}
@@ -842,12 +839,12 @@ internal static class SquirrelStuff
 
 	private static void RemoveStartMenuFolderOnUninstallIfEmpty()
 	{
-		string path = Pri.LongPath.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\Spotnet\\");
+		string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\Spotnet\\");
 		try
 		{
-			if (Pri.LongPath.Directory.Exists(path) && !Pri.LongPath.Directory.GetFileSystemEntries(path).Any())
+			if (System.IO.Directory.Exists(path) && !System.IO.Directory.GetFileSystemEntries(path).Any())
 			{
-				Pri.LongPath.Directory.Delete(path, recursive: false);
+				System.IO.Directory.Delete(path, recursive: false);
 			}
 		}
 		catch (Exception)
@@ -859,11 +856,11 @@ internal static class SquirrelStuff
 	{
 		try
 		{
-			if (!Pri.LongPath.Directory.Exists(fullPath) && !Pri.LongPath.File.Exists(fullPath))
+			if (!System.IO.Directory.Exists(fullPath) && !System.IO.File.Exists(fullPath))
 			{
 				return false;
 			}
-			Pri.LongPath.DirectoryInfo directoryInfo = new Pri.LongPath.DirectoryInfo(fullPath);
+			System.IO.DirectoryInfo directoryInfo = new System.IO.DirectoryInfo(fullPath);
 			DirectorySecurity accessControl = directoryInfo.GetAccessControl();
 			accessControl.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null), FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
 			directoryInfo.SetAccessControl(accessControl);
@@ -878,11 +875,11 @@ internal static class SquirrelStuff
 
 	private static bool CheckAccess(WindowsIdentity user, string path, FileSystemRights expectedRights)
 	{
-		if (!Pri.LongPath.Directory.Exists(path) && !Pri.LongPath.File.Exists(path))
+		if (!System.IO.Directory.Exists(path) && !System.IO.File.Exists(path))
 		{
 			return false;
 		}
-		IEnumerable<AuthorizationRule> enumerable = from AuthorizationRule rule in new Pri.LongPath.FileInfo(path).GetAccessControl().GetAccessRules(includeExplicit: true, includeInherited: true, typeof(SecurityIdentifier))
+		IEnumerable<AuthorizationRule> enumerable = from AuthorizationRule rule in new System.IO.FileInfo(path).GetAccessControl().GetAccessRules(includeExplicit: true, includeInherited: true, typeof(SecurityIdentifier))
 			where user.User.Equals(rule.IdentityReference) || user.Groups.Contains(rule.IdentityReference)
 			select rule;
 		FileSystemRights fileSystemRights = (FileSystemRights)0;
@@ -904,7 +901,7 @@ internal static class SquirrelStuff
 
 	public static void CopyDataToProgramData()
 	{
-		string sourceDirName = Pri.LongPath.Path.Combine(AppHelper.AppPath(), "Data\\");
+		string sourceDirName = System.IO.Path.Combine(AppHelper.AppPath(), "Data\\");
 		try
 		{
 			DirectoryCopyRecursive(sourceDirName, AppHelper.SettingsFolder);
@@ -917,18 +914,18 @@ internal static class SquirrelStuff
 
 	private static void DirectoryCopyRecursive(string sourceDirName, string destDirName)
 	{
-		Pri.LongPath.DirectoryInfo directoryInfo = new Pri.LongPath.DirectoryInfo(sourceDirName);
+		System.IO.DirectoryInfo directoryInfo = new System.IO.DirectoryInfo(sourceDirName);
 		if (!directoryInfo.Exists)
 		{
 			Log.Warn("No folder found: " + sourceDirName);
 			return;
 		}
 		AppHelper.EnsureDirectoryExist(destDirName);
-		Pri.LongPath.FileInfo[] files = directoryInfo.GetFiles();
-		foreach (Pri.LongPath.FileInfo fileInfo in files)
+		System.IO.FileInfo[] files = directoryInfo.GetFiles();
+		foreach (System.IO.FileInfo fileInfo in files)
 		{
-			string text = Pri.LongPath.Path.Combine(destDirName, fileInfo.Name);
-			if (!Pri.LongPath.File.Exists(text))
+			string text = System.IO.Path.Combine(destDirName, fileInfo.Name);
+			if (!System.IO.File.Exists(text))
 			{
 				try
 				{
@@ -940,22 +937,22 @@ internal static class SquirrelStuff
 				}
 			}
 		}
-		Pri.LongPath.DirectoryInfo[] directories = directoryInfo.GetDirectories();
-		foreach (Pri.LongPath.DirectoryInfo directoryInfo2 in directories)
+		System.IO.DirectoryInfo[] directories = directoryInfo.GetDirectories();
+		foreach (System.IO.DirectoryInfo directoryInfo2 in directories)
 		{
 			Log.Debug("Restore data directory: " + directoryInfo2);
-			string destDirName2 = Pri.LongPath.Path.Combine(destDirName, directoryInfo2.Name);
+			string destDirName2 = System.IO.Path.Combine(destDirName, directoryInfo2.Name);
 			DirectoryCopyRecursive(directoryInfo2.FullName, destDirName2);
 		}
 	}
 
 	internal static bool CreateProgramDataAndGetPermissionsToIt()
 	{
-		if (!Pri.LongPath.Directory.Exists(AppHelper.SettingsFolder))
+		if (!System.IO.Directory.Exists(AppHelper.SettingsFolder))
 		{
 			try
 			{
-				Pri.LongPath.Directory.CreateDirectory(AppHelper.SettingsFolder);
+				System.IO.Directory.CreateDirectory(AppHelper.SettingsFolder);
 				GrantAclFullControl(AppHelper.SettingsFolder);
 			}
 			catch (Exception ex)
@@ -1011,12 +1008,12 @@ internal static class SquirrelStuff
 			AppHelper.Error("Settings are corrupted. Try to recreate the settings file.");
 			try
 			{
-				if (!(ex.InnerException is ConfigurationErrorsException ex2) || ex2.Filename.IsNullOrEmpty() || !Pri.LongPath.File.Exists(ex2.Filename))
+				if (!(ex.InnerException is ConfigurationErrorsException ex2) || ex2.Filename.IsNullOrEmpty() || !System.IO.File.Exists(ex2.Filename))
 				{
 					AppHelper.Error("Failed to locate settings file path.");
 					return false;
 				}
-				Pri.LongPath.File.Delete(ex2.Filename);
+				System.IO.File.Delete(ex2.Filename);
 				flag = true;
 			}
 			catch (Exception ex3)
@@ -1030,7 +1027,7 @@ internal static class SquirrelStuff
 			if (flag || Settings.Default.IsNewVersion)
 			{
 				RestoreAppSettings();
-				string fileName = Pri.LongPath.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+				string fileName = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
 				UpdateManager.CreateShortcutsForExecutable(fileName, ShortcutLocation.StartMenu | ShortcutLocation.Desktop, updateOnly: true);
 			}
 		}
@@ -1065,9 +1062,9 @@ internal static class SquirrelStuff
 		AppHelper.GetTempPath();
 		if (IsNewVersion)
 		{
-			string path = Pri.LongPath.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Spotnet\\");
-			string iconPath = Pri.LongPath.Path.Combine(path, "app.ico");
-			string openWith = "\"" + Pri.LongPath.Path.Combine(path, "Update.exe") + "\" --processStart Spotnet.exe --process-start-args";
+			string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Spotnet\\");
+			string iconPath = System.IO.Path.Combine(path, "app.ico");
+			string openWith = "\"" + System.IO.Path.Combine(path, "Update.exe") + "\" --processStart Spotnet.exe --process-start-args";
 			FileAssociator.SetProtocolAssociation("spotnet", openWith, iconPath);
 		}
 	}

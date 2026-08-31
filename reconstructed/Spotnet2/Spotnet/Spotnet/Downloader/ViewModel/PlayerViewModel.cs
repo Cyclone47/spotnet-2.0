@@ -7,9 +7,9 @@ using System.Timers;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Threading;
-using Meta.Vlc.Wpf;
 using NLog;
-using Pri.LongPath;
+using System.IO;
+using Spotnet.Downloader.Controls.Player;
 using Spotnet.Model;
 
 namespace Spotnet.Downloader.ViewModel;

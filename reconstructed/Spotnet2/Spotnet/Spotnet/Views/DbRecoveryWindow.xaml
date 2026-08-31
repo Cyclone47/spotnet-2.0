@@ -3,7 +3,7 @@
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       Title="Spotnet Database Recovery &amp; Repair"
-                      Height="380" Width="520"
+                      Height="450" Width="520"
                       WindowStartupLocation="CenterScreen"
                       ResizeMode="NoResize"
                       ShowInTaskbar="True"
@@ -43,7 +43,16 @@
                 </StackPanel>
             </Button>
 
-            <!-- 2. Clean Reset Button -->
+            <!-- 2. Rebuild Button -->
+            <Button x:Name="RebuildButton" Click="RebuildButton_Click" Height="54" Margin="0,0,0,10"
+                    HorizontalContentAlignment="Left" Padding="12,6" Background="#EAF6EE" BorderBrush="#2E8B57">
+                <StackPanel>
+                    <TextBlock Text="🛠 Rebuild Database (keeps your spots)" FontWeight="Bold" FontSize="13" Foreground="#1E6A4C"/>
+                    <TextBlock Text="Copies every readable spot into a fresh file and regenerates the search index." FontSize="11" Foreground="#555555"/>
+                </StackPanel>
+            </Button>
+
+            <!-- 3. Clean Reset Button -->
             <Button x:Name="ResetButton" Click="ResetButton_Click" Height="54" Margin="0,0,0,10"
                     HorizontalContentAlignment="Left" Padding="12,6" Background="#FFF5E6" BorderBrush="#FF9900">
                 <StackPanel>
@@ -52,7 +61,7 @@
                 </StackPanel>
             </Button>
 
-            <!-- 3. Close Button -->
+            <!-- 4. Close Button -->
             <Button x:Name="CloseButton" Click="CloseButton_Click" Height="42" Margin="0,0,0,5"
                     HorizontalContentAlignment="Left" Padding="12,6" Background="#F2F2F2" BorderBrush="#CCCCCC">
                 <StackPanel>

@@ -1,6 +1,7 @@
 using System;
 using System.Net;
-using Awesomium.Core;
+using System.Threading.Tasks;
+using Microsoft.Web.WebView2.Core;
 using NLog;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -8,13 +9,33 @@ using Spotnet.Properties;
 
 namespace Spotnet.Browser;
 
-internal class ResponsePage : AwesomiumPage
+internal class ResponsePage : WebView2Page
 {
 	private const string PageTitleOfResponseSite = "Feedback";
 
 	private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-	private bool _alreadyBinded;
+	/// <summary>
+	/// The single message the feedback page is allowed to send the host.
+	/// </summary>
+	/// <remarks>
+	/// WebView2 exposes a host function without a COM-visible object through a script shim
+	/// that posts a message, handled here. Because the page is remote, the handler treats anything arriving on that
+	/// channel as untrusted input: it accepts exactly this one literal and ignores
+	/// everything else, so the page cannot reach any other host behaviour.
+	/// </remarks>
+	private const string UploadLogsMessage = "UploadLogs";
+
+	/// <summary>
+	/// Recreates the <c>app.UploadLogs()</c> entry point the feedback page calls.
+	/// </summary>
+	private const string HostBridgeScript =
+		"window.app = window.app || {};" +
+		"window.app.UploadLogs = function () {" +
+		"  if (window.chrome && window.chrome.webview) {" +
+		"    window.chrome.webview.postMessage('" + UploadLogsMessage + "');" +
+		"  }" +
+		"};";
 
 	private bool _uploadDisabled;
 
@@ -23,16 +44,72 @@ internal class ResponsePage : AwesomiumPage
 	public ResponsePage()
 	{
 		base.Uri = new Uri(GetResponseSiteUrl(), UriKind.RelativeOrAbsolute);
-		Title = "Feedback";
+		Title = PageTitleOfResponseSite;
 		base.PageDefaultType = PageTypeEnum.ResponseSite;
-		base.DocumentReadyEvent += OnDocumentReady;
 	}
 
-	private void OnDocumentReady(object o, DocumentReadyEventArgs args)
+	protected override async Task OnCoreWebView2ReadyAsync(CoreWebView2 core)
 	{
-		if (args.ReadyState == DocumentReadyState.Loaded)
+		if (core == null)
 		{
-			BindingUploadLogs();
+			return;
+		}
+		core.WebMessageReceived += OnWebMessageReceived;
+		// Injected before the first document so app.UploadLogs exists by the time the
+		// page's own scripts run. This replaces the old bind-on-DocumentReady approach,
+		// which could race the page and needed its own "already bound" guard.
+		await core.AddScriptToExecuteOnDocumentCreatedAsync(HostBridgeScript);
+	}
+
+	private void OnWebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+	{
+		string message;
+		try
+		{
+			message = e.TryGetWebMessageAsString();
+		}
+		catch (ArgumentException)
+		{
+			// Not a string message; nothing this page sends looks like that.
+			return;
+		}
+
+		if (!UploadLogsMessage.Equals(message, StringComparison.Ordinal))
+		{
+			Log.Debug("Ignoring unrecognized web message from the feedback page.");
+			return;
+		}
+
+		lock (_lockRoot)
+		{
+			if (_uploadDisabled)
+			{
+				return;
+			}
+			_uploadDisabled = true;
+		}
+
+		bool uploadStarted = false;
+		try
+		{
+			ChangeStateOfResponseSubmitButton(enabled: false);
+			uploadStarted = ZipAndUploadLogs();
+		}
+		catch (Exception ex)
+		{
+			Log.Exception(ex);
+		}
+		finally
+		{
+			if (!uploadStarted)
+			{
+				ChangeStateOfResponseSubmitButton(enabled: true);
+				lock (_lockRoot)
+				{
+					// Nothing was sent, so let the user try again.
+					_uploadDisabled = false;
+				}
+			}
 		}
 	}
 
@@ -41,47 +118,6 @@ internal class ResponsePage : AwesomiumPage
 		string providerDomainHtmlSave = AppHelper.GetProviderDomainHtmlSave();
 		string text = ((providerDomainHtmlSave == null) ? "" : ("&provider=" + providerDomainHtmlSave));
 		return string.Format("{0}/?id={1}&appversion={2}&lang={3}{4}", Configuration.ResponseSiteUrl, UserKeyHelper.GetModulusUriCompatable(), AppHelper.AppVersion, (UserLanguageHelper.Language == "en") ? "en" : "nl", text);
-	}
-
-	private void BindingUploadLogs()
-	{
-		lock (_lockRoot)
-		{
-			if (_alreadyBinded)
-			{
-				return;
-			}
-			_alreadyBinded = true;
-		}
-		using JSObject jSObject = (JSObject)base.Browser.CreateGlobalJavascriptObject("app");
-		jSObject.BindAsync("UploadLogs", (JavascriptAsyncMethodHandler)delegate
-		{
-			lock (_lockRoot)
-			{
-				if (_uploadDisabled)
-				{
-					return;
-				}
-				_uploadDisabled = true;
-			}
-			bool flag = false;
-			try
-			{
-				ChangeStateOfResponseSubmitButton(enabled: false);
-				flag = ZipAndUploadLogs();
-			}
-			catch (Exception ex)
-			{
-				Log.Exception(ex);
-			}
-			finally
-			{
-				if (!flag)
-				{
-					ChangeStateOfResponseSubmitButton(enabled: true);
-				}
-			}
-		});
 	}
 
 	private bool ZipAndUploadLogs()
@@ -105,6 +141,6 @@ internal class ResponsePage : AwesomiumPage
 	private void ChangeStateOfResponseSubmitButton(bool enabled)
 	{
 		string script = string.Format("document.getElementById('form-submit-btn').disabled = {0};", enabled ? "false" : "true");
-		base.Browser.ExecuteJavascript(script);
+		ExecuteJavascript(script);
 	}
 }

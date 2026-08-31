@@ -397,7 +397,7 @@
   <data name="SpotThemeComment" xml:space="preserve"><value>Comment</value></data>
   <data name="StatQuickCheck" xml:space="preserve"><value>Quick check</value></data>
   <data name="SpotRemoveAskDialogText" xml:space="preserve"><value>You want to remove your own spot that is added by mistake. 
-The spot would be removed from databases of all Spotnet 2.0 users. 
+The spot would be removed from databases of all Spotnet 3.0 users.
 Please write the reason why you want to remove it:</value></data>
   <data name="RestartNow" xml:space="preserve"><value>Restart Now</value></data>
   <data name="MenuVisibleControlsStatusBar" xml:space="preserve"><value>Status Bar</value></data>

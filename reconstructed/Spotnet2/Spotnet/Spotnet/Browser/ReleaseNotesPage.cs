@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Properties;
 
 namespace Spotnet.Browser;
 
-public class ReleaseNotesPage : AwesomiumPage
+public class ReleaseNotesPage : WebView2Page
 {
 	private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 

@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Timers;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -55,10 +54,10 @@ public class NNTPInput
 			{
 				lock (_lockMd5Calc)
 				{
-					if (_md5Sum.IsNullOrEmpty() && Pri.LongPath.File.Exists(FullFilePath))
+					if (_md5Sum.IsNullOrEmpty() && System.IO.File.Exists(FullFilePath))
 					{
 						using MD5 mD = MD5.Create();
-						using FileStream inputStream = Pri.LongPath.File.OpenRead(FullFilePath);
+						using FileStream inputStream = System.IO.File.OpenRead(FullFilePath);
 						_md5Sum = AppHelper.MakeMd5(mD.ComputeHash(inputStream));
 					}
 				}
@@ -127,9 +126,9 @@ public class NNTPInput
 
 	public bool IsParOrParPiece => new Regex("(\\.par2$)", RegexOptions.IgnoreCase).IsMatch(Filename.Trim());
 
-	public string FullFilePath => Pri.LongPath.Path.Combine(DownloaderItem.IncompleteDir, Filename);
+	public string FullFilePath => System.IO.Path.Combine(DownloaderItem.IncompleteDir, Filename);
 
-	public string FullPreUnpackPath => Pri.LongPath.Path.Combine(Pri.LongPath.Path.Combine(DownloaderItem.IncompleteDir, "__preunpack/"), Filename);
+	public string FullPreUnpackPath => System.IO.Path.Combine(System.IO.Path.Combine(DownloaderItem.IncompleteDir, "__preunpack/"), Filename);
 
 	internal NNTPInput(SpotnetDownloaderItemViewModel item, string subject, int index = -1)
 	{
@@ -202,8 +201,8 @@ public class NNTPInput
 		{
 			return "duplicate1";
 		}
-		string fileNameWithoutExtension = Pri.LongPath.Path.GetFileNameWithoutExtension(filename);
-		string extension = Pri.LongPath.Path.GetExtension(filename);
+		string fileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(filename);
+		string extension = System.IO.Path.GetExtension(filename);
 		Match match = new Regex("^(.*)duplicate(\\d+)$").Match(fileNameWithoutExtension);
 		if (match.Success)
 		{
@@ -314,9 +313,9 @@ public class NNTPInput
 
 	private static bool FilenamePathIsValid(string path)
 	{
-		if (!path.IsNullOrEmpty() && path.IndexOfAny(Pri.LongPath.Path.GetInvalidPathChars()) == 0)
+		if (!path.IsNullOrEmpty() && path.IndexOfAny(System.IO.Path.GetInvalidPathChars()) == 0)
 		{
-			return Pri.LongPath.Path.GetDirectoryName(path).IsNullOrEmpty();
+			return System.IO.Path.GetDirectoryName(path).IsNullOrEmpty();
 		}
 		return false;
 	}
@@ -338,7 +337,7 @@ public class NNTPInput
 			{
 				stringBuilder.AppendLine($"0,{item.IndentBytes},{item.ExpectedSize},{item.Index}");
 			}
-			Pri.LongPath.File.WriteAllText(SpotnetDownloaderItemViewModel.GetFilenameOfStateFile(DownloaderItem.ID, Index), stringBuilder.ToString());
+			System.IO.File.WriteAllText(SpotnetDownloaderItemViewModel.GetFilenameOfStateFile(DownloaderItem.ID, Index), stringBuilder.ToString());
 		}
 		finally
 		{

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 
@@ -26,7 +25,7 @@ internal class Tabs
 
 	private void Lt()
 	{
-		if (!Pri.LongPath.File.Exists(TabsFile))
+		if (!System.IO.File.Exists(TabsFile))
 		{
 			return;
 		}
@@ -46,9 +45,9 @@ internal class Tabs
 	{
 		try
 		{
-			if (Pri.LongPath.File.Exists(TabsFile))
+			if (System.IO.File.Exists(TabsFile))
 			{
-				Pri.LongPath.File.Delete(TabsFile);
+				System.IO.File.Delete(TabsFile);
 			}
 			return true;
 		}
@@ -86,7 +85,7 @@ internal class Tabs
 			if (!_cachedTabsFileContent.Equals(stringBuilder.ToString()))
 			{
 				_cachedTabsFileContent = stringBuilder.ToString();
-				Pri.LongPath.File.WriteAllText(TabsFile, _cachedTabsFileContent, Encoding.UTF8);
+				System.IO.File.WriteAllText(TabsFile, _cachedTabsFileContent, Encoding.UTF8);
 			}
 			TabList = zTab;
 			return true;

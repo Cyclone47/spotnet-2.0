@@ -6,7 +6,7 @@ using Spotnet.Properties;
 
 namespace Spotnet.Browser;
 
-public class AdvancedDownloadsPage : AwesomiumPage
+public class AdvancedDownloadsPage : WebView2Page
 {
 	private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 

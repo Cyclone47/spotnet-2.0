@@ -25,14 +25,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Resources;
 using System.Windows.Threading;
-using Awesomium.Core;
 using GalaSoft.MvvmLight.Threading;
 using MahApps.Metro.Controls;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using Microsoft.Win32;
 using NLog;
-using Pri.LongPath;
+using Newtonsoft.Json;
 using Spotnet.Browser;
 using Spotnet.Controls;
 using Spotnet.DAL;
@@ -939,9 +938,9 @@ public partial class MainWindow : MetroWindow
                     };
                 }
 
-                newPage.DocumentReadyEvent += delegate (object o, DocumentReadyEventArgs e)
+                newPage.DocumentReadyEvent += delegate (object o, PageReadyEventArgs e)
                 {
-                    if (e == null || e.ReadyState == DocumentReadyState.Ready)
+                    if (e == null || e.ReadyState == PageReadyState.Ready)
                     {
                         newTab.Content = newPage;
                     }
@@ -971,7 +970,12 @@ public partial class MainWindow : MetroWindow
                 DispatcherHelper.UIDispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
                 {
                     ((System.Windows.Controls.UserControl)newPage).ApplyTemplate();
-                    if (pageType != PageTypeEnum.SpotLoaded && newPage is AwesomiumPage)
+                    // Any engine-backed page shows the spinner while it loads; the native
+                    // spot renderer does not, because it paints from the local database.
+                    // WebView2Page has to be named here too now that it backs the release
+                    // notes, feedback and downloads tabs - without it those tabs sat with
+                    // no loading indicator at all.
+                    if (pageType != PageTypeEnum.SpotLoaded && newPage is WebView2Page)
                     {
                         title = ((!isPromo) ? newPage.Title : ((UrlInfo)newTab.Tag).Title);
                         UpdateTabItemHeaderAsync(title, PageTypeEnum.Loading, newTab);
@@ -1350,7 +1354,7 @@ public partial class MainWindow : MetroWindow
             else
             {
                 Log.Debug("New downloads from file association: " + f);
-                ScheduleNzbDownload(f, DownloaderItemFactory.New(Pri.LongPath.Path.GetFileNameWithoutExtension(f)));
+                ScheduleNzbDownload(f, DownloaderItemFactory.New(System.IO.Path.GetFileNameWithoutExtension(f)));
             }
         });
     }
@@ -1553,7 +1557,7 @@ public partial class MainWindow : MetroWindow
                 return;
             }
 
-            Settings.Default.LastFolder = Pri.LongPath.Path.GetDirectoryName(openFileDialog.FileName);
+            Settings.Default.LastFolder = System.IO.Path.GetDirectoryName(openFileDialog.FileName);
             Settings.Default.Save();
             DispatcherHelper.CheckBeginInvokeOnUI(delegate
             {
@@ -1562,7 +1566,7 @@ public partial class MainWindow : MetroWindow
                     TabControl1.SelectedIndex = 1;
                 }
             });
-            SpotHelper.DoDownload(openFileDialog.FileName, DownloaderItemFactory.New(Pri.LongPath.Path.GetFileNameWithoutExtension(openFileDialog.FileName)));
+            SpotHelper.DoDownload(openFileDialog.FileName, DownloaderItemFactory.New(System.IO.Path.GetFileNameWithoutExtension(openFileDialog.FileName)));
         }
         catch (Exception ex)
         {
@@ -1780,13 +1784,13 @@ public partial class MainWindow : MetroWindow
 
     private async void ExecuteFillAddToList(string switchClassName, string fieldId1, string fieldValue1, string fieldId2, string fieldValue2, string addButtonId)
     {
-        string path = Pri.LongPath.Path.Combine(Pri.LongPath.Directory.GetParent(AppHelper.AppPath()).FullName, "lists.url");
-        if (!Pri.LongPath.File.Exists(path))
+        string path = System.IO.Path.Combine(System.IO.Directory.GetParent(AppHelper.AppPath()).FullName, "lists.url");
+        if (!System.IO.File.Exists(path))
         {
             return;
         }
 
-        string text = Pri.LongPath.File.ReadAllText(path);
+        string text = System.IO.File.ReadAllText(path);
         if (text.IsNullOrWhiteSpace() || TabControl1.SelectedIndex != 0)
         {
             return;
@@ -1803,30 +1807,21 @@ public partial class MainWindow : MetroWindow
             await Task.Delay(500);
         }
 
-        op.CreateJecAsync(delegate
+        if (op is WebView2Page webPage)
         {
-            try
-            {
-                if (op is IEWebBrowser)
-                {
-                    throw new NotSupportedException("not supported yet");
-                }
-
-                Global.Current.document.getElementsByClassName(switchClassName)[0].click();
-                dynamic elementById = Global.Current.document.getElementById(fieldId1);
-                if (elementById)
-                {
-                    Global.Current.document.getElementById(fieldId1).value = fieldValue1;
-                }
-
-                Global.Current.document.getElementById(fieldId2).value = fieldValue2;
-                Global.Current.document.getElementById(addButtonId).click();
-            }
-            catch (Exception ex)
-            {
-                Log.Exception(ex);
-            }
-        }).Task.Forget();
+            string script = string.Format(
+                "(() => {{ const switcher = document.getElementsByClassName({0})[0]; if (switcher) switcher.click(); " +
+                "const first = document.getElementById({1}); if (first) first.value = {2}; " +
+                "const second = document.getElementById({3}); if (second) second.value = {4}; " +
+                "const add = document.getElementById({5}); if (add) add.click(); }})()",
+                JsonConvert.SerializeObject(switchClassName),
+                JsonConvert.SerializeObject(fieldId1),
+                JsonConvert.SerializeObject(fieldValue1),
+                JsonConvert.SerializeObject(fieldId2),
+                JsonConvert.SerializeObject(fieldValue2),
+                JsonConvert.SerializeObject(addButtonId));
+            await webPage.ExecuteJavascriptWithResultAsync(script);
+        }
     }
 
     private void TrayNotify_Click(object sender, EventArgs e)
@@ -1937,7 +1932,7 @@ public partial class MainWindow : MetroWindow
                 if (serversTimedOut || !serversLoaded)
                 {
                     Log.Error(serversTimedOut ? "LoadServers timed out (30s)." : "LoadServers returned false.");
-                    AppHelper.Error(Words.CannotLoad + " " + Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "servers.xml"));
+                    AppHelper.Error(Words.CannotLoad + " " + System.IO.Path.Combine(AppHelper.SettingsFolder, "servers.xml"));
                     Sys.Shutdown();
                     return;
                 }
@@ -2122,7 +2117,6 @@ public partial class MainWindow : MetroWindow
 
             SquirrelStuff.StartNewVersionCheckTimer();
             Sys.StatsReporter.ReportOnStartAsync();
-            AwesomiumPage.InitializeWebCore();
             CheckFreeSpaceOnTheDisk();
         }
         catch (Exception ex)
@@ -2135,9 +2129,9 @@ public partial class MainWindow : MetroWindow
     {
         try
         {
-            if (AppHelper.GetDiskSpace(Pri.LongPath.Path.GetDirectoryName(AppHelper.AppPath())) < 104857600)
+            if (AppHelper.GetDiskSpace(System.IO.Path.GetDirectoryName(AppHelper.AppPath())) < 104857600)
             {
-                string text = "Please check the disk space for " + Pri.LongPath.Path.GetPathRoot(AppHelper.AppPath()) + ". It's less than 100MB that can lead to problems with Spotnet.";
+                string text = "Please check the disk space for " + System.IO.Path.GetPathRoot(AppHelper.AppPath()) + ". It's less than 100MB that can lead to problems with Spotnet.";
                 Log.Warn(text);
                 AppHelper.Error(text);
             }
@@ -2297,7 +2291,7 @@ public partial class MainWindow : MetroWindow
         };
         if (bIncludeLast)
         {
-            if (Pri.LongPath.File.Exists(AppHelper.GetDbFilename("dbc")))
+            if (System.IO.File.Exists(AppHelper.GetDbFilename("dbc")))
             {
                 using (ISqlDb db = SqlDbFactory.CreateSqlDbComments(isReadOnly: true))
                 {
@@ -2337,7 +2331,7 @@ public partial class MainWindow : MetroWindow
         };
         if (bIncludeLast)
         {
-            if (Pri.LongPath.File.Exists(AppHelper.GetDbFilename("dbs")))
+            if (System.IO.File.Exists(AppHelper.GetDbFilename("dbs")))
             {
                 using ISqlDb db = SqlDbFactory.CreateSqlDbSpots(isReadOnly: true);
                 nntpSettings.Position = AppHelper.GetIdPosition(db, "spamreports");

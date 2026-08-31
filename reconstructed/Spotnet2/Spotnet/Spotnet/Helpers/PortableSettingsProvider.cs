@@ -3,7 +3,7 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.Xml;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 
 namespace Spotnet.Helpers;
@@ -21,6 +21,7 @@ internal class PortableSettingsProvider : SettingsProvider
 			if (_settingsXml == null)
 			{
 				_settingsXml = new XmlDocument();
+				_settingsXml.XmlResolver = null;
 				try
 				{
 					_settingsXml.Load(Path.Combine(GetAppSettingsPath(), GetAppSettingsFilename()));

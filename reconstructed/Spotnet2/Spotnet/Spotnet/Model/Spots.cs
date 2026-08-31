@@ -9,7 +9,7 @@ using System.Xml;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model.Newznab;

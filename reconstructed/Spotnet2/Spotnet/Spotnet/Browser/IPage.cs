@@ -1,7 +1,6 @@
 using System;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Awesomium.Core;
 using Spotnet.Controls;
 using Spotnet.Helpers;
 
@@ -27,7 +26,7 @@ internal interface IPage : ICloseableView, IDisposable
 
 	event Action<object> AddressChangedEvent;
 
-	event Action<object, DocumentReadyEventArgs> DocumentReadyEvent;
+	event Action<object, PageReadyEventArgs> DocumentReadyEvent;
 
 	event Action DocumentUnloadedEvent;
 

@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using NLog;
-using Pri.LongPath;
 using Spotnet.DAL;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -89,7 +88,7 @@ internal static class BlackAndWhite
 			{
 				return _blackList;
 			}
-			string file = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "blacklist.xml");
+			string file = System.IO.Path.Combine(AppHelper.SettingsFolder, "blacklist.xml");
 			_blackList = new HashSet<string>();
 			LoadToList(file, _blackList);
 			LoadServerBlack();
@@ -105,8 +104,8 @@ internal static class BlackAndWhite
 		}
 		lock (LockWhitelist)
 		{
-			string text = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "whitelist.xml");
-			if (!Pri.LongPath.File.Exists(text))
+			string text = System.IO.Path.Combine(AppHelper.SettingsFolder, "whitelist.xml");
+			if (!System.IO.File.Exists(text))
 			{
 				CreateList(text, new List<ListItem>
 				{
@@ -186,8 +185,8 @@ internal static class BlackAndWhite
 
 	internal static void LoadServerBlack()
 	{
-		string file = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.csv");
-		string fileToExclude = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.removed.xml");
+		string file = System.IO.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.csv");
+		string fileToExclude = System.IO.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.removed.xml");
 		lock (LockBlacklist)
 		{
 			if (_blackList == null)
@@ -200,8 +199,8 @@ internal static class BlackAndWhite
 
 	internal static void LoadServerSpotBlack()
 	{
-		string file = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.csv");
-		string fileToExclude = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.removed.xml");
+		string file = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.csv");
+		string fileToExclude = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.removed.xml");
 		lock (LockSpotBlacklist)
 		{
 			if (_spotBlackList == null)
@@ -214,7 +213,7 @@ internal static class BlackAndWhite
 
 	internal static void LoadServerWhite()
 	{
-		string file = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "whitelist.srv.csv");
+		string file = System.IO.Path.Combine(AppHelper.SettingsFolder, "whitelist.srv.csv");
 		lock (LockWhitelist)
 		{
 			LoadToFakeUsernamesList(file, WhiteFakesList);
@@ -223,8 +222,8 @@ internal static class BlackAndWhite
 
 	internal static void LoadServerSpotWhite()
 	{
-		string file = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.csv");
-		string fileToExclude = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.removed.xml");
+		string file = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.csv");
+		string fileToExclude = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.removed.xml");
 		lock (LockSpotWhitelist)
 		{
 			if (_spotWhiteList == null)
@@ -241,7 +240,7 @@ internal static class BlackAndWhite
 		{
 			return;
 		}
-		string sFile = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "whitelist.srv.csv");
+		string sFile = System.IO.Path.Combine(AppHelper.SettingsFolder, "whitelist.srv.csv");
 		string url = Settings.Default.WhitelistURL;
 		if (url.IsNullOrWhiteSpace())
 		{
@@ -265,11 +264,11 @@ internal static class BlackAndWhite
 	{
 		try
 		{
-			if (Pri.LongPath.File.Exists(fileNew))
+			if (System.IO.File.Exists(fileNew))
 			{
-				Pri.LongPath.File.Delete(fileNew);
+				System.IO.File.Delete(fileNew);
 			}
-			Pri.LongPath.File.Move(file, fileNew);
+			System.IO.File.Move(file, fileNew);
 		}
 		catch (Exception ex)
 		{
@@ -283,8 +282,8 @@ internal static class BlackAndWhite
 		{
 			return;
 		}
-		string listFullPath = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.csv");
-		string listForRemovedFullPath = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.removed.xml");
+		string listFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.csv");
+		string listForRemovedFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.removed.xml");
 		string url = Settings.Default.BlacklistURL;
 		if (url.IsNullOrWhiteSpace())
 		{
@@ -310,8 +309,8 @@ internal static class BlackAndWhite
 		{
 			return;
 		}
-		string listFullPath = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.csv");
-		string listForRemovedFullPath = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.removed.xml");
+		string listFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.csv");
+		string listForRemovedFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.removed.xml");
 		string url = Settings.Default.SpotWhitelistURL;
 		if (url.IsNullOrWhiteSpace())
 		{
@@ -337,8 +336,8 @@ internal static class BlackAndWhite
 		{
 			return;
 		}
-		string listFullPath = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.csv");
-		string listForRemovedFullPath = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.removed.xml");
+		string listFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.csv");
+		string listForRemovedFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.removed.xml");
 		string url = Settings.Default.SpotBlacklistURL;
 		if (url.IsNullOrWhiteSpace())
 		{
@@ -362,7 +361,7 @@ internal static class BlackAndWhite
 	{
 		try
 		{
-			if (!Pri.LongPath.File.Exists(file))
+			if (!System.IO.File.Exists(file))
 			{
 				CreateList(file, new List<ListItem>());
 				return true;
@@ -372,7 +371,7 @@ internal static class BlackAndWhite
 			{
 				LoadToList(fileToExclude, hashSet);
 			}
-			if (Pri.LongPath.Path.GetExtension(file).EqualsIgnoreCase(".xml"))
+			if (System.IO.Path.GetExtension(file).EqualsIgnoreCase(".xml"))
 			{
 				XmlDocument xmlDocument = new XmlDocument();
 				xmlDocument.XmlResolver = null;
@@ -392,7 +391,7 @@ internal static class BlackAndWhite
 			}
 			else
 			{
-				string[] array = Pri.LongPath.File.ReadAllLines(file);
+				string[] array = System.IO.File.ReadAllLines(file);
 				for (int i = 0; i < array.Length; i++)
 				{
 					string[] array2 = array[i].Split(',');
@@ -428,12 +427,12 @@ internal static class BlackAndWhite
 	{
 		try
 		{
-			if (!Pri.LongPath.File.Exists(file))
+			if (!System.IO.File.Exists(file))
 			{
 				CreateList(file, new List<ListItem>());
 				return true;
 			}
-			if (Pri.LongPath.Path.GetExtension(file).EqualsIgnoreCase(".xml"))
+			if (System.IO.Path.GetExtension(file).EqualsIgnoreCase(".xml"))
 			{
 				XmlDocument xmlDocument = new XmlDocument();
 				xmlDocument.XmlResolver = null;
@@ -453,7 +452,7 @@ internal static class BlackAndWhite
 			}
 			else
 			{
-				string[] array = Pri.LongPath.File.ReadAllLines(file);
+				string[] array = System.IO.File.ReadAllLines(file);
 				UserModulusPair item2 = default(UserModulusPair);
 				for (int i = 0; i < array.Length; i++)
 				{
@@ -481,7 +480,7 @@ internal static class BlackAndWhite
 		try
 		{
 			StreamWriter streamWriter = new StreamWriter(file, append: false, Encoding.UTF8);
-			bool flag = Pri.LongPath.Path.GetExtension(file).EqualsIgnoreCase(".xml");
+			bool flag = System.IO.Path.GetExtension(file).EqualsIgnoreCase(".xml");
 			if (flag)
 			{
 				streamWriter.WriteLine("<Keys>");
@@ -516,8 +515,8 @@ internal static class BlackAndWhite
 		{
 			XmlDocument xmlDocument = new XmlDocument();
 			bool flag = false;
-			string text = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, file);
-			if (!Pri.LongPath.File.Exists(text))
+			string text = System.IO.Path.Combine(AppHelper.SettingsFolder, file);
+			if (!System.IO.File.Exists(text))
 			{
 				return false;
 			}
@@ -540,9 +539,9 @@ internal static class BlackAndWhite
 			{
 				return false;
 			}
-			if (Pri.LongPath.File.Exists(text))
+			if (System.IO.File.Exists(text))
 			{
-				Pri.LongPath.File.SetAttributes(text, FileAttributes.Normal);
+				System.IO.File.SetAttributes(text, FileAttributes.Normal);
 			}
 			xmlDocument.Save(text);
 			return true;
@@ -576,7 +575,7 @@ internal static class BlackAndWhite
 		Stopwatch stopwatch = new Stopwatch();
 		stopwatch.Start();
 		string sQuery = "SELECT sender,s.modulus,COUNT(s.msgid) AS number_of_spots,SUM(sr.cnt) AS number_of_complains,SUM(sr.one) AS number_of_spots_complained FROM spots s LEFT JOIN (SELECT msgid,cnt,1 as one FROM spamgroup) sr ON (sr.msgid=s.msgid) GROUP BY s.modulus  HAVING (number_of_spots > 5   AND number_of_spots <= 20  AND number_of_spots_complained*1.0 / number_of_spots > 0.8) OR (number_of_spots > 20  AND number_of_spots <= 50  AND number_of_spots_complained*1.0 / number_of_spots > 0.6) OR (number_of_spots > 50  AND number_of_spots <= 100 AND number_of_spots_complained*1.0 / number_of_spots > 0.5) OR (number_of_spots > 100 AND number_of_spots <= 200 AND number_of_spots_complained*1.0 / number_of_spots > 0.3) OR (number_of_spots > 200 AND number_of_spots_complained*1.0 / number_of_spots > 0.2)";
-		string file = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "blacklist.auto.xml");
+		string file = System.IO.Path.Combine(AppHelper.SettingsFolder, "blacklist.auto.xml");
 		CreateList(file, new List<ListItem>());
 		using (ISqlDb sqlDb = SqlDbFactory.CreateSqlDbSpots(isReadOnly: true))
 		{
@@ -619,13 +618,13 @@ internal static class BlackAndWhite
 				list.Add(new KeyValuePair<string, string>(key, value));
 				if (list.Count >= 100)
 				{
-					Pri.LongPath.File.WriteAllLines(Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "whitelist." + num++ + ".csv"), list.Select((KeyValuePair<string, string> p) => p.Key + ";" + p.Value));
+					System.IO.File.WriteAllLines(System.IO.Path.Combine(AppHelper.SettingsFolder, "whitelist." + num++ + ".csv"), list.Select((KeyValuePair<string, string> p) => p.Key + ";" + p.Value));
 					list = new List<KeyValuePair<string, string>>();
 				}
 			}
 			if (list.Count > 0)
 			{
-				Pri.LongPath.File.WriteAllLines(Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "whitelist." + num + ".csv"), list.Select((KeyValuePair<string, string> p) => p.Key + ";" + p.Value));
+				System.IO.File.WriteAllLines(System.IO.Path.Combine(AppHelper.SettingsFolder, "whitelist." + num + ".csv"), list.Select((KeyValuePair<string, string> p) => p.Key + ";" + p.Value));
 			}
 		}
 		Log.Debug("auto whitelist generated in ms: " + stopwatch.ElapsedMilliseconds);
@@ -639,8 +638,8 @@ internal static class BlackAndWhite
 			{
 				XmlResolver = null
 			};
-			string text = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, file);
-			if (!Pri.LongPath.File.Exists(text))
+			string text = System.IO.Path.Combine(AppHelper.SettingsFolder, file);
+			if (!System.IO.File.Exists(text))
 			{
 				CreateList(text, new List<ListItem>());
 			}
@@ -666,7 +665,7 @@ internal static class BlackAndWhite
 			xmlNode.Attributes.Append(xmlAttribute);
 			xmlNode.InnerText = key;
 			documentElement.AppendChild(xmlNode);
-			Pri.LongPath.File.SetAttributes(text, FileAttributes.Normal);
+			System.IO.File.SetAttributes(text, FileAttributes.Normal);
 			xmlDocument.Save(text);
 			return true;
 		}

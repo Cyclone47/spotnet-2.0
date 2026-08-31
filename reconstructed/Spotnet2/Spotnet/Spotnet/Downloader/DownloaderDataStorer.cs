@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Helpers;
 using Spotnet.Model;
 using Spotnet.Phuse.NNTP.Net;
@@ -59,7 +58,7 @@ public static class DownloaderDataStorer
 		{
 			try
 			{
-				using FileStream fileStream = Pri.LongPath.File.Open(segment.File.FullFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+				using FileStream fileStream = System.IO.File.Open(segment.File.FullFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 				fileStream.Seek(segment.IndentBytes, SeekOrigin.Begin);
 				MemoryStream memoryStream = new MemoryStream(segment.ExpectedSize);
 				for (int j = 0; j < segment.ExpectedSize; j += fileStream.Read(memoryStream.GetBuffer(), j, segment.ExpectedSize - j))
@@ -205,14 +204,14 @@ public static class DownloaderDataStorer
 	{
 		if (!FileStreams.TryGetValue(file, out var value))
 		{
-			string text = Pri.LongPath.Path.GetDirectoryName(file.FullFilePath).Trim();
+			string text = System.IO.Path.GetDirectoryName(file.FullFilePath).Trim();
 			if (!AppHelper.EnsureDirectoryExist(text) && !_isCannotCreateShownOnce)
 			{
 				_isCannotCreateShownOnce = true;
 				AppHelper.Error("Cannot create download directory. Make sure it can be created: " + text);
 			}
-			string path = Pri.LongPath.Path.Combine(text, Pri.LongPath.Path.GetFileName(file.FullFilePath));
-			value = new KeyValuePair<FileStream, long>(Pri.LongPath.File.Open(path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read | FileShare.Delete), -1L);
+			string path = System.IO.Path.Combine(text, System.IO.Path.GetFileName(file.FullFilePath));
+			value = new KeyValuePair<FileStream, long>(System.IO.File.Open(path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read | FileShare.Delete), -1L);
 			if (FileStreams.TryAdd(file, value))
 			{
 				value.Key.SetLength(file.Filesize);

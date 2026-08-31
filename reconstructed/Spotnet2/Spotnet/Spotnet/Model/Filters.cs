@@ -9,7 +9,6 @@ using System.Windows;
 using System.Xml;
 using Microsoft.VisualBasic;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model.Newznab;
@@ -40,7 +39,7 @@ internal class Filters
 				text = DefaultFilterNames[0];
 				MainWindowVm.FilterSelectedName = text;
 			}
-			string text2 = Pri.LongPath.Path.Combine(AppHelper.FiltersFolder, text);
+			string text2 = System.IO.Path.Combine(AppHelper.FiltersFolder, text);
 			if (!AppHelper.EnsureDirectoryExist(text2))
 			{
 				throw new Exception("Path cannot be created: " + text2);
@@ -49,7 +48,7 @@ internal class Filters
 		}
 	}
 
-	private static string FiltersFilePath => Pri.LongPath.Path.Combine(FilterFolder, "filters.xml");
+	private static string FiltersFilePath => System.IO.Path.Combine(FilterFolder, "filters.xml");
 
 	private static MainWindowViewModel MainWindowVm => ((ViewModelLocator)Application.Current.Resources["Locator"]).MainWindow;
 
@@ -72,7 +71,7 @@ internal class Filters
 		List<string> list = new List<string>();
 		foreach (string defaultFilterName in DefaultFilterNames)
 		{
-			string text = Pri.LongPath.Path.Combine(AppHelper.FiltersFolder, defaultFilterName);
+			string text = System.IO.Path.Combine(AppHelper.FiltersFolder, defaultFilterName);
 			list.Add(text);
 			if (!AppHelper.EnsureDirectoryExist(text))
 			{
@@ -83,22 +82,22 @@ internal class Filters
 		CultureInfo culture = UserLanguageHelper.Culture;
 		try
 		{
-			string text2 = Pri.LongPath.Path.Combine(list[1], "filters.xml");
-			if (!Pri.LongPath.File.Exists(text2))
+			string text2 = System.IO.Path.Combine(list[1], "filters.xml");
+			if (!System.IO.File.Exists(text2))
 			{
 				Log.Debug("Restore filter " + text2);
 				string filtersAdvanced = Resources.FiltersAdvanced;
-				Pri.LongPath.File.WriteAllText(text2, filtersAdvanced);
+				System.IO.File.WriteAllText(text2, filtersAdvanced);
 			}
-			text2 = Pri.LongPath.Path.Combine(list[2], "filters.xml");
-			if (!Pri.LongPath.File.Exists(text2))
+			text2 = System.IO.Path.Combine(list[2], "filters.xml");
+			if (!System.IO.File.Exists(text2))
 			{
 				Log.Debug("Restore filter " + text2);
 				string filtersAdvanced = Resources.FiltersAdvanced_en;
-				Pri.LongPath.File.WriteAllText(text2, filtersAdvanced);
+				System.IO.File.WriteAllText(text2, filtersAdvanced);
 			}
-			text2 = Pri.LongPath.Path.Combine(list[3], "filters.xml");
-			if (!Pri.LongPath.File.Exists(text2))
+			text2 = System.IO.Path.Combine(list[3], "filters.xml");
+			if (!System.IO.File.Exists(text2))
 			{
 				Log.Debug("Restore filter " + text2);
 				UserLanguageHelper.Culture = CultureInfo.CreateSpecificCulture("nl");
@@ -107,8 +106,8 @@ internal class Filters
 					return false;
 				}
 			}
-			text2 = Pri.LongPath.Path.Combine(list[4], "filters.xml");
-			if (!Pri.LongPath.File.Exists(text2))
+			text2 = System.IO.Path.Combine(list[4], "filters.xml");
+			if (!System.IO.File.Exists(text2))
 			{
 				Log.Debug("Restore filter " + text2);
 				UserLanguageHelper.Culture = CultureInfo.CreateSpecificCulture("en");
@@ -230,9 +229,9 @@ internal class Filters
 				{
 					filtersFilePath = FiltersFilePath;
 				}
-				if (Pri.LongPath.File.Exists(filtersFilePath))
+				if (System.IO.File.Exists(filtersFilePath))
 				{
-					Pri.LongPath.File.SetAttributes(filtersFilePath, FileAttributes.Normal);
+					System.IO.File.SetAttributes(filtersFilePath, FileAttributes.Normal);
 				}
 				xmlDocument.Save(filtersFilePath);
 			}
@@ -252,7 +251,7 @@ internal class Filters
 		{
 			XmlResolver = null
 		};
-		if (Pri.LongPath.File.Exists(FiltersFilePath) && !cleanXml)
+		if (System.IO.File.Exists(FiltersFilePath) && !cleanXml)
 		{
 			xmlDocument.Load(FiltersFilePath);
 			xmlElement = GetXmlElement(xmlDocument.DocumentElement, rootNode);
@@ -283,9 +282,9 @@ internal class Filters
 			GetXmlDocument(out var xmlDocument, out var _, filter.Parent, cleanXml: false);
 			GetXmlElement(xmlDocument.DocumentElement, filter).SetAttribute("Query", query);
 			filter.Query = query;
-			if (Pri.LongPath.File.Exists(FiltersFilePath))
+			if (System.IO.File.Exists(FiltersFilePath))
 			{
-				Pri.LongPath.File.SetAttributes(FiltersFilePath, FileAttributes.Normal);
+				System.IO.File.SetAttributes(FiltersFilePath, FileAttributes.Normal);
 			}
 			xmlDocument.Save(FiltersFilePath);
 		}
@@ -384,7 +383,7 @@ internal class Filters
 		{
 			string contents = ((UserLanguageHelper.Language == "en") ? Resources.FiltersAdvanced_en : Resources.FiltersAdvanced);
 			MainWindowVm.FilterSelectedName = ((UserLanguageHelper.Language == "en") ? DefaultFilterNames[2] : DefaultFilterNames[1]);
-			Pri.LongPath.File.WriteAllText(FiltersFilePath, contents);
+			System.IO.File.WriteAllText(FiltersFilePath, contents);
 			LoadFilters();
 			FiltersExpandedStateSaveAsync();
 			return true;
@@ -400,7 +399,7 @@ internal class Filters
 	{
 		try
 		{
-			if (!Pri.LongPath.File.Exists(FiltersFilePath) && !ResetFilters())
+			if (!System.IO.File.Exists(FiltersFilePath) && !ResetFilters())
 			{
 				return false;
 			}
@@ -525,7 +524,7 @@ internal class Filters
 			{
 				XmlResolver = null
 			};
-			if (filter == null || !Pri.LongPath.File.Exists(FiltersFilePath))
+			if (filter == null || !System.IO.File.Exists(FiltersFilePath))
 			{
 				return;
 			}
@@ -538,9 +537,9 @@ internal class Filters
 			if (xmlElement != null && xmlElement.ParentNode != null)
 			{
 				xmlElement.ParentNode.RemoveChild(xmlElement);
-				if (Pri.LongPath.File.Exists(FiltersFilePath))
+				if (System.IO.File.Exists(FiltersFilePath))
 				{
-					Pri.LongPath.File.SetAttributes(FiltersFilePath, FileAttributes.Normal);
+					System.IO.File.SetAttributes(FiltersFilePath, FileAttributes.Normal);
 				}
 				xmlDocument.Save(FiltersFilePath);
 				filter.Parent.Children.Remove(filter);
@@ -584,7 +583,7 @@ internal class Filters
 			{
 				XmlResolver = null
 			};
-			if (GetFilter(filterId) == null || !Pri.LongPath.File.Exists(FiltersFilePath))
+			if (GetFilter(filterId) == null || !System.IO.File.Exists(FiltersFilePath))
 			{
 				return;
 			}
@@ -628,9 +627,9 @@ internal class Filters
 				filter.Parent.ChildRemove(child2);
 				filter.Parent.ChildInsert(num2, child2);
 			}
-			if (Pri.LongPath.File.Exists(FiltersFilePath))
+			if (System.IO.File.Exists(FiltersFilePath))
 			{
-				Pri.LongPath.File.SetAttributes(FiltersFilePath, FileAttributes.Normal);
+				System.IO.File.SetAttributes(FiltersFilePath, FileAttributes.Normal);
 			}
 			xmlDocument.Save(FiltersFilePath);
 		}
@@ -644,12 +643,12 @@ internal class Filters
 	{
 		Task.Run(delegate
 		{
-			string path = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "filters.expanded.txt");
+			string path = System.IO.Path.Combine(AppHelper.SettingsFolder, "filters.expanded.txt");
 			lock (LockExpandedFile)
 			{
 				try
 				{
-					Pri.LongPath.File.WriteAllLines(path, GetAllFamilyFullPathList(FiltersRoot, (FilterViewModel f) => f.IsExpanded), Encoding.Default);
+					System.IO.File.WriteAllLines(path, GetAllFamilyFullPathList(FiltersRoot, (FilterViewModel f) => f.IsExpanded), Encoding.Default);
 				}
 				catch (Exception ex)
 				{
@@ -661,15 +660,15 @@ internal class Filters
 
 	internal void FiltersExpandedStateRestore()
 	{
-		string path = Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "filters.expanded.txt");
+		string path = System.IO.Path.Combine(AppHelper.SettingsFolder, "filters.expanded.txt");
 		string[] namesToExpand = new string[0];
 		lock (LockExpandedFile)
 		{
 			try
 			{
-				if (Pri.LongPath.File.Exists(path))
+				if (System.IO.File.Exists(path))
 				{
-					namesToExpand = Pri.LongPath.File.ReadAllLines(path, Encoding.Default);
+					namesToExpand = System.IO.File.ReadAllLines(path, Encoding.Default);
 				}
 			}
 			catch (Exception ex)
@@ -719,9 +718,9 @@ internal class Filters
 
 	public static IEnumerable<string> GetChangableFilterNamesList()
 	{
-		return from f in (from d in Pri.LongPath.Directory.EnumerateDirectories(AppHelper.FiltersFolder)
-				where Pri.LongPath.File.Exists(Pri.LongPath.Path.Combine(d, "filters.xml"))
-				select d).Select(Pri.LongPath.Path.GetFileName)
+		return from f in (from d in System.IO.Directory.EnumerateDirectories(AppHelper.FiltersFolder)
+				where System.IO.File.Exists(System.IO.Path.Combine(d, "filters.xml"))
+				select d).Select(System.IO.Path.GetFileName)
 			where !GetUnchangableFilterNamesList().Contains(f)
 			select f;
 	}
@@ -743,7 +742,7 @@ internal class Filters
 				AppHelper.Error(Words.FiltersCannotCreateDir + ": " + AppHelper.FiltersFolder);
 				return;
 			}
-			string text = Pri.LongPath.Path.Combine(AppHelper.FiltersFolder, newName);
+			string text = System.IO.Path.Combine(AppHelper.FiltersFolder, newName);
 			if (AppHelper.EnsureDirectoryExist(text))
 			{
 				string filterSelectedName = MainWindowVm.FilterSelectedName;
@@ -751,9 +750,9 @@ internal class Filters
 				{
 					GetXmlDocument(out var xmlDocument, out var _, FiltersRoot, cleanXml: false);
 					MainWindowVm.FilterSelectedName = newName;
-					if (Pri.LongPath.File.Exists(FiltersFilePath))
+					if (System.IO.File.Exists(FiltersFilePath))
 					{
-						Pri.LongPath.File.SetAttributes(FiltersFilePath, FileAttributes.Normal);
+						System.IO.File.SetAttributes(FiltersFilePath, FileAttributes.Normal);
 					}
 					xmlDocument.Save(FiltersFilePath);
 					return;

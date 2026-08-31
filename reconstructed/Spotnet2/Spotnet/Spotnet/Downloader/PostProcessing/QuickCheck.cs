@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
 using Spotnet.Helpers;

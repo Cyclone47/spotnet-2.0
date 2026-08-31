@@ -1,0 +1,30 @@
+<Project>
+
+  <!--
+    Shared build settings for every project in the solution.
+
+    Analyzers are on but deliberately NOT escalated to errors: this is a reconstructed
+    codebase with a long tail of pre-existing findings (undisposed IDisposables, empty
+    catch blocks, sync-over-async). The point is to turn that tail into a visible,
+    machine-checkable backlog rather than to block the build on it. Escalate categories
+    to errors as they get cleaned up, so they cannot regress.
+  -->
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <!-- Reproducible output: identical sources produce an identical assembly. -->
+    <Deterministic>true</Deterministic>
+    <!-- Surface NuGet advisories on restore once packages replace the loose lib/ DLLs. -->
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditLevel>low</NuGetAuditLevel>
+  </PropertyGroup>
+
+  <!-- PackageReferences stage multi-architecture native payloads by default. Spotnet 3.0
+       is x64-only, so keep Release/Debug output free of unused x86 and ARM64 runtimes. -->
+  <Target Name="RemoveNonX64RuntimeAssets" AfterTargets="Build"
+          Condition="'$(PlatformTarget)' == 'x64'">
+    <RemoveDir Directories="$(OutDir)x86;$(OutDir)runtimes\win-x86;$(OutDir)runtimes\win-arm64;$(OutDir)libvlc\win-x86;$(OutDir)libvlc\win-arm64" />
+  </Target>
+
+</Project>

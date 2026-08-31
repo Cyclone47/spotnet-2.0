@@ -979,6 +979,8 @@ public partial class LeftPanelUserControl : UserControl
 
         _suggestList.Clear();
         XmlDocument xmlDocument = new XmlDocument();
+        // e.Result is an HTTP response body; do not resolve external entities from it.
+        xmlDocument.XmlResolver = null;
         xmlDocument.LoadXml(e.Result);
         foreach (XmlNode item in xmlDocument.SelectNodes("//CompleteSuggestion"))
         {

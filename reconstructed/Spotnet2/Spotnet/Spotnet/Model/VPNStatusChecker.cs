@@ -5,7 +5,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 
 namespace Spotnet.Model;
 

@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.VisualBasic;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;
@@ -31,13 +30,13 @@ internal static class SpotnetUpgradeNzb
 		Spotnet.Model.NNTP nNTP = new Spotnet.Model.NNTP(AppHelper.HeaderPhuse);
 		foreach (NNTPInput item in list2)
 		{
-			string path = Pri.LongPath.Path.GetFileName(AppHelper.GetTempFileName());
+			string path = System.IO.Path.GetFileName(AppHelper.GetTempFileName());
 			Match match = new Regex("\\((.+)\\)").Match(item.Subject);
 			if (match.Success)
 			{
 				path = match.Groups[1].Value;
 			}
-			string text = Pri.LongPath.Path.Combine(pathToDownload, path);
+			string text = System.IO.Path.Combine(pathToDownload, path);
 			string allGroups = string.Join(",", item.Groups);
 			foreach (string group in item.Groups)
 			{
@@ -56,7 +55,7 @@ internal static class SpotnetUpgradeNzb
 					errorMsg = "Segments verification failed";
 					continue;
 				}
-				using (FileStream fileStream = Pri.LongPath.File.Open(text, FileMode.Create))
+				using (FileStream fileStream = System.IO.File.Open(text, FileMode.Create))
 				{
 					foreach (NNTPSegment item2 in item.Segments.OrderBy((NNTPSegment s) => s.Index))
 					{

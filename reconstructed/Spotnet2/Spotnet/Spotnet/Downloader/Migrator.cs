@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
 using Spotnet.Helpers;

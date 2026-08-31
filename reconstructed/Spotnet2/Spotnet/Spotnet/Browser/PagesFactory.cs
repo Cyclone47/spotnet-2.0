@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Controls;
-using NLog;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;
@@ -11,8 +9,6 @@ namespace Spotnet.Browser;
 
 internal static class PagesFactory
 {
-	private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
 	public static readonly List<IPage> AllPages = new List<IPage>();
 
 	public static void DisposeAllPages()
@@ -52,29 +48,25 @@ internal static class PagesFactory
 		}
 	}
 
-	public static async Task<IPage> NewPage(PageTypeEnum pageType, TabItem tabItem, string urlOrTitle = "", SpotEx spotEx = null)
+	public static System.Threading.Tasks.Task<IPage> NewPage(PageTypeEnum pageType, TabItem tabItem, string urlOrTitle = "", SpotEx spotEx = null)
 	{
 		IPage page;
 		switch (pageType)
 		{
 		case PageTypeEnum.ReleaseNotes:
-			await AwesomiumPage.InitializeWebCore();
 			page = new ReleaseNotesPage();
 			break;
 		case PageTypeEnum.ResponseSite:
-			await AwesomiumPage.InitializeWebCore();
 			page = new ResponsePage();
 			break;
 		case PageTypeEnum.AdvancedDownloads:
-			await AwesomiumPage.InitializeWebCore();
 			page = new AdvancedDownloadsPage();
 			break;
 		case PageTypeEnum.SpotLoaded:
 			page = new SpotNativePage(urlOrTitle, spotEx);
 			break;
 		default:
-			await AwesomiumPage.InitializeWebCore();
-			page = new AwesomiumPage(urlOrTitle);
+			page = new WebView2Page(urlOrTitle);
 			break;
 		}
 		page.TabItem = tabItem;
@@ -83,6 +75,6 @@ internal static class PagesFactory
 		{
 			AllPages.Remove(page);
 		};
-		return page;
+		return System.Threading.Tasks.Task.FromResult(page);
 	}
 }

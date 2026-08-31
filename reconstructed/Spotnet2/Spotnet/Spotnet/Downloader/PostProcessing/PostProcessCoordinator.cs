@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Helpers;
 using Spotnet.Model;
@@ -105,7 +104,7 @@ public class PostProcessCoordinator
 	private void ProcessSplittedFiles()
 	{
 		List<string> list = (from f in _downloaderItem.FilesToDownloadNoParPieces
-			where Pri.LongPath.File.Exists(f.FullFilePath)
+			where System.IO.File.Exists(f.FullFilePath)
 			select f.Filename).ToList();
 		List<string> splittedBases = GetSplittedBases(list);
 		if (!splittedBases.Any())
@@ -116,7 +115,7 @@ public class PostProcessCoordinator
 		_downloaderItem.StatsUpdateProgress(-1.0);
 		foreach (string item in splittedBases)
 		{
-			if (Pri.LongPath.File.Exists(item))
+			if (System.IO.File.Exists(item))
 			{
 				continue;
 			}
@@ -137,14 +136,14 @@ public class PostProcessCoordinator
 	{
 		splittedFiles.Sort();
 		string incompleteDir = _downloaderItem.IncompleteDir;
-		string path = Pri.LongPath.Path.Combine(incompleteDir, baseFilename);
+		string path = System.IO.Path.Combine(incompleteDir, baseFilename);
 		try
 		{
-			using (FileStream destination = Pri.LongPath.File.Create(path))
+			using (FileStream destination = System.IO.File.Create(path))
 			{
 				foreach (string splittedFile in splittedFiles)
 				{
-					using (FileStream fileStream = Pri.LongPath.File.OpenRead(Pri.LongPath.Path.Combine(incompleteDir, splittedFile)))
+					using (FileStream fileStream = System.IO.File.OpenRead(System.IO.Path.Combine(incompleteDir, splittedFile)))
 					{
 						fileStream.CopyTo(destination);
 					}
@@ -155,7 +154,7 @@ public class PostProcessCoordinator
 			{
 				try
 				{
-					Pri.LongPath.File.Delete(Pri.LongPath.Path.Combine(incompleteDir, splittedFile2));
+					System.IO.File.Delete(System.IO.Path.Combine(incompleteDir, splittedFile2));
 				}
 				catch (Exception ex)
 				{
@@ -189,7 +188,7 @@ public class PostProcessCoordinator
 		foreach (string item in list2)
 		{
 			List<int> list3 = new List<int>();
-			long length = new Pri.LongPath.FileInfo(Pri.LongPath.Path.Combine(incompleteDir, item + ".001")).Length;
+			long length = new System.IO.FileInfo(System.IO.Path.Combine(incompleteDir, item + ".001")).Length;
 			int num = -1;
 			bool flag = true;
 			foreach (string completeFiles2 in completeFilesList)
@@ -204,7 +203,7 @@ public class PostProcessCoordinator
 					continue;
 				}
 				int num2 = Convert.ToInt32(match2.Groups[2].Value);
-				long length2 = new Pri.LongPath.FileInfo(Pri.LongPath.Path.Combine(incompleteDir, completeFiles2)).Length;
+				long length2 = new System.IO.FileInfo(System.IO.Path.Combine(incompleteDir, completeFiles2)).Length;
 				if (length2 != length)
 				{
 					if (num != -1 || length2 > length)

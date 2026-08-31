@@ -11,8 +11,7 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media.Animation;
 using GalaSoft.MvvmLight.Threading;
-using Meta.Vlc.Interop.Media;
-using Meta.Vlc.Wpf;
+using LibVLCSharp.Shared;
 using NLog;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
@@ -143,7 +142,7 @@ public partial class PlayerControl : UserControl
         };
         _timerToPauseVideoAfterMouseClick.Elapsed += delegate
         {
-            if (_vm.Player == null || _vm.Player.State == Meta.Vlc.Interop.Media.MediaState.Ended)
+            if (_vm.Player == null || _vm.Player.State == VLCState.Ended)
             {
                 Play(null, TimeSpan.Zero, applyAnimation: false).Forget();
             }
@@ -526,7 +525,7 @@ public partial class PlayerControl : UserControl
     private void PlayPauseBtn_OnClick(object sender, RoutedEventArgs e)
     {
         RestoreFocus();
-        if (!_vm.IsStopDetected && (_vm.Player == null || _vm.Player.State == Meta.Vlc.Interop.Media.MediaState.Ended))
+        if (!_vm.IsStopDetected && (_vm.Player == null || _vm.Player.State == VLCState.Ended))
         {
             Play(null, TimeSpan.Zero, applyAnimation: false).Forget();
         }
@@ -593,10 +592,7 @@ public partial class PlayerControl : UserControl
             {
                 lock (_lockPlayerStop)
                 {
-                    _vm.Player = new VlcPlayer
-                    {
-                        EndBehavior = EndBehavior.Nothing
-                    };
+                    _vm.Player = new VlcPlayer();
                     Volume = Settings.Default.PlayerVolume;
                     _vm.Player.PositionChanged += VlcControlOnPositionChanged;
                     _vm.Player.LengthChanged += PlayerOnLengthChanged;
@@ -789,7 +785,7 @@ public partial class PlayerControl : UserControl
             }
 
             double mousePosX = e.GetPosition(SliderPosition).X;
-            if (_vm.Player == null || _vm.Player.State == Meta.Vlc.Interop.Media.MediaState.Ended || _vm.IsStopDetected)
+            if (_vm.Player == null || _vm.Player.State == VLCState.Ended || _vm.IsStopDetected)
             {
                 Play(null, TimeSpan.Zero, applyAnimation: false).ContinueWith(delegate
                 {

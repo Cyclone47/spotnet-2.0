@@ -8,7 +8,7 @@ using System.Timers;
 using System.Windows;
 using GalaSoft.MvvmLight.Threading;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Controls;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;

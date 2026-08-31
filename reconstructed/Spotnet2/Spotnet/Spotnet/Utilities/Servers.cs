@@ -4,7 +4,6 @@ using System.IO;
 using System.Xml;
 using Microsoft.VisualBasic;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Downloader;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -35,7 +34,7 @@ public class Servers
 		OHeader = null;
 		OMasterCache = null;
 		OSlaveCache = null;
-		if (!Pri.LongPath.File.Exists(Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "servers.xml")))
+		if (!System.IO.File.Exists(System.IO.Path.Combine(AppHelper.SettingsFolder, "servers.xml")))
 		{
 			OUp = new ServerInfo();
 			ODown = new ServerInfo();
@@ -49,7 +48,7 @@ public class Servers
 		try
 		{
 			xmlDocument.XmlResolver = null;
-			xmlDocument.Load(Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "servers.xml"));
+			xmlDocument.Load(System.IO.Path.Combine(AppHelper.SettingsFolder, "servers.xml"));
 			XmlElement documentElement = xmlDocument.DocumentElement;
 			if (documentElement == null)
 			{
@@ -143,11 +142,11 @@ public class Servers
 				xmlElement.AppendChild(xmlElement2);
 			}
 			xmlDocument.AppendChild(xmlElement);
-			if (Pri.LongPath.File.Exists(Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "servers.xml")))
+			if (System.IO.File.Exists(System.IO.Path.Combine(AppHelper.SettingsFolder, "servers.xml")))
 			{
-				Pri.LongPath.File.SetAttributes(Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "servers.xml"), FileAttributes.Normal);
+				System.IO.File.SetAttributes(System.IO.Path.Combine(AppHelper.SettingsFolder, "servers.xml"), FileAttributes.Normal);
 			}
-			xmlDocument.Save(Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "servers.xml"));
+			xmlDocument.Save(System.IO.Path.Combine(AppHelper.SettingsFolder, "servers.xml"));
 			return true;
 		}
 		catch (Exception ex)

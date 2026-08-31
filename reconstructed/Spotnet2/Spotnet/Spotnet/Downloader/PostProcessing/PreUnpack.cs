@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Pri.LongPath;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -39,7 +38,7 @@ public class PreUnpack
 
 	public bool IsPreUnpackRunning { get; private set; }
 
-	private string PreUnpackDir => Pri.LongPath.Path.Combine(_item.IncompleteDir, "__preunpack\\");
+	private string PreUnpackDir => System.IO.Path.Combine(_item.IncompleteDir, "__preunpack\\");
 
 	private static event Action PauseAllPreunpacks;
 
@@ -353,7 +352,7 @@ public class PreUnpack
 		{
 			return null;
 		}
-		string fileNameWithoutExtension = Pri.LongPath.Path.GetFileNameWithoutExtension(path);
+		string fileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(path);
 		if (fileNameWithoutExtension.IsNullOrEmpty())
 		{
 			return null;

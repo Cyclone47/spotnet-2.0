@@ -1477,7 +1477,7 @@ VAL: Quick check
 KEY: SpotRemoveAskDialogText
 TYPE: System.String
 VAL: You want to remove your own spot that is added by mistake. 
-The spot would be removed from databases of all Spotnet 2.0 users. 
+The spot would be removed from databases of all Spotnet 3.0 users.
 Please write the reason why you want to remove it:
 ----------------------------------------
 KEY: RestartNow

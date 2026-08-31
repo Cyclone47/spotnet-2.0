@@ -11,7 +11,7 @@ namespace DbRepair
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("======================================================================");
-            Console.WriteLine("             Spotnet 2.0 Database Quick-Repair Tool                  ");
+            Console.WriteLine("             Spotnet 3.0 Database Quick-Repair Tool                  ");
             Console.WriteLine("======================================================================");
             Console.ResetColor();
             Console.WriteLine();

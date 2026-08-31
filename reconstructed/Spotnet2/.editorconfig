@@ -1,0 +1,83 @@
+root = true
+
+[*.cs]
+indent_style = tab
+insert_final_newline = true
+
+# ---------------------------------------------------------------------------
+# Analyzer triage
+#
+# Turning analyzers on raises ~7000 findings across this reconstruction. Left at
+# their defaults they bury the handful that actually matter, so the high-volume
+# stylistic categories are demoted to suggestions (still visible in the IDE, out
+# of the build log) and the ones worth acting on stay as warnings.
+#
+# Promote a category back to `warning` - and eventually `error` - as it gets
+# cleaned up, so the fix cannot regress.
+# ---------------------------------------------------------------------------
+
+# --- Worth acting on: correctness and resource safety ----------------------
+
+# Type owns disposable fields but is not disposable. Real leaks live here -
+# this is the category that found the undisposed RSA providers.
+dotnet_diagnostic.CA1001.severity = warning
+# Dispose() should call GC.SuppressFinalize.
+dotnet_diagnostic.CA1816.severity = warning
+# Non-constant static fields should not be mutable - the shared-state bugs.
+dotnet_diagnostic.CA2211.severity = warning
+# Insecure DTD processing (XXE). This app parses XML straight off Usenet.
+dotnet_diagnostic.CA3075.severity = warning
+# Review SQL queries for security vulnerabilities - the concatenated SQL.
+dotnet_diagnostic.CA2100.severity = warning
+# ConfigureAwait / sync-over-async hazards.
+dotnet_diagnostic.CA2007.severity = suggestion
+
+# --- Deliberate, not defects ----------------------------------------------
+
+# SHA-1 and MD5 are weak, but they are what the Spotnet wire protocol specifies.
+# Changing them forks this client off the network, so this is a documented
+# constraint rather than something to fix.
+dotnet_diagnostic.CA5350.severity = none
+dotnet_diagnostic.CA5351.severity = none
+
+# --- High volume, low value: demoted to keep the build log readable --------
+
+# Culture-sensitive string comparison and formatting (~3700 findings).
+# Worth a sweep eventually; not worth drowning every other warning first.
+dotnet_diagnostic.CA1304.severity = suggestion
+dotnet_diagnostic.CA1305.severity = suggestion
+dotnet_diagnostic.CA1309.severity = suggestion
+dotnet_diagnostic.CA1310.severity = suggestion
+dotnet_diagnostic.CA1311.severity = suggestion
+# Use nameof.
+dotnet_diagnostic.CA1507.severity = suggestion
+# Visible instance fields - pervasive in the reconstructed models.
+dotnet_diagnostic.CA1051.severity = suggestion
+# Member does not access instance state; mark as static.
+dotnet_diagnostic.CA1822.severity = suggestion
+# Prefer Count/Length over Any().
+dotnet_diagnostic.CA1860.severity = suggestion
+# throw new Exception(...) - pervasive style in the reconstruction.
+dotnet_diagnostic.CA2201.severity = suggestion
+# Naming: underscores in identifiers, type-name suffixes.
+dotnet_diagnostic.CA1707.severity = suggestion
+dotnet_diagnostic.CA1711.severity = suggestion
+# Prefer Array.Empty / collection-expression allocation nits.
+dotnet_diagnostic.CA1825.severity = suggestion
+dotnet_diagnostic.CA1861.severity = suggestion
+# Micro-optimizations around string and dictionary lookups.
+dotnet_diagnostic.CA1854.severity = suggestion
+dotnet_diagnostic.CA1859.severity = suggestion
+dotnet_diagnostic.CA1862.severity = suggestion
+# Unused result / argument-exception detail.
+dotnet_diagnostic.CA1806.severity = suggestion
+dotnet_diagnostic.CA2208.severity = suggestion
+
+[*.{xaml,csproj,props,targets,config}]
+indent_style = space
+indent_size = 2
+
+# Test fixtures build their own SQL from constants to seed and inspect scratch
+# databases. There is no user input to review there.
+[Spotnet.Tests/**.cs]
+dotnet_diagnostic.CA2100.severity = none

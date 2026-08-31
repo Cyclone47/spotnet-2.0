@@ -448,12 +448,20 @@ internal static class Headers
 	private static void UpdateNullModuluses(ISqlDb db, Dictionary<string, string> msgIds)
 	{
 		using ISqlDbTransaction sqlDbTransaction = db.BeginWriteTransaction();
+		// Both the modulus and the message id come off the wire, so they are bound as
+		// parameters rather than interpolated. Reusing one command across the loop also
+		// lets SQLite keep the prepared statement.
+		using DbCommand dbCommand = db.CreateCommand(sqlDbTransaction);
+		dbCommand.CommandText = "UPDATE spots SET modulus=? WHERE msgid=?";
+		DbParameter modulusParameter = dbCommand.CreateParameter();
+		dbCommand.Parameters.Add(modulusParameter);
+		DbParameter msgIdParameter = dbCommand.CreateParameter();
+		dbCommand.Parameters.Add(msgIdParameter);
 		foreach (KeyValuePair<string, string> msgId in msgIds)
 		{
-			string key = msgId.Key;
-			string value = msgId.Value;
-			string command = $"UPDATE spots SET modulus=\"{value}\" WHERE msgid=\"{key}\"";
-			db.ExecuteNonQuery(command, sqlDbTransaction);
+			modulusParameter.Value = msgId.Value;
+			msgIdParameter.Value = msgId.Key;
+			db.ExecuteNonQuery(dbCommand);
 		}
 		sqlDbTransaction.Commit();
 	}

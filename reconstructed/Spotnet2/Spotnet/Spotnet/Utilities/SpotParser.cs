@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.VisualBasic;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;
@@ -405,7 +404,7 @@ internal class SpotParser
 		{
 			string value = item.Groups[2].Value;
 			string text = LocalFilePrefix + AppHelper.SmileysPath + value + ".gif";
-			if (Pri.LongPath.File.Exists(text.Replace("file://", "")))
+			if (System.IO.File.Exists(text.Replace("file://", "")))
 			{
 				sHtml = sHtml.Replace(item.Groups[0].Value, "<IMG onfocus='this.blur()' title=\"" + value + "\" SRC=\"" + text + "\">");
 			}
@@ -701,7 +700,7 @@ internal class SpotParser
 		}
 		string newValue = ((xComment.User.Modulus.Equals(UserKeyHelper.GetModulus()) || isPreview || sClass.Equals("trusted")) ? "none" : "true");
 		string text2 = LocalFilePrefix + AppHelper.SettingsFolder.Replace("\\", "/").Replace("\"", "\"\"");
-		string newValue2 = Pri.LongPath.Path.Combine(text2, "TabThemes/" + Settings.Default.ActiveTheme).Replace("\\", "/");
+		string newValue2 = System.IO.Path.Combine(text2, "TabThemes/" + Settings.Default.ActiveTheme).Replace("\\", "/");
 		string text3 = SpotHelper.MakeMsg(xComment.MessageId, tag: false).Split('@')[0];
 		string newValue3 = AppHelper.HtmlEncode(string.Format(xComment.From));
 		string newValue4 = (xComment.User.ValidSignature ? AppHelper.MakeUnique(xComment.User.Modulus) : Words.Unknown);
@@ -754,7 +753,7 @@ internal class SpotParser
 			UserLanguageHelper.Culture = culture;
 		}
 		string text = LocalFilePrefix + AppHelper.SettingsFolder.Replace("\\", "/").Replace("\"", "\"\"");
-		string newValue2 = Pri.LongPath.Path.Combine(Pri.LongPath.Path.Combine(text, "TabThemes/"), Settings.Default.ActiveTheme);
+		string newValue2 = System.IO.Path.Combine(System.IO.Path.Combine(text, "TabThemes/"), Settings.Default.ActiveTheme);
 		string text2 = AppHelper.HtmlEncode(spotEx.Title).Replace("[SN:", "[SN:]");
 		string text3 = (spotEx.Web.IsNullOrWhiteSpace() ? MakeGoogleSearch(spotEx.Title) : spotEx.Web);
 		string text4 = _spotHtm.Replace("[SN:NICK]", AppHelper.StripNonAlphaNumericCharacters(Settings.Default.Nickname)).Replace("[SN:AVATAR]", GetAvatar(spotEx.User.Avatar, spotEx.User.Modulus)).Replace("[SN:FONTSIZE]", fontSize.ToString(CultureInfo.InvariantCulture))
@@ -807,11 +806,30 @@ internal class SpotParser
 		}
 		if (ThemeHelper.IsModernDark)
 		{
+			// The tab templates paint their panels through ID selectors (#part-one,
+			// #part-two, ...). Those outrank the element selectors below, so overriding
+			// text colour globally without also overriding those panels left light text
+			// on a white background - the panels have to be named explicitly.
+			// body carries a bgcolor attribute too, which CSS on the same element wins.
 			string darkCss = @"<style type='text/css' id='spotnet-modern-dark-css'>
 html, body {
     background-color: #0d1520 !important;
     background-image: none !important;
     color: #e2e8f0 !important;
+}
+#part-button, #part-one, #part-one-centered, #part-two, #part-three, #part-four, #part-five,
+#part-six, #ImdbPanel, #ImdbPanel2, #wrapper, #wrapper-one, #wrapper-two {
+    background: #131d28 none !important;
+    background-color: #131d28 !important;
+    border-color: #1e293b !important;
+    color: #e2e8f0 !important;
+}
+#part-two a, #ImdbPanel a, #ImdbPanel2 a, #part-five a, #part-three a, #part-four a {
+    color: #38bdf8 !important;
+}
+.header a {
+    background: #131d28 !important;
+    color: #38bdf8 !important;
 }
 table, tr, td, th, div, span, p, label, b, strong, i, em {
     color: #e2e8f0 !important;

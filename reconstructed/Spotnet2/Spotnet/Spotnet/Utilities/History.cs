@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Helpers;
 
 namespace Spotnet.Utilities;
@@ -23,7 +22,7 @@ internal class History
 
 	private void LH()
 	{
-		if (!Pri.LongPath.File.Exists(AppHelper.SettingsFolder + "\\history.dat"))
+		if (!System.IO.File.Exists(AppHelper.SettingsFolder + "\\history.dat"))
 		{
 			return;
 		}
@@ -43,7 +42,7 @@ internal class History
 	{
 		try
 		{
-			Pri.LongPath.File.Delete(AppHelper.SettingsFolder + "\\history.dat");
+			System.IO.File.Delete(AppHelper.SettingsFolder + "\\history.dat");
 			return true;
 		}
 		catch (Exception ex)

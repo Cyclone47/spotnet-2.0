@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Extensions;
 
 namespace Spotnet.Helpers;
@@ -17,6 +16,9 @@ internal static class SpotnetUpdateVerifier
 	{
 		XmlDocument xmlDocument = new XmlDocument();
 		xmlDocument.PreserveWhitespace = true;
+		// This parses a downloaded update manifest before its signature has been checked,
+		// so external entities must not be resolved.
+		xmlDocument.XmlResolver = null;
 		xmlDocument.Load(xmlFileName);
 		return VerifySign(xmlDocument);
 	}
@@ -45,12 +47,12 @@ internal static class SpotnetUpdateVerifier
 	{
 		try
 		{
-			if (!Pri.LongPath.File.Exists(file))
+			if (!System.IO.File.Exists(file))
 			{
 				return false;
 			}
 			using MD5 mD = MD5.Create();
-			using FileStream inputStream = Pri.LongPath.File.OpenRead(file);
+			using FileStream inputStream = System.IO.File.OpenRead(file);
 			return BitConverter.ToString(mD.ComputeHash(inputStream)).Replace("-", "").EqualsIgnoreCase(sumExpected);
 		}
 		catch (Exception ex)

@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.DataVirtualization;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -46,7 +46,7 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 
 	private const string PosterIdentFilterString = "^PosterIdent[ ]+IN[ ]+\\(([W|B|F|T|N|,| ]+)\\)";
 
-	private string _lastCountQueryRequested;
+	private ParameterizedSql _lastCountQueryRequested;
 
 	private readonly object _lockSlowCountCalculation = new object();
 
@@ -166,14 +166,15 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 			return 0;
 		}
 		query = Favorites.ReplaceWithFavoritesQuery(query);
-		string text = (AppHelper.IsSearchQuery(query) ? CreateSearchQueryCountNew(query) : CreateQueryCountNew(query));
-		if (text.IsNullOrEmpty())
+		ParameterizedSql countQuery = AppHelper.IsSearchQuery(query) ? BuildSearchQueryCountNew(query) : BuildQueryCountNew(query);
+		if (countQuery == null)
 		{
 			return 0;
 		}
 		using ISqlDb sqlDb = SqlDbFactory.CreateSqlDbSpots();
 		using ISqlDbTransaction transaction = sqlDb.BeginReadTransaction();
-		return (int)sqlDb.ExecuteScalar(text, transaction);
+		using DbCommand command = CreateCommand(sqlDb, transaction, countQuery);
+		return (int)sqlDb.ExecuteScalar(command);
 	}
 
 	public IList<ISpotRow> LoadRange(int startIndex, int count, long minRowId, out int overallCount, out bool isNewQuery, out bool isLastPage, CancellationToken cancellationToken)
@@ -218,16 +219,25 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 				}
 			}
 			num = 3;
-			string text = Favorites.ReplaceWithFavoritesQuery(_rowFilter);
-			text = (AppHelper.IsSearchQuery(text) ? CreateSearchQuery(text, startIndex, count, minRowId, out var countQuery) : CreateQuery(text, startIndex, count, minRowId, out countQuery));
+			string filter = Favorites.ReplaceWithFavoritesQuery(_rowFilter);
+			ParameterizedSql query;
+			ParameterizedSql countQuery;
+			if (AppHelper.IsSearchQuery(filter))
+			{
+				query = BuildSearchQuery(filter, startIndex, count, minRowId, out countQuery);
+			}
+			else
+			{
+				query = BuildQuery(filter, startIndex, count, minRowId, out countQuery);
+			}
 			num = 4;
 			cancellationToken.ThrowIfCancellationRequested();
 			num = 5;
-			list2 = ReadRows(text, cancellationToken, out var countBeforeFilter);
+			list2 = ReadRows(query, cancellationToken, out var countBeforeFilter);
 			num = 6;
 			if (flag)
 			{
-				_cacheQueryCounts[countQuery] = _cacheQueryCount;
+				_cacheQueryCounts[countQuery.CacheKey] = _cacheQueryCount;
 			}
 			isLastPage = UpdateQueryCount(countBeforeFilter, startIndex, count, countQuery);
 			overallCount = startIndex + list2.Count;
@@ -255,16 +265,16 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		return list2;
 	}
 
-	private bool UpdateQueryCount(int countBeforeFilter, int startIndex, int count, string countQuery)
+	private bool UpdateQueryCount(int countBeforeFilter, int startIndex, int count, ParameterizedSql countQuery)
 	{
 		IsCacheQueryCountPrecise = true;
 		if (_cacheQueryCount > startIndex + count)
 		{
 			return false;
 		}
-		if (_cacheQueryCounts.ContainsKey(countQuery))
+		if (_cacheQueryCounts.ContainsKey(countQuery.CacheKey))
 		{
-			_cacheQueryCount = _cacheQueryCounts[countQuery];
+			_cacheQueryCount = _cacheQueryCounts[countQuery.CacheKey];
 			return _cacheQueryCount <= startIndex + count;
 		}
 		IsCacheQueryCountPrecise = false;
@@ -273,7 +283,7 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		return countBeforeFilter == 0;
 	}
 
-	private void ScheduleSlowCountCalculationAsync(string countQuery)
+	private void ScheduleSlowCountCalculationAsync(ParameterizedSql countQuery)
 	{
 		Task.Run(delegate
 		{
@@ -288,12 +298,15 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 				using ISqlDbTransaction transaction = sqlDb.BeginReadTransaction();
 				while (true)
 				{
-					_cacheQueryCount = (int)sqlDb.ExecuteScalar(countQuery, transaction);
-					if (_cacheQueryCount >= 0 && !Favorites.IsFavoritesQuery(countQuery))
+					using (DbCommand command = CreateCommand(sqlDb, transaction, countQuery))
 					{
-						_cacheQueryCounts[countQuery] = _cacheQueryCount;
+						_cacheQueryCount = (int)sqlDb.ExecuteScalar(command);
 					}
-					if (_lastCountQueryRequested.Equals(countQuery))
+					if (_cacheQueryCount >= 0 && !Favorites.IsFavoritesQuery(countQuery.CommandText))
+					{
+						_cacheQueryCounts[countQuery.CacheKey] = _cacheQueryCount;
+					}
+					if (_lastCountQueryRequested.CacheKey.Equals(countQuery.CacheKey, StringComparison.Ordinal))
 					{
 						break;
 					}
@@ -330,15 +343,20 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		return Connected;
 	}
 
-	private string CreateQuery(string filter, int startIndex, int countRequested, long minRowId, out string countQuery)
+	internal string CreateQuery(string filter, int startIndex, int countRequested, long minRowId, out string countQuery)
 	{
-		string text = Settings.Default.SortColumn.Trim().ToLower();
-		if (text.EqualsIgnoreCase("rowid"))
-		{
-			text = "date";
-		}
+		ParameterizedSql query = BuildQuery(filter, startIndex, countRequested, minRowId, out ParameterizedSql count);
+		countQuery = count.CommandText;
+		return query.CommandText;
+	}
+
+	private ParameterizedSql BuildQuery(string filter, int startIndex, int countRequested, long minRowId, out ParameterizedSql countQuery)
+	{
+		string text = GetSortColumn();
+		string sortOrder = GetSortOrder();
 		string text2 = "";
 		string text3 = "";
+		IReadOnlyList<SqlValue> values = Array.Empty<SqlValue>();
 		if (filter != null && filter.StartsWith("PosterIdent"))
 		{
 			Regex regex = new Regex("^PosterIdent[ ]+IN[ ]+\\(([W|B|F|T|N|,| ]+)\\)", RegexOptions.IgnoreCase);
@@ -350,17 +368,18 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 			string text4 = filter.Replace(" ", "").ToLower();
 			string text5 = ((Settings.Default.ShowEroticaInSearchResults || text4.Contains("cat=") || text4.Contains("cat<")) ? "" : "cat<9 AND ");
 			string text6 = ((minRowId >= 0) ? "rowid>={0} AND ".Format(minRowId) : "");
-			text2 = " WHERE " + text6 + "(" + text5 + filter + " AND key != 2 AND key != 5)";
-			text2 = text2.Replace("[SN:DATE]", FDate().ToStringSafely());
-			text2 = ((RowNew <= 1) ? text2.Replace("[SN:NEW]", Convert.ToString(Settings.Default.DatabaseMax + 1)) : text2.Replace("[SN:NEW]", Convert.ToString(RowNew)));
+			filter = ResolveFilterMarkers(filter);
+			ParameterizedSql compiled = FilterExpressionCompiler.Compile(filter);
+			values = compiled.Values;
+			text2 = " WHERE " + text6 + "(" + text5 + compiled.CommandText + " AND key != 2 AND key != 5)";
 			if (filter.Replace(" ", "").ToLower().Contains("date>"))
 			{
 				text3 = " INDEXED BY dateidx ";
 			}
 		}
-		string text7 = " ORDER BY " + text + " " + SortOrder + " ";
+		string text7 = " ORDER BY " + text + " " + sortOrder + " ";
 		string result;
-		if (text.ToUpper().Equals("DATE") && SortOrder.ToUpper().Equals("DESC"))
+		if (text.Equals("date", StringComparison.OrdinalIgnoreCase) && sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase))
 		{
 			result = string.Format("SELECT rowid,{0} FROM spots {1} WHERE rowid IN (SELECT rowid FROM spots {6}{1} {2} ORDER BY rowid DESC LIMIT {4} OFFSET {5}){3}", "subcat,extcat,date,filesize,subject,sender,tag,modulus,spots.msgid,IFNULL(cnt,0),cat,cats", "LEFT JOIN spamgroup s USING (msgid)", text2, text7, countRequested, startIndex, text3);
 		}
@@ -372,27 +391,34 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 			}
 			result = string.Format("SELECT rowid,{0} FROM spots {1}{2}{3} LIMIT {4} OFFSET {5}", "subcat,extcat,date,filesize,subject,sender,tag,modulus,spots.msgid,IFNULL(cnt,0),cat,cats", "LEFT JOIN spamgroup s USING (msgid)", text2, text7, countRequested, startIndex);
 		}
-		countQuery = "SELECT COUNT(1) FROM spots LEFT JOIN spamgroup s USING (msgid)" + text2;
-		return result;
+		countQuery = new ParameterizedSql("SELECT COUNT(1) FROM spots LEFT JOIN spamgroup s USING (msgid)" + text2, values);
+		return new ParameterizedSql(result, values);
 	}
 
-	private string CreateSearchQuery(string filter, int startIndex, int countRequested, long minRowId, out string countQuery)
+	internal string CreateSearchQuery(string filter, int startIndex, int countRequested, long minRowId, out string countQuery)
 	{
-		string text = Settings.Default.SortColumn.Trim().ToLower();
-		if (text.EqualsIgnoreCase("rowid"))
-		{
-			text = "date";
-		}
+		ParameterizedSql query = BuildSearchQuery(filter, startIndex, countRequested, minRowId, out ParameterizedSql count);
+		countQuery = count.CommandText;
+		return query.CommandText;
+	}
+
+	private ParameterizedSql BuildSearchQuery(string filter, int startIndex, int countRequested, long minRowId, out ParameterizedSql countQuery)
+	{
+		string text = GetSortColumn();
+		string sortOrder = GetSortOrder();
 		string text2 = "";
+		IReadOnlyList<SqlValue> values = Array.Empty<SqlValue>();
 		if (!filter.IsNullOrWhiteSpace())
 		{
 			string text3 = ((minRowId >= 0) ? "docid>={0} AND ".Format(minRowId) : "");
 			string text4 = ((Settings.Default.ShowEroticaInSearchResults || filter.ToLower().Contains("cats match ")) ? "" : "cats NOT LIKE '9 %' AND ");
-			text2 = " WHERE " + text3 + "(" + text4 + filter + ")";
-			text2 = text2.Replace("[SN:DATE]", FDate().ToStringSafely());
-			text2 = ((RowNew <= 1) ? text2.Replace("[SN:NEW]", Convert.ToString(Settings.Default.DatabaseMax + 1)) : text2.Replace("[SN:NEW]", Convert.ToString(RowNew)));
+			filter = ResolveFilterMarkers(filter);
+			ParameterizedSql compiled = FilterExpressionCompiler.Compile(filter);
+			values = compiled.Values;
+			// This guard is application-owned SQL, not user input.
+			text2 = " WHERE " + text3 + "(" + text4 + compiled.CommandText + ")";
 		}
-		string text5 = " ORDER BY " + text + " " + SortOrder + " ";
+		string text5 = " ORDER BY " + text + " " + sortOrder + " ";
 		if (!text.ToUpper().Equals("DATE"))
 		{
 			text5 += ", date DESC ";
@@ -400,17 +426,22 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		string text6 = "SELECT rowid,subcat,extcat,date,filesize,subject,sender,tag,modulus,spots.msgid,IFNULL(cnt,0),cat,cats FROM spots LEFT JOIN spamgroup s USING (msgid) WHERE rowid IN ";
 		string text7 = $" LIMIT {countRequested} OFFSET {startIndex}";
 		string text8 = "";
-		if (text.ToUpper().Equals("DATE") && SortOrder.ToUpper().Equals("DESC"))
+		if (text.Equals("date", StringComparison.OrdinalIgnoreCase) && sortOrder.Equals("desc", StringComparison.OrdinalIgnoreCase))
 		{
 			text8 = " ORDER BY rowid DESC " + text7 + " ";
 			text7 = "";
 		}
 		string result = text6 + " (SELECT docid FROM search" + text2 + text8 + ") AND key != 2 AND key != 5" + text5 + text7;
-		countQuery = "SELECT COUNT(1) FROM search" + text2;
-		return result;
+		countQuery = new ParameterizedSql("SELECT COUNT(1) FROM search" + text2, values);
+		return new ParameterizedSql(result, values);
 	}
 
-	private string CreateQueryCountNew(string filter)
+	internal string CreateQueryCountNew(string filter)
+	{
+		return BuildQueryCountNew(filter)?.CommandText;
+	}
+
+	private ParameterizedSql BuildQueryCountNew(string filter)
 	{
 		if (filter.IsNullOrWhiteSpace())
 		{
@@ -424,43 +455,77 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		}
 		string text = filter.Replace(" ", "").ToLower();
 		string text2 = ((Settings.Default.ShowEroticaInSearchResults || text.Contains("cat=") || text.Contains("cat<")) ? "" : "cat<9 AND ");
-		return string.Format("SELECT COUNT(1) FROM spots WHERE rowid>{0} AND ({1}{2}{3})", RowNew, text2, filter, " AND key != 2 AND key != 5").Replace("[SN:DATE]", FDate().ToStringSafely()).Replace("[SN:NEW]", Convert.ToString(RowNew));
+		ParameterizedSql compiled = FilterExpressionCompiler.Compile(ResolveFilterMarkers(filter));
+		return new ParameterizedSql(string.Format("SELECT COUNT(1) FROM spots WHERE rowid>{0} AND ({1}{2}{3})", RowNew, text2, compiled.CommandText, " AND key != 2 AND key != 5"), compiled.Values);
 	}
 
-	private string CreateSearchQueryCountNew(string filter)
+	internal string CreateSearchQueryCountNew(string filter)
+	{
+		return BuildSearchQueryCountNew(filter)?.CommandText;
+	}
+
+	private ParameterizedSql BuildSearchQueryCountNew(string filter)
 	{
 		if (filter.IsNullOrWhiteSpace())
 		{
 			return null;
 		}
 		string arg = ((Settings.Default.ShowEroticaInSearchResults || filter.ToLower().Contains("cats match ")) ? "" : "cats NOT LIKE '9 %' AND ");
-		return $"SELECT COUNT(1) FROM search WHERE docid>{RowNew} AND ({arg}{filter})".Replace("[SN:DATE]", FDate().ToStringSafely()).Replace("[SN:NEW]", Convert.ToString(RowNew));
+		ParameterizedSql compiled = FilterExpressionCompiler.Compile(ResolveFilterMarkers(filter));
+		return new ParameterizedSql($"SELECT COUNT(1) FROM search WHERE docid>{RowNew} AND ({arg}{compiled.CommandText})", compiled.Values);
+	}
+
+	private string ResolveFilterMarkers(string filter)
+	{
+		filter = filter.Replace("[SN:DATE]", FDate().ToStringSafely());
+		return RowNew <= 1
+			? filter.Replace("[SN:NEW]", Convert.ToString(Settings.Default.DatabaseMax + 1))
+			: filter.Replace("[SN:NEW]", Convert.ToString(RowNew));
+	}
+
+	private static string GetSortColumn()
+	{
+		string column = Settings.Default.SortColumn.Trim().ToLowerInvariant();
+		if (column == "rowid")
+		{
+			return "date";
+		}
+		string[] allowed = { "date", "subject", "sender", "tag", "filesize", "cat", "subcat", "extcat" };
+		return allowed.Contains(column) ? column : "date";
+	}
+
+	private static string GetSortOrder()
+	{
+		return Settings.Default.SortDirection.Equals("asc", StringComparison.OrdinalIgnoreCase) ? "asc" : "desc";
 	}
 
 	private void CreateSpotsTablesOnEmptyDatabase(ISqlDb db)
 	{
-		if (new string[4] { "PRAGMA page_size = 4096;", "PRAGMA journal_mode = DELETE", "PRAGMA locking_mode = NORMAL", "PRAGMA user_version = 0" }.Any((string command) => db.ExecuteNonQuery(command, null) != 0))
+		// page_size must be set before the first table is written, and it can no longer
+		// be changed once the database is in WAL mode, so it has to come first here.
+		// 8192 suits the row sizes in `spots` better than the old 4096.
+		if (new string[3] { "PRAGMA page_size = " + SpotsSchema.SpotsPageSize, "PRAGMA locking_mode = NORMAL", "PRAGMA user_version = 0" }.Any((string command) => db.ExecuteNonQuery(command, null) != 0))
 		{
 			throw new Exception("Pragma exception");
 		}
+		// Create in WAL so the database is crash-safe from its very first write, rather
+		// than inheriting the rollback journal until the first import switches it over.
+		string journalMode = db.ExecuteCommand("PRAGMA journal_mode = WAL", null)?.Trim();
+		if (!"wal".Equals(journalMode, StringComparison.OrdinalIgnoreCase))
+		{
+			Log.Warn("New database {0} could not be created in WAL, journal_mode is '{1}'", db.Filename, journalMode);
+		}
 		using ISqlDbTransaction sqlDbTransaction = db.BeginWriteTransaction();
-		if (db.ExecuteNonQuery("CREATE TABLE spots(rowid INTEGER PRIMARY KEY, key INT, cat INT, subcat INT, extcat INT, date INT, filesize INTEGER, cats TEXT, sender TEXT, tag TEXT, subject TEXT, msgid TEXT, modulus TEXT)", sqlDbTransaction) != 0)
+		// Statements live in SpotsSchema so that a database rebuilt by the recovery window
+		// cannot end up with a different shape from one created here.
+		foreach (string statement in SpotsSchema.Tables)
 		{
-			throw new Exception("CREATE TABLE spots");
+			if (db.ExecuteNonQuery(statement, sqlDbTransaction) != 0)
+			{
+				throw new Exception(statement);
+			}
 		}
-		if (db.ExecuteNonQuery("CREATE VIRTUAL TABLE search USING fts4(content=\"spots\",cats TEXT, sender TEXT, tag TEXT, subject TEXT,order=desc,matchinfo=fts3)", sqlDbTransaction) != 0)
-		{
-			throw new Exception("CREATE TABLE search");
-		}
-		if (db.ExecuteNonQuery("CREATE TABLE spamreports(rowid INTEGER PRIMARY KEY, msgid TEXT, modulus TEXT, date INT, reportmsgid TEXT, sender TEXT)", sqlDbTransaction) != 0)
-		{
-			throw new Exception("CREATE TABLE spamreports");
-		}
-		if (db.ExecuteNonQuery("CREATE TABLE spamgroup(msgid TEXT PRIMARY KEY NOT NULL, cnt INT DEFAULT 0)", sqlDbTransaction) != 0)
-		{
-			throw new Exception("CREATE TABLE spamgroup");
-		}
-		if (db.ExecuteNonQuery("PRAGMA user_version = 2", sqlDbTransaction) != 0)
+		if (db.ExecuteNonQuery("PRAGMA user_version = " + SpotsSchema.CurrentUserVersion, sqlDbTransaction) != 0)
 		{
 			throw new Exception("PRAGMA user_version");
 		}
@@ -477,14 +542,27 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		return (obj as string).ToStringSafely();
 	}
 
-	private List<ISpotRow> ReadRows(string query, CancellationToken cancellationToken, out int countBeforeFilter)
+	private static DbCommand CreateCommand(ISqlDb db, ISqlDbTransaction transaction, ParameterizedSql query)
+	{
+		DbCommand command = db.CreateCommand(transaction);
+		command.CommandText = query.CommandText;
+		foreach (SqlValue value in query.Values)
+		{
+			DbParameter parameter = command.CreateParameter();
+			parameter.ParameterName = value.Name;
+			parameter.Value = value.Value ?? DBNull.Value;
+			command.Parameters.Add(parameter);
+		}
+		return command;
+	}
+
+	private List<ISpotRow> ReadRows(ParameterizedSql query, CancellationToken cancellationToken, out int countBeforeFilter)
 	{
 		List<ISpotRow> list = new List<ISpotRow>();
 		using (ISqlDb sqlDb = SqlDbFactory.CreateSqlDbSpots())
 		{
 			using ISqlDbTransaction transaction = sqlDb.BeginReadTransaction();
-			DbCommand dbCommand = sqlDb.CreateCommand(transaction);
-			dbCommand.CommandText = query;
+			using DbCommand dbCommand = CreateCommand(sqlDb, transaction, query);
 			using DbDataReader dbDataReader = dbCommand.ExecuteReader();
 			while (dbDataReader.Read())
 			{
@@ -614,7 +692,12 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		using ISqlDb sqlDb = SqlDbFactory.CreateSqlDbSpots(isReadOnly: true);
 		using ISqlDbTransaction transaction = sqlDb.BeginReadTransaction();
 		DbCommand dbCommand = sqlDb.CreateCommand(transaction);
-		dbCommand.CommandText = "SELECT msgid FROM spots WHERE rowid = " + id;
+		// Parameterized so SQLite can reuse the prepared statement across calls; this
+		// runs once per row as the grid materializes.
+		dbCommand.CommandText = "SELECT msgid FROM spots WHERE rowid = ?";
+		DbParameter idParameter = dbCommand.CreateParameter();
+		idParameter.Value = id;
+		dbCommand.Parameters.Add(idParameter);
 		return sqlDb.ExecuteCommand(dbCommand).Replace("\r\n", "").Trim();
 	}
 
@@ -647,16 +730,14 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 			DatabaseUpgrade(sqlDb);
 			using (ISqlDbTransaction sqlDbTransaction = sqlDb.BeginWriteTransaction(exclusive: true))
 			{
-				sqlDb.ExecuteNonQuery("CREATE INDEX IF NOT EXISTS dateidx ON spots(date)", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE INDEX IF NOT EXISTS catidx ON spots(cat)", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE INDEX IF NOT EXISTS msgidx ON spots(msgid)", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE INDEX IF NOT EXISTS subjidx ON spots(subject)", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE INDEX IF NOT EXISTS msgidx ON spamreports(msgid)", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE INDEX IF NOT EXISTS modidx ON spamreports(modulus)", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE TRIGGER IF NOT EXISTS search_bu BEFORE UPDATE ON spots BEGIN DELETE FROM search WHERE docid = old.rowid; END;", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE TRIGGER IF NOT EXISTS search_bd BEFORE DELETE ON spots BEGIN DELETE FROM search WHERE docid = old.rowid; END;", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE TRIGGER IF NOT EXISTS search_au AFTER UPDATE ON spots BEGIN INSERT INTO search(docid, cats, sender, tag, subject) VALUES(new.rowid, new.cats, new.sender, new.tag, new.subject); END;", sqlDbTransaction);
-				sqlDb.ExecuteNonQuery("CREATE TRIGGER IF NOT EXISTS search_ai AFTER INSERT ON spots BEGIN INSERT INTO search(docid, cats, sender, tag, subject) VALUES(new.rowid, new.cats, new.sender, new.tag, new.subject); END;", sqlDbTransaction);
+				foreach (string statement in SpotsSchema.Indexes)
+				{
+					sqlDb.ExecuteNonQuery(statement, sqlDbTransaction);
+				}
+				foreach (string statement in SpotsSchema.SearchTriggers)
+				{
+					sqlDb.ExecuteNonQuery(statement, sqlDbTransaction);
+				}
 				sqlDbTransaction.Commit();
 			}
 			if (Settings.Default.DatabaseMax < 1 || Settings.Default.DatabaseMin < 1 || Settings.Default.DatabaseCount < 1 || Settings.Default.DatabaseFilter < 1)
@@ -773,7 +854,15 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		int num;
 		using (ISqlDbTransaction transaction = sqlDb.BeginReadTransaction())
 		{
-			num = (int)sqlDb.ExecuteScalar("SELECT cnt FROM spamgroup WHERE msgid='" + SpotHelper.MakeMsg(messageId, tag: false) + "'", transaction);
+			// messageId arrives from the network, so it must never be concatenated into
+			// SQL. A message id containing a quote used to break the query outright, and
+			// a crafted one could append clauses to it.
+			DbCommand dbCommand = sqlDb.CreateCommand(transaction);
+			dbCommand.CommandText = "SELECT cnt FROM spamgroup WHERE msgid = ?";
+			DbParameter msgIdParameter = dbCommand.CreateParameter();
+			msgIdParameter.Value = SpotHelper.MakeMsg(messageId, tag: false);
+			dbCommand.Parameters.Add(msgIdParameter);
+			num = (int)sqlDb.ExecuteScalar(dbCommand);
 		}
 		return (num >= 0) ? num : 0;
 	}

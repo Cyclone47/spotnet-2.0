@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Helpers;
 using Spotnet.Model;
 using Spotnet.Properties;

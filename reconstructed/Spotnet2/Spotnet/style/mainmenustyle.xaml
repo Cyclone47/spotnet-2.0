@@ -46,21 +46,147 @@
     </Setter>
   </Style>
 
-  <!-- Modern Dynamic MenuItem Style -->
+  <!--
+    Modern Dynamic MenuItem Style
+
+    This style must carry its own ControlTemplate. An implicit MenuItem style with no
+    Template makes WPF fall back to the *system* menu template, which paints the submenu
+    popup with SystemColors.MenuBrush - a light surface. Under the dark theme the
+    foreground resolves to near-white, so the dropdown rendered white-on-white and was
+    unreadable. Templating the popup ourselves keeps the surface on theme brushes.
+  -->
+
+  <!-- A single menu row: icon column, header, shortcut text, submenu arrow. -->
+  <ControlTemplate x:Key="SpotnetMenuItemRow" TargetType="{x:Type MenuItem}">
+    <Border x:Name="RowBorder"
+            Background="{TemplateBinding Background}"
+            BorderThickness="0"
+            CornerRadius="3"
+            Padding="{TemplateBinding Padding}"
+            SnapsToDevicePixels="True">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" SharedSizeGroup="SpotnetMenuIcon" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" SharedSizeGroup="SpotnetMenuShortcut" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <ContentPresenter x:Name="Icon"
+                          Grid.Column="0"
+                          ContentSource="Icon"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+
+        <Path x:Name="Checkmark"
+              Grid.Column="0"
+              Visibility="Collapsed"
+              Width="10" Height="10"
+              VerticalAlignment="Center"
+              Margin="0,0,8,0"
+              Stretch="Uniform"
+              Fill="{DynamicResource CheckmarkFill}"
+              Data="M 0,5 L 4,9 L 10,0" />
+
+        <ContentPresenter Grid.Column="1"
+                          ContentSource="Header"
+                          RecognizesAccessKey="True"
+                          VerticalAlignment="Center"
+                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+
+        <TextBlock Grid.Column="2"
+                   Text="{TemplateBinding InputGestureText}"
+                   Margin="20,0,0,0"
+                   VerticalAlignment="Center"
+                   Opacity="0.75" />
+
+        <Path x:Name="SubmenuArrow"
+              Grid.Column="3"
+              Visibility="Collapsed"
+              Width="5" Height="9"
+              VerticalAlignment="Center"
+              Margin="10,0,0,0"
+              Stretch="Uniform"
+              Fill="{DynamicResource RightArrowFill}"
+              Data="M 0,0 L 5,4.5 L 0,9 Z" />
+
+        <Popup x:Name="SubmenuPopup"
+               AllowsTransparency="True"
+               Focusable="False"
+               HorizontalOffset="-2"
+               IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+               Placement="Right"
+               PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}">
+          <Border Background="{DynamicResource WhiteColorBrush}"
+                  BorderBrush="{DynamicResource GrayBrush7}"
+                  BorderThickness="1"
+                  CornerRadius="4"
+                  Padding="2"
+                  SnapsToDevicePixels="True">
+            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+          </Border>
+        </Popup>
+      </Grid>
+    </Border>
+
+    <ControlTemplate.Triggers>
+      <Trigger Property="Role" Value="TopLevelHeader">
+        <Setter TargetName="SubmenuPopup" Property="Placement" Value="Bottom" />
+      </Trigger>
+      <Trigger Property="Role" Value="SubmenuHeader">
+        <Setter TargetName="SubmenuArrow" Property="Visibility" Value="Visible" />
+      </Trigger>
+      <Trigger Property="HasItems" Value="False">
+        <Setter TargetName="SubmenuArrow" Property="Visibility" Value="Collapsed" />
+      </Trigger>
+      <Trigger Property="IsChecked" Value="True">
+        <Setter TargetName="Checkmark" Property="Visibility" Value="Visible" />
+      </Trigger>
+      <Trigger Property="Icon" Value="{x:Null}">
+        <Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
+      </Trigger>
+      <Trigger Property="IsHighlighted" Value="True">
+        <Setter TargetName="RowBorder" Property="Background" Value="{DynamicResource AccentColorBrush3}" />
+      </Trigger>
+      <Trigger Property="IsEnabled" Value="False">
+        <Setter Property="Opacity" Value="0.45" />
+      </Trigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+
   <Style TargetType="{x:Type MenuItem}">
     <Setter Property="Foreground" Value="{DynamicResource BlackBrush}" />
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Padding" Value="8,4,8,4" />
+    <Setter Property="Grid.IsSharedSizeScope" Value="True" />
+    <Setter Property="Template" Value="{StaticResource SpotnetMenuItemRow}" />
     <Style.Triggers>
       <Trigger Property="IsHighlighted" Value="True">
-        <Setter Property="Background" Value="{DynamicResource AccentColorBrush3}" />
         <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
       </Trigger>
+      <!-- Disabled items keep the theme foreground at reduced opacity rather than
+           switching to a fixed grey, which was invisible on the dark surface. -->
       <Trigger Property="IsEnabled" Value="False">
-        <Setter Property="Foreground" Value="{DynamicResource GrayBrush5}" />
+        <Setter Property="Foreground" Value="{DynamicResource GrayBrush4}" />
       </Trigger>
     </Style.Triggers>
+  </Style>
+
+  <!-- Separators inside a menu must sit on the themed surface too. -->
+  <Style x:Key="SpotnetMenuSeparator" TargetType="{x:Type Separator}">
+    <Setter Property="Height" Value="1" />
+    <Setter Property="Margin" Value="4,3,4,3" />
+    <Setter Property="Background" Value="{DynamicResource GrayBrush7}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Separator}">
+          <Border Height="1" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
 </ResourceDictionary>

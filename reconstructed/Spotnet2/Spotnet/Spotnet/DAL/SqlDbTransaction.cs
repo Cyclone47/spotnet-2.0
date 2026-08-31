@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Properties;
 

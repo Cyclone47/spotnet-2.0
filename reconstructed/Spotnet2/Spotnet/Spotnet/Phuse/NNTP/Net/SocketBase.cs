@@ -20,6 +20,8 @@ internal abstract class SocketBase : IVirtualSocket
 
 	private byte[] _rcvBuffer;
 
+	private byte[] _sendBuffer;
+
 	protected TcpClient SocketClient;
 
 	protected Stream SocketStream;
@@ -108,6 +110,7 @@ internal abstract class SocketBase : IVirtualSocket
 	{
 		ClearStream();
 		_rcvBuffer = null;
+		_sendBuffer = null;
 	}
 
 	private void ClearBuffer()
@@ -209,14 +212,24 @@ internal abstract class SocketBase : IVirtualSocket
 
 	private bool InternalSend(Stream bData)
 	{
+		if (bData == null)
+		{
+			return false;
+		}
 		try
 		{
-			byte[] bytes = Module.GetBytes(bData, 0L, -1L);
-			if (bData == null)
+			// Copy straight through a reused buffer rather than materializing the whole
+			// outbound stream into a fresh array on every send.
+			if (_sendBuffer == null)
 			{
-				return false;
+				_sendBuffer = new byte[BufferSize];
 			}
-			SocketStream.Write(bytes, 0, bytes.Length);
+			bData.Position = 0L;
+			int read;
+			while ((read = bData.Read(_sendBuffer, 0, _sendBuffer.Length)) > 0)
+			{
+				SocketStream.Write(_sendBuffer, 0, read);
+			}
 			return true;
 		}
 		catch (Exception ex)

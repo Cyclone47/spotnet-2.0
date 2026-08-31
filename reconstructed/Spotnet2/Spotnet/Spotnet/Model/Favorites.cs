@@ -4,7 +4,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.DAL;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -62,13 +62,21 @@ internal static class Favorites
 				}
 			}
 			using ISqlDbTransaction sqlDbTransaction = sqlDb.BeginWriteTransaction();
-			foreach (string item2 in list)
+			// Message ids are imported from a user-supplied favourites file, so they are
+			// bound rather than quoted into the statement.
+			using (DbCommand dbCommand = sqlDb.CreateCommand(sqlDbTransaction))
 			{
-				string text = SpotHelper.MakeMsg(item2.Trim(), tag: false);
-				if (!list2.Contains(text))
+				dbCommand.CommandText = AddFavoriteSql;
+				DbParameter msgIdParameter = dbCommand.CreateParameter();
+				dbCommand.Parameters.Add(msgIdParameter);
+				foreach (string item2 in list)
 				{
-					string command = "UPDATE spots SET cats=cats||\" f1\" WHERE msgid=\"" + text + "\"";
-					sqlDb.ExecuteNonQuery(command, sqlDbTransaction);
+					string text = SpotHelper.MakeMsg(item2.Trim(), tag: false);
+					if (!list2.Contains(text))
+					{
+						msgIdParameter.Value = text;
+						sqlDb.ExecuteNonQuery(dbCommand);
+					}
 				}
 			}
 			sqlDbTransaction.Commit();
@@ -108,8 +116,7 @@ internal static class Favorites
 		}
 		using ISqlDb sqlDb = SqlDbFactory.CreateSqlDbSpots();
 		using ISqlDbTransaction sqlDbTransaction = sqlDb.BeginWriteTransaction();
-		string command = "UPDATE spots SET cats=cats||\" f1\" WHERE msgid=\"" + messageId + "\"";
-		sqlDb.ExecuteNonQuery(command, sqlDbTransaction);
+		ExecuteWithMessageId(sqlDb, sqlDbTransaction, AddFavoriteSql, messageId);
 		sqlDbTransaction.Commit();
 	}
 
@@ -127,8 +134,7 @@ internal static class Favorites
 		}
 		using ISqlDb sqlDb = SqlDbFactory.CreateSqlDbSpots();
 		using ISqlDbTransaction sqlDbTransaction = sqlDb.BeginWriteTransaction();
-		string command = "UPDATE spots SET cats=replace(cats, ' f1', '' ) WHERE msgid=\"" + messageId + "\"";
-		sqlDb.ExecuteNonQuery(command, sqlDbTransaction);
+		ExecuteWithMessageId(sqlDb, sqlDbTransaction, RemoveFavoriteSql, messageId);
 		sqlDbTransaction.Commit();
 	}
 
@@ -146,7 +152,31 @@ internal static class Favorites
 		messageId = SpotHelper.MakeMsg(messageId.Trim(), tag: false);
 		using ISqlDb sqlDb = SqlDbFactory.CreateSqlDbSpots();
 		using ISqlDbTransaction transaction = sqlDb.BeginReadTransaction();
-		return sqlDb.ExecuteScalar("SELECT COUNT(rowid) FROM spots WHERE msgid=\"" + messageId + "\" AND cats LIKE \"% f1%\"", transaction) >= 1;
+		using DbCommand dbCommand = sqlDb.CreateCommand(transaction);
+		dbCommand.CommandText = "SELECT COUNT(rowid) FROM spots WHERE msgid = ? AND cats LIKE '% f1%'";
+		DbParameter msgIdParameter = dbCommand.CreateParameter();
+		msgIdParameter.Value = messageId;
+		dbCommand.Parameters.Add(msgIdParameter);
+		return sqlDb.ExecuteScalar(dbCommand) >= 1;
+	}
+
+	private const string AddFavoriteSql = "UPDATE spots SET cats = cats || ' f1' WHERE msgid = ?";
+
+	private const string RemoveFavoriteSql = "UPDATE spots SET cats = replace(cats, ' f1', '') WHERE msgid = ?";
+
+	/// <summary>
+	/// Runs a single-parameter statement with the message id bound rather than quoted
+	/// into the SQL. Message ids come from spots and from the user's favourites file, so
+	/// they can legitimately contain quote characters.
+	/// </summary>
+	private static void ExecuteWithMessageId(ISqlDb sqlDb, ISqlDbTransaction transaction, string sql, string messageId)
+	{
+		using DbCommand dbCommand = sqlDb.CreateCommand(transaction);
+		dbCommand.CommandText = sql;
+		DbParameter msgIdParameter = dbCommand.CreateParameter();
+		msgIdParameter.Value = messageId;
+		dbCommand.Parameters.Add(msgIdParameter);
+		sqlDb.ExecuteNonQuery(dbCommand);
 	}
 
 	internal static string ReplaceWithFavoritesQuery(string rowFilter)

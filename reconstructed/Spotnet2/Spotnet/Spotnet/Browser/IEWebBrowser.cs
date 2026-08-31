@@ -11,7 +11,6 @@ using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Threading;
-using Awesomium.Core;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.VisualBasic.CompilerServices;
 using NLog;
@@ -88,7 +87,7 @@ public partial class IEWebBrowser : System.Windows.Controls.UserControl, IPage, 
     public event Action<object> TitleChangedEvent;
     public event Action<object> TypeChangedEvent;
     public event Action<object> AddressChangedEvent;
-    public event Action<object, DocumentReadyEventArgs> DocumentReadyEvent;
+    public event Action<object, PageReadyEventArgs> DocumentReadyEvent;
     public event Action DocumentUnloadedEvent;
     public event Action<object, WebBrowserNavigatingEventArgs> NavigatingEvent;
     public event Action DocumentUnloadingEvent;

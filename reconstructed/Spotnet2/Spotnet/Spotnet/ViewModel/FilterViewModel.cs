@@ -9,7 +9,7 @@ using System.Xml;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Threading;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;

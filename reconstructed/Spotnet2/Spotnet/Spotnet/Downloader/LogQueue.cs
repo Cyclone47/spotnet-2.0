@@ -1,6 +1,6 @@
 using System;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Helpers;
 
 namespace Spotnet.Downloader;

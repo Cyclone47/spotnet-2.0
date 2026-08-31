@@ -27,7 +27,7 @@ internal static class Configuration
 
 	internal static string PromoteSpotnetUrl = "http://spotnet.tk/";
 
-	internal static string PromoteSpotnetText = "\r\n---\r\nDeze reactie is geplaatst via Spotnet 2.0, deze kan worden gedownload via: " + PromoteSpotnetUrl + "\r\n";
+	internal static string PromoteSpotnetText = "\r\n---\r\nDeze reactie is geplaatst via Spotnet 3.0, deze kan worden gedownload via: " + PromoteSpotnetUrl + "\r\n";
 
 	internal static string[] UpdateUrls = new string[1] { "https://spotcloud.spotnet.wf/spotnet/" };
 

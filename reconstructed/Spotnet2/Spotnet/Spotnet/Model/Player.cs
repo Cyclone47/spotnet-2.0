@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
 
@@ -63,7 +62,7 @@ public class Player
 			_cancelSourceForPlay = new CancellationTokenSource();
 			cancelLocal = _cancelSourceForPlay;
 		}
-		if (GetListOfFilesToPlay().Any((string f) => new Pri.LongPath.FileInfo(f).Length > 0))
+		if (GetListOfFilesToPlay().Any((string f) => new System.IO.FileInfo(f).Length > 0))
 		{
 			onStopWaiting?.Invoke();
 			beforeStartPlaying?.Invoke();
@@ -104,7 +103,7 @@ public class Player
 		return Task.Run(delegate
 		{
 			DateTime now = DateTime.Now;
-			bool flag = GetListOfFilesToPlay().Any((string f) => new Pri.LongPath.FileInfo(f).Length > 0);
+			bool flag = GetListOfFilesToPlay().Any((string f) => new System.IO.FileInfo(f).Length > 0);
 			while (!flag && DateTime.Now - now < timeout && !cancel.IsCancellationRequested)
 			{
 				Thread.Sleep(1000);
@@ -116,7 +115,7 @@ public class Player
 
 	private IEnumerable<string> GetListOfFilesToPlay(string location)
 	{
-		if (location.IsNullOrEmpty() || !Pri.LongPath.Directory.Exists(location))
+		if (location.IsNullOrEmpty() || !System.IO.Directory.Exists(location))
 		{
 			yield break;
 		}
@@ -125,7 +124,7 @@ public class Player
 		{
 			try
 			{
-				list = Pri.LongPath.Directory.GetFiles(location, "*.*", SearchOption.AllDirectories).ToList();
+				list = System.IO.Directory.GetFiles(location, "*.*", SearchOption.AllDirectories).ToList();
 			}
 			catch (Exception ex)
 			{
@@ -137,7 +136,7 @@ public class Player
 		}
 		foreach (string item in list)
 		{
-			string extension = Pri.LongPath.Path.GetExtension(Pri.LongPath.Path.GetFileName(item));
+			string extension = System.IO.Path.GetExtension(System.IO.Path.GetFileName(item));
 			if (extension != null && _extentionsSupported.Contains(extension.ToUpper()) && !extension.ToUpper().Equals(".IFO"))
 			{
 				yield return item;

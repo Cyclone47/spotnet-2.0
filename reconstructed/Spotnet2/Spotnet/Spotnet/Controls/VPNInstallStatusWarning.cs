@@ -14,7 +14,6 @@ using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 using GalaSoft.MvvmLight.Threading;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Extensions;
 using Spotnet.Model;
 using Spotnet.Properties;
@@ -265,7 +264,7 @@ public partial class VPNInstallStatusWarning : UserControl
     private void StartVPNClient_Click(object sender, RoutedEventArgs e)
     {
         string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        string fileName = folderPath + Pri.LongPath.Path.DirectorySeparatorChar + "VPNNederland" + Pri.LongPath.Path.DirectorySeparatorChar + "VPNNederland.exe";
+        string fileName = folderPath + System.IO.Path.DirectorySeparatorChar + "VPNNederland" + System.IO.Path.DirectorySeparatorChar + "VPNNederland.exe";
         if (VPNStatusChecker.IsVPNNederlandInstalled())
         {
             Process.Start(fileName);

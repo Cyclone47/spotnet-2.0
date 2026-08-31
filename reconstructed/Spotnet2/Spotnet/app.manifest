@@ -2,7 +2,7 @@
 <asmv1:assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <assemblyIdentity type="win32"
                     name="Spotnet.app"
-                    version="2.0.0.0"
+                    version="3.0.0.0"
                     processorArchitecture="x86"
                     publicKeyToken="0000000000000000"
   />
@@ -34,4 +34,9 @@
       <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>
     </application>
   </compatibility>
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+    </windowsSettings>
+  </application>
 </asmv1:assembly>

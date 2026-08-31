@@ -3,13 +3,14 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Threading;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Deployment;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -25,6 +26,14 @@ public partial class App : Application
     static App()
     {
         NativeMethods.SetErrorMode(NativeMethods.SetErrorMode(ErrorModes.SystemDefault) | ErrorModes.SemNogpfaulterrorbox | ErrorModes.SemFailcriticalerrors | ErrorModes.SemNoopenfileerrorbox);
+
+        // Let Windows negotiate the best TLS version for every HTTPS call in the app
+        // (update checks, Newznab, image and list downloads). Without this the .NET
+        // Framework default can still pin these to TLS 1.0, which providers are
+        // switching off.
+        ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
+        ServicePointManager.DefaultConnectionLimit = 32;
+
         Log = LogManager.GetCurrentClassLogger();
         Tracker tracker = new Tracker();
         DispatcherHelper.Initialize();
@@ -135,7 +144,7 @@ public partial class App : Application
         {
             if (!Settings.Default.EnableLogging)
             {
-                LogManager.DisableLogging();
+                LogManager.GlobalThreshold = LogLevel.Off;
             }
         }
     }

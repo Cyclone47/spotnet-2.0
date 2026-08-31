@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -156,7 +157,9 @@ internal static class SpotSaver
 			long databaseMin = Settings.Default.DatabaseMin;
 			using (ISqlDb db = SqlDbFactory.CreateSqlDbSpots(isReadOnly: true))
 			{
-				UpdateDatabaseSettings(db);
+				// Retention has just deleted rows, so the counts must be exact here
+				// rather than whatever the import throttle last left behind.
+				UpdateDatabaseSettings(db, forceExactCounts: true);
 			}
 			if (Settings.Default.DatabaseMin != databaseMin)
 			{
@@ -405,7 +408,7 @@ internal static class SpotSaver
 		using ISqlDb sqlDb = SqlDbFactory.CreateSqlDbSpots();
 		try
 		{
-			SetDbSettingsForInsertionImprove(sqlDb, synchronous: false);
+			SetDbSettingsForInsertionImprove(sqlDb);
 			using ISqlDbTransaction sqlDbTransaction = sqlDb.BeginWriteTransaction();
 			List<DbParameter> paramsList = new List<DbParameter>();
 			List<DbParameter> list = new List<DbParameter>();
@@ -570,7 +573,7 @@ internal static class SpotSaver
 		}
 		catch (Exception ex)
 		{
-			sqlDb.ProcessMalformedDbState(ex.Message);
+			sqlDb.ProcessMalformedDbState(ex);
 			throw;
 		}
 		finally
@@ -682,7 +685,7 @@ internal static class SpotSaver
 		}
 		catch (Exception ex)
 		{
-			sqlDb.ProcessMalformedDbState(ex.Message);
+			sqlDb.ProcessMalformedDbState(ex);
 			throw;
 		}
 	}
@@ -758,9 +761,15 @@ internal static class SpotSaver
 		using ISqlDb sqlDb = SqlDbFactory.CreateSqlDbComments();
 		try
 		{
+			// Must run before WAL is enabled and before the first write: page_size cannot
+			// be changed afterwards. The comments store holds large FTS text blobs and
+			// has always used 16 KB pages - the import path used to set this on every
+			// batch, where it was a no-op except on the very first one that created the
+			// database. Setting it here keeps that, without the per-batch pragma.
+			sqlDb.ExecuteNonQuery("PRAGMA page_size = " + SpotsSchema.CommentsPageSize, null);
 			SetDbSettingsForInsertionImprove(sqlDb);
 			using ISqlDbTransaction sqlDbTransaction = sqlDb.BeginWriteTransaction();
-			sqlDb.ExecuteNonQuery("CREATE VIRTUAL TABLE IF NOT EXISTS comments USING fts4(spot TEXT,matchinfo=fts3)", sqlDbTransaction);
+			sqlDb.ExecuteNonQuery(SpotsSchema.CreateComments, sqlDbTransaction);
 			List<Comment> list = comments.ToList();
 			new Tracker();
 			using (DbCommand dbCommand = sqlDb.CreateCommand(sqlDbTransaction))
@@ -788,47 +797,99 @@ internal static class SpotSaver
 		}
 		catch (Exception ex)
 		{
-			sqlDb.ProcessMalformedDbState(ex.Message);
+			sqlDb.ProcessMalformedDbState(ex);
 			throw;
 		}
 	}
 
-	internal static void SetDbSettingsForInsertionImprove(ISqlDb db, bool synchronous = true)
+	internal static void SetDbSettingsForInsertionImprove(ISqlDb db)
 	{
 		using (db.BeginReadTransaction())
 		{
-			if (db.ExecuteNonQuery("PRAGMA page_size = 16384", null) != 0)
+			// Write-ahead logging keeps the main database file intact by construction:
+			// writers append to a side file instead of overwriting live pages, so an
+			// interrupted write cannot leave a torn database behind. The old rollback
+			// journal combined with synchronous=OFF could, and that is where the
+			// "database disk image is malformed" reports came from.
+			string journalMode = db.ExecuteCommand("PRAGMA journal_mode = WAL", null)?.Trim();
+			if (!"wal".Equals(journalMode, StringComparison.OrdinalIgnoreCase))
 			{
-				throw new Exception("PRAGMA page_size");
+				Log.Warn("Could not switch {0} to WAL, journal_mode is now '{1}'", db.Filename, journalMode);
 			}
-			if (db.ExecuteNonQuery("PRAGMA synchronous = " + (synchronous ? "NORMAL" : "OFF"), null) != 0)
-			{
-				throw new Exception("PRAGMA synchronous");
-			}
-			if (db.ExecuteNonQuery("PRAGMA journal_mode = DELETE", null) != 0)
-			{
-				throw new Exception("PRAGMA journal_mode");
-			}
-			if (db.ExecuteNonQuery("PRAGMA cache_size = 10000", null) != 0)
-			{
-				throw new Exception("PRAGMA cache_size");
-			}
+			// NORMAL is durable under WAL: a crash costs at most the uncommitted tail
+			// of the log, never the database itself.
+			SetIntegerPragma(db, "synchronous", "NORMAL", 1);
+			// Checkpoint less often than the 1000-page default so a bulk import is not
+			// interrupted by a full checkpoint every few batches.
+			SetIntegerPragma(db, "wal_autocheckpoint", "4000", 4000);
+			// Negative cache_size is measured in KiB rather than pages.
+			SetIntegerPragma(db, "cache_size", "-65536", -65536);
+			SetIntegerPragma(db, "temp_store", "MEMORY", 2);
 		}
 	}
 
-	private static void UpdateDatabaseSettings(ISqlDb db)
+	/// <summary>
+	/// Applies and verifies a connection-scoped integer PRAGMA.
+	/// </summary>
+	/// <remarks>
+	/// SQLiteCommand.ExecuteNonQuery returns -1 for successful statements that do not
+	/// affect rows, including PRAGMA assignments in current System.Data.SQLite versions.
+	/// The old code expected zero and therefore rejected a successful startup setting.
+	/// Reading the value back is both provider-independent and verifies the real outcome.
+	/// </remarks>
+	private static void SetIntegerPragma(ISqlDb db, string name, string value, long expected)
+	{
+		int result = db.ExecuteNonQuery("PRAGMA " + name + " = " + value, null);
+		if (result < -1)
+		{
+			throw new Exception("Failed to set PRAGMA " + name);
+		}
+
+		long actual = db.ExecuteScalar("PRAGMA " + name, null);
+		if (actual != expected)
+		{
+			throw new Exception(string.Format(
+				"PRAGMA {0} verification failed: expected {1}, got {2}",
+				name,
+				expected,
+				actual));
+		}
+	}
+
+	/// <summary>How often the O(n) row counts are allowed to be recomputed during an import.</summary>
+	private static readonly TimeSpan ExactCountInterval = TimeSpan.FromSeconds(30.0);
+
+	private static readonly Stopwatch ExactCountClock = Stopwatch.StartNew();
+
+	/// <param name="forceExactCounts">
+	/// Recompute the row counts even if the throttle has not elapsed. Pass this whenever
+	/// the figures are about to be read as authoritative rather than displayed.
+	/// </param>
+	private static void UpdateDatabaseSettings(ISqlDb db, bool forceExactCounts = false)
 	{
 		using (ISqlDbTransaction transaction = db.BeginReadTransaction())
 		{
-			string sQuery = "SELECT MAX(rowid) FROM spots";
-			Settings.Default.DatabaseMax = db.ExecuteScalar(sQuery, transaction);
-			sQuery = "SELECT MIN(rowid) FROM spots";
-			Settings.Default.DatabaseMin = db.ExecuteScalar(sQuery, transaction);
-			sQuery = "SELECT COUNT(1) FROM spots";
-			Settings.Default.DatabaseCount = db.ExecuteScalar(sQuery, transaction);
-			long databaseCount = Settings.Default.DatabaseCount;
-			sQuery = "SELECT COUNT(1) FROM spots WHERE cat=9";
-			Settings.Default.DatabaseFilter = databaseCount - Math.Abs(db.ExecuteScalar(sQuery, transaction));
+			// MIN and MAX on the integer primary key are index lookups, so these stay
+			// cheap enough to run after every batch - and DatabaseMax is the import
+			// watermark, so it has to.
+			Settings.Default.DatabaseMax = db.ExecuteScalar("SELECT MAX(rowid) FROM spots", transaction);
+			Settings.Default.DatabaseMin = db.ExecuteScalar("SELECT MIN(rowid) FROM spots", transaction);
+
+			// COUNT(1), by contrast, walks an entire index. This method runs in the
+			// finally of every save batch, so recomputing both counts each time made the
+			// cost of importing grow with the size of the database. They only feed a
+			// display figure, so refresh them on a throttle instead; the count can lag by
+			// up to ExactCountInterval mid-import and is exact whenever it matters.
+			bool refreshCounts = forceExactCounts
+				|| Settings.Default.DatabaseCount <= 0
+				|| ExactCountClock.Elapsed >= ExactCountInterval;
+			if (refreshCounts)
+			{
+				Settings.Default.DatabaseCount = db.ExecuteScalar("SELECT COUNT(1) FROM spots", transaction);
+				long databaseCount = Settings.Default.DatabaseCount;
+				Settings.Default.DatabaseFilter = databaseCount - Math.Abs(db.ExecuteScalar("SELECT COUNT(1) FROM spots WHERE cat=9", transaction));
+				ExactCountClock.Restart();
+			}
 			Settings.Default.Save();
 		}
 		SpotSaver.OnDbSettingsUpdate?.Invoke();

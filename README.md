@@ -1,22 +1,23 @@
-# Spotnet 2.0 — Source Code Reconstruction
+# Spotnet 3.0 — Modernized Usenet Client
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Tests](https://img.shields.io/badge/tests-6%2F6%20passing-brightgreen.svg)]()
-[![Target Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2%20(x86)-blue.svg)]()
+[![Tests](https://img.shields.io/badge/tests-69%2F69%20passing-brightgreen.svg)]()
+[![Target Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2%20(x64)-blue.svg)]()
 [![Language](https://img.shields.io/badge/language-C%23%2011.0%20%7C%20WPF-blue.svg)]()
 [![License](https://img.shields.io/badge/license-GPLv3%20%2F%20Open%20Source-orange.svg)]()
 
-A complete, maintainable, and fully compilable source code reconstruction and architectural analysis of **Spotnet 2.0** (version `2.0.0.284`), reconstructed using historical baseline comparison with Spotnet 1.8.1, static binary analysis, 100% WPF BAML recovery, and automated verification.
+**Spotnet 3.0** is the maintained, security-hardened continuation of the reconstructed C# WPF Usenet client. It combines the recovered application with modern TLS and SQLite handling, WebView2 support, dependency upgrades, safer SQL and archive processing, and an expanded automated regression suite.
 
 ---
 
 ## 📖 Overview
 
-**Spotnet** is a decentralized, Usenet-based indexer and content manager widely popular in the Dutch Usenet ecosystem. While Spotnet 1.8.1 was written in monolithic VB.NET and relied heavily on external processes (SABnzbd) and Internet Explorer COM components, **Spotnet 2.0** was a complete rewrite into modern **C# WPF** featuring:
+**Spotnet** is a decentralized, Usenet-based indexer and content manager widely popular in the Dutch Usenet ecosystem. **Spotnet 3.0** continues the C# WPF application with:
 
 - **MVVM Architecture:** Built with `GalaSoft.MvvmLight` and `AvalonDock` multi-tab docking.
 - **Built-in Native Downloader:** Full internal multi-connection NNTP segment downloader eliminating the external SABnzbd dependency.
-- **Embedded WebKit/Chromium Engine:** Awesomium HTML5/JavaScript bridge for rendering spot descriptions and comments.
+- **Modern browser support:** Edge WebView2 is the sole embedded web engine.
+- **64-bit media playback:** LibVLCSharp with the official VideoLAN x64 runtime.
 - **SQLite FTS4 Search Engine:** Fast full-text search across titles, descriptions, and spam reports.
 - **High-Speed yEnc Decoding:** Native/managed SIMD-accelerated yEnc decoding (`Spotnet.Enc`).
 - **Phuse NNTP Client:** High-throughput pooled connection manager supporting SSL/TLS.
@@ -30,7 +31,7 @@ graph TD
     subgraph UI_Layer ["Presentation Layer (WPF / MVVM)"]
         V["Views / MetroWindows"] --> VM["ViewModels"]
         VM --> Controls["Custom Controls & AvalonDock"]
-        V --> Awesomium["Awesomium Chromium Web Host"]
+        V --> WebView2["Edge WebView2 Host"]
     end
 
     subgraph Core_Engine ["Business Logic & Downloader"]
@@ -56,7 +57,8 @@ graph TD
 - **OS:** Windows 10 / 11
 - **SDK:** [.NET SDK](https://dotnet.microsoft.com/download) (6.0, 8.0, or 9.0+)
 - **Targeting Pack:** .NET Framework 4.7.2
-- **Platform:** `x86` (32-bit compilation target required for native SQLite and Awesomium interop)
+- **Platform:** `x64` (64-bit Windows only)
+- **Runtime:** Microsoft Edge WebView2 Evergreen Runtime
 
 ### 1-Click Build Script
 
@@ -68,10 +70,10 @@ build.bat
 
 The script will:
 1. Verify the .NET SDK.
-2. Compile the entire solution (`Spotnet.Enc.dll`, `Spotnet.exe`, `Spotnet.Tests.dll`) in **Release** mode with **0 Warnings, 0 Errors**.
+2. Compile the entire solution (`Spotnet.Enc.dll`, `Spotnet.exe`, `Spotnet.Tests.dll`) in **Release** mode with **0 errors**.
 3. Run the automated xUnit test suite.
 4. Verify deployment of native binaries and asset bundles to `bin/Release/net472/`.
-5. Offer to launch Spotnet 2.0 immediately.
+5. Offer to launch Spotnet 3.0 immediately.
 
 ### Manual CLI Build
 
@@ -103,12 +105,12 @@ The solution includes an automated xUnit test suite (`reconstructed/Spotnet2/Spo
 ## 📂 Project Structure
 
 ```
-spotnet-2.0/
+sourcecode/
 ├── docs/                        # Complete archaeological documentation suite
 │   ├── INVENTORY.md             # Assembly, resource, and dependency catalog
 │   ├── SPOTNET_181_ARCHITECTURE.md # Spotnet 1.8.1 baseline architectural map
 │   ├── 181_VS_20_DIFF.md        # Detailed 1.8.1 vs 2.0 diff matrix
-│   ├── SPOTNET_20_ARCHITECTURE.md # Spotnet 2.0 system architecture & diagrams
+│   ├── SPOTNET_20_ARCHITECTURE.md # Legacy architecture baseline and diagrams
 │   ├── DATABASE.md              # SQLite schemas, FTS4 tables, and migrations
 │   ├── PROTOCOL.md              # NNTP topology, XML schemas, RSA verification
 │   ├── SOURCE_PROVENANCE.md     # Component origin & library provenance audit
@@ -135,12 +137,12 @@ spotnet-2.0/
 
 ## 📚 Technical Documentation Index
 
-For deep dives into the internal mechanics and protocols of Spotnet 2.0, see the [`docs/`](docs/) directory:
+For deep dives into the current implementation and its reconstructed historical baseline, see the [`docs/`](docs/) directory:
 
 - [**Inventory & Assemblies (`docs/INVENTORY.md`)**](docs/INVENTORY.md)
 - [**Spotnet 1.8.1 Architecture (`docs/SPOTNET_181_ARCHITECTURE.md`)**](docs/SPOTNET_181_ARCHITECTURE.md)
 - [**Spotnet 1.8.1 vs 2.0 Diff Matrix (`docs/181_VS_20_DIFF.md`)**](docs/181_VS_20_DIFF.md)
-- [**Spotnet 2.0 Architecture (`docs/SPOTNET_20_ARCHITECTURE.md`)**](docs/SPOTNET_20_ARCHITECTURE.md)
+- [**Legacy architecture baseline (`docs/SPOTNET_20_ARCHITECTURE.md`)**](docs/SPOTNET_20_ARCHITECTURE.md)
 - [**Database Schema & SQL (`docs/DATABASE.md`)**](docs/DATABASE.md)
 - [**Usenet Protocol & Signatures (`docs/PROTOCOL.md`)**](docs/PROTOCOL.md)
 - [**Source Provenance (`docs/SOURCE_PROVENANCE.md`)**](docs/SOURCE_PROVENANCE.md)
@@ -153,7 +155,7 @@ For deep dives into the internal mechanics and protocols of Spotnet 2.0, see the
 The codebase is structured to facilitate modern rewrites. Full modernization paths are documented in [`docs/MODERNIZATION.md`](docs/MODERNIZATION.md):
 - **Runtime:** Upgrade from .NET Framework 4.7.2 to **.NET 9 / .NET 10**.
 - **UI Framework:** Port from WPF to **Avalonia UI** or **WinUI 3 / Windows App SDK** for cross-platform support (Windows, Linux, macOS).
-- **Browser:** Replace deprecated 32-bit Awesomium engine with **Microsoft Edge WebView2**.
+- **Browser:** Continue hardening the completed **Microsoft Edge WebView2** integration.
 - **Post-Processing:** Upgrade to modern native 64-bit PAR2 and 7-Zip/UnRAR bindings.
 
 ---

@@ -3,7 +3,9 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net472</TargetFramework>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <Prefer32Bit>false</Prefer32Bit>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>11.0</LangVersion>
@@ -11,25 +13,35 @@
     <AssemblyName>Spotnet</AssemblyName>
     <RootNamespace>Spotnet</RootNamespace>
     <ApplicationIcon>Resources\ImagesInternal\spotnet.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
+    <!-- Edge WebView2 is the only browser engine. The x64 loader is selected by the build. -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
+    <!-- SQLite provider and native interop. Replaces the loose 1.0.94 DLL from 2014:
+         ten years of engine fixes (including WAL recovery and corruption bugs), FTS5,
+         and a much better query planner. The .Core package stages x86/ and x64/ copies
+         of SQLite.Interop.dll and resolves the right one at runtime, so this is also one
+         of the two hard blockers on moving off x86. -->
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
+    <!-- Used only for NNTP's zlib-compressed header responses. ZIP archive extraction
+         uses the traversal-safe System.IO.Compression boundary in SafeZip. -->
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NLog" Version="5.5.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <!-- Maintained 64-bit media stack replacing the obsolete x86-only wrapper. -->
+    <PackageReference Include="LibVLCSharp.WPF" Version="3.10.1" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />
     <ProjectReference Include="..\Spotnet.Enc\Spotnet.Enc.csproj" />
   </ItemGroup>
 
   <!-- Third-party managed assembly references from lib/ -->
   <ItemGroup>
-    <Reference Include="Awesomium.Core">
-      <HintPath>..\lib\Awesomium.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Awesomium.Windows.Controls">
-      <HintPath>..\lib\Awesomium.Windows.Controls.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="ClickOnceUninstaller">
       <HintPath>..\lib\ClickOnceUninstaller.dll</HintPath>
       <Private>True</Private>
@@ -50,28 +62,8 @@
       <HintPath>..\lib\GalaSoft.MvvmLight.Extras.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="HtmlAgilityPack">
-      <HintPath>..\lib\HtmlAgilityPack.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\lib\ICSharpCode.SharpZipLib.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Ionic.Zip">
-      <HintPath>..\lib\Ionic.Zip.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="MahApps.Metro">
       <HintPath>..\lib\MahApps.Metro.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Meta.Vlc">
-      <HintPath>..\lib\Meta.Vlc.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Meta.Vlc.Wpf">
-      <HintPath>..\lib\Meta.Vlc.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Deployment.WindowsInstaller">
@@ -90,20 +82,8 @@
       <HintPath>..\lib\Mono.Cecil.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\lib\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\lib\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="NuGet.Core">
       <HintPath>..\lib\NuGet.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Pri.LongPath">
-      <HintPath>..\lib\Pri.LongPath.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Splat">
@@ -116,10 +96,6 @@
     </Reference>
     <Reference Include="starksoft.aspen">
       <HintPath>..\lib\starksoft.aspen.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\lib\System.Data.SQLite.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Windows.Interactivity">
@@ -157,6 +133,8 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
@@ -184,7 +162,7 @@
 
   <!-- Copy Native Binaries & Asset Folders to Output -->
   <ItemGroup>
-    <None Include="$(MSBuildProjectDirectory)\..\lib\*.exe;$(MSBuildProjectDirectory)\..\lib\*.pak;$(MSBuildProjectDirectory)\..\lib\SQLite.Interop.dll;$(MSBuildProjectDirectory)\..\lib\awesomium.dll;$(MSBuildProjectDirectory)\..\lib\icudt.dll;$(MSBuildProjectDirectory)\..\lib\libEGL.dll;$(MSBuildProjectDirectory)\..\lib\libGLESv2.dll;$(MSBuildProjectDirectory)\..\lib\avcodec-53.dll;$(MSBuildProjectDirectory)\..\lib\avformat-53.dll;$(MSBuildProjectDirectory)\..\lib\avutil-51.dll;$(MSBuildProjectDirectory)\..\lib\xinput9_1_0.dll">
+    <None Include="$(MSBuildProjectDirectory)\..\lib\*.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>%(Filename)%(Extension)</Link>
     </None>

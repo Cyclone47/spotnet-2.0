@@ -47,7 +47,11 @@ internal class SQliteDb : ISqlDb, IDisposable
 			{
 				throw new Exception("Failed to create db connection");
 			}
-			_connection.ConnectionString = string.Format("DataSource={0};Synchronous=Normal;Temp Store=Memory;Cache Size={1};{2}", _dbFile, Settings.Default.DatabaseCache, bReadOnly ? "Read Only=True;" : "");
+			// BusyTimeout makes a connection wait for a write lock instead of failing
+			// immediately, which is what surfaced as spurious errors while an import ran.
+			// Journal Mode is only asserted on writable connections: a read-only
+			// connection cannot create the -wal file and would fail trying.
+			_connection.ConnectionString = string.Format("DataSource={0};Synchronous=Normal;Temp Store=Memory;Cache Size={1};BusyTimeout=5000;{2}", _dbFile, Settings.Default.DatabaseCache, bReadOnly ? "Read Only=True;" : "Journal Mode=WAL;");
 			if (!SqlDbTransaction.WaitForRelease(_dbFile))
 			{
 				throw new Exception("Failed to release db connection, it's blocked by other expensive operation");
@@ -65,7 +69,7 @@ internal class SQliteDb : ISqlDb, IDisposable
 		}
 		catch (Exception ex)
 		{
-			ProcessMalformedDbState(ex.Message);
+			ProcessMalformedDbState(ex);
 			throw;
 		}
 	}
@@ -195,14 +199,51 @@ internal class SQliteDb : ISqlDb, IDisposable
 		catch (Exception ex)
 		{
 			Log.Exception(ex);
-			ProcessMalformedDbState(ex.Message);
+			ProcessMalformedDbState(ex);
 			return -2;
 		}
 	}
 
-	public void ProcessMalformedDbState(string error)
+	/// <summary>
+	/// Returns true when an exception means the database file itself is damaged, as
+	/// opposed to an ordinary query or locking failure.
+	/// </summary>
+	/// <remarks>
+	/// This used to substring-match "image is malformed" on the exception message, which
+	/// missed the other corruption codes and would break on a reworded SQLite build.
+	/// SQLite reports the reason in the result code, so read that instead, walking the
+	/// inner exceptions because our own code rethrows plain exceptions around these.
+	/// </remarks>
+	internal static bool IsCorruptionError(Exception error)
 	{
-		if (error.Contains("image is malformed"))
+		for (Exception current = error; current != null; current = current.InnerException)
+		{
+			if (current is SQLiteException sqliteException)
+			{
+				// Extended result codes pack the primary code into the low byte.
+				switch ((SQLiteErrorCode)((int)sqliteException.ResultCode & 0xFF))
+				{
+				case SQLiteErrorCode.Corrupt:
+				case SQLiteErrorCode.NotADb:
+				case SQLiteErrorCode.IoErr:
+					return true;
+				}
+			}
+		}
+		// Fall back to the message for exceptions raised by our own wrappers, which do
+		// not carry a result code.
+		string message = error?.Message;
+		if (message == null)
+		{
+			return false;
+		}
+		return message.IndexOf("image is malformed", StringComparison.OrdinalIgnoreCase) >= 0
+			|| message.IndexOf("file is not a database", StringComparison.OrdinalIgnoreCase) >= 0;
+	}
+
+	public void ProcessMalformedDbState(Exception exception)
+	{
+		if (IsCorruptionError(exception))
 		{
 			bool num = !Settings.Default.SpotsDbFileMalformed && !Settings.Default.CommentsDbFileMalformed;
 			if (_dbFile.Equals(AppHelper.GetDbFilename("dbs")))
@@ -255,7 +296,7 @@ internal class SQliteDb : ISqlDb, IDisposable
 		catch (Exception ex)
 		{
 			Log.Exception(ex);
-			ProcessMalformedDbState(ex.Message);
+			ProcessMalformedDbState(ex);
 			return null;
 		}
 	}
@@ -297,7 +338,7 @@ internal class SQliteDb : ISqlDb, IDisposable
 		catch (Exception ex)
 		{
 			Log.Exception(ex);
-			ProcessMalformedDbState(ex.Message);
+			ProcessMalformedDbState(ex);
 			return -1L;
 		}
 	}

@@ -1,13 +1,12 @@
 using System;
 using System.IO;
 using NLog;
-using Pri.LongPath;
 using Splat;
 using Spotnet.Helpers;
 
 namespace Spotnet.Deployment;
 
-internal class SetupSplatLogger : ILogger, IDisposable
+internal class SetupSplatLogger : Splat.ILogger, IDisposable
 {
 	private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -23,14 +22,14 @@ internal class SetupSplatLogger : ILogger, IDisposable
 	{
 		try
 		{
-			string text = Pri.LongPath.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SquirrelTemp\\SquirrelSetup.log");
-			AppHelper.EnsureDirectoryExist(Pri.LongPath.Path.GetDirectoryName(text));
-			if (!Pri.LongPath.File.Exists(text))
+			string text = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SquirrelTemp\\SquirrelSetup.log");
+			AppHelper.EnsureDirectoryExist(System.IO.Path.GetDirectoryName(text));
+			if (!System.IO.File.Exists(text))
 			{
-				Pri.LongPath.File.WriteAllText(text, "");
+				System.IO.File.WriteAllText(text, "");
 			}
-			long length = new Pri.LongPath.FileInfo(text).Length;
-			_fs = ((length < 5248000) ? Pri.LongPath.File.Open(text, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite) : Pri.LongPath.File.Open(text, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
+			long length = new System.IO.FileInfo(text).Length;
+			_fs = ((length < 5248000) ? System.IO.File.Open(text, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite) : System.IO.File.Open(text, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
 			_sw = new StreamWriter(_fs);
 		}
 		catch (Exception ex)
@@ -48,6 +47,7 @@ internal class SetupSplatLogger : ILogger, IDisposable
 			_fs.Dispose();
 			_fs = null;
 		}
+		GC.SuppressFinalize(this);
 	}
 
 	public void Write(string message, Splat.LogLevel logLevel)

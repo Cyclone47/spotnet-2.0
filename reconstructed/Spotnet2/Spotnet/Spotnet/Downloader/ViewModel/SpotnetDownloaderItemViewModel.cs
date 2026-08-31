@@ -10,7 +10,6 @@ using System.Timers;
 using System.Windows;
 using System.Xml;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Downloader.PostProcessing;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -118,7 +117,7 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 	{
 		get
 		{
-			if (base.PathToNzb == null || !Pri.LongPath.File.Exists(base.PathToNzb))
+			if (base.PathToNzb == null || !System.IO.File.Exists(base.PathToNzb))
 			{
 				return new List<NNTPInput>();
 			}
@@ -129,7 +128,7 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 					if (_filesToDownload == null)
 					{
 						List<NNTPInput> list;
-						using (FileStream xXml = Pri.LongPath.File.OpenRead(base.PathToNzb))
+						using (FileStream xXml = System.IO.File.OpenRead(base.PathToNzb))
 						{
 							NNTPInputPriorityComparer comparer = new NNTPInputPriorityComparer();
 							list = ParseNzb(xXml).OrderBy((NNTPInput f) => f, comparer).ToList();
@@ -343,9 +342,9 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 
 	private bool CleanOldQueueFiles(int id)
 	{
-		IEnumerable<Pri.LongPath.FileInfo> enumerable = new Pri.LongPath.DirectoryInfo(DownloaderProps.QueueDir).EnumerateFiles();
+		IEnumerable<System.IO.FileInfo> enumerable = new System.IO.DirectoryInfo(DownloaderProps.QueueDir).EnumerateFiles();
 		Regex regex = new Regex(string.Format("^{0}.snet|^{0}_((\\d)+).snet|^{0}.nzb|^{0}.log", id));
-		foreach (Pri.LongPath.FileInfo item in enumerable)
+		foreach (System.IO.FileInfo item in enumerable)
 		{
 			if (regex.Match(item.Name).Success)
 			{
@@ -469,11 +468,11 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 		lock (LockSaveTheState)
 		{
 			string filenameOfNzbFile = GetFilenameOfNzbFile(ID);
-			if (base.PathToNzb != null && Pri.LongPath.File.Exists(base.PathToNzb) && !Pri.LongPath.File.Exists(filenameOfNzbFile))
+			if (base.PathToNzb != null && System.IO.File.Exists(base.PathToNzb) && !System.IO.File.Exists(filenameOfNzbFile))
 			{
 				try
 				{
-					Pri.LongPath.File.Copy(base.PathToNzb, filenameOfNzbFile);
+					System.IO.File.Copy(base.PathToNzb, filenameOfNzbFile);
 					_pathToNzb = filenameOfNzbFile;
 				}
 				catch (Exception ex)
@@ -884,8 +883,8 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 			{
 				return;
 			}
-			Pri.LongPath.FileInfo[] stateFiles = GetStateFiles(ID);
-			foreach (Pri.LongPath.FileInfo fileInfo in stateFiles)
+			System.IO.FileInfo[] stateFiles = GetStateFiles(ID);
+			foreach (System.IO.FileInfo fileInfo in stateFiles)
 			{
 				Match match = new Regex("_(\\d+).snet$").Match(fileInfo.FullName);
 				if (!match.Success)
@@ -902,7 +901,7 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 						LogQueue.Warn($"Failed to find the file with index {fileIndex} in {base.PathToNzb}");
 						continue;
 					}
-					string[] array = Pri.LongPath.File.ReadAllLines(fileInfo.FullName);
+					string[] array = System.IO.File.ReadAllLines(fileInfo.FullName);
 					bool flag = false;
 					string[] array2 = array;
 					foreach (string text in array2)
@@ -958,26 +957,26 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 				try
 				{
 					string filenameOfStateFile = GetFilenameOfStateFile(ID);
-					if (Pri.LongPath.File.Exists(filenameOfStateFile))
+					if (System.IO.File.Exists(filenameOfStateFile))
 					{
-						Pri.LongPath.File.Delete(filenameOfStateFile);
+						System.IO.File.Delete(filenameOfStateFile);
 					}
 					filenameOfStateFile = GetFilenameOfNzbFile(ID);
-					if (Pri.LongPath.File.Exists(filenameOfStateFile))
+					if (System.IO.File.Exists(filenameOfStateFile))
 					{
-						Pri.LongPath.File.Delete(filenameOfStateFile);
+						System.IO.File.Delete(filenameOfStateFile);
 					}
 				}
 				catch
 				{
 				}
-				Pri.LongPath.FileInfo[] stateFiles = GetStateFiles(ID);
-				foreach (Pri.LongPath.FileInfo fileInfo in stateFiles)
+				System.IO.FileInfo[] stateFiles = GetStateFiles(ID);
+				foreach (System.IO.FileInfo fileInfo in stateFiles)
 				{
 					try
 					{
 						fileInfo.Attributes = FileAttributes.Normal;
-						Pri.LongPath.File.Delete(fileInfo.FullName);
+						System.IO.File.Delete(fileInfo.FullName);
 					}
 					catch
 					{
@@ -986,9 +985,9 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 				try
 				{
 					string logPath = LogQueue.LogPath;
-					if (Pri.LongPath.File.Exists(logPath))
+					if (System.IO.File.Exists(logPath))
 					{
-						Pri.LongPath.File.Delete(logPath);
+						System.IO.File.Delete(logPath);
 					}
 				}
 				catch
@@ -1002,24 +1001,24 @@ public class SpotnetDownloaderItemViewModel : DownloaderItemViewModel
 		}
 	}
 
-	private static Pri.LongPath.FileInfo[] GetStateFiles(int id)
+	private static System.IO.FileInfo[] GetStateFiles(int id)
 	{
-		return new Pri.LongPath.DirectoryInfo(DownloaderProps.QueueDir).GetFiles(id + "_*.snet");
+		return new System.IO.DirectoryInfo(DownloaderProps.QueueDir).GetFiles(id + "_*.snet");
 	}
 
 	private static string GetFilenameOfStateFile(int id)
 	{
-		return Pri.LongPath.Path.Combine(DownloaderProps.QueueDir, id + ".snet");
+		return System.IO.Path.Combine(DownloaderProps.QueueDir, id + ".snet");
 	}
 
 	public static string GetFilenameOfStateFile(int id, int index)
 	{
-		return Pri.LongPath.Path.Combine(DownloaderProps.QueueDir, $"{id}_{index}.snet");
+		return System.IO.Path.Combine(DownloaderProps.QueueDir, $"{id}_{index}.snet");
 	}
 
 	private static string GetFilenameOfNzbFile(int id)
 	{
-		return Pri.LongPath.Path.Combine(DownloaderProps.QueueDir, id + ".nzb");
+		return System.IO.Path.Combine(DownloaderProps.QueueDir, id + ".nzb");
 	}
 
 	public void StatsUpdateProgress(double percents)

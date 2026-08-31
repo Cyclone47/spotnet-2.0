@@ -1,18 +1,19 @@
-# Spotnet 2.0 Build & Setup Instructions
+# Spotnet 3.0 Build & Setup Instructions
 
-This document provides complete instructions for building and testing the reconstructed Spotnet 2.0 solution from source.
+This document provides complete instructions for building and testing Spotnet 3.0 from source.
 
 ---
 
 ## 1. Prerequisites & Environment
 
-- **Operating System:** Windows 10 / 11 (x64 / x86)
+- **Operating System:** Windows 10 / 11 x64
 - **SDK / Build Tools:**
   - .NET SDK (6.0, 8.0, 9.0+)
   - Visual Studio 2022 / Visual Studio Build Tools with:
     - .NET desktop development workload
     - .NET Framework 4.7.2 targeting pack
-- **Platform Architecture:** `x86` (32-bit compilation target required for native SQLite/Awesomium/VLC interop)
+- **Platform Architecture:** `x64` (the application, tests, SQLite interop, WebView2 loader, and LibVLC runtime are all 64-bit)
+- **Runtime:** Microsoft Edge WebView2 Evergreen Runtime
 
 ---
 
@@ -70,19 +71,17 @@ To execute the automated test suite verifying yEnc decoding, Spot XML parsing, C
 dotnet test d:\sourcecode\reconstructed\Spotnet2\Spotnet.sln
 ```
 
-All 6/6 test suites will run and pass:
-- `SpotnetDecoder_DecodesSimpleYEncData` (PASSED)
-- `SpotnetDecoder_HandlesEscapedCharacters` (PASSED)
-- `SpotParser_ParsesValidSpotXml` (PASSED)
-- `CategoriesResources_ContainsGenreStrings` (PASSED)
-- `SpotCat_CanAddChildren` (PASSED)
-- `SQLite_InMemoryDatabaseOperations` (PASSED)
+All 69 tests should pass. They cover yEnc decoding, Spot XML parsing, category resources,
+SQLite durability and rebuild behavior, query generation and parameterization, RSA verifier
+caching, WebView2 runtime probing, x64 assembly targeting, and traversal-safe ZIP extraction.
 
 ---
 
 ## 5. Output Binaries & Running the Application
 
-The build process automatically deploys all native dependencies (`SQLite.Interop.dll`, `awesomium.dll`, `libEGL.dll`, `awesomium_process.exe`, `UnRAR.exe`, `phpar2.exe`, `7za.exe`), `Data/Filters.v2`, `Data/TabThemes`, and resources to the output folder:
+The build process automatically deploys the x64 native dependencies (`SQLite.Interop.dll`,
+`libvlc.dll`, `WebView2Loader.dll`) plus the child-process utilities (`UnRAR.exe`,
+`phpar2.exe`, `7za.exe`), `Data/Filters.v2`, `Data/TabThemes`, and resources to the output folder:
 
 - **Release Executable:** `d:\sourcecode\reconstructed\Spotnet2\Spotnet\bin\Release\net472\Spotnet.exe`
 - **Debug Executable:** `d:\sourcecode\reconstructed\Spotnet2\Spotnet\bin\Debug\net472\Spotnet.exe`

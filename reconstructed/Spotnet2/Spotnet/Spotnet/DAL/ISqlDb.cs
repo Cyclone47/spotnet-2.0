@@ -31,5 +31,5 @@ public interface ISqlDb : IDisposable
 
 	long ExecuteScalar(DbCommand command);
 
-	void ProcessMalformedDbState(string error);
+	void ProcessMalformedDbState(Exception exception);
 }

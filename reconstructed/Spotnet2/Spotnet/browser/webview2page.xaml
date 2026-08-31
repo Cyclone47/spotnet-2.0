@@ -1,4 +1,4 @@
-<UserControl x:Class="Spotnet.Browser.AwesomiumPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:Spotnet.Controls" xmlns:browser="clr-namespace:Spotnet.Browser">
+<UserControl x:Class="Spotnet.Browser.WebView2Page" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:Spotnet.Controls" xmlns:browser="clr-namespace:Spotnet.Browser">
   <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{StaticResource SpotBackgroundBrush}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
@@ -9,6 +9,7 @@
       <controls:SpotToolbar x:Name="Toolbar" Width="Auto" Background="{StaticResource TransparentWhiteBrush2}" />
     </Popup>
     <Grid Name="WebGrid" Row="1" Visibility="Collapsed" />
+    <TextBlock Name="UnavailableMessage" Grid.Row="1" Visibility="Collapsed" TextWrapping="Wrap" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
   </Grid>
   <FrameworkElement.ContextMenu>
     <ContextMenu Name="SpotMenu" />

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Downloader;
 using Spotnet.Helpers;
 using Spotnet.Model;
@@ -25,12 +24,12 @@ public class YEncDecoderFast
 	{
 		string tempFileName = AppHelper.GetTempFileName("decoded", "result_Default");
 		string tempFileName2 = AppHelper.GetTempFileName("decoded", "result_DsimOptimized");
-		if (!Pri.LongPath.File.Exists(tempFileName))
+		if (!System.IO.File.Exists(tempFileName))
 		{
 			return;
 		}
-		Pri.LongPath.File.WriteAllText(tempFileName, "");
-		Pri.LongPath.File.WriteAllText(tempFileName2, "");
+		System.IO.File.WriteAllText(tempFileName, "");
+		System.IO.File.WriteAllText(tempFileName2, "");
 		Dictionary<DecoderTypeEnum, long> dictionary = new Dictionary<DecoderTypeEnum, long>
 		{
 			[DecoderTypeEnum.Default] = 0L,
@@ -40,7 +39,7 @@ public class YEncDecoderFast
 		for (int i = 0; i < 100; i++)
 		{
 			using MemoryStream memoryStream = new MemoryStream();
-			using (FileStream fileStream = Pri.LongPath.File.OpenRead(AppHelper.GetTempFileName("enc", $"test{i + 1}")))
+			using (FileStream fileStream = System.IO.File.OpenRead(AppHelper.GetTempFileName("enc", $"test{i + 1}")))
 			{
 				fileStream.CopyTo(memoryStream);
 			}
@@ -58,7 +57,7 @@ public class YEncDecoderFast
 				}
 				string tempFileName3 = AppHelper.GetTempFileName("decoded", $"result_{item}");
 				stream?.Seek(0L, SeekOrigin.Begin);
-				using FileStream destination = Pri.LongPath.File.Open(tempFileName3, FileMode.Append, FileAccess.Write);
+				using FileStream destination = System.IO.File.Open(tempFileName3, FileMode.Append, FileAccess.Write);
 				stream?.CopyTo(destination);
 			}
 		}
@@ -67,11 +66,11 @@ public class YEncDecoderFast
 		Log.Debug($"DsimOptimized decode time(ms): {dictionary[DecoderTypeEnum.DsimOptimized]}");
 		using (MD5 mD = MD5.Create())
 		{
-			using FileStream inputStream = Pri.LongPath.File.OpenRead(tempFileName);
+			using FileStream inputStream = System.IO.File.OpenRead(tempFileName);
 			Log.Debug("f1 md5:" + AppHelper.MakeMd5(mD.ComputeHash(inputStream)));
 		}
 		using MD5 mD2 = MD5.Create();
-		using FileStream inputStream2 = Pri.LongPath.File.OpenRead(tempFileName2);
+		using FileStream inputStream2 = System.IO.File.OpenRead(tempFileName2);
 		Log.Debug("f2 md5:" + AppHelper.MakeMd5(mD2.ComputeHash(inputStream2)));
 	}
 

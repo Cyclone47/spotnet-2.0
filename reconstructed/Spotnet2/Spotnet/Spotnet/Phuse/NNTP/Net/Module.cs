@@ -9,7 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using Ionic.Zlib;
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using Spotnet.Extensions;
 using Spotnet.Model;
 
@@ -99,8 +99,34 @@ internal static class Module
 		}
 		byte[] array = new byte[count];
 		bData.Position = offset;
-		bData.Read(array, 0, (int)count);
+		int read = ReadAtMost(bData, array, 0, (int)count);
+		if (read < count)
+		{
+			// A single Read is not required to return everything asked for. It happens to
+			// on a MemoryStream, which is what callers pass today, but returning a
+			// zero-padded buffer for anything else would corrupt article data silently.
+			Array.Resize(ref array, read);
+		}
 		return array;
+	}
+
+	/// <summary>
+	/// Reads until <paramref name="count"/> bytes have been collected or the stream ends,
+	/// and returns how many were actually read.
+	/// </summary>
+	private static int ReadAtMost(Stream stream, byte[] buffer, int offset, int count)
+	{
+		int total = 0;
+		while (total < count)
+		{
+			int read = stream.Read(buffer, offset + total, count - total);
+			if (read <= 0)
+			{
+				break;
+			}
+			total += read;
+		}
+		return total;
 	}
 
 	internal static string GetString(Stream bData, long offset = 0L, long count = -1L)
@@ -183,13 +209,15 @@ internal static class Module
 		long num = FindPosition(data, CEnc.GetBytes("\r\n"));
 		byte[] array = new byte[num + 2];
 		data.Position = 0L;
-		data.Read(array, 0, array.Length);
+		ReadAtMost(data, array, 0, array.Length);
 		int num2 = (int)(data.Length - (num + 2) - 3);
 		byte[] array2 = new byte[num2];
-		data.Read(array2, 0, num2);
+		// Fill the compressed payload completely before handing it to zlib - a short
+		// read here would surface as a corrupt-stream error rather than a truncation.
+		ReadAtMost(data, array2, 0, num2);
 		MemoryStream memoryStream = new MemoryStream();
 		memoryStream.Write(array, 0, array.Length);
-		byte[] array3 = ZlibStream.UncompressBuffer(array2);
+		byte[] array3 = UncompressZlib(array2);
 		byte[] bytes = CEnc.GetBytes("\r\n");
 		if (array3.Length > bytes.Length)
 		{
@@ -206,6 +234,15 @@ internal static class Module
 		byte[] bytes2 = CEnc.GetBytes(".\r\n");
 		memoryStream.Write(bytes2, 0, bytes2.Length);
 		return memoryStream;
+	}
+
+	private static byte[] UncompressZlib(byte[] compressed)
+	{
+		using MemoryStream input = new MemoryStream(compressed, writable: false);
+		using InflaterInputStream inflater = new InflaterInputStream(input);
+		using MemoryStream output = new MemoryStream();
+		CopyTo(inflater, output);
+		return output.ToArray();
 	}
 
 	private static long FindPosition(Stream stream, byte[] byteSequence)

@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Ionic.Zip;
 using NLog;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Model;
 
@@ -77,17 +76,17 @@ public static class LogHelper
 			return null;
 		}
 		string text = Path.Combine(AppHelper.GetTempPath(), "spotnet_logs.zip");
-		using ZipFile zipFile = new ZipFile();
+		List<Tuple<string, string>> files = new List<Tuple<string, string>>();
 		foreach (string item in list)
 		{
-			string directoryPathInArchive = "";
+			string entryName = Path.GetFileName(item);
 			if (item.EndsWith("SquirrelSetup.log"))
 			{
-				directoryPathInArchive = Directory.GetParent(item).Name;
+				entryName = Path.Combine(Directory.GetParent(item).Name, entryName);
 			}
-			zipFile.AddFile(item, directoryPathInArchive);
+			files.Add(Tuple.Create(item, entryName));
 		}
-		zipFile.Save(text);
+		SafeZip.Create(text, files);
 		return text;
 	}
 }

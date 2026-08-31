@@ -1481,7 +1481,7 @@ VAL: Controleren
 KEY: SpotRemoveAskDialogText
 TYPE: System.String
 VAL: U wilt uw eigen spot verwijderen die verkeerd is toegevoegd. 
-De spot wordt verwijderd uit de database van alle Spotnet 2.0 gebruikers. 
+De spot wordt verwijderd uit de database van alle Spotnet 3.0 gebruikers.
 Schrijf de reden waarom u deze wilt verwijderen:
 ----------------------------------------
 KEY: MenuVisibleControlsStatusBar

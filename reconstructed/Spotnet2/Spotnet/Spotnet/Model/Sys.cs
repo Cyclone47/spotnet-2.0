@@ -1,5 +1,4 @@
 using System.Windows;
-using Awesomium.Windows.Controls;
 using NLog;
 using Spotnet.Controls;
 using Spotnet.Downloader;
@@ -17,8 +16,6 @@ internal static class Sys
 	internal static readonly IStatsReport StatsReporter;
 
 	internal static IDownloader Downloader;
-
-	internal static WebSessionProvider SessionProvider;
 
 	internal static LeftPanelUserControl LeftPanel;
 
@@ -52,7 +49,7 @@ internal static class Sys
 		else
 		{
 			LogManager.Flush();
-			LogManager.DisableLogging();
+			LogManager.Shutdown();
 			Application.Current.Shutdown();
 		}
 	}

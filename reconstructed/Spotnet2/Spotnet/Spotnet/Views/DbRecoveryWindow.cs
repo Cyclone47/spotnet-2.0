@@ -6,6 +6,7 @@ using System.Windows;
 using System.Data.SQLite;
 using MahApps.Metro.Controls;
 using NLog;
+using Spotnet.DAL;
 using Spotnet.Helpers;
 using Spotnet.Properties;
 
@@ -14,6 +15,8 @@ namespace Spotnet.Views
     public enum DbRecoveryAction
     {
         Repaired,
+        /// <summary>Rows salvaged into a fresh database file; the damaged one kept as .bak.</summary>
+        Rebuilt,
         Cleaned,
         Closed
     }
@@ -55,6 +58,28 @@ namespace Spotnet.Views
             else
             {
                 StatusTextBlock.Text = "Quick repair encountered an issue. You can try 'Clean Reset' instead.";
+                ProgressBarControl.Visibility = Visibility.Collapsed;
+                EnableButtons(true);
+            }
+        }
+
+        private async void RebuildButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetWorkingState("Salvaging spots into a fresh database. This can take a few minutes...");
+
+            string dbFile = AppHelper.GetDbFilename("dbs");
+            SpotsDbRebuilder.RebuildResult result = await Task.Run(() => SpotsDbRebuilder.Rebuild(dbFile));
+            if (result.Succeeded)
+            {
+                ClearConfigurationFlags();
+                StatusTextBlock.Text = $"Recovered {result.SpotsRecovered} spots.";
+                SelectedAction = DbRecoveryAction.Rebuilt;
+                DialogResult = true;
+                Close();
+            }
+            else
+            {
+                StatusTextBlock.Text = "Rebuild could not read the database. 'Clean Reset' will start fresh from your provider.";
                 ProgressBarControl.Visibility = Visibility.Collapsed;
                 EnableButtons(true);
             }
@@ -122,7 +147,10 @@ namespace Spotnet.Views
                     {
                         try
                         {
-                            using var conn = new SQLiteConnection($"Data Source={db};Version=3;Journal Mode=Delete;");
+                            // Stay in WAL. Forcing "Journal Mode=Delete" here used to convert
+                            // the database back to the rollback journal, quietly undoing the
+                            // crash-safety the rest of the app depends on.
+                            using var conn = new SQLiteConnection($"Data Source={db};Version=3;Journal Mode=WAL;BusyTimeout=5000;");
                             conn.Open();
                             using var cmd = conn.CreateCommand();
                             cmd.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
@@ -130,6 +158,15 @@ namespace Spotnet.Views
 
                             cmd.CommandText = "REINDEX;";
                             cmd.ExecuteNonQuery();
+
+                            // Report what shape the file is actually in, so the log says
+                            // whether Quick Repair was enough or a Rebuild is needed.
+                            cmd.CommandText = "PRAGMA quick_check(1);";
+                            string check = Convert.ToString(cmd.ExecuteScalar());
+                            if (!"ok".Equals(check, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Log.Warn("quick_check on {0} reports: {1}", db, check);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -147,7 +184,12 @@ namespace Spotnet.Views
                         using var conn = new SQLiteConnection($"Data Source={dbs};Version=3;");
                         conn.Open();
                         using var cmd = conn.CreateCommand();
-                        cmd.CommandText = "CREATE TABLE IF NOT EXISTS userinfo(field TEXT PRIMARY KEY, value TEXT);";
+                        // Matches the shape SpotProvider creates. It declared a PRIMARY KEY
+                        // here, which IF NOT EXISTS could never apply to an existing table -
+                        // so the INSERT OR REPLACE below silently appended duplicate rows
+                        // instead of replacing, and readers that take the first match could
+                        // then pick up a stale watermark.
+                        cmd.CommandText = SpotsSchema.CreateUserInfo + ";";
                         cmd.ExecuteNonQuery();
 
                         cmd.CommandText = "SELECT MIN(rowid), MAX(rowid) FROM spots;";
@@ -157,9 +199,14 @@ namespace Spotnet.Views
                             long minId = reader.GetInt64(0);
                             reader.Close();
 
-                            cmd.CommandText = "INSERT OR REPLACE INTO userinfo(field, value) VALUES('minId_headers', @val);";
+                            // Delete-then-insert works whether or not the table has a key.
+                            cmd.CommandText = "DELETE FROM userinfo WHERE field = 'minId_headers';";
+                            cmd.ExecuteNonQuery();
+
+                            cmd.CommandText = "INSERT INTO userinfo(field, value) VALUES('minId_headers', @val);";
                             cmd.Parameters.AddWithValue("@val", minId.ToString());
                             cmd.ExecuteNonQuery();
+                            cmd.Parameters.Clear();
                         }
                     }
                     catch (Exception ex)
@@ -230,6 +277,7 @@ namespace Spotnet.Views
         private void EnableButtons(bool enable)
         {
             RepairButton.IsEnabled = enable;
+            RebuildButton.IsEnabled = enable;
             ResetButton.IsEnabled = enable;
             CloseButton.IsEnabled = enable;
         }

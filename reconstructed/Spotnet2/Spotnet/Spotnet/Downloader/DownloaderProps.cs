@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
-using Pri.LongPath;
+using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;

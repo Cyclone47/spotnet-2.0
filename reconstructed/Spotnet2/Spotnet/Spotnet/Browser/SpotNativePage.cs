@@ -17,12 +17,10 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using Awesomium.Core;
 using GalaSoft.MvvmLight.Threading;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using NLog;
-using Pri.LongPath;
 using Spotnet.Controls;
 using Spotnet.DAL;
 using Spotnet.Extensions;
@@ -433,7 +431,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 		throw new NotImplementedException();
 	}
 
-	private void OnDocumentReadyEvent(object o, DocumentReadyEventArgs documentReadyEventArgs)
+	private void OnDocumentReadyEvent(object o, PageReadyEventArgs documentReadyEventArgs)
 	{
 		lock (_syncRoot)
 		{
@@ -523,7 +521,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 				try
 				{
 					Toolbar.Dispose();
-					Pri.LongPath.File.Delete(_fileToRemoveOnClose);
+					System.IO.File.Delete(_fileToRemoveOnClose);
 					FilesToRemoveOnClose.Remove(_fileToRemoveOnClose);
 					return;
 				}
@@ -1405,7 +1403,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 				bitmap = bitmap.Resize(32, 32);
 			}
 			newAvatar = Convert.ToBase64String(bitmap.ToByteArray());
-			Settings.Default.AvatarFolder = Pri.LongPath.Path.GetDirectoryName(openFileDialog.FileName);
+			Settings.Default.AvatarFolder = System.IO.Path.GetDirectoryName(openFileDialog.FileName);
 			Settings.Default.Save();
 			return true;
 		}
@@ -2192,13 +2190,13 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 		}
 		if (Settings.Default.CommentSmilesShow)
 		{
-			string[] files = Pri.LongPath.Directory.GetFiles(AppHelper.SmileysPath, "*.gif");
+			string[] files = System.IO.Directory.GetFiles(AppHelper.SmileysPath, "*.gif");
 			int num = 0;
 			string text = "<span class='Close' id='CloseSmiles'>x</span>";
 			string[] array = files;
 			foreach (string text2 in array)
 			{
-				string fileNameWithoutExtension = Pri.LongPath.Path.GetFileNameWithoutExtension(text2);
+				string fileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(text2);
 				string text3 = "<a href='smiley:" + fileNameWithoutExtension + "'><img style='vertical-align:bottom;' title='" + fileNameWithoutExtension + "' alt='" + fileNameWithoutExtension + "' src='file://" + text2 + "' border=0></a>&nbsp;&nbsp;";
 				if (num++ == 14)
 				{
@@ -2359,7 +2357,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 		{
 			try
 			{
-				Pri.LongPath.File.Delete(item);
+				System.IO.File.Delete(item);
 			}
 			catch (Exception)
 			{

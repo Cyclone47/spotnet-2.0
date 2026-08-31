@@ -1,10 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 
-title Spotnet 2.0 - Build and Test
+title Spotnet 3.0 - Build and Test
 
 echo ======================================================================
-echo                  Spotnet 2.0 Reconstructed Build System               
+echo                  Spotnet 3.0 Build System
 echo ======================================================================
 echo.
 
@@ -20,7 +20,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo [1/3] Restoring and building Spotnet 2.0 Solution Release x86...
+echo [1/3] Restoring and building Spotnet 3.0 Solution Release x86...
 echo.
 dotnet build "%SOLUTION_DIR%\Spotnet.sln" -c Release -v minimal
 if %ERRORLEVEL% NEQ 0 (
@@ -48,7 +48,7 @@ set "OUTPUT_EXE=%SOLUTION_DIR%\Spotnet\bin\Release\net472\Spotnet.exe"
 
 if exist "%OUTPUT_EXE%" (
     echo ======================================================================
-    echo [BUILD SUCCESSFUL] Spotnet 2.0 compiled successfully!
+    echo [BUILD SUCCESSFUL] Spotnet 3.0 compiled successfully!
     echo.
     echo Binary location:
     echo "%OUTPUT_EXE%"
@@ -62,9 +62,9 @@ if exist "%OUTPUT_EXE%" (
     exit /b 1
 )
 
-set /p RUN_APP="Would you like to launch Spotnet 2.0 now? (Y/N): "
+set /p RUN_APP="Would you like to launch Spotnet 3.0 now? (Y/N): "
 if /i "%RUN_APP%"=="Y" (
-    echo Launching Spotnet 2.0...
+    echo Launching Spotnet 3.0...
     start "" "%OUTPUT_EXE%"
 )
 

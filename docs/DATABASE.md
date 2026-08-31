@@ -1,8 +1,8 @@
-# Spotnet 2.0 Database Architecture & Compatibility Guide
+# Spotnet 3.0 Database Architecture & Compatibility Guide
 
 **Database Engine:** SQLite 3 (Managed via `System.Data.SQLite.dll` + `SQLite.Interop.dll` x86)  
 **Full-Text Search Engine:** SQLite FTS4 Virtual Tables with FTS3 matchinfo  
-**Multi-Database Architecture:** Spotnet 2.0 separates domain data into distinct physical SQLite database files to optimize transaction isolation and performance.
+**Multi-Database Architecture:** Spotnet 3.0 separates domain data into distinct physical SQLite database files to optimize transaction isolation and performance.
 
 ---
 
@@ -94,7 +94,7 @@ CREATE VIRTUAL TABLE comments USING fts4(
 
 ## 3. Database Migrations (`DbUpdater.cs` & `DatabaseUpgrade`)
 
-Spotnet 2.0 tracks schema versions using `PRAGMA user_version`:
+Spotnet 3.0 tracks schema versions using `PRAGMA user_version`:
 
 - **Version 0 -> Version 1**:
   - Creates `spamreports` and `spamgroup` tables if not existing.
