@@ -48,18 +48,26 @@ public class ServerInfo : ICloneable
 
 	internal bool DoesProviderUseSsl()
 	{
-		TcpClient tcpClient = null;
-		try
-		{
-			tcpClient = new TcpClient(Server, Port);
-			using SslStream sslStream = new SslStream(tcpClient.GetStream(), leaveInnerStreamOpen: false, (object _003Cp0_003E, X509Certificate _003Cp1_003E, X509Chain _003Cp2_003E, SslPolicyErrors _003Cp3_003E) => true, null);
-			sslStream.AuthenticateAsClient(Server);
-		}
-		catch (IOException)
+		if (string.IsNullOrWhiteSpace(Server) || Port <= 0)
 		{
 			return false;
 		}
-		catch (SocketException)
+
+		TcpClient tcpClient = null;
+		try
+		{
+			tcpClient = new TcpClient();
+			IAsyncResult asyncResult = tcpClient.BeginConnect(Server, Port, null, null);
+			if (!asyncResult.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(2.0)))
+			{
+				return false;
+			}
+			tcpClient.EndConnect(asyncResult);
+
+			using SslStream sslStream = new SslStream(tcpClient.GetStream(), leaveInnerStreamOpen: false, (object _003Cp0_003E, X509Certificate _003Cp1_003E, X509Chain _003Cp2_003E, SslPolicyErrors _003Cp3_003E) => true, null);
+			sslStream.AuthenticateAsClient(Server);
+		}
+		catch
 		{
 			return false;
 		}

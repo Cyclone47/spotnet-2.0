@@ -98,7 +98,7 @@ public class Servers
 		{
 			OMasterCache.Connections = 2;
 			OMasterCache.Server = (AppHelper.IsSnelNlProvider ? CachingSystem.MasterHostnameSnelNl : (AppHelper.Is5EuroProvider ? CachingSystem.MasterHostname5Euro : ""));
-			OMasterCache.SSL = OMasterCache.DoesProviderUseSsl();
+			OMasterCache.SSL = !string.IsNullOrWhiteSpace(OMasterCache.Server) && OMasterCache.DoesProviderUseSsl();
 		}
 	}
 
