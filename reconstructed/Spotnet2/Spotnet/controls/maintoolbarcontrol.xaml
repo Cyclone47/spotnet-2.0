@@ -2,7 +2,6 @@
   <FrameworkElement.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/PresentationFramework.Aero;;component/themes/aero.normalcolor.xaml" />
         <ResourceDictionary Source="../Style/MainMenuStyle.xaml" />
       </ResourceDictionary.MergedDictionaries>
       <converters:TrueToFalseConverter x:Key="InverseBooleanConverter" />

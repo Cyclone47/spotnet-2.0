@@ -13,6 +13,11 @@
   <Color x:Key="AccentColor4Background">#FFEFF7FF</Color>
   <Color x:Key="AccentColor5Background">#FFFEFEFF</Color>
 
+  <!-- Tab Control Brushes -->
+  <SolidColorBrush x:Key="BackgroundSelected" Color="#BB327ECA" />
+  <SolidColorBrush x:Key="BackgroundNotSelected" Color="#FFE5F0FE" />
+  <SolidColorBrush x:Key="SpotBackgroundBrush" Color="#FFFFFFFF" />
+
   <SolidColorBrush x:Key="NotSelectedBackgroundBrush" Color="{StaticResource NotSelectedBackground}" />
   <SolidColorBrush x:Key="AccentColor1BackgroundBrush" Color="{StaticResource AccentColor1Background}" />
   <SolidColorBrush x:Key="AccentColor2BackgroundBrush" Color="{StaticResource AccentColor2Background}" />

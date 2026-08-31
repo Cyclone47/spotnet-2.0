@@ -46,9 +46,6 @@
               <ComboBox Name="SearchBox" IsEnabled="True" IsEditable="True" IsTextSearchEnabled="False" Grid.ColumnSpan="3" Background="{DynamicResource WhiteColorBrush}" Foreground="{DynamicResource BlackBrush}" VerticalContentAlignment="Center" Style="{StaticResource MetroComboBox}" KeyUp="SearchBox_KeyUp" ContextMenuOpening="SearchBox_ContextMenuOpening" LostFocus="SearchBox_LostFocus" Loaded="SearchBox_Loaded">
                 <FrameworkElement.ContextMenu>
                   <ContextMenu FontSize="{DynamicResource ContextMenuFontSize}">
-                    <FrameworkElement.Resources>
-                      <ResourceDictionary Source="/PresentationFramework.Aero;V3.0.0.0;31bf3856ad364e35;component\\themes/aero.normalcolor.xaml" />
-                    </FrameworkElement.Resources>
                     <MenuItem Command="Copy" />
                     <MenuItem Command="Paste" />
                     <MenuItem Command="Delete" />

@@ -137,10 +137,12 @@ public static class ThemeHelper
 
                 ThemeChanged?.Invoke();
 
-                // Refresh spots list rows so text color re-evaluates immediately
+                // Refresh spots list rows and reload open spot pages so they re-render immediately
                 try
                 {
+                    SpotParser.ResetThemeFiles();
                     Sys.MainWindow?.RefreshSpotsList(force: true);
+                    Sys.MainWindow?.ReloadAllSpotPages();
                 }
                 catch { }
 

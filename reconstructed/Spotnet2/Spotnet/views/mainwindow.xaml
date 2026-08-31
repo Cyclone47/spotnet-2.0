@@ -121,7 +121,7 @@
       <Panel.Background>
         <SolidColorBrush Color="White" Opacity="0" />
       </Panel.Background>
-      <StatusBar Margin="0,0,10,2" FontSize="{DynamicResource ContentFontSize}" Foreground="#FF000000" Background="{x:Null}" DataContext="{Binding StatusBar, Source={StaticResource Locator}}">
+      <StatusBar Margin="0,0,10,2" FontSize="{DynamicResource ContentFontSize}" Foreground="{DynamicResource BlackBrush}" Background="{x:Null}" DataContext="{Binding StatusBar, Source={StaticResource Locator}}">
         <StatusBarItem DockPanel.Dock="Right" Margin="2,0">
           <Grid>
             <Popup Name="StatusBarSystemStatePopup" Placement="Top" VerticalOffset="-5" HorizontalOffset="-180" AllowsTransparency="True" PlacementTarget="{Binding ElementName=StatusBarSystemStateImage}" IsOpen="{Binding ElementName=StatusBarSystemStateTooltip, Path=TooltipIsVisible, UpdateSourceTrigger=PropertyChanged}">

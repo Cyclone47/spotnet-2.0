@@ -805,6 +805,96 @@ internal class SpotParser
 		{
 			text4 = text4.Replace("=".Repeat(60), "=".Repeat(50)).Replace("-".Repeat(60), "-".Repeat(50));
 		}
+		if (ThemeHelper.IsModernDark)
+		{
+			string darkCss = @"<style type='text/css' id='spotnet-modern-dark-css'>
+html, body {
+    background-color: #0d1520 !important;
+    background-image: none !important;
+    color: #e2e8f0 !important;
+}
+table, tr, td, th, div, span, p, label, b, strong, i, em {
+    color: #e2e8f0 !important;
+}
+.header {
+    background-color: #0d1520 !important;
+    color: #f8fafc !important;
+    border-bottom: 1px solid #1e293b !important;
+}
+a, a:link, a:visited, .from, .category, .website {
+    color: #38bdf8 !important;
+}
+a:hover, .from:hover, .category:hover {
+    color: #7dd3fc !important;
+}
+.date {
+    color: #94a3b8 !important;
+}
+.reply {
+    color: #60a5fa !important;
+}
+.comment {
+    color: #93c5fd !important;
+}
+.author {
+    color: #f43f5e !important;
+}
+.trusted {
+    color: #4ade80 !important;
+}
+.untrusted {
+    color: #64748b !important;
+}
+blockquote {
+    background-color: #152232 !important;
+    color: #cbd5e1 !important;
+    border-top: 1px solid #1e293b !important;
+    border-bottom: 1px solid #1e293b !important;
+    border-left: 4px solid #0284c7 !important;
+}
+cite {
+    color: #94a3b8 !important;
+}
+textarea, input[type='text'], input[type='password'], select {
+    background-color: #152232 !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+}
+button, .button, input[type='button'], input[type='submit'], .btn, .btn-primary {
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    border: 1px solid #0369a1 !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+}
+button:hover, .button:hover, input[type='button']:hover, input[type='submit']:hover {
+    background-color: #0369a1 !important;
+}
+#div_comments, .comments, .comment_box {
+    background-color: #0d1520 !important;
+    border-color: #1e293b !important;
+}
+hr {
+    border-color: #1e293b !important;
+    background-color: #1e293b !important;
+}
+#SpotImage {
+    border: 1px solid #1e293b !important;
+}
+.bbcode_quote {
+    background-color: #152232 !important;
+    border-left: 3px solid #0284c7 !important;
+}
+</style>";
+			if (text4.Contains("</head>"))
+			{
+				text4 = text4.Replace("</head>", darkCss + "</head>");
+			}
+			else
+			{
+				text4 = darkCss + text4;
+			}
+		}
 		return text4;
 	}
 }

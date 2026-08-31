@@ -10,12 +10,17 @@
   <Color x:Key="AccentColor5">#FF0F172A</Color>
 
   <!-- Background Shades (Modern Dark Surface layers) -->
-  <Color x:Key="NotSelectedBackground">#FF131D28</Color>
+  <Color x:Key="NotSelectedBackground">#FF111B27</Color>
   <Color x:Key="AccentColor1Background">#FF182432</Color>
   <Color x:Key="AccentColor2Background">#FF1E2D3E</Color>
   <Color x:Key="AccentColor3Background">#FF24374C</Color>
   <Color x:Key="AccentColor4Background">#FF111B27</Color>
   <Color x:Key="AccentColor5Background">#FF0C131D</Color>
+
+  <!-- Tab Control Brushes -->
+  <SolidColorBrush x:Key="BackgroundSelected" Color="#FF0284C7" />
+  <SolidColorBrush x:Key="BackgroundNotSelected" Color="#FF111B27" />
+  <SolidColorBrush x:Key="SpotBackgroundBrush" Color="#FF0E1622" />
 
   <!-- Solid Brushes for Spotnet controls -->
   <SolidColorBrush x:Key="NotSelectedBackgroundBrush" Color="{StaticResource NotSelectedBackground}" />
