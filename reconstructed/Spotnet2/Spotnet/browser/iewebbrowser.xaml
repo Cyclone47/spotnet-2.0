@@ -1,0 +1,20 @@
+<UserControl x:Class="Spotnet.Browser.IEWebBrowser" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:Spotnet.Controls" xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" xmlns:browser="clr-namespace:Spotnet.Browser">
+  <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{StaticResource SpotBackgroundBrush}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <controls:WarningTip x:Name="Warning" Grid.Row="0" Visibility="Collapsed" Focusable="False" Margin="0,1,0,0" />
+    <Popup Name="ToolbarPopup" Visibility="Collapsed" Grid.Row="1" IsOpen="False" StaysOpen="True" AllowsTransparency="True" Placement="Custom" PlacementTarget="{Binding ElementName=WebGrid}">
+      <controls:SpotToolbar x:Name="Toolbar" Width="Auto" Background="{StaticResource TransparentWhiteBrush2}" />
+    </Popup>
+    <Grid Name="WebGrid" Row="1">
+      <WindowsFormsHost Name="WindowsFormsHost1">
+        <forms:WebBrowser x:Name="Brows" NewWindow="brows_NewWindow" Navigating="brows_Navigating" DocumentTitleChanged="brows_DocumentTitleChanged" DocumentCompleted="brows_DocumentCompleted" Disposed="brows_Disposed" PreviewKeyDown="brows_PreviewKeyDown" />
+      </WindowsFormsHost>
+    </Grid>
+  </Grid>
+  <FrameworkElement.ContextMenu>
+    <ContextMenu Name="SpotMenu" />
+  </FrameworkElement.ContextMenu>
+</UserControl>

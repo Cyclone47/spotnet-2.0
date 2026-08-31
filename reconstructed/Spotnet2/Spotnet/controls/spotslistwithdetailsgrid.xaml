@@ -1,0 +1,205 @@
+<controls:SpotsContainer x:Class="Spotnet.Controls.SpotsListWithDetailsGrid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:p="clr-namespace:Spotnet.Properties" xmlns:controls="clr-namespace:Spotnet.Controls" xmlns:vm="clr-namespace:Spotnet.ViewModel" xmlns:controls1="clr-namespace:Spotnet.Downloader.Controls" DataContext="{Binding SpotsList, Source={StaticResource Locator}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+      <vm:SpotRowViewModel x:Key="RowViewModel" />
+      <DataTemplate x:Key="ThumbnailIsLoaded">
+        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{StaticResource AccentColor5BackgroundBrush}">
+          <Image Width="{Binding Path=ThumbMaxWidth, Source={StaticResource RowViewModel}}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}" Opacity="{Binding Data.ImageOpacity, Mode=OneWay}" Source="{Binding Data.BitmapSource, Mode=OneWay}" />
+          <TextBlock Margin="15, 10, 5, 5" FontWeight="Normal" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="{Binding Data.Description, Mode=OneWay}" />
+        </DockPanel>
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailDescriptionIsLoaded">
+        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{StaticResource AccentColor5BackgroundBrush}">
+          <Border Name="SelectionBorder" BorderBrush="#FFB0E0E6" BorderThickness="1" CornerRadius="1" Width="{Binding Path=ThumbMaxWidth, Source={StaticResource RowViewModel}}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}">
+            <controls:ProgressRing Width="30" Height="30" IsActive="True" />
+          </Border>
+          <TextBlock Margin="15, 10, 5, 5" FontWeight="Normal" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="{Binding Data.Description, Mode=OneWay}" />
+        </DockPanel>
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailLoadFailed">
+        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{StaticResource AccentColor5BackgroundBrush}">
+          <Grid Background="{StaticResource AccentColor5BackgroundBrush}">
+            <Grid VerticalAlignment="Center">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <TextBlock Grid.Row="0" Text="" FontSize="20" Style="{StaticResource FontAwesome}" />
+              <TextBlock Grid.Row="1" Text="{x:Static p:Words.CannotLoad}" TextAlignment="Center" />
+            </Grid>
+          </Grid>
+        </DockPanel>
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailImageLoadFailed">
+        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{StaticResource AccentColor5BackgroundBrush}">
+          <Grid Width="{Binding Path=ThumbMaxWidth, Source={StaticResource RowViewModel}}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}">
+            <Grid VerticalAlignment="Center">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <TextBlock Grid.Row="0" Text="" FontSize="20" Style="{StaticResource FontAwesome}" />
+              <TextBlock Grid.Row="1" Text="{x:Static p:Words.CannotLoad}" TextAlignment="Center" />
+            </Grid>
+          </Grid>
+          <TextBlock Margin="15, 10, 5, 5" FontWeight="Normal" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="{Binding Data.Description, Mode=OneWay}" />
+        </DockPanel>
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailIsLoading">
+        <Grid Background="{StaticResource AccentColor5BackgroundBrush}">
+          <controls:ProgressRing IsActive="True" />
+        </Grid>
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailTemplate">
+        <ContentControl Name="SpotContent" MinWidth="400" Foreground="{StaticResource BlackColorBrush}" ContentTemplate="{StaticResource ThumbnailIsLoading}" Content="{Binding}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}" IsVisibleChanged="RowDetails_IsVisibleChanged" Loaded="RowDetails_Loaded" />
+        <DataTemplate.Triggers>
+          <DataTrigger Value="2" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContent" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailDescriptionIsLoaded}" />
+          </DataTrigger>
+          <DataTrigger Value="3" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContent" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailIsLoaded}" />
+          </DataTrigger>
+          <DataTrigger Value="4" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContent" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailLoadFailed}" />
+          </DataTrigger>
+          <DataTrigger Value="5" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContent" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailImageLoadFailed}" />
+          </DataTrigger>
+        </DataTemplate.Triggers>
+      </DataTemplate>
+      <Style x:Key="SpotsListDataGridRowStyle" TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource DataGridRowStyle}">
+        <Setter Property="FontWeight" Value="{Binding Data.FontWeight, Mode=OneWay}" />
+        <EventSetter Event="MouseEnter" Handler="OnMouseEnterItem" />
+      </Style>
+      <Style x:Key="SpotsListDataGridCellStyle" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource DataGridCellStyle}">
+        <Setter Property="Foreground" Value="{Binding Data.Foreground, Mode=OneWay}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+      </Style>
+      <Style x:Key="ColumnElementStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="Margin" Value="5,2,5,2" />
+      </Style>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <DockPanel Name="Dock" Height="Auto" Width="Auto" HorizontalAlignment="Stretch" ClipToBounds="False" LastChildFill="True">
+      <Panel.Background>
+        <ImageBrush ImageSource="/Resources\ImagesInternal\spotsbg.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,150,150" />
+      </Panel.Background>
+      <controls:WarningTip DockPanel.Dock="Top" Text="{x:Static p:Words.DbIsNotUpToDateWarning}" Focusable="False" Margin="0,1,0,1" Visibility="{Binding SpotsDbIsNotUpToDateWarningVisibility, Mode=TwoWay}" />
+      <Grid DockPanel.Dock="Top">
+        <DataGrid Name="MainDataGrid" CanUserAddRows="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsReadOnly="True" SelectionMode="Single" Focusable="True" GridLinesVisibility="None" HeadersVisibility="Column" AreRowDetailsFrozen="True" ColumnHeaderHeight="NaN" CanUserResizeRows="False" IsTextSearchEnabled="False" AutoGenerateColumns="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" VirtualizingPanel.ScrollUnit="Item" ScrollViewer.IsDeferredScrollingEnabled="True" RowHeaderWidth="0" CanUserSortColumns="True" RowStyle="{StaticResource SpotsListDataGridRowStyle}" CellStyle="{StaticResource SpotsListDataGridCellStyle}" Background="#00FFFFFF" ScrollViewer.HorizontalScrollBarVisibility="Disabled" RowDetailsTemplate="{StaticResource ThumbnailTemplate}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" RowDetailsVisibilityMode="{Binding SpotDetailsVisibilityMode}" PreviewKeyDown="Spots_PreviewKeyDown" PreviewMouseRightButtonUp="MainDataGrid_OnPreviewMouseRightButtonUp" PreviewMouseDown="Spots_PreviewMouseDown" ColumnReordered="Spots_ColumnReordered" Sorting="Spots_Sorting" LoadingRow="Spots_LoadingRow" MouseDoubleClick="Spots_MouseDoubleClick">
+          <FrameworkElement.Resources>
+            <ResourceDictionary>
+              <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent" />
+            </ResourceDictionary>
+          </FrameworkElement.Resources>
+          <DataGrid.Columns>
+            <DataGridTemplateColumn Header="{x:Static p:Words.ColumnFormat}" MinWidth="50" Width="Auto" SortMemberPath="Data.Formaat">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="3,0,3,0" Text="{Binding Data.Formaat, Mode=OneWay}" />
+                    <Line Grid.Column="1" Margin="0,1,0,0" X1="0" Y1="0" X2="0" Y2="22" Height="22" StrokeThickness="4" Visibility="{Binding Data.GenreColorVisibility, Mode=OneWay}" Stroke="{Binding Data.GenreColorBrush, Mode=OneWay}" />
+                  </Grid>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="{x:Static p:Words.ColumnSubject}" MinWidth="50" Width="*" SortMemberPath="Data.Titel">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Grid MinHeight="23">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="7,2,0,2" Text="{Binding Data.Titel, Mode=OneWay}" />
+                    <controls:SpotsListToolbar x:Name="SpotsListToolbar" Grid.Column="0" HorizontalAlignment="Right" Background="{StaticResource TransparentBrownBrush1}" Margin="0">
+                      <FrameworkElement.Style>
+                        <Style>
+                          <Setter Property="UIElement.Visibility" Value="Collapsed" />
+                          <Style.Triggers>
+                            <DataTrigger Value="True" Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}">
+                              <Setter Property="UIElement.Visibility" Value="Visible" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </FrameworkElement.Style>
+                    </controls:SpotsListToolbar>
+                    <Grid Column="1">
+                      <Border Name="SpamReportsElement" BorderThickness="0" ToolTipService.ShowDuration="180000" Visibility="{Binding Data.VisibilityOfSpamCell, Mode=OneWay}">
+                        <FrameworkElement.ToolTip>
+                          <controls:SpamReportsGrid MessageId="{Binding Data.SpotMessageId, Mode=OneWay}" />
+                        </FrameworkElement.ToolTip>
+                        <Grid>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="22" />
+                          </Grid.ColumnDefinitions>
+                          <Image Grid.Column="0" Source="/Resources/ImagesInternal/warning.ico" Width="16" VerticalAlignment="Center" Margin="3,0,3,0" />
+                          <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Data.NumberOfSpamReports, Mode=OneWay}" />
+                        </Grid>
+                      </Border>
+                    </Grid>
+                  </Grid>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="{x:Static p:Words.ColumnGenre}" MinWidth="100" ElementStyle="{StaticResource ColumnElementStyle}" Binding="{Binding Data.Genre, Mode=OneWay}" />
+            <DataGridTemplateColumn Header="{x:Static p:Words.ColumnSender}" MinWidth="110" SortMemberPath="Data.Afzender">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Grid MinHeight="23">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="3,2,3,2" Text="{Binding Data.Afzender, Mode=OneWay}" />
+                    <Border Grid.Column="1" BorderThickness="1,0" Margin="1" BorderBrush="{Binding Data.PosterIdentBorderBrush, Mode=OneWay}" Background="{Binding Data.PosterIdentBorderBackground, Mode=OneWay}" Visibility="{Binding Data.PosterIdentVisibility, Mode=OneWay}" ToolTip="{Binding Data.PosterIdentTooltip, Mode=OneWay}">
+                      <TextBlock FontFamily="Courier New" VerticalAlignment="Center" Margin="3,0" Text="{Binding Data.PosterIdentLetter, Mode=OneWay}" Foreground="{Binding Data.PosterIdentForeground, Mode=OneWay}" />
+                    </Border>
+                  </Grid>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="{x:Static p:Words.ColumnTag}" MinWidth="70" Visibility="Hidden" ElementStyle="{StaticResource ColumnElementStyle}" Binding="{Binding Data.Tag, Mode=OneWay}" />
+            <DataGridTextColumn Header="{x:Static p:Words.ColumnDate}" MinWidth="120" Visibility="Hidden" ElementStyle="{StaticResource ColumnElementStyle}" Binding="{Binding Data.Datum, Mode=OneWay}" />
+            <DataGridTextColumn Header="{x:Static p:Words.ColumnAge}" MinWidth="115" ElementStyle="{StaticResource ColumnElementStyle}" Binding="{Binding Data.Leeftijd, Mode=OneWay}" />
+            <DataGridTemplateColumn Header="{x:Static p:Words.ColumnSize}" MinWidth="70" SortMemberPath="Data.Omvang">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Grid MinHeight="23">
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="3,2,5,2" Text="{Binding Data.Omvang, Mode=OneWay}" />
+                  </Grid>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="{x:Static p:Words.ColumnMessageID}" MinWidth="120" Width="Auto" Visibility="Hidden" ElementStyle="{StaticResource ColumnElementStyle}" Binding="{Binding Data.SpotMessageId, Mode=OneWay}" />
+            <DataGridTextColumn Header="{x:Static p:Words.ColumnSenderId}" MinWidth="70" Visibility="Hidden" CanUserSort="False" ElementStyle="{StaticResource ColumnElementStyle}" Binding="{Binding Data.AfzenderId, Mode=OneWay}" />
+          </DataGrid.Columns>
+        </DataGrid>
+        <controls:WarningTip MouseDown="WarningTip_MouseDown" Grid.Row="0" Height="Auto" Width="Auto" Focusable="False" Margin="0,26,15,0" Opacity="0.95" VerticalAlignment="Top" HorizontalAlignment="Center" Text="{Binding NewSpotsBarText, Mode=OneWay}" Visibility="{Binding NewSpotsBarVisibility, Mode=TwoWay}" />
+      </Grid>
+      <TextBlock Margin="20,20,20,20" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource BlackColorBrush}" Text="{Binding NoSpotsFoundText}" Visibility="{Binding Items.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=MainDataGrid}" />
+    </DockPanel>
+    <Grid>
+      <FrameworkElement.Style>
+        <Style TargetType="{x:Type Grid}">
+          <Setter Property="Visibility" Value="Collapsed" />
+          <Style.Triggers>
+            <DataTrigger Value="False" Binding="{Binding IsSpotsListNotLoading}">
+              <Setter Property="Visibility" Value="Visible" />
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </FrameworkElement.Style>
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFA9A9A9" Opacity=".5" />
+      <controls:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource BrightColorBrush2}" IsActive="True" Width="30" Height="30" />
+    </Grid>
+  </Grid>
+</controls:SpotsContainer>

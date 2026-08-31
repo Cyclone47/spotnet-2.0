@@ -1,0 +1,6 @@
+<Window x:Class="Spotnet.Downloader.Controls.Player.PlayerFullScreenWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" WindowStyle="None" WindowState="Maximized" xmlns:player="clr-namespace:Spotnet.Downloader.Controls.Player;assembly=Spotnet">
+  <Control.Background>
+    <ImageBrush ImageSource="/Resources\ImagesInternal\spotsbg.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,150,150" />
+  </Control.Background>
+  <Grid Name="ParentGrid" />
+</Window>

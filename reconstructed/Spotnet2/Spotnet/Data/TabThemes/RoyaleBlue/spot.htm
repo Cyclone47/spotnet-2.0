@@ -1,0 +1,2312 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=9">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <!--[if lt IE 9]>
+  <script src="[SN:THEME]/js/html5.js"></script>
+  <![endif]-->
+
+<!--  
+	# Name theme:		RoyaleBlue voor Spotnet v1.9.0.x
+	# Version:			1.0.16
+	# Autor:			Spotnet Classic Team
+	# Date:				2011-11-17
+	# last modified:	2017-02-23
+	# Support URL:		http://www.spot-net.nl/forums/viewtopic.php?f=121&t=5841
+	# Licensie:  		CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/nl/)
+
+	* FTD4Ever - Omdat FTD in gedachten voor altijd bij ons blijft
+	* Skin Design: foorsight & PeRKoniX ~~ Updates: Wantos
+	* Deze actie staat los van het FTD team
+
+    [SN:TITLE] = Titel
+    [SN:FROM] = Afzender
+    [SN:TAG] = Tag
+    [SN:STAMP] = Datum
+    [SN:CAT] = Categorie
+    [SN:WEB] = Weblink
+    [SN:SUBCATS] = Subcats
+    [SN:DESC] = Beschrijving
+    [SN:UNIQUE] = Unique ID
+    [SN:MODULUS] = Modulus
+    [SN:FILESIZE] = Omvang
+    [WHITELIST] = True/False
+    [SN:PATH] = Installatie map
+    [SN:FONTSIZE] = Lettergrootte 
+	//--//--> 
+
+<link rel="stylesheet" href="[SN:THEME]/style.css" type="text/css" media="all">
+<script type="text/javascript" src="[SN:THEME]/js/html5.js"></script>
+ <style type="text/css">
+
+body {
+  background: #40617b;
+  font:[SN:FONTEM] arial, helvetica, verdana, tahoma, sans-serif !important;
+  color: #333333;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+input, textarea, #wrapper, #CommentBody {
+  font: inherit!important;
+}
+#Content {
+  overflow: hidden;
+  display: block;
+  background: #FFFEFD url('[SN:THEME]/img/infoboxbg.png') repeat;
+  margin: 0 auto 0 6px;
+  padding: 10px 4px 0 10px;
+  border-top: 1px solid #887860;
+  border-left: 1px solid #887860;
+}
+#Content td {
+  padding: 0;
+  font: inherit!important;
+}
+#Content td td, #Content td td td {
+  padding: 0;
+}
+#Content td td div {
+  font: inherit!important;
+  text-decoration: none !important;
+  padding: 0;
+}
+span#Description, #Description, #SpotInfo {
+  overflow: hidden;
+  vertical-align: top;
+}
+/* Handling Long Words and URLs (Forcing Breaks) */
+#Description a:link, #SpotInfo a:link, #Comments td a:link, #Description a:visited, #SpotInfo a:visited {
+  overflow: hidden;
+  display: inline-block;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-all;
+  vertical-align: top;
+}
+#Comments {
+  overflow: hidden;
+  font: inherit !important;
+  white-space:normal !important;
+  line-height: 180%;
+  margin-top: 4px;
+}
+#Comments img, #CommentPreview img {
+  padding: 0 2px 0 2px;
+  border: none;
+}
+#CommentPreview {
+background: url('[SN:THEME]/img/frbody.png') repeat;
+  display: block;
+  word-wrap: break-word;
+  min-height: 150px;
+  [if IE 6] height: 150px; 
+  border: 3px inset #887860;
+  margin: 10px;
+  padding: 10px;
+}
+.ft_reacties {
+  font: inherit !important;
+  white-space: normal;
+  vertical-align: top;
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+.ft_reacties a:link {
+  overflow: hidden;
+  display: inline-block;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+#CommentsBox {
+  display: block;
+  white-space:normal!important;
+  background-color: #FFFEFD;
+  margin: 0 auto 10px 6px;
+  border-bottom: 1px solid #887860;
+  border-left: 1px solid #887860;
+}
+#textbox {
+  min-height: 440px;
+  background: url('[SN:THEME]/img/frbody.png') repeat;
+  color: #000000;
+  font: inherit !important;
+  margin: 10px;
+  border: 3px inset #887860;
+  padding: 10px 2px 0 4px;
+/* top - right - bottom - left */
+}
+#textbox td {
+  font: inherit !important;
+}
+#CommentBody{
+  color: #000000;
+  font: inherit !important;
+}
+/* blacklist icon */
+#black {
+  display: inline-block;
+  width: 14px!important;
+  height: 14px!important;
+}
+.noscriptmsg {
+  background: #FFFFFF;
+  border: 2px solid #959595;
+  padding: 10px;
+}
+/* BBEditor class styles */
+.toolbar {
+  width: 100%;
+}
+.button {
+  border: 1px solid #CCCCCC;
+  margin: 1px;
+  padding: 2px;
+}
+.button:hover, .lighten_btn:hover {
+  cursor: pointer;
+  opacity: 0.6;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+  filter: alpha(opacity =60);
+}
+.ed {
+  width: 100%;
+  height: 150px;
+}
+.spacer {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  cursor: default;
+  margin: 1px;
+  padding-bottom: 3px;
+}
+/* Improver styles */
+blockquote{
+  font-style: italic;
+  background: #f4f4ef url('[SN:THEME]/img/quote9.gif') no-repeat 6px 6px;
+  border: 1px solid #dbdbdb;
+  margin: 0.5em 1px 0 25px;
+  overflow: hidden;
+  padding: 5px;
+  word-break: break-all;
+}
+blockquote blockquote {
+  background-color: #f7f7f2;
+  margin: 0.5em 1px 0 15px;
+}
+blockquote cite{
+  margin-left: 20px;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+span#extra img{
+  vertical-align: middle;
+}
+span#extra{
+  margin-bottom: 4px;
+  display: block;
+}
+
+</style>
+
+<script type="text/javascript">
+ var versie = "1.9.0.x";
+ var spotter;
+ var dir = '[SN:PATH]/Images';
+ var eigenid = '';
+
+ window.onload = function() {
+
+    addsmileys();
+    subcat()
+    convertTimestamp();
+    trailer();
+ }
+
+  // Insert smiley link block
+ function addsmileys() {
+                 var smileys = new Array('biggrin', 'bloos', 'clown', 'confused', 'cool', 'frown', 'grijns', 'heh', 'huh', 'knipoog', 'kwijl', 'lollig', 'maf', 'ogen', 'oops', 'pijl', 'redface', 'shiny', 'sleephappy', 'smile', 'uitroepteken', 'vraagteken', 'wink', 'buigen', 'schater', 'exactly', 'klappen', 'vlag', 'censored', 'respekt');
+                 //add smileys below textarea! 
+                 var tBody = document.getElementById('replyBody');
+                 var newTR = document.createElement('tr');
+                 newTR.style.verticalAlign = "top";
+                 var newTD1 = document.createElement('td');
+                 var newTD2 = document.createElement('td');
+                 newTD1.innerHTML = "<strong>Smileys:</strong>";
+                 for (i = 0; i < smileys.length; i++) {
+                         if (i == 18) {
+                                 newTD2.innerHTML += '<br />';
+                         }
+                         newTD2.innerHTML += '<img class="lighten_btn" style="vertical-align:middle;" title="' + smileys[i] + '" onclick="smiley(\'' + smileys[i] + '\')" src="[SN:SMILEYS]/' + smileys[i] + '.gif" ondragstart="return false;">&nbsp;&nbsp;';
+                 }
+                 newTR.appendChild(newTD1);
+                 newTR.appendChild(newTD2);
+                 tBody.appendChild(newTR);
+         }
+         // Insert smiley code in textarea
+ function smiley(code) {
+                 textarea = document.getElementById('CommentBody');
+					 if (document.selection) { // Code for IE<11
+                        textarea.focus();
+                        var sel = document.selection.createRange();
+                        sel.text = sel.text + '[img=' + code + ']';
+                 } else { // Code for Mozilla Firefox or IE>10
+                         var len = textarea.value.length;
+                         var start = textarea.selectionStart;
+                         var end = textarea.selectionEnd;
+                         var sel = textarea.value.substring(start, end);
+                         var rep = '[img=' + code + ']'
+                         textarea.value = textarea.value.substring(0, start) + rep + textarea.value.substring(end, len);
+                         textarea.selectionStart = start + rep.length;
+                         textarea.selectionEnd = textarea.selectionStart;
+                         setTimeout(function() {
+                                 textarea.focus();
+                         }, 50);
+                 }
+         }
+		// htmlDecode
+function htmlDecode(input) {
+		if (input) {
+				var e = document.createElement('div');
+				e.innerHTML = input;
+				return e.childNodes[0].nodeValue;
+		} else {
+				return '';
+		}
+    }
+         // Spot title
+ function GetTitle(x) {
+                 clipboardData.setData('text', htmlDecode('[SN:TITLE]'));
+                 alert('Titel is gekopi\u00EBerd naar het klembord');
+         }
+         // Spotlink	
+ function CopySpotlink(x) {
+                 clipboardData.setData('text', htmlDecode('[SN:SPOTLINK]'));
+                 alert('Spotlink is gekopi\u00EBerd naar het klembord');
+         }
+         // Copy SpotImage
+ function Copy_Image() {
+                 var div = document.getElementById('SpotImage');
+                 div.contentEditable = 'true';
+                 var controlRange;
+                 if (document.body.createControlRange) {
+                         controlRange = document.body.createControlRange();
+                         controlRange.addElement(div);
+                         window.getSelection().removeAllRanges();
+                         controlRange.execCommand('Copy');
+                 }
+                 div.contentEditable = 'false';
+         }
+ 
+ // Hans Pufal's pad-number
+ function pad(n, len, padding) {
+    var sign = '',
+       s = n;
+    if (typeof n === 'number') {
+       sign = n < 0 ? '-' : '';
+       s = Math.abs(n).toString();
+    }
+    if ((len -= s.length) > 0) s = Array(len + 1).join(padding || '0') +
+       s;
+    return sign + s;
+ }
+
+ // [SN:STAMP]
+ function convertTimestamp() {
+    var timestampValue = ('[SN:STAMP]');
+    var dt = new Date(timestampValue * 1000);
+    document.getElementById('datum').innerHTML = pad(dt.getDate(), 2) + '-' + pad(dt.getMonth() + 1, 2) + '-' + dt.getFullYear() + ' ' + '(' + pad(dt.getHours(), 2) + ':' + pad(dt.getMinutes(), 2) + ')';
+ };
+
+ // ************* SpotTrailer by Wheaten ****************
+ //Make first Letter uppercase
+ function toProperCase(s) {
+    return s.toLowerCase().replace(/^(.)|\s(.)/g, function($1) {
+       return $1.toUpperCase();
+    });
+ };
+
+ //Clean string make a check for date format
+ function toCleanString(string) {
+    //Remove all special characters
+    string = string.replace(/\./g, ' ');
+    string = string.replace(/\_/g, ' ');
+    string = string.replace(/\`/g, '');
+    string = string.replace(/\'/g, '');
+    string = string.replace(/\-/g, ' ');
+    //Check if there is a date format, without ()
+    var year = string.match(/\d{4}(?!p)/);
+    var pos = string.search(year);
+    //if date get leftstring
+    if (pos > 0) {
+       var partname = string.substr(0, pos - 1);
+       string = partname.replace(/\s+/, ' ');
+    }
+    //Strip all season related stuff
+    string = regexstr(string);
+    // string = cleanup(string);
+    //Get proper case
+    string = toProperCase(string);
+    //Remove HTML entity tags like #123;
+    // string = html_entity_decode(string);
+	   string = htmlDecode(string);
+    //Some cases a \s{2} is left, so remove it.
+    string = string.replace(/\s+/g, ' ');
+    //Give result back
+    if (pos > 0) {
+       return string = string.replace(/^\s+|\s+$/g, '') + ' (' + year + ')';
+    } else {
+       return string = string.replace(/^\s+|\s+$/g, '');
+    };
+ };
+
+ //Locate year as (2012), remove everything behind. return string
+ function escapeRegExp(string, cat) {
+    if (cat == 'Films' || cat == 'Series') {
+       var year = string.match(/\(\d{4}\)/);
+       //Find pos of year
+       var pos = string.search(year);
+       if (pos > 0) {
+          //get part before year
+          var partname = string.substr(0, pos - 1);
+          //remove multiple spaces and replace it by 1, add year behind it.
+          partname = partname.replace(/\s+/, ' ');
+          partname = toCleanString(partname) + ' ' + year;
+          partname = partname.replace(/\s+/g, ' ');
+          return partname;
+       } else {
+          string = toCleanString(string);
+          return string;
+       }
+    } else
+       return string;
+ };
+
+ // Start stripping spot tiltle
+ function GetCleantitle() {
+    return escapeRegExp('[SN:TITLE]', '[SN:CAT]');
+ };
+
+ //Build YouTubeLink
+ function SetYouTube() {
+    var strURL = "link:http://www.youtube.com/results?search_query=" + GetCleantitle() + ' trailer';
+    var re = new RegExp("\\s+", 'g'); // \s means white space (the extra \ is an escape), g means global
+    return strURL.replace(re, "%20");
+ };
+
+ // Build AllMusicLink
+ function SetAllmusic() {
+    //var resultaat;
+    var strURL = "link:http://www.allmusic.com/search/all/" + CleanSearch();
+    return strURL;
+ };
+
+ //regex for movie
+ function regexstr(string) {
+    return string.replace(/(\*seizoens finale\*)*(seizoen\s*[0-9]*)*(season\s*[0-9]*)*(aflevering\s*[0-9]*)*(5.1)*(episode\s*[0-9]*)*(deel\s*[0-9]*)*(S\e*[0-9]{1,2}\s*E*D*[0-9]{1,2})*(\([a-zA-Z]+\))*(\([a-zA-Z]+\))*(\([\d*\s*]*\))*(\w*DVD\w*\s*\d*)*(ondertitel\w*\s*\:*)*(mkg)*(custom)*((bd)?remux)*(ntsc)*(pal)*(2d)*(3d)*(AC3)*(avchd)*(webrip)*(web)*(dl)*(hq)*(dts)*(\stv)*(\sdd)*(pdtv)*(ifh)*(\sx\s*264-\w*\s*)*(\sh\s*264-\w*\s*)*(\sx\s*264)*(\sh\s*264)*(\(*\)*)*(\(*\)*)*(immerse)*(huur)*(koop)*(\(*\s*\**\s*repost\s*\**\s*\)*)*(retail)*(rebuild)*(\(*\s*extended\s*\w*\s*\)*)*(\[.*\])*(\w*DVD\`*\'*\w*\s*\d*)*(disc\`*\'*\w*\s:*\s*\d*\s*\\*\/*\s*\d*)*(\w*xvid\w*)*(\w*divx\w*)*(-=?.{0,10}=?-)*(\**\(*\d{3,4}p\)*\**)*(\**\(*\d{3,4}i\)*\**)*(\s+\d*HD\w*)*(mkv)*(blu\e*ray)*([Ss][Uu][Bb][Ss]\s*[Mm][Aa][\Dd][Ee]\s*[Bb][Yy]\:*\s*)*(n*l*subs)*([.~*]*\s*[SRT]+\s*[*~.]+)*(\sdutch\s)*(\s+nederlands)*(\s+engels)*(\s+eng\s)*(\s+eng\\)*(\ssubbed\s)*(\snl)*/ig, '');
+ }
+
+ // regex for Search
+ function CleanSearch() {
+    var title = GetCleantitle();
+    var reg = /(\(?\s?\*?\s?\-?\s?\[?\s?\d{4}\s?\]?\s?\-?\s?\*?\s?\)?)*(\(*\d*CD\)*)*(repost\s?)*(MP3)*(DTS)*(promo)*(cdr)*(\/)*(ps3)*(sacd)*(\d{2}\s*bits?)*(\d*\.?\d*\s*khz)*(DVD\-* a*)*(flac)*(lossless)*(\d{1}ch)*(\(*\s*\[*\s*\d{2}\s*bits?\s*\-*\s*\/*\s*\\*\s*\d*\.?\d*\s*khz\s*\)*\s*\]*)*(\{.*\})*(\[.*\])*(tushengpeng)*(eac)*(ogg)*(wav)*(vbr)*(sat)*(rip)*(verzoek|je)*([\])}[{(])?/ig;
+    var spottitle = title.replace(reg, "");
+    var re = new RegExp("\\s+", 'g'); // \s means white space (the extra \ is an escape), g means global
+    return spottitle.replace(re, "%20");
+ };
+
+ function trailer() {
+    if ('[SN:CAT]' == 'Films' || '[SN:CAT]' == 'Series' || '[SN:CAT]' == 'Spellen') {
+       document.getElementById('survey').innerHTML = '<a id="trailer" title="Trailer" href=' + SetYouTube() + '></a>';
+    } else if ('[SN:CAT]' == 'Muziek') {
+       document.getElementById('survey').innerHTML = '<a id="allmusic_header" title="Allmusic" href=' + SetAllmusic() + '></a>';
+    } else {
+       document.getElementById('survey').style.display = 'none';
+    }
+ };
+
+ // [SN:SUBCATS]
+ function subcat() {
+    var catX = ('[SN:SUBCATS]');
+    // Divx
+    if (catX.indexOf('a0|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg100';
+    } else if (catX.indexOf('a0|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg100';
+       // WMV
+    } else if (catX.indexOf('a1|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg101';
+    } else if (catX.indexOf('a1|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg101';
+       // MPG
+    } else if (catX.indexOf('a2|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg102';
+    } else if (catX.indexOf('a2|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg102';
+       // DVD5
+    } else if (catX.indexOf('a3|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg103';
+    } else if (catX.indexOf('a3|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg103';
+       // HD
+    } else if (catX.indexOf('a4|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg104';
+    } else if (catX.indexOf('a4|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg104';
+       // ePub
+    } else if (catX.indexOf('a5|') != -1 && '[SN:CAT]' == 'Boeken') {
+       document.getElementById('sbcts').className = 'cbg105';  
+	   // PDF
+	}  else if (catX.indexOf('a11|') != -1 && '[SN:CAT]' == 'Boeken') {
+       document.getElementById('sbcts').className = 'cbg111';
+	   // bitmap
+	}  else if (catX.indexOf('a12|') != -1 && '[SN:CAT]' == 'Afbeelding') {
+       document.getElementById('sbcts').className = 'cbg112';
+	   // vector
+	}  else if (catX.indexOf('a13|') != -1 && '[SN:CAT]' == 'Afbeelding') {
+       document.getElementById('sbcts').className = 'cbg113';
+       // Blue-ray
+    } else if (catX.indexOf('a6|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg106';
+    } else if (catX.indexOf('a6|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg106';
+       // HD DVD
+    } else if (catX.indexOf('a7|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg107';
+    } else if (catX.indexOf('a7|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg107';
+       // WMV HD
+    } else if (catX.indexOf('a8|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg108';
+    } else if (catX.indexOf('a8|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg108';
+       //x264-HD
+    } else if (catX.indexOf('a9|') != -1 && '[SN:CAT]' == 'Films') {
+       document.getElementById('sbcts').className = 'cbg109';
+    } else if (catX.indexOf('a9|') != -1 && '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg109';
+       // DVD9
+    } else if (catX.indexOf('a10|') != -1 && '[SN:CAT]' == 'Films' || '[SN:CAT]' == 'Series') {
+       document.getElementById('sbcts').className = 'cbg110';
+       // Muziek
+    } else if (catX.indexOf('a0|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg200';
+    } else if (catX.indexOf('a1|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg201';
+    } else if (catX.indexOf('a2|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg202';
+    } else if (catX.indexOf('a3|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg203';
+    } else if (catX.indexOf('a4|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg204';
+    } else if (catX.indexOf('a5|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg205';
+    } else if (catX.indexOf('a6|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg206';
+    } else if (catX.indexOf('a7|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg207';
+    } else if (catX.indexOf('a8|') != -1 && '[SN:CAT]' == 'Muziek') {
+       document.getElementById('sbcts').className = 'cbg208';
+       // Spellen
+    } else if (catX.indexOf('a0|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg300';
+    } else if (catX.indexOf('a1|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg301';
+    } else if (catX.indexOf('a2|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg302';
+    } else if (catX.indexOf('a3|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg303';
+    } else if (catX.indexOf('a4|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg304';
+    } else if (catX.indexOf('a5|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg305';
+    } else if (catX.indexOf('a6|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg306';
+    } else if (catX.indexOf('a7|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg307';
+    } else if (catX.indexOf('a8|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg308';
+    } else if (catX.indexOf('a9|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg309';
+    } else if (catX.indexOf('a10|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg310';
+    } else if (catX.indexOf('a11|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg311';
+    } else if (catX.indexOf('a12|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg312';
+    } else if (catX.indexOf('a13|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg313';
+    } else if (catX.indexOf('a14|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg314';
+    } else if (catX.indexOf('a15|') != -1 && '[SN:CAT]' == 'Spellen') {
+       document.getElementById('sbcts').className = 'cbg315';
+       // Applicaties
+    } else if (catX.indexOf('a0|') != -1 && '[SN:CAT]' == 'Applicaties') {
+       document.getElementById('sbcts').className = 'cbg400';
+    } else if (catX.indexOf('a1|') != -1 && '[SN:CAT]' == 'Applicaties') {
+       document.getElementById('sbcts').className = 'cbg401';
+    } else if (catX.indexOf('a2|') != -1 && '[SN:CAT]' == 'Applicaties') {
+       document.getElementById('sbcts').className = 'cbg402';
+    } else if (catX.indexOf('a3|') != -1 && '[SN:CAT]' == 'Applicaties') {
+       document.getElementById('sbcts').className = 'cbg403';
+    } else if (catX.indexOf('a4|') != -1 && '[SN:CAT]' == 'Applicaties') {
+       document.getElementById('sbcts').className = 'cbg404';
+    } else if (catX.indexOf('a5|') != -1 && '[SN:CAT]' == 'Applicaties') {
+       document.getElementById('sbcts').className = 'cbg405';
+    } else if (catX.indexOf('a6|') != -1 && '[SN:CAT]' == 'Applicaties') {
+       document.getElementById('sbcts').className = 'cbg406';
+    } else if (catX.indexOf('a7|') != -1 && '[SN:CAT]' == 'Applicaties') {
+       document.getElementById('sbcts').className = 'cbg407';
+       // Erotiek XX
+    } else if (catX.indexOf('d23|') != -1 && '[SN:CAT]' == 'Erotiek') {
+       document.getElementById('sbcts').className = 'cbg900';
+       // Gay
+    } else if (catX.indexOf('d24|') != -1 && '[SN:CAT]' == 'Erotiek') {
+       document.getElementById('sbcts').className = 'cbg901';
+    } else if (catX.indexOf('d74|') != -1 && '[SN:CAT]' == 'Erotiek') {
+       document.getElementById('sbcts').className = 'cbg901';
+       // Lesbo
+    } else if (catX.indexOf('d25|') != -1 && '[SN:CAT]' == 'Erotiek') {
+       document.getElementById('sbcts').className = 'cbg902';
+    } else if (catX.indexOf('d73|') != -1 && '[SN:CAT]' == 'Erotiek') {
+       document.getElementById('sbcts').className = 'cbg902';
+       // Bi
+    } else if (catX.indexOf('d26|') != -1 && '[SN:CAT]' == 'Erotiek') {
+       document.getElementById('sbcts').className = 'cbg903';
+    } else if (catX.indexOf('d72|') != -1 && '[SN:CAT]' == 'Erotiek') {
+       document.getElementById('sbcts').className = 'cbg903';
+    } else {
+       document.getElementById('sbcts').className = 'cbg000';
+    }
+ }
+
+ function encryptedlink() {
+    var regex = /<A onfocus=.* title=.* (href="link:http:\/\/base64.derefer.me.*"|href="link:http:\/\/alturl.com.*"|href="link:http:\/\/hideref.org.*"|href="link:http:\/\/bit.ly\/.*"|href="link:http:\/\/tiny.cc.*")>(.*)<\/A>/ig;
+    var tds = document.getElementsByTagName('td');
+    for (var i = 0; i < tds.length; i++) {
+       resultaat = regex.exec(tds[i].innerHTML);
+       if (resultaat != null) {
+          document.getElementById('DownloadButton').style.display = 'none';
+          document.getElementById('EncryptedLinkDB').innerHTML = '<a id="EncryptedLink" title="Download Encrypted NZB" onfocus="this.blur()" ' + resultaat[1] + ' target="_blank"></a>';
+       }
+    }
+ }
+
+ function charsRemain(textarea) {
+    var currentLength = textarea.value.length;
+
+    var charsLeft = 900 - currentLength;
+    if (charsLeft < 0) {
+       charsLeft = 0;
+    }
+
+    document.getElementById("textarea_charsRemain").innerHTML = charsLeft + ' tekens resterend';
+
+    if (currentLength > 900) {
+       var fullText = textarea.value.substring(0, 900);
+       textarea.value = fullText;
+    }
+ }
+
+ // Zoek links
+ var ZoekOpTitel = new Array();
+ ZoekOpTitel[0] = "link:https://duckduckgo.com/?q=";
+ ZoekOpTitel[1] = "link:https://encrypted.google.com/search?&q=";
+ ZoekOpTitel[2] = "link:http://www.imdb.com/find?s=tt&q=";
+ ZoekOpTitel[3] = "link:http://www.moviemeter.nl/film/search/";
+ ZoekOpTitel[4] = "link:http://www.nlondertitels.com/search/q/";
+ ZoekOpTitel[5] = "link:http://ondertitel.com/?type=&trefwoord=";
+ ZoekOpTitel[6] = "link:http://www.opensubtitles.org/nl/search2/sublanguageid-dut/moviename-";
+ ZoekOpTitel[7] = "link:http://www.subtitleseeker.com/search/TITLES/";
+ ZoekOpTitel[8] = "link:http://www.youtube.com/results?search_query=";
+ ZoekOpTitel[9] = "link:http://www.allmusic.com/search/all/";
+ ZoekOpTitel[10] = "link:http://www.musicmeter.nl/album/search/";
+
+
+ function search_links() {
+    var zoeknaar = escape("[SN:TITLE]");
+    var duckextra = "&kp=1&kl=nl-nl";
+
+    document.write('<a id="Duckgo" title="Duckgo" href="' + ZoekOpTitel[0] + CleanSearch() + duckextra + '"></a>');
+    document.write('<a id="Google" title="Google" href="' + ZoekOpTitel[1] + CleanSearch() + '"></a>');
+    document.write('<a id="IMDb" title="IMDb" href="' + ZoekOpTitel[2] + CleanSearch() + '"></a>');
+    document.write('<a id="Moviemeter" title="Moviemeter" href="' + ZoekOpTitel[3] + CleanSearch() + '"></a>');
+    document.write('<a id="NLOndertitel" title="NLOndertitel" href="' + ZoekOpTitel[4] + CleanSearch() + '"></a>');
+    document.write('<a id="Ondertitel" title="Ondertitel" href="' + ZoekOpTitel[5] + CleanSearch() + '"></a>');
+    document.write('<a id="Opensubtitles" title="Opensubtitles" href="' + ZoekOpTitel[6] + CleanSearch() + '"></a>');
+    document.write('<a id="SubtitleSeeker" title="SubtitleSeeker" href="' + ZoekOpTitel[7] + CleanSearch() + '"></a>');
+    document.write('<a id="YouTube" title="YouTube" href="' + ZoekOpTitel[8] + CleanSearch() + '"></a>');
+    document.write('<a id="Allmusic" title="Allmusic" href="' + ZoekOpTitel[9] + CleanSearch() + '"></a>');
+    document.write('<a id="Musicmeter" title="Musicmeter" href="' + ZoekOpTitel[10] + CleanSearch() + '"></a>');
+ }
+
+ /*****************************************/
+ // Name: Javascript Textarea BBCode Markup Editor
+ // Version: 1.3
+ // Author: Balakrishnan
+ // Last Modified Date: 25/jan/2009
+ // License: Free
+ // URL: http://www.corpocrat.com
+ /******************************************/
+
+ var textarea;
+ var content;
+ function edToolbar(obj) {
+        document.write("<div class=\"toolbar\">");
+		document.write("<img class=\"button\" name=\"btnBold\" title=\"Vet\" src=\"[SN:PATH]/Images/bbeditor/bold.gif\" ondragstart=\"return false;\" onClick=\"doAddTags('[b]','[/b]','" + obj + "')\">");
+		document.write("<img class=\"button\" name=\"btnItalic\" title=\"Schuin\" src=\"[SN:PATH]/Images/bbeditor/italic.gif\" ondragstart=\"return false;\" onClick=\"doAddTags('[i]','[/i]','" + obj + "')\">");
+		document.write("<img class=\"button\" name=\"btnUnderline\" title=\"Onderstreept\" src=\"[SN:PATH]/Images/bbeditor/underline.gif\" ondragstart=\"return false;\" onClick=\"doAddTags('[u]','[/u]','" + obj + "')\">");
+		// document.write("<img class=\"button\" name=\"btnStrike\" title=\"Doorhalen\" src=\"[SN:PATH]/Images/bbeditor/strikethrough.gif\" ondragstart=\"return false;\" onClick=\"doAddTags('[s]','[/s]','" + obj + "')\">");    
+		document.write("<img class=\"button\" name=\"btnLink\" title=\"URL Link Invoegen\" src=\"[SN:PATH]/Images/bbeditor/link.gif\" ondragstart=\"return false;\" onClick=\"doURL('" + obj + "')\">");
+		document.write("<img class=\"spacer\" src=\"[SN:PATH]/Images/bbeditor/spacer.gif\" ondragstart=\"return false;\">");
+		document.write("<img class=\"button\" name=\"btnColor\" title=\"Kleur\" src=\"[SN:PATH]/Images/bbeditor/forecolor.gif\" ondragstart=\"return false;\" onClick=\"doColor('" + obj + "')\">");
+		document.write("<input class=\"color {minS:0.3,hash:true}\" id=\"colorinp\" value=\"#000000\" style=\"vertical-align: top; margin-top: 3px; margin-left: 5px; width: 75px\" title=\"Kleurkiezer\">");
+		document.write("<img class=\"spacer\" src=\"[SN:PATH]/Images/bbeditor/spacer.gif\" ondragstart=\"return false;\">");
+		document.write("<img class=\"button\" name=\"btnCopy\" title=\"Kopi&#235;ren\" src=\"[SN:PATH]/Images/bbeditor/copy.gif\" ondragstart=\"return false;\" onClick=\"doCopy('" + obj + "')\">");
+		document.write("<img class=\"button\" name=\"btnPaste\" title=\"Plakken\" src=\"[SN:PATH]/Images/bbeditor/paste.gif\" ondragstart=\"return false;\" onClick=\"doPaste('" + obj + "')\">");
+		document.write("<img class=\"spacer\" src=\"[SN:PATH]/Images/bbeditor/spacer.gif\" ondragstart=\"return false;\">");
+		document.write("<img class=\"button\" name=\"btnMinus\" title=\"Venster kleiner\" src=\"[SN:PATH]/Images/bbeditor/minus.gif\" ondragstart=\"return false;\" onClick=\"doMinus('" + obj + "')\">");
+		document.write("<img class=\"button\" name=\"btnPlus\" title=\"Venster groter\" src=\"[SN:PATH]/Images/bbeditor/plus.gif\" ondragstart=\"return false;\" onClick=\"doPlus('" + obj + "')\">");
+		document.write("<img class=\"spacer\" src=\"[SN:PATH]/Images/bbeditor/spacer.gif\" ondragstart=\"return false;\">");
+		document.write("<img class=\"button\" name=\"btnPreview\" title=\"Voorbeeld reactie\" src=\"[SN:PATH]/Images/bbeditor/preview.gif\" ondragstart=\"return false;\" onclick=\"toggle_visibility('CommentPreview');\">");
+         // document.write("<img class=\"button\" name=\"btnList\" title=\"Ordered List\" src=\"[SN:PATH]/Images/bbeditor/ordered.gif\" ondragstart=\"return false;\" onClick=\"doList('[LIST=1]','[/LIST]','" + obj + "')\">"); */
+         // document.write("<img class=\"button\" name=\"btnList\" title=\"Unordered List\" src=\"[SN:PATH]/Images/bbeditor/unordered.gif\" ondragstart=\"return false;\" onClick=\"doList('[LIST]','[/LIST]','" + obj + "')\">"); */
+         // document.write("<img class=\"button\" name=\"btnQuote\" title=\"Quote\" src=\"[SN:PATH]/Images/bbeditor/quote.gif\" ondragstart=\"return false;\" onClick=\"doAddTags('[quote]','[/quote]','" + obj + "')\">"); */
+         document.write("</div>");
+ }
+
+ function doImage(obj) {
+         textarea = document.getElementById(obj);
+         var url = prompt('Enter the Image URL:', 'http://');
+         var scrollTop = textarea.scrollTop;
+         var scrollLeft = textarea.scrollLeft;
+         if (url != '' && url != null) {
+                 if (document.selection) // IE < 11
+                 {
+                         textarea.focus();
+                         var sel = document.selection.createRange();
+                         sel.text = '[img]' + url + '[/img]';
+                 } else { // IE > 10
+                         var len = textarea.value.length;
+                         var start = textarea.selectionStart;
+                         var end = textarea.selectionEnd;
+                         var rep = '[img]' + url + '[/img]';
+                         textarea.value = textarea.value.substring(0, start) + rep + textarea.value.substring(end, len);
+                         textarea.selectionStart = start + rep.length;
+                         textarea.selectionEnd = textarea.selectionStart;
+                         setTimeout(function() {
+                                 textarea.focus();
+                         }, 50);
+                 }
+         }
+ }
+
+ function doColor(obj) {
+         textarea = document.getElementById(obj);
+         colr = document.getElementById('colorinp').value;
+         if (document.selection) { // Code for IE<11  
+                 textarea.focus();
+                 var sel = document.selection.createRange();
+                 sel.text = '[color=\"' + colr + '\"]' + sel.text + '[/color]';
+         } else { // Code for Mozilla Firefox or IE>10
+                 var len = textarea.value.length;
+                 var start = textarea.selectionStart;
+                 var end = textarea.selectionEnd;
+                 var sel = textarea.value.substring(start, end);
+                 var rep = '[color=\"' + colr + '\"]' + sel + '[/color]';
+                 textarea.value = textarea.value.substring(0, start) + rep + textarea.value.substring(end, len);
+                 textarea.selectionStart = start + rep.length;
+                 textarea.selectionEnd = textarea.selectionStart;
+                 setTimeout(function() {
+                         textarea.focus();
+                 }, 50);
+         }
+ }
+
+ function doMinus(obj) {
+         textarea = document.getElementById(obj);
+         if (textarea.clientHeight > 147) {
+                 textarea.style.height = (textarea.clientHeight - 50) + 'px';
+         }
+ }
+
+ function doPlus(obj) {
+         textarea = document.getElementById(obj);
+         textarea.style.height = (textarea.clientHeight + 50) + 'px';
+ }
+
+ function doCopy(obj) {
+         var textarea = document.getElementById(obj);
+         // Code for IE<11
+         if (document.selection) {
+                 textarea.focus();
+                 var sel = document.selection.createRange();
+                 clipboardData.setData('text', sel.text)
+         } else { // Code for Mozilla Firefox or IE>10
+                 var len = textarea.value.length;
+                 var start = textarea.selectionStart;
+                 var end = textarea.selectionEnd;
+                 var scrollTop = textarea.scrollTop;
+                 var scrollLeft = textarea.scrollLeft;
+                 var sel = textarea.value.substring(start, end);
+                 // alert(sel);
+                 clipboardData.setData('text', sel)
+                 textarea.selectionStart = textarea.selectionEnd;
+                 setTimeout(function() {
+                         textarea.focus();
+                 }, 50);
+         }
+ }
+
+ function doPaste(obj) {
+         textarea = document.getElementById(obj);
+         rep = clipboardData.getData('text')
+         if (rep != null) {
+                 // Code for IE
+                 if (document.selection) {
+                         textarea.focus();
+                         var sel = document.selection.createRange();
+                         //alert(sel.text);
+                         sel.text = rep;
+                 } else { // Code for Mozilla Firefox
+                         var len = textarea.value.length;
+                         var start = textarea.selectionStart;
+                         var end = textarea.selectionEnd;
+                         var sel = textarea.value.substring(start, end);
+                         textarea.value = textarea.value.substring(0, start) + rep + textarea.value.substring(end, len);
+                         textarea.selectionStart = start + rep.length;
+                         textarea.selectionEnd = textarea.selectionStart;
+                         setTimeout(function() {
+                                 textarea.focus();
+                         }, 50);
+                 }
+         } /*rep!=null*/
+ }
+
+ function doURL(obj) {
+         textarea = document.getElementById(obj);
+         var url = prompt('Enter the URL:', 'http://');
+         var scrollTop = textarea.scrollTop;
+         var scrollLeft = textarea.scrollLeft;
+         if (url != '' && url != null) {
+                 if (document.selection) {
+                         textarea.focus();
+                         var sel = document.selection.createRange();
+                         if (sel.text == "") {
+                                 sel.text = '[url]' + url + '[/url]';
+                         } else {
+                                 sel.text = '[url="' + url + '"]' + sel.text + '[/url]';
+                         }
+                 } else {
+                         var len = textarea.value.length;
+                         var start = textarea.selectionStart;
+                         var end = textarea.selectionEnd;
+                         var sel = textarea.value.substring(start, end);
+                         if (sel == "") {
+                                 var rep = '[url]' + url + '[/url]';
+                         } else {
+                                 var rep = '[url=' + url + ']' + sel + '[/url]';
+                         }
+                         textarea.value = textarea.value.substring(0, start) + rep + textarea.value.substring(end, len);
+                         textarea.selectionStart = start + rep.length;
+                         textarea.selectionEnd = textarea.selectionStart;
+                         setTimeout(function() {
+                                 textarea.focus();
+                         }, 50);
+                 }
+         }
+ }
+
+ function doAddTags(tag1, tag2, obj) {
+         textarea = document.getElementById(obj);
+         // Code for IE < 11
+         if (document.selection) {
+                 textarea.focus();
+                 var sel = document.selection.createRange();
+                 //alert(sel.text);
+                 sel.text = tag1 + sel.text + tag2;
+         } else { // Code for Mozilla Firefox and IE > 10
+                 var len = textarea.value.length;
+                 var start = textarea.selectionStart;
+                 var end = textarea.selectionEnd;
+                 var sel = textarea.value.substring(start, end);
+                 var rep = tag1 + sel + tag2;
+                 textarea.value = textarea.value.substring(0, start) + rep + textarea.value.substring(end, len);
+                 textarea.selectionStart = start + rep.length;
+                 textarea.selectionEnd = textarea.selectionStart;
+                 setTimeout(function() {
+                         textarea.focus();
+                 }, 50);
+         }
+ }
+
+ function doList(tag1, tag2, obj) {
+         var textarea = document.getElementById(obj);
+         if (document.selection) { // Code for IE < 11
+                 textarea.focus();
+                 var sel = document.selection.createRange();
+                 var list = sel.text.split('\n');
+                 for (i = 0; i < list.length; i++) {
+                         list[i] = '[*]' + list[i];
+                 }
+                 //alert(list.join("\n"));
+                 sel.text = tag1 + '\n' + list.join("\n") + '\n' + tag2;
+         } else { // Code for Firefox or IE > 10
+                 var len = textarea.value.length;
+                 var start = textarea.selectionStart;
+                 var end = textarea.selectionEnd;
+                 var sel = textarea.value.substring(start, end);
+                 var list = sel.split('\n');
+                 var i;
+                 for (i = 0; i < list.length; i++) {
+                         list[i] = '[*]' + list[i];
+                 }
+                 var rep = tag1 + '\n' + list.join("\n") + '\n' + tag2;
+                 textarea.value = textarea.value.substring(0, start) + rep + textarea.value.substring(end, len);
+                 textarea.selectionStart = start + rep.length;
+                 textarea.selectionEnd = textarea.selectionStart;
+                 setTimeout(function() {
+                         textarea.focus();
+                 }, 50);
+         }
+ }
+ 
+function doPreview(CommentBody, CommentPreview)
+{
+	var sourceValue = document.getElementById('CommentBody').value;
+	var reNewLines=/[\n]/g;
+	var dest = document.getElementById('CommentPreview');
+	
+	//if (sourceValue.length > 0)
+	//{
+		//dest.style.display = 'block';
+	//}
+	//else
+	//{
+		//dest.style.display = 'none';
+	//}
+	
+	search = new Array(
+			/\[br\]/gi,
+			/\[(\/)?(b|i|u|s)\]/gi,
+			/\[quote="*(.+?)"*\]/gi,
+			/\[\/quote\]/gi,
+			/(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi,
+			/\[url]<a.+?link:(.+?)".+?\[\/url]/gi, 				// [url]http://xxx[/url] met http erin omgezet door linkify
+			/\[url=(?:")?<a.+?link:(.+?)".+?](.+?)\[\/url]/gi,	// [url=http://xxx]yyy[/url] met http erin omgezet door linkify evt met &quot;
+			/\[url=(?:")?(.+?)(?:")?](.+?)\[\/url]/gi, 			// [url="xxx"]yyy[/url] without or with quotes but not linkified
+			/\[url](.+?)\[\/url]/gi, 							// [url]xxx[/url] without or with quotes but not linkified
+			/\[img=(.+?)\]/gi,
+			/\[color="?(#?[a-z0-9]+)"?\](.*?)\[\/color]/gi
+			);
+
+	replace = new Array(
+			'<br>',
+			'<$1$2>',
+			'<blockquote><div><cite>$1 schreef:</cite></div>',
+			'</blockquote>',
+			'<a href="link:$1">$1</a>',
+			'<a href="link:$1" title="$1">$1</a>', 	// [url]http://xxx[/url] met http erin omgezet door linkify
+			'<a href="link:$1" title="$1">$2</a>', 	// [url=http://xxx]yyy[/url] met http erin omgezet door linkify evt met &quot;
+			'<a href="link:$1" title="$1">$2</a>', 	// [url="xxx"]yyy[/url] without or with quotes but not linkified
+			'<a href="link:$1" title="$1">$1</a>', 	// [url]xxx[/url] without or with quotes but not linkified
+			'<img src="[SN:SMILEYS]/$1.gif">',
+			'<font color="$1">$2</font>'
+			);
+
+	for(i = 0; i < search.length; i++)
+	{
+	     sourceValue = sourceValue.replace(search[i], replace[i]);
+	}
+
+	dest.innerHTML = sourceValue.replace(reNewLines, "<br>");
+	
+}
+
+// toggle Button Preview
+var ShowHide = null;
+function toggle_visibility(obj) {
+	var e = document.getElementById(obj);
+ if (!ShowHide) {
+    if (detectIE() < 9) {
+        ShowHide = window.setInterval('doPreview()',500);
+		e.style.display = 'block';
+		document.body.scrollTop = document.body.scrollHeight;
+		document.documentElement.scrollTop = document.documentElement.scrollHeight
+		window.scrollTo(0, document.body.scrollHeight); 
+    } else {
+        ShowHide = window.setInterval('doPreview()',50);
+		e.style.display = 'block';
+		document.body.scrollTop = document.body.scrollHeight;
+		document.documentElement.scrollTop = document.documentElement.scrollHeight
+		window.scrollTo(0, document.body.scrollHeight); 
+    }
+
+} else {
+		e.style.display = 'none';
+        window.clearInterval(ShowHide);
+        ShowHide = null;
+    }
+}
+
+ function showtextbox() {
+	  if (!ShowHide) {
+		document.getElementById('CommentPreview').style.display = 'none';
+		ShowHide = null;
+    } else 
+         document.getElementById('CommentPreview').style.display = 'block'; 
+         document.getElementById("textbox").style.display = "block";
+         document.getElementById("footer_text").style.display = "none";
+         document.getElementById("msg_btn").style.display = "none";
+         document.getElementById("cls_btn").style.display = "block";
+         document.body.scrollTop = document.body.scrollHeight;
+		 document.documentElement.scrollTop = document.documentElement.scrollHeight
+		 window.scrollTo(0, document.body.scrollHeight); 	 
+ }
+ 
+ function hidetextbox() {
+         document.getElementById('CommentPreview').style.display = 'none'; 
+	     document.getElementById("textarea_charsRemain").innerHTML = '<br>';
+         document.getElementById("textbox").style.display = "none";
+         document.getElementById("footer_text").style.display = "block";
+         document.getElementById("msg_btn").style.display = "block";
+         document.getElementById("cls_btn").style.display = "none";
+         document.getElementById('CommentPreview').style.display = 'none';
+		 document.body.scrollTop = document.body.scrollHeight;
+         document.documentElement.scrollTop = document.documentElement.scrollHeight
+         window.scrollTo(0, document.body.scrollHeight);
+ }
+ 
+function detectIE() {
+    var ua = window.navigator.userAgent;
+    var msie = ua.indexOf('MSIE ');
+    if (msie > 0) {
+        // IE 10 or older => return version number
+        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+    }
+    var trident = ua.indexOf('Trident/');
+    if (trident > 0) {
+        // IE 11 => return version number
+        var rv = ua.indexOf('rv:');
+        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+    }
+    var edge = ua.indexOf('Edge/');
+    if (edge > 0) {
+        // Edge (IE 12+) => return version number
+        return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+    }
+    // other browser
+    return false;
+}
+// end
+
+ /**
+  * jscolor, JavaScript Color Picker
+  *
+  * @version 1.4.5
+  * @license GNU Lesser General Public License, http://www.gnu.org/copyleft/lesser.html
+  * @author  Jan Odvarko, http://odvarko.cz
+  * @created 2008-06-15
+  * @updated 2015-09-19
+  * @link    http://jscolor.com
+  */
+
+
+ var jscolor = {
+
+
+    dir: '[SN:PATH]/Images/jscolor/', // location of jscolor directory (leave empty to autodetect)
+    bindClass: 'color', // class name
+    binding: true, // automatic binding via <input class="...">
+    preloading: true, // use image preloading?
+
+
+    install: function() {
+       jscolor.addEvent(window, 'load', jscolor.init);
+    },
+
+
+    init: function() {
+       if (jscolor.binding) {
+          jscolor.bind();
+       }
+       if (jscolor.preloading) {
+          jscolor.preload();
+       }
+    },
+
+
+    getDir: function() {
+       if (!jscolor.dir) {
+          var detected = jscolor.detectDir();
+          jscolor.dir = detected !== false ? detected : 'jscolor/';
+       }
+       return jscolor.dir;
+    },
+
+
+    detectDir: function() {
+       var base = location.href;
+
+       var e = document.getElementsByTagName('base');
+       for (var i = 0; i < e.length; i += 1) {
+          if (e[i].href) {
+             base = e[i].href;
+          }
+       }
+
+       var e = document.getElementsByTagName('script');
+       for (var i = 0; i < e.length; i += 1) {
+          if (e[i].src && /(^|\/)jscolor\.js([?#].*)?$/i.test(e[i].src)) {
+             var src = new jscolor.URI(e[i].src);
+             var srcAbs = src.toAbsolute(base);
+             srcAbs.path = srcAbs.path.replace(/[^\/]+$/, ''); // remove filename
+             srcAbs.query = null;
+             srcAbs.fragment = null;
+             return srcAbs.toString();
+          }
+       }
+       return false;
+    },
+
+
+    bind: function() {
+       var matchClass = new RegExp('(^|\\s)(' + jscolor.bindClass + ')(\\s*(\\{[^}]*\\})|\\s|$)', 'i');
+       var e = document.getElementsByTagName('input');
+       for (var i = 0; i < e.length; i += 1) {
+          if (jscolor.isColorAttrSupported && e[i].type.toLowerCase() == 'color') {
+             // skip inputs of type 'color' if the browser supports this feature
+             continue;
+          }
+          var m;
+          if (!e[i].color && e[i].className && (m = e[i].className.match(matchClass))) {
+             var prop = {};
+             if (m[4]) {
+                try {
+                   prop = (new Function('return (' + m[4] + ')'))();
+                } catch (eInvalidProp) {}
+             }
+             e[i].color = new jscolor.color(e[i], prop);
+          }
+       }
+    },
+
+
+    preload: function() {
+       for (var fn in jscolor.imgRequire) {
+          if (jscolor.imgRequire.hasOwnProperty(fn)) {
+             jscolor.loadImage(fn);
+          }
+       }
+    },
+
+
+    images: {
+       pad: [181, 101],
+       sld: [16, 101],
+       cross: [15, 15],
+       arrow: [7, 11]
+    },
+
+
+    imgRequire: {},
+    imgLoaded: {},
+
+
+    requireImage: function(filename) {
+       jscolor.imgRequire[filename] = true;
+    },
+
+
+    loadImage: function(filename) {
+       if (!jscolor.imgLoaded[filename]) {
+          jscolor.imgLoaded[filename] = new Image();
+          jscolor.imgLoaded[filename].src = jscolor.getDir() + filename;
+       }
+    },
+
+
+    fetchElement: function(mixed) {
+       return typeof mixed === 'string' ? document.getElementById(mixed) : mixed;
+    },
+
+
+    addEvent: function(el, evnt, func) {
+       if (el.addEventListener) {
+          el.addEventListener(evnt, func, false);
+       } else if (el.attachEvent) {
+          el.attachEvent('on' + evnt, func);
+       }
+    },
+
+
+    fireEvent: function(el, evnt) {
+       if (!el) {
+          return;
+       }
+       if (document.createEvent) {
+          var ev = document.createEvent('HTMLEvents');
+          ev.initEvent(evnt, true, true);
+          el.dispatchEvent(ev);
+       } else if (document.createEventObject) {
+          var ev = document.createEventObject();
+          el.fireEvent('on' + evnt, ev);
+       } else if (el['on' + evnt]) { // alternatively use the traditional event model (IE5)
+          el['on' + evnt]();
+       }
+    },
+
+
+    getElementPos: function(e) {
+       var e1 = e,
+          e2 = e;
+       var x = 0,
+          y = 0;
+       if (e1.offsetParent) {
+          do {
+             x += e1.offsetLeft;
+             y += e1.offsetTop;
+          } while (e1 = e1.offsetParent);
+       }
+       while ((e2 = e2.parentNode) && e2.nodeName.toUpperCase() !== 'BODY') {
+          x -= e2.scrollLeft;
+          y -= e2.scrollTop;
+       }
+       return [x, y];
+    },
+
+
+    getElementSize: function(e) {
+       return [e.offsetWidth, e.offsetHeight];
+    },
+
+
+    getRelMousePos: function(e) {
+       var x = 0,
+          y = 0;
+       if (!e) {
+          e = window.event;
+       }
+       if (typeof e.offsetX === 'number') {
+          x = e.offsetX;
+          y = e.offsetY;
+       } else if (typeof e.layerX === 'number') {
+          x = e.layerX;
+          y = e.layerY;
+       }
+       return {
+          x: x,
+          y: y
+       };
+    },
+
+
+    getViewPos: function() {
+       if (typeof window.pageYOffset === 'number') {
+          return [window.pageXOffset, window.pageYOffset];
+       } else if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
+          return [document.body.scrollLeft, document.body.scrollTop];
+       } else if (document.documentElement && (document.documentElement.scrollLeft || document.documentElement.scrollTop)) {
+          return [document.documentElement.scrollLeft, document.documentElement.scrollTop];
+       } else {
+          return [0, 0];
+       }
+    },
+
+
+    getViewSize: function() {
+       if (typeof window.innerWidth === 'number') {
+          return [window.innerWidth, window.innerHeight];
+       } else if (document.body && (document.body.clientWidth || document.body.clientHeight)) {
+          return [document.body.clientWidth, document.body.clientHeight];
+       } else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {
+          return [document.documentElement.clientWidth, document.documentElement.clientHeight];
+       } else {
+          return [0, 0];
+       }
+    },
+
+
+    URI: function(uri) { // See RFC3986
+
+       this.scheme = null;
+       this.authority = null;
+       this.path = '';
+       this.query = null;
+       this.fragment = null;
+
+       this.parse = function(uri) {
+          var m = uri.match(/^(([A-Za-z][0-9A-Za-z+.-]*)(:))?((\/\/)([^\/?#]*))?([^?#]*)((\?)([^#]*))?((#)(.*))?/);
+          this.scheme = m[3] ? m[2] : null;
+          this.authority = m[5] ? m[6] : null;
+          this.path = m[7];
+          this.query = m[9] ? m[10] : null;
+          this.fragment = m[12] ? m[13] : null;
+          return this;
+       };
+
+       this.toString = function() {
+          var result = '';
+          if (this.scheme !== null) {
+             result = result + this.scheme + ':';
+          }
+          if (this.authority !== null) {
+             result = result + '//' + this.authority;
+          }
+          if (this.path !== null) {
+             result = result + this.path;
+          }
+          if (this.query !== null) {
+             result = result + '?' + this.query;
+          }
+          if (this.fragment !== null) {
+             result = result + '#' + this.fragment;
+          }
+          return result;
+       };
+
+       this.toAbsolute = function(base) {
+          var base = new jscolor.URI(base);
+          var r = this;
+          var t = new jscolor.URI;
+
+          if (base.scheme === null) {
+             return false;
+          }
+
+          if (r.scheme !== null && r.scheme.toLowerCase() === base.scheme.toLowerCase()) {
+             r.scheme = null;
+          }
+
+          if (r.scheme !== null) {
+             t.scheme = r.scheme;
+             t.authority = r.authority;
+             t.path = removeDotSegments(r.path);
+             t.query = r.query;
+          } else {
+             if (r.authority !== null) {
+                t.authority = r.authority;
+                t.path = removeDotSegments(r.path);
+                t.query = r.query;
+             } else {
+                if (r.path === '') {
+                   t.path = base.path;
+                   if (r.query !== null) {
+                      t.query = r.query;
+                   } else {
+                      t.query = base.query;
+                   }
+                } else {
+                   if (r.path.substr(0, 1) === '/') {
+                      t.path = removeDotSegments(r.path);
+                   } else {
+                      if (base.authority !== null && base.path === '') {
+                         t.path = '/' + r.path;
+                      } else {
+                         t.path = base.path.replace(/[^\/]+$/, '') + r.path;
+                      }
+                      t.path = removeDotSegments(t.path);
+                   }
+                   t.query = r.query;
+                }
+                t.authority = base.authority;
+             }
+             t.scheme = base.scheme;
+          }
+          t.fragment = r.fragment;
+
+          return t;
+       };
+
+       function removeDotSegments(path) {
+          var out = '';
+          while (path) {
+             if (path.substr(0, 3) === '../' || path.substr(0, 2) === './') {
+                path = path.replace(/^\.+/, '').substr(1);
+             } else if (path.substr(0, 3) === '/./' || path === '/.') {
+                path = '/' + path.substr(3);
+             } else if (path.substr(0, 4) === '/../' || path === '/..') {
+                path = '/' + path.substr(4);
+                out = out.replace(/\/?[^\/]*$/, '');
+             } else if (path === '.' || path === '..') {
+                path = '';
+             } else {
+                var rm = path.match(/^\/?[^\/]*/)[0];
+                path = path.substr(rm.length);
+                out = out + rm;
+             }
+          }
+          return out;
+       }
+
+       if (uri) {
+          this.parse(uri);
+       }
+
+    },
+
+
+    //
+    // Usage example:
+    // var myColor = new jscolor.color(myInputElement)
+    //
+
+    color: function(target, prop) {
+
+
+       this.required = true; // refuse empty values?
+       this.adjust = true; // adjust value to uniform notation?
+       this.hash = false; // prefix color with # symbol?
+       this.caps = true; // uppercase?
+       this.slider = true; // show the value/saturation slider?
+       this.valueElement = target; // value holder
+       this.styleElement = target; // where to reflect current color
+       this.onImmediateChange = null; // onchange callback (can be either string or function)
+       this.hsv = [0, 0, 1]; // read-only  0-6, 0-1, 0-1
+       this.rgb = [1, 1, 1]; // read-only  0-1, 0-1, 0-1
+       this.minH = 0; // read-only  0-6
+       this.maxH = 6; // read-only  0-6
+       this.minS = 0; // read-only  0-1
+       this.maxS = 1; // read-only  0-1
+       this.minV = 0; // read-only  0-1
+       this.maxV = 1; // read-only  0-1
+
+       this.pickerOnfocus = true; // display picker on focus?
+       this.pickerMode = 'HSV'; // HSV | HVS
+       this.pickerPosition = 'bottom'; // left | right | top | bottom
+       this.pickerSmartPosition = true; // automatically adjust picker position when necessary
+       this.pickerFixedPosition = false; // set to true to stop picker from moving on scroll
+       this.pickerButtonHeight = 20; // px
+       this.pickerClosable = false;
+       this.pickerCloseText = 'Close';
+       this.pickerButtonColor = 'ButtonText'; // px
+       this.pickerFace = 10; // px
+       this.pickerFaceColor = 'ThreeDFace'; // CSS color
+       this.pickerBorder = 1; // px
+       this.pickerBorderColor = 'ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight'; // CSS color
+       this.pickerInset = 1; // px
+       this.pickerInsetColor = 'ThreeDShadow ThreeDHighlight ThreeDHighlight ThreeDShadow'; // CSS color
+       this.pickerZIndex = 10000;
+
+
+       for (var p in prop) {
+          if (prop.hasOwnProperty(p)) {
+             this[p] = prop[p];
+          }
+       }
+
+
+       this.hidePicker = function() {
+          if (isPickerOwner()) {
+             removePicker();
+          }
+       };
+
+
+       this.showPicker = function() {
+          if (!isPickerOwner()) {
+             var tp = jscolor.getElementPos(target); // target pos
+             var ts = jscolor.getElementSize(target); // target size
+             var vp = jscolor.getViewPos(); // view pos
+             var vs = jscolor.getViewSize(); // view size
+             var ps = getPickerDims(this); // picker size
+             var a, b, c;
+             switch (this.pickerPosition.toLowerCase()) {
+                case 'left':
+                   a = 1;
+                   b = 0;
+                   c = -1;
+                   break;
+                case 'right':
+                   a = 1;
+                   b = 0;
+                   c = 1;
+                   break;
+                case 'top':
+                   a = 0;
+                   b = 1;
+                   c = -1;
+                   break;
+                default:
+                   a = 0;
+                   b = 1;
+                   c = 1;
+                   break;
+             }
+             var l = (ts[b] + ps[b]) / 2;
+
+             // picker pos
+             if (!this.pickerSmartPosition) {
+                var pp = [
+                   tp[a],
+                   tp[b] + ts[b] - l + l * c
+                ];
+             } else {
+                var pp = [-vp[a] + tp[a] + ps[a] > vs[a] ?
+                   (-vp[a] + tp[a] + ts[a] / 2 > vs[a] / 2 && tp[a] + ts[a] - ps[a] >= 0 ? tp[a] + ts[a] - ps[a] : tp[a]) :
+                   tp[a], -vp[b] + tp[b] + ts[b] + ps[b] - l + l * c > vs[b] ?
+                   (-vp[b] + tp[b] + ts[b] / 2 > vs[b] / 2 && tp[b] + ts[b] - l - l * c >= 0 ? tp[b] + ts[b] - l - l * c : tp[b] + ts[b] - l + l * c) :
+                   (tp[b] + ts[b] - l + l * c >= 0 ? tp[b] + ts[b] - l + l * c : tp[b] + ts[b] - l - l * c)
+                ];
+             }
+             drawPicker(pp[a], pp[b]);
+          }
+       };
+
+
+       this.importColor = function() {
+          if (!valueElement) {
+             this.exportColor();
+          } else {
+             if (!this.adjust) {
+                if (!this.fromString(valueElement.value, leaveValue)) {
+                   styleElement.style.backgroundImage = styleElement.jscStyle.backgroundImage;
+                   styleElement.style.backgroundColor = styleElement.jscStyle.backgroundColor;
+                   styleElement.style.color = styleElement.jscStyle.color;
+                   this.exportColor(leaveValue | leaveStyle);
+                }
+             } else if (!this.required && /^\s*$/.test(valueElement.value)) {
+                valueElement.value = '';
+                styleElement.style.backgroundImage = styleElement.jscStyle.backgroundImage;
+                styleElement.style.backgroundColor = styleElement.jscStyle.backgroundColor;
+                styleElement.style.color = styleElement.jscStyle.color;
+                this.exportColor(leaveValue | leaveStyle);
+
+             } else if (this.fromString(valueElement.value)) {
+                // OK
+             } else {
+                this.exportColor();
+             }
+          }
+       };
+
+
+       this.exportColor = function(flags) {
+          if (!(flags & leaveValue) && valueElement) {
+             var value = this.toString();
+             if (this.caps) {
+                value = value.toUpperCase();
+             }
+             if (this.hash) {
+                value = '#' + value;
+             }
+             valueElement.value = value;
+          }
+          if (!(flags & leaveStyle) && styleElement) {
+             styleElement.style.backgroundImage = "none";
+             styleElement.style.backgroundColor =
+                '#' + this.toString();
+             styleElement.style.color =
+                0.213 * this.rgb[0] +
+                0.715 * this.rgb[1] +
+                0.072 * this.rgb[2] < 0.5 ? '#FFF' : '#000';
+          }
+          if (!(flags & leavePad) && isPickerOwner()) {
+             redrawPad();
+          }
+          if (!(flags & leaveSld) && isPickerOwner()) {
+             redrawSld();
+          }
+       };
+
+
+       this.fromHSV = function(h, s, v, flags) { // null = don't change
+          if (h !== null) {
+             h = Math.max(0.0, this.minH, Math.min(6.0, this.maxH, h));
+          }
+          if (s !== null) {
+             s = Math.max(0.0, this.minS, Math.min(1.0, this.maxS, s));
+          }
+          if (v !== null) {
+             v = Math.max(0.0, this.minV, Math.min(1.0, this.maxV, v));
+          }
+
+          this.rgb = HSV_RGB(
+             h === null ? this.hsv[0] : (this.hsv[0] = h),
+             s === null ? this.hsv[1] : (this.hsv[1] = s),
+             v === null ? this.hsv[2] : (this.hsv[2] = v)
+          );
+
+          this.exportColor(flags);
+       };
+
+
+       this.fromRGB = function(r, g, b, flags) { // null = don't change
+          if (r !== null) {
+             r = Math.max(0.0, Math.min(1.0, r));
+          }
+          if (g !== null) {
+             g = Math.max(0.0, Math.min(1.0, g));
+          }
+          if (b !== null) {
+             b = Math.max(0.0, Math.min(1.0, b));
+          }
+
+          var hsv = RGB_HSV(
+             r === null ? this.rgb[0] : r,
+             g === null ? this.rgb[1] : g,
+             b === null ? this.rgb[2] : b
+          );
+          if (hsv[0] !== null) {
+             this.hsv[0] = Math.max(0.0, this.minH, Math.min(6.0, this.maxH, hsv[0]));
+          }
+          if (hsv[2] !== 0) {
+             this.hsv[1] = hsv[1] === null ? null : Math.max(0.0, this.minS, Math.min(1.0, this.maxS, hsv[1]));
+          }
+          this.hsv[2] = hsv[2] === null ? null : Math.max(0.0, this.minV, Math.min(1.0, this.maxV, hsv[2]));
+
+          // update RGB according to final HSV, as some values might be trimmed
+          var rgb = HSV_RGB(this.hsv[0], this.hsv[1], this.hsv[2]);
+          this.rgb[0] = rgb[0];
+          this.rgb[1] = rgb[1];
+          this.rgb[2] = rgb[2];
+
+          this.exportColor(flags);
+       };
+
+
+       this.fromString = function(hex, flags) {
+          var m = hex.match(/^\W*([0-9A-F]{3}([0-9A-F]{3})?)\W*$/i);
+          if (!m) {
+             return false;
+          } else {
+             if (m[1].length === 6) { // 6-char notation
+                this.fromRGB(
+                   parseInt(m[1].substr(0, 2), 16) / 255,
+                   parseInt(m[1].substr(2, 2), 16) / 255,
+                   parseInt(m[1].substr(4, 2), 16) / 255,
+                   flags
+                );
+             } else { // 3-char notation
+                this.fromRGB(
+                   parseInt(m[1].charAt(0) + m[1].charAt(0), 16) / 255,
+                   parseInt(m[1].charAt(1) + m[1].charAt(1), 16) / 255,
+                   parseInt(m[1].charAt(2) + m[1].charAt(2), 16) / 255,
+                   flags
+                );
+             }
+             return true;
+          }
+       };
+
+
+       this.toString = function() {
+          return (
+             (0x100 | Math.round(255 * this.rgb[0])).toString(16).substr(1) +
+             (0x100 | Math.round(255 * this.rgb[1])).toString(16).substr(1) +
+             (0x100 | Math.round(255 * this.rgb[2])).toString(16).substr(1)
+          );
+       };
+
+
+       function RGB_HSV(r, g, b) {
+          var n = Math.min(Math.min(r, g), b);
+          var v = Math.max(Math.max(r, g), b);
+          var m = v - n;
+          if (m === 0) {
+             return [null, 0, v];
+          }
+          var h = r === n ? 3 + (b - g) / m : (g === n ? 5 + (r - b) / m : 1 + (g - r) / m);
+          return [h === 6 ? 0 : h, m / v, v];
+       }
+
+
+       function HSV_RGB(h, s, v) {
+          if (h === null) {
+             return [v, v, v];
+          }
+          var i = Math.floor(h);
+          var f = i % 2 ? h - i : 1 - (h - i);
+          var m = v * (1 - s);
+          var n = v * (1 - s * f);
+          switch (i) {
+             case 6:
+             case 0:
+                return [v, n, m];
+             case 1:
+                return [n, v, m];
+             case 2:
+                return [m, v, n];
+             case 3:
+                return [m, n, v];
+             case 4:
+                return [n, m, v];
+             case 5:
+                return [v, m, n];
+          }
+       }
+
+
+       function removePicker() {
+          delete jscolor.picker.owner;
+          document.getElementsByTagName('body')[0].removeChild(jscolor.picker.boxB);
+       }
+
+
+       function drawPicker(x, y) {
+          if (!jscolor.picker) {
+             jscolor.picker = {
+                box: document.createElement('div'),
+                boxB: document.createElement('div'),
+                pad: document.createElement('div'),
+                padB: document.createElement('div'),
+                padM: document.createElement('div'),
+                sld: document.createElement('div'),
+                sldB: document.createElement('div'),
+                sldM: document.createElement('div'),
+                btn: document.createElement('div'),
+                btnS: document.createElement('span'),
+                btnT: document.createTextNode(THIS.pickerCloseText)
+             };
+             for (var i = 0, segSize = 4; i < jscolor.images.sld[1]; i += segSize) {
+                var seg = document.createElement('div');
+                seg.style.height = segSize + 'px';
+                seg.style.fontSize = '1px';
+                seg.style.lineHeight = '0';
+                jscolor.picker.sld.appendChild(seg);
+             }
+             jscolor.picker.sldB.appendChild(jscolor.picker.sld);
+             jscolor.picker.box.appendChild(jscolor.picker.sldB);
+             jscolor.picker.box.appendChild(jscolor.picker.sldM);
+             jscolor.picker.padB.appendChild(jscolor.picker.pad);
+             jscolor.picker.box.appendChild(jscolor.picker.padB);
+             jscolor.picker.box.appendChild(jscolor.picker.padM);
+             jscolor.picker.btnS.appendChild(jscolor.picker.btnT);
+             jscolor.picker.btn.appendChild(jscolor.picker.btnS);
+             jscolor.picker.box.appendChild(jscolor.picker.btn);
+             jscolor.picker.boxB.appendChild(jscolor.picker.box);
+          }
+
+          var p = jscolor.picker;
+
+          // controls interaction
+          p.box.onmouseup =
+             p.box.onmouseout = function() {
+                target.focus();
+             };
+          p.box.onmousedown = function() {
+             abortBlur = true;
+          };
+          p.box.onmousemove = function(e) {
+             if (holdPad || holdSld) {
+                holdPad && setPad(e);
+                holdSld && setSld(e);
+                if (document.selection) {
+                   document.selection.empty();
+                } else if (window.getSelection) {
+                   window.getSelection().removeAllRanges();
+                }
+                dispatchImmediateChange();
+             }
+          };
+          if ('ontouchstart' in window) { // if touch device
+             var handle_touchmove = function(e) {
+                var event = {
+                   'offsetX': e.touches[0].pageX - touchOffset.X,
+                   'offsetY': e.touches[0].pageY - touchOffset.Y
+                };
+                if (holdPad || holdSld) {
+                   holdPad && setPad(event);
+                   holdSld && setSld(event);
+                   dispatchImmediateChange();
+                }
+                e.stopPropagation(); // prevent move "view" on broswer
+                e.preventDefault(); // prevent Default - Android Fix (else android generated only 1-2 touchmove events)
+             };
+             p.box.removeEventListener('touchmove', handle_touchmove, false)
+             p.box.addEventListener('touchmove', handle_touchmove, false)
+          }
+          p.padM.onmouseup =
+             p.padM.onmouseout = function() {
+                if (holdPad) {
+                   holdPad = false;
+                   jscolor.fireEvent(valueElement, 'change');
+                }
+             };
+          p.padM.onmousedown = function(e) {
+             // if the slider is at the bottom, move it up
+             switch (modeID) {
+                case 0:
+                   if (THIS.hsv[2] === 0) {
+                      THIS.fromHSV(null, null, 1.0);
+                   };
+                   break;
+                case 1:
+                   if (THIS.hsv[1] === 0) {
+                      THIS.fromHSV(null, 1.0, null);
+                   };
+                   break;
+             }
+             holdSld = false;
+             holdPad = true;
+             setPad(e);
+             dispatchImmediateChange();
+          };
+          if ('ontouchstart' in window) {
+             p.padM.addEventListener('touchstart', function(e) {
+                touchOffset = {
+                   'X': e.target.offsetParent.offsetLeft,
+                   'Y': e.target.offsetParent.offsetTop
+                };
+                this.onmousedown({
+                   'offsetX': e.touches[0].pageX - touchOffset.X,
+                   'offsetY': e.touches[0].pageY - touchOffset.Y
+                });
+             });
+          }
+          p.sldM.onmouseup =
+             p.sldM.onmouseout = function() {
+                if (holdSld) {
+                   holdSld = false;
+                   jscolor.fireEvent(valueElement, 'change');
+                }
+             };
+          p.sldM.onmousedown = function(e) {
+             holdPad = false;
+             holdSld = true;
+             setSld(e);
+             dispatchImmediateChange();
+          };
+          if ('ontouchstart' in window) {
+             p.sldM.addEventListener('touchstart', function(e) {
+                touchOffset = {
+                   'X': e.target.offsetParent.offsetLeft,
+                   'Y': e.target.offsetParent.offsetTop
+                };
+                this.onmousedown({
+                   'offsetX': e.touches[0].pageX - touchOffset.X,
+                   'offsetY': e.touches[0].pageY - touchOffset.Y
+                });
+             });
+          }
+
+          // picker
+          var dims = getPickerDims(THIS);
+          p.box.style.width = dims[0] + 'px';
+          p.box.style.height = dims[1] + 'px';
+
+          // picker border
+          p.boxB.style.position = THIS.pickerFixedPosition ? 'fixed' : 'absolute';
+          p.boxB.style.clear = 'both';
+          p.boxB.style.left = x + 'px';
+          p.boxB.style.top = y + 'px';
+          p.boxB.style.zIndex = THIS.pickerZIndex;
+          p.boxB.style.border = THIS.pickerBorder + 'px solid';
+          p.boxB.style.borderColor = THIS.pickerBorderColor;
+          p.boxB.style.background = THIS.pickerFaceColor;
+
+          // pad image
+          p.pad.style.width = jscolor.images.pad[0] + 'px';
+          p.pad.style.height = jscolor.images.pad[1] + 'px';
+
+          // pad border
+          p.padB.style.position = 'absolute';
+          p.padB.style.left = THIS.pickerFace + 'px';
+          p.padB.style.top = THIS.pickerFace + 'px';
+          p.padB.style.border = THIS.pickerInset + 'px solid';
+          p.padB.style.borderColor = THIS.pickerInsetColor;
+
+          // pad mouse area
+          p.padM.style.position = 'absolute';
+          p.padM.style.left = '0';
+          p.padM.style.top = '0';
+          p.padM.style.width = THIS.pickerFace + 2 * THIS.pickerInset + jscolor.images.pad[0] + jscolor.images.arrow[0] + 'px';
+          p.padM.style.height = p.box.style.height;
+          p.padM.style.cursor = 'crosshair';
+
+          // slider image
+          p.sld.style.overflow = 'hidden';
+          p.sld.style.width = jscolor.images.sld[0] + 'px';
+          p.sld.style.height = jscolor.images.sld[1] + 'px';
+
+          // slider border
+          p.sldB.style.display = THIS.slider ? 'block' : 'none';
+          p.sldB.style.position = 'absolute';
+          p.sldB.style.right = THIS.pickerFace + 'px';
+          p.sldB.style.top = THIS.pickerFace + 'px';
+          p.sldB.style.border = THIS.pickerInset + 'px solid';
+          p.sldB.style.borderColor = THIS.pickerInsetColor;
+
+          // slider mouse area
+          p.sldM.style.display = THIS.slider ? 'block' : 'none';
+          p.sldM.style.position = 'absolute';
+          p.sldM.style.right = '0';
+          p.sldM.style.top = '0';
+          p.sldM.style.width = jscolor.images.sld[0] + jscolor.images.arrow[0] + THIS.pickerFace + 2 * THIS.pickerInset + 'px';
+          p.sldM.style.height = p.box.style.height;
+          try {
+             p.sldM.style.cursor = 'pointer';
+          } catch (eOldIE) {
+             p.sldM.style.cursor = 'hand';
+          }
+
+          // "close" button
+          function setBtnBorder() {
+             var insetColors = THIS.pickerInsetColor.split(/\s+/);
+             var pickerOutsetColor = insetColors.length < 2 ? insetColors[0] : insetColors[1] + ' ' + insetColors[0] + ' ' + insetColors[0] + ' ' + insetColors[1];
+             p.btn.style.borderColor = pickerOutsetColor;
+          }
+          p.btn.style.display = THIS.pickerClosable ? 'block' : 'none';
+          p.btn.style.position = 'absolute';
+          p.btn.style.left = THIS.pickerFace + 'px';
+          p.btn.style.bottom = THIS.pickerFace + 'px';
+          p.btn.style.padding = '0 15px';
+          p.btn.style.height = '18px';
+          p.btn.style.border = THIS.pickerInset + 'px solid';
+          setBtnBorder();
+          p.btn.style.color = THIS.pickerButtonColor;
+          p.btn.style.font = '12px sans-serif';
+          p.btn.style.textAlign = 'center';
+          try {
+             p.btn.style.cursor = 'pointer';
+          } catch (eOldIE) {
+             p.btn.style.cursor = 'hand';
+          }
+          p.btn.onmousedown = function() {
+             THIS.hidePicker();
+          };
+          p.btnS.style.lineHeight = p.btn.style.height;
+
+          // load images in optimal order
+          switch (modeID) {
+             case 0:
+                var padImg = 'hs.png';
+                break;
+             case 1:
+                var padImg = 'hv.png';
+                break;
+          }
+          p.padM.style.backgroundImage = "url('" + jscolor.getDir() + "cross.gif')";
+          p.padM.style.backgroundRepeat = "no-repeat";
+          p.sldM.style.backgroundImage = "url('" + jscolor.getDir() + "arrow.gif')";
+          p.sldM.style.backgroundRepeat = "no-repeat";
+          p.pad.style.backgroundImage = "url('" + jscolor.getDir() + padImg + "')";
+          p.pad.style.backgroundRepeat = "no-repeat";
+          p.pad.style.backgroundPosition = "0 0";
+
+          // place pointers
+          redrawPad();
+          redrawSld();
+
+          jscolor.picker.owner = THIS;
+          document.getElementsByTagName('body')[0].appendChild(p.boxB);
+       }
+
+
+       function getPickerDims(o) {
+          var dims = [
+             2 * o.pickerInset + 2 * o.pickerFace + jscolor.images.pad[0] +
+             (o.slider ? 2 * o.pickerInset + 2 * jscolor.images.arrow[0] + jscolor.images.sld[0] : 0),
+             o.pickerClosable ?
+             4 * o.pickerInset + 3 * o.pickerFace + jscolor.images.pad[1] + o.pickerButtonHeight :
+             2 * o.pickerInset + 2 * o.pickerFace + jscolor.images.pad[1]
+          ];
+          return dims;
+       }
+
+
+       function redrawPad() {
+          // redraw the pad pointer
+          switch (modeID) {
+             case 0:
+                var yComponent = 1;
+                break;
+             case 1:
+                var yComponent = 2;
+                break;
+          }
+          var x = Math.round((THIS.hsv[0] / 6) * (jscolor.images.pad[0] - 1));
+          var y = Math.round((1 - THIS.hsv[yComponent]) * (jscolor.images.pad[1] - 1));
+          jscolor.picker.padM.style.backgroundPosition =
+             (THIS.pickerFace + THIS.pickerInset + x - Math.floor(jscolor.images.cross[0] / 2)) + 'px ' +
+             (THIS.pickerFace + THIS.pickerInset + y - Math.floor(jscolor.images.cross[1] / 2)) + 'px';
+
+          // redraw the slider image
+          var seg = jscolor.picker.sld.childNodes;
+
+          switch (modeID) {
+             case 0:
+                var rgb = HSV_RGB(THIS.hsv[0], THIS.hsv[1], 1);
+                for (var i = 0; i < seg.length; i += 1) {
+                   seg[i].style.backgroundColor = 'rgb(' +
+                      (rgb[0] * (1 - i / seg.length) * 100) + '%,' +
+                      (rgb[1] * (1 - i / seg.length) * 100) + '%,' +
+                      (rgb[2] * (1 - i / seg.length) * 100) + '%)';
+                }
+                break;
+             case 1:
+                var rgb, s, c = [THIS.hsv[2], 0, 0];
+                var i = Math.floor(THIS.hsv[0]);
+                var f = i % 2 ? THIS.hsv[0] - i : 1 - (THIS.hsv[0] - i);
+                switch (i) {
+                   case 6:
+                   case 0:
+                      rgb = [0, 1, 2];
+                      break;
+                   case 1:
+                      rgb = [1, 0, 2];
+                      break;
+                   case 2:
+                      rgb = [2, 0, 1];
+                      break;
+                   case 3:
+                      rgb = [2, 1, 0];
+                      break;
+                   case 4:
+                      rgb = [1, 2, 0];
+                      break;
+                   case 5:
+                      rgb = [0, 2, 1];
+                      break;
+                }
+                for (var i = 0; i < seg.length; i += 1) {
+                   s = 1 - 1 / (seg.length - 1) * i;
+                   c[1] = c[0] * (1 - s * f);
+                   c[2] = c[0] * (1 - s);
+                   seg[i].style.backgroundColor = 'rgb(' +
+                      (c[rgb[0]] * 100) + '%,' +
+                      (c[rgb[1]] * 100) + '%,' +
+                      (c[rgb[2]] * 100) + '%)';
+                }
+                break;
+          }
+       }
+
+
+       function redrawSld() {
+          // redraw the slider pointer
+          switch (modeID) {
+             case 0:
+                var yComponent = 2;
+                break;
+             case 1:
+                var yComponent = 1;
+                break;
+          }
+          var y = Math.round((1 - THIS.hsv[yComponent]) * (jscolor.images.sld[1] - 1));
+          jscolor.picker.sldM.style.backgroundPosition =
+             '0 ' + (THIS.pickerFace + THIS.pickerInset + y - Math.floor(jscolor.images.arrow[1] / 2)) + 'px';
+       }
+
+
+       function isPickerOwner() {
+          return jscolor.picker && jscolor.picker.owner === THIS;
+       }
+
+
+       function blurTarget() {
+          if (valueElement === target) {
+             THIS.importColor();
+          }
+          if (THIS.pickerOnfocus) {
+             THIS.hidePicker();
+          }
+       }
+
+
+       function blurValue() {
+          if (valueElement !== target) {
+             THIS.importColor();
+          }
+       }
+
+
+       function setPad(e) {
+          var mpos = jscolor.getRelMousePos(e);
+          var x = mpos.x - THIS.pickerFace - THIS.pickerInset;
+          var y = mpos.y - THIS.pickerFace - THIS.pickerInset;
+          switch (modeID) {
+             case 0:
+                THIS.fromHSV(x * (6 / (jscolor.images.pad[0] - 1)), 1 - y / (jscolor.images.pad[1] - 1), null, leaveSld);
+                break;
+             case 1:
+                THIS.fromHSV(x * (6 / (jscolor.images.pad[0] - 1)), null, 1 - y / (jscolor.images.pad[1] - 1), leaveSld);
+                break;
+          }
+       }
+
+
+       function setSld(e) {
+          var mpos = jscolor.getRelMousePos(e);
+          var y = mpos.y - THIS.pickerFace - THIS.pickerInset;
+          switch (modeID) {
+             case 0:
+                THIS.fromHSV(null, null, 1 - y / (jscolor.images.sld[1] - 1), leavePad);
+                break;
+             case 1:
+                THIS.fromHSV(null, 1 - y / (jscolor.images.sld[1] - 1), null, leavePad);
+                break;
+          }
+       }
+
+
+       function dispatchImmediateChange() {
+          if (THIS.onImmediateChange) {
+             var callback;
+             if (typeof THIS.onImmediateChange === 'string') {
+                callback = new Function(THIS.onImmediateChange);
+             } else {
+                callback = THIS.onImmediateChange;
+             }
+             callback.call(THIS);
+          }
+       }
+
+
+       var THIS = this;
+       var modeID = this.pickerMode.toLowerCase() === 'hvs' ? 1 : 0;
+       var abortBlur = false;
+       var
+          valueElement = jscolor.fetchElement(this.valueElement),
+          styleElement = jscolor.fetchElement(this.styleElement);
+       var
+          holdPad = false,
+          holdSld = false,
+          touchOffset = {};
+       var
+          leaveValue = 1 << 0,
+          leaveStyle = 1 << 1,
+          leavePad = 1 << 2,
+          leaveSld = 1 << 3;
+
+       jscolor.isColorAttrSupported = false;
+       var el = document.createElement('input');
+       if (el.setAttribute) {
+          el.setAttribute('type', 'color');
+          if (el.type.toLowerCase() == 'color') {
+             jscolor.isColorAttrSupported = true;
+          }
+       }
+
+       // target
+       jscolor.addEvent(target, 'focus', function() {
+          if (THIS.pickerOnfocus) {
+             THIS.showPicker();
+          }
+       });
+       jscolor.addEvent(target, 'blur', function() {
+          if (!abortBlur) {
+             window.setTimeout(function() {
+                abortBlur || blurTarget();
+                abortBlur = false;
+             }, 0);
+          } else {
+             abortBlur = false;
+          }
+       });
+
+       // valueElement
+       if (valueElement) {
+          var updateField = function() {
+             THIS.fromString(valueElement.value, leaveValue);
+             dispatchImmediateChange();
+          };
+          jscolor.addEvent(valueElement, 'keyup', updateField);
+          jscolor.addEvent(valueElement, 'input', updateField);
+          jscolor.addEvent(valueElement, 'blur', blurValue);
+          valueElement.setAttribute('autocomplete', 'off');
+       }
+
+       // styleElement
+       if (styleElement) {
+          styleElement.jscStyle = {
+             backgroundImage: styleElement.style.backgroundImage,
+             backgroundColor: styleElement.style.backgroundColor,
+             color: styleElement.style.color
+          };
+       }
+
+       // require images
+       switch (modeID) {
+          case 0:
+             jscolor.requireImage('hs.png');
+             break;
+          case 1:
+             jscolor.requireImage('hv.png');
+             break;
+       }
+       jscolor.requireImage('cross.gif');
+       jscolor.requireImage('arrow.gif');
+
+       this.importColor();
+    }
+
+ };
+
+
+ jscolor.install();
+
+  </script>
+  
+</head>
+
+<body hidefocus="true">
+   <noscript>
+      <div class="noscriptmsg">
+         <span style="color:red;font-weight:bold;">JavaScript is niet ingeschakeld!</span><br>
+         <strong>JavaScript is nodig voor de werking van dit thema!</strong><br><br>
+         Voor Internet Explorer 7.x of hoger, start Internet Explorer:
+         <ul>
+            <li>Selecteer Tools &gt; Internetopties.</li>
+            <em>Klik wanneer u Internet Explorer 9 of hoger gebruikt op de tandwielicoon en selecteer vervolgens Internetopties.</em>
+            <li>Selecteer op het tabblad Beveiliging Internet in de sectie Selecteer voor welke zone u de instellingen wilt weergeven of wijzigen.</li>
+            <li>Klik <u>Aangepast niveau</u>.</li>
+            <li>Scrol naar de sectie Uitvoeren van scripts.</li>
+            <li>Selecteer onder Actief uitvoeren van scripts de optie Inschakelen.</li>
+            <li>Klik op OK.</li>
+            <li>Klik op Ja om te bevestigen dat u de instellingen voor deze zone wilt wijzigen.</li>
+            <li>Klik op OK.</li>
+         </ul>
+         of ga naar <u>Spotnet</u> &gt; <u>Beeld</u> &gt; <u>Thema</u> en selecteer <strong>Simple</strong>
+      </div>
+      <br>
+   </noscript>
+   <div id="wrapper">
+      <table style="width:100%;" cellspacing=0 cellpadding=0 border=0>
+         <tr>
+            <table class="main" border=0 cellspacing=0 cellpadding=0>
+               <colgroup>
+                  <col style="width:30px;">
+                  <col style="width:38px;">
+                  <col>
+                  <col style="width:10px; text-align:right;">
+                  <col style="width:34px; text-align:right;">
+                  <col style="width:34px; text-align:right;">
+                  <col style="width:118px; text-align:right;">
+                  <col style="width:30px; text-align:right;">
+                  <col style="width:30px;">
+               </colgroup>
+               <td><a href="#" id="FavButton"></a></td>
+               <td background="[SN:THEME]/img/a1-fill.png" height="41" width="30" border="0">
+                  <a href="#" id="ReportButton" title="Melding versturen"></a>
+               </td>
+               <td class="header"><span id="header_text">[SN:TITLE]</span></td>
+               <td class="header"></td>
+               <td class="header"><span id="survey"></span></td>
+               <td class="header"><span id="EncryptedLinkDB"></span>
+                  <a id="DownloadButton" href="#" title="Downloaden"></a>
+               </td>
+               <td class="header"><span id="sbcts"></span></td>
+               <td><a id="weburl" onfocus="this.blur();" href="link:[SN:WEB]" title="Weblink, website openen"></a></td>
+               <td background="[SN:THEME]/img/b1-1.png" height="41" width="30" border="0">
+                  <div class="search">
+                     <ul>
+                        <li>
+                           <a title="Meerkeuze zoek knop" href="#" target="_blank">&nbsp;</a>
+                           <ul>
+                              <li>
+                                 <script>search_links();</script>
+                              </li>
+                           </ul>
+                        </li>
+                     </ul>
+                  </div>
+               </td>
+               <td></td>
+               <td><img src="[SN:THEME]/img/headerend.png" height="41" width="33" border="0"></td>
+               </tr>
+            </table>
+            <table class="main" border=0 cellspacing=0 cellpadding=0>
+               <col style="width:23px;">
+               <col style="width:400px;">
+               <col>
+               <col style="width:33px;">
+               <tr class="shtext">
+                  <td style="padding-left:1px;"><img src="[SN:THEME]/img/subheaderleft.png" height="28" width="23" border="0"></td>
+                  <td class="subheader">
+                     <table style="color:#204F7F; width:620px;" border=0 cellspacing=0 cellpadding=0>
+                        <colgroup>
+                           <col style="width:20px;">
+                           <col style="width:260px;">
+                           <col style="width:104px;">
+                           <col style="width:146px;">
+                           <col style="width:102px;">
+                        </colgroup>
+                        <tr>
+                           <td class="subheader_text"><a id="mailicon" href="link:http://spot-net.nl/forums/viewtopic.php?f=1&t=7472" title="Klik hiernaast op de 'gebruikersnaam' voor het&#10;menu: whitelisten / blacklisten / zoeken!">&nbsp;</a></td>
+                           <td id="subheader_spotterlink"><a onfocus="this.blur();" title="Gebrukers menu" href="menu:[SN:MODULUS]_[SN:FROM]" class="[SN:CLASS] img-vert"><b>[SN:FROM]</b></a></td>
+                           <td><a id="sn_userid" title="Gebrukers-ID kopi&#235;ren" onclick="clipboardData.setData('text', document.getElementById('sn_userid').innerText); alert('Gebrukers-ID is gekopi\u00EBerd naar het klembord');">[SN:UNIQUE]</a></td>
+                           <td class="subheader_text" id="datum">&nbsp;</td>
+                           <td class="subheader_text">
+                              <a href="#" id="copytitel" onclick="GetTitle();" title="Titel kopi&#235;ren"></a>
+                              <a href="#" id="copytext" onclick="clipboardData.setData('text', document.getElementById('Description').innerText); alert('Omschrijving is gekopi\u00EBerd het klembord');" title="Omschrijving kopi&#235;ren"></a>
+                              <a href="#" id="copySNlink" onclick="CopySpotlink();" title="Spotlink kopi&#235;ren"></a>
+                              <a href="#" id="copyimg" onclick="Copy_Image(); alert('Afbeelding is gekopi\u00EBerd naar het klembord');" title="Afbeelding kopi&#235;ren"></a>
+                           </td>
+                           </td>
+                     </table>
+                  <td id="sublength"><a id="NzbInfoButton" title="Welke nieuwsgroep(en), bestandsnaam, hoeveel bestanden?">NZB Info</a></td>
+                  <td><img src="[SN:THEME]/img/subheaderend.png" height="28" width="33" border="0"></td>
+               </tr>
+               </tr>
+            </table>
+      </table>
+      <div id="Content">
+         <div style="float:left; margin:0 10px 10px 0;">
+            <img id="SpotImage" src="[SN:THEME]/img/loading.gif">
+         </div>
+         <br clear="all"><br>
+         <span id="Description">[SN:DESC]</span>
+         <br clear="all">
+         <span id="SpotInfo">[SN:INFO]</span>
+         <br clear="all"><br>
+      </div>
+      <div id="CommentsBox">
+         <span style="visibility:hidden;" id="Comments"></span>
+      </div>
+   </div>
+   <div id="LoadingBox">
+      <div  id="CommentsProgress">
+         <div id="CommentsStatus">Reacties laden...</div>
+         <br><span class="loading"> </span>  
+      </div>
+   </div>
+   <span id="msg_btn"><a class="btn_msg" title="Berichtvenster openen" href="javascript://" onclick="showtextbox();"></a></span>  
+   <div id="CommentPreview" style="display:none;"></div>
+   <div id="textbox" style="display:none">
+      <span id="cls_btn"><a class="btn_close" title="Berichtvenster sluiten" href="javascript://" onclick="hidetextbox();"></a></span>
+      <span style="width:98%; margin-top:50px; display:inline-block;">
+         <table style="width:97%; margin:10px 10px 5px 10px; text-align:left;">
+            <tbody id="replyBody">
+               <tr valign="middle">
+                  <td>
+                     <div style="margin-right:30px;"><b>Afzender:</b></div>
+                  </td>
+                  <td><input name="Nickname" type="text" style="font:[SN:FONTEM] arial, helvetica, verdana, tahoma, sans-serif !important; margin:5px; text-align:left;" value='[SN:NICK]' maxlength="25" ondragstart="return false;"></td>
+               </tr>
+               <tr valign="middle">
+                  <td>&nbsp;</td>
+               </tr>
+               <tr valign="middle">
+                  <td>
+                     <div><b>Reactie:</b></div>
+                  </td>
+                  <td>
+                     <script>edToolbar('CommentBody');</script>
+                     <textarea class="ed" maxlength="899" name="CommentBody" id="CommentBody" onkeyup="charsRemain(this)"></textarea>
+                     <div id="textarea_charsRemain" style="padding-left:5px; font-size:85%; color:gray;">&nbsp;</div>
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                  </td>
+                  <td align="right" colspan="2"><a id="AddComment" class="reply_img" href="javascript://" onclick="hidetextbox();" title="Verzenden"></a></td>
+               </tr>
+            </tbody>
+         </table>
+      </span>
+   </div>
+   [SN:STATS] 
+   <div clear="all"></div>
+   <div id="footer">
+      <div id="footer_text">RoyaleBleu thema voor Spotnet v1.9.0.x&nbsp;&nbsp;</div>
+   </div>
+</body>
+</html>

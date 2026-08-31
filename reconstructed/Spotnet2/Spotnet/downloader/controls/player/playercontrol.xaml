@@ -1,0 +1,149 @@
+<UserControl x:Class="Spotnet.Downloader.Controls.Player.PlayerControl" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:p="clr-namespace:Spotnet.Properties" xmlns:player="clr-namespace:Spotnet.Downloader.Controls.Player" xmlns:controls="clr-namespace:Spotnet.Downloader.Controls" xmlns:controls1="clr-namespace:Spotnet.Controls">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+      <Style x:Key="PlaylistDataGridRowStyle" TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource DataGridRowStyle}">
+        <Setter Property="FontWeight" Value="{Binding FontWeight, Mode=OneWay}" />
+      </Style>
+      <Style x:Key="ColumnElementStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="Margin" Value="5,2,5,2" />
+      </Style>
+      <player:VideoProgressSliderValueConverter x:Key="SliderValueConverter" />
+      <ControlTemplate x:Key="HorizontalSlider" TargetType="{x:Type Slider}">
+        <Grid>
+          <Border Name="TrackBackground" Height="9" Background="#60808080" BorderThickness="0" />
+          <Border Name="TrackDownloadedProgress" Height="9" Background="#40808080" HorizontalAlignment="Left" BorderThickness="0">
+            <FrameworkElement.Width>
+              <MultiBinding Converter="{StaticResource SliderValueConverter}">
+                <Binding Path="Tag" RelativeSource="{RelativeSource TemplatedParent}" />
+                <Binding Path="Minimum" RelativeSource="{RelativeSource TemplatedParent}" />
+                <Binding Path="Maximum" RelativeSource="{RelativeSource TemplatedParent}" />
+                <Binding Path="ActualWidth" RelativeSource="{RelativeSource TemplatedParent}" />
+              </MultiBinding>
+            </FrameworkElement.Width>
+          </Border>
+          <Border Height="9" Background="#9942c0fb" HorizontalAlignment="Left" BorderThickness="0">
+            <FrameworkElement.Width>
+              <MultiBinding Converter="{StaticResource SliderValueConverter}">
+                <Binding Path="Value" RelativeSource="{RelativeSource TemplatedParent}" />
+                <Binding Path="Minimum" RelativeSource="{RelativeSource TemplatedParent}" />
+                <Binding Path="Maximum" RelativeSource="{RelativeSource TemplatedParent}" />
+                <Binding Path="ActualWidth" RelativeSource="{RelativeSource TemplatedParent}" />
+              </MultiBinding>
+            </FrameworkElement.Width>
+          </Border>
+        </Grid>
+      </ControlTemplate>
+      <Style x:Key="ProgressSliderStyle" TargetType="{x:Type Slider}">
+        <Setter Property="UIElement.SnapsToDevicePixels" Value="True" />
+        <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="True" />
+        <Style.Triggers>
+          <Trigger Property="Slider.Orientation" Value="Horizontal">
+            <Setter Property="MinHeight" Value="21" />
+            <Setter Property="Template" Value="{StaticResource HorizontalSlider}" />
+          </Trigger>
+        </Style.Triggers>
+      </Style>
+      <BitmapImage x:Key="LargePlayIcon" UriSource="..\..\..\Resources\ImagesInternal\playicon.png" />
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid Name="ParentGrid">
+    <Grid Name="MainGrid">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MinWidth="100" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Grid Name="VideoControlDock" Background="#FF000000" MouseLeave="VideoControlDock_OnMouseLeave" MouseEnter="VideoControlDock_OnMouseEnter">
+        <Grid>
+          <FrameworkElement.Style>
+            <Style TargetType="{x:Type Grid}">
+              <Setter Property="Visibility" Value="Collapsed" />
+              <Style.Triggers>
+                <DataTrigger Value="True" Binding="{Binding IsPlayButtonInTheCenterOfVideoVisible}">
+                  <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </FrameworkElement.Style>
+          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="128" Height="128" Background="#00FFFFFF">
+            <Image Source="{StaticResource LargePlayIcon}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </StackPanel>
+        </Grid>
+        <Grid>
+          <FrameworkElement.Style>
+            <Style TargetType="{x:Type Grid}">
+              <Setter Property="Visibility" Value="Collapsed" />
+              <Style.Triggers>
+                <DataTrigger Value="True" Binding="{Binding IsStopDetected}">
+                  <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </FrameworkElement.Style>
+          <controls1:ProgressRing IsActive="True" Width="60" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        </Grid>
+        <Grid Name="VideoOverlayingGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#00FFFFFF" />
+          <TextBlock Name="VideoOverlayingText" Foreground="#FFF8F8FF" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="30,20" FontSize="25" FontWeight="Bold" TextWrapping="NoWrap" />
+        </Grid>
+        <Border Name="ControlPanel" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" CornerRadius="0" Background="#FF000000" BorderThickness="0" MouseMove="ControlPanel_OnMouseMove" PreviewMouseLeftButtonUp="ControlPanel_OnMouseLeftButtonUp" MouseLeave="ControlPanel_OnMouseLeave" MouseEnter="ControlPanel_OnMouseEnter">
+          <Grid Margin="5,2" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Name="PlayPauseBtn" Grid.Column="0" Background="#00FFFFFF" IsEnabled="{Binding IsPlayerPlayingSomething}" MouseUp="PlayPauseBtn_OnClick">
+              <TextBlock Style="{StaticResource FontAwesomePlayer}" Text="{Binding PlayPauseIcon}" />
+            </Border>
+            <TextBlock Name="TimeBlockCurrent" Grid.Column="1" Margin="5,0,5,0" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="#FFD3D3D3" FontSize="{DynamicResource ContentFontSize}" />
+            <Slider Name="SliderPosition" Grid.Column="2" HorizontalAlignment="Stretch" Maximum="1" LargeChange="0.05" Height="25" SmallChange="0.01" Style="{StaticResource ProgressSliderStyle}" Margin="5,0,5,0" TickPlacement="None" Tag="{Binding DownloadProgress}" IsEnabled="{Binding IsPlayerPlayingSomething}" ValueChanged="SliderPosition_ValueChanged" PreviewMouseLeftButtonDown="SliderPosition_OnMouseLeftButtonDown" />
+            <TextBlock Name="TimeBlockTotal" Grid.Column="3" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="#FFD3D3D3" FontSize="{DynamicResource ContentFontSize}" />
+            <controls:VolumeSlider x:Name="SliderVolume" Grid.Column="4" Width="80" Margin="3,0" HorizontalAlignment="Right" />
+            <Border Name="FullScreenBtn" Grid.Column="5" Background="#00FFFFFF" IsEnabled="{Binding IsPlayerPlayingSomething}" MouseUp="FullScreenBtn_OnClick">
+              <TextBlock Text="" Style="{StaticResource FontAwesomePlayer}" />
+            </Border>
+            <Border Name="ShowHidePlaylistBtn" Grid.Column="6" HorizontalAlignment="Right" Background="#00FFFFFF" MouseUp="ShowHidePlaylistBtn_OnClick">
+              <TextBlock Text="" Style="{StaticResource FontAwesomePlayer}" />
+            </Border>
+            <Border Name="StopBtn" Grid.Column="7" Background="#00FFFFFF" IsEnabled="{Binding IsPlayerPlayingSomething}" MouseUp="StopBtn_OnClick">
+              <TextBlock Text="" Style="{StaticResource FontAwesomePlayer}" />
+            </Border>
+          </Grid>
+        </Border>
+      </Grid>
+      <DataGrid Name="PlaylistGrid" Grid.Column="1" Margin="2,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Extended" SelectionUnit="FullRow" Focusable="True" Background="#00FFFFFF" GridLinesVisibility="None" HeadersVisibility="Column" RowDetailsVisibilityMode="Collapsed" AreRowDetailsFrozen="True" ColumnHeaderHeight="NaN" CanUserResizeRows="False" IsTextSearchEnabled="False" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.IsDeferredScrollingEnabled="False" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" RowStyle="{StaticResource PlaylistDataGridRowStyle}" MouseDoubleClick="PlaylistGrid_OnMouseDoubleClick">
+        <DataGrid.Columns>
+          <DataGridTemplateColumn Header="{x:Static p:Words.ColumnSubject}" MinWidth="130" Width="*" CanUserSort="True" SortDirection="Ascending" SortMemberPath="{Binding Path=FileFullPath, Mode=OneWay}">
+            <DataGridTemplateColumn.CellTemplate>
+              <DataTemplate>
+                <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="5,2,5,2" Text="{Binding Path=Title, Mode=OneWay}" ToolTip="{Binding Path=FileFullPath, Mode=OneWay}" />
+              </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
+          <DataGridTextColumn Header="{x:Static p:Words.ColumnTime}" MinWidth="70" Width="Auto" CanUserSort="True" ElementStyle="{StaticResource ColumnElementStyle}" Binding="{Binding Path=DurationString, Mode=OneWay}" />
+        </DataGrid.Columns>
+      </DataGrid>
+      <GridSplitter Name="PlaylistSplitter" Grid.Column="1" Height="Auto" Width="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" ResizeBehavior="BasedOnAlignment" ResizeDirection="Columns">
+        <FrameworkElement.Style>
+          <Style>
+            <Setter Property="Control.Background" Value="{StaticResource AccentColorBrush3}" />
+            <Style.Triggers>
+              <Trigger Property="UIElement.IsMouseOver" Value="True">
+                <Setter Property="Control.Background" Value="{StaticResource AccentColorBrush}" />
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </FrameworkElement.Style>
+      </GridSplitter>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -1,0 +1,73 @@
+@echo off
+setlocal enabledelayedexpansion
+
+title Spotnet 2.0 - Build and Test
+
+echo ======================================================================
+echo                  Spotnet 2.0 Reconstructed Build System               
+echo ======================================================================
+echo.
+
+:: Ensure we are in the directory of this batch file
+cd /d "%~dp0"
+
+:: 1. Check for dotnet CLI
+where dotnet >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] .NET SDK dotnet CLI was not found in PATH!
+    echo Please install the .NET SDK from https://dotnet.microsoft.com/download
+    echo.
+    pause
+    exit /b 1
+)
+
+echo [1/3] Restoring and building Spotnet 2.0 Solution Release x86...
+echo.
+dotnet build Spotnet.sln -c Release -v minimal
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [BUILD FAILED] An error occurred while compiling Spotnet.sln.
+    echo.
+    pause
+    exit /b %ERRORLEVEL%
+)
+
+echo.
+echo [2/3] Running Automated Unit and Integration Tests...
+echo.
+dotnet test Spotnet.Tests\Spotnet.Tests.csproj -c Release --no-build -v normal
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [WARNING] One or more tests failed.
+) else (
+    echo [TESTS PASSED] All test suites completed successfully.
+)
+
+echo.
+echo [3/3] Build Verification
+set "OUTPUT_EXE=%~dp0Spotnet\bin\Release\net472\Spotnet.exe"
+
+if exist "%OUTPUT_EXE%" (
+    echo ======================================================================
+    echo [BUILD SUCCESSFUL] Spotnet 2.0 compiled successfully!
+    echo.
+    echo Binary location:
+    echo "%OUTPUT_EXE%"
+    echo ======================================================================
+    echo.
+) else (
+    echo [ERROR] Expected output binary not found at:
+    echo "%OUTPUT_EXE%"
+    echo.
+    pause
+    exit /b 1
+)
+
+set /p RUN_APP="Would you like to launch Spotnet 2.0 now? (Y/N): "
+if /i "%RUN_APP%"=="Y" (
+    echo Launching Spotnet 2.0...
+    start "" "%OUTPUT_EXE%"
+)
+
+echo.
+echo Done.

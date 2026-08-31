@@ -1,0 +1,15 @@
+<UserControl x:Class="Spotnet.Controls.AutoHideMessage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:controls="clr-namespace:Spotnet.Controls;assembly=Spotnet">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <Storyboard x:Key="FadeIn" Completed="FadeIn_OnCompleted">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="LayoutRoot" Storyboard.TargetProperty="(UIElement.Opacity)">
+          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0" />
+          <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="1" />
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Border Name="LayoutRoot" BorderThickness="4" BorderBrush="{StaticResource BrightColorBrush4}" Background="{StaticResource TransparentBrownBrush0}" Opacity="0">
+    <TextBlock Name="TextBlock" Text="Test" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30,20,30,20" />
+  </Border>
+</UserControl>

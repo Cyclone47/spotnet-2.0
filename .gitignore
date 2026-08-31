@@ -1,0 +1,17 @@
+# Build artifacts
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Diagnostic and temporary files
+build.log
+build_diag.txt
+*.tmp
+
+# Raw scratch / baseline working copies
+/spotnet-git/
+/spotnet-2.0.0.284-binary/
+/decompiled_200/

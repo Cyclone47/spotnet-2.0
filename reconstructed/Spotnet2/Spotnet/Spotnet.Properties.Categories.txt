@@ -1,0 +1,748 @@
+KEY: GShooter
+TYPE: System.String
+VAL: Shooter
+----------------------------------------
+KEY: LangSpanish
+TYPE: System.String
+VAL: Spanish
+----------------------------------------
+KEY: MHiphop
+TYPE: System.String
+VAL: Hiphop
+----------------------------------------
+KEY: LangNoSubtitles
+TYPE: System.String
+VAL: No subtitles
+----------------------------------------
+KEY: GSciFiction
+TYPE: System.String
+VAL: Science Fiction
+----------------------------------------
+KEY: MNewAge
+TYPE: System.String
+VAL: New Age
+----------------------------------------
+KEY: GWestern
+TYPE: System.String
+VAL: Western
+----------------------------------------
+KEY: LangGrWritten
+TYPE: System.String
+VAL: German Written
+----------------------------------------
+KEY: SubCategory
+TYPE: System.String
+VAL: Sub сategory
+----------------------------------------
+KEY: BGJournal
+TYPE: System.String
+VAL: Journal
+----------------------------------------
+KEY: MGAudiobook
+TYPE: System.String
+VAL: Audiobook
+----------------------------------------
+KEY: GCartoon
+TYPE: System.String
+VAL: Cartoon
+----------------------------------------
+KEY: LangEnSpoken
+TYPE: System.String
+VAL: English spoken
+----------------------------------------
+KEY: MSmallArt
+TYPE: System.String
+VAL: Small Art
+----------------------------------------
+KEY: MSoundtrack
+TYPE: System.String
+VAL: Soundtrack
+----------------------------------------
+KEY: GSimulation
+TYPE: System.String
+VAL: Simulation
+----------------------------------------
+KEY: BGBusiness
+TYPE: System.String
+VAL: Business
+----------------------------------------
+KEY: CatSeries
+TYPE: System.String
+VAL: Series
+----------------------------------------
+KEY: GAnime
+TYPE: System.String
+VAL: Anime
+----------------------------------------
+KEY: GAsian
+TYPE: System.String
+VAL: Asian
+----------------------------------------
+KEY: GCards
+TYPE: System.String
+VAL: Cards
+----------------------------------------
+KEY: GCrime
+TYPE: System.String
+VAL: Crime
+----------------------------------------
+KEY: GDrama
+TYPE: System.String
+VAL: Drama
+----------------------------------------
+KEY: GMusic
+TYPE: System.String
+VAL: Music
+----------------------------------------
+KEY: GParty
+TYPE: System.String
+VAL: Party
+----------------------------------------
+KEY: Bitrate
+TYPE: System.String
+VAL: Bitrate
+----------------------------------------
+KEY: GSport
+TYPE: System.String
+VAL: Sport
+----------------------------------------
+KEY: GShort
+TYPE: System.String
+VAL: Short
+----------------------------------------
+KEY: GWoman
+TYPE: System.String
+VAL: Woman
+----------------------------------------
+KEY: GYouth
+TYPE: System.String
+VAL: Youth
+----------------------------------------
+KEY: MMetal
+TYPE: System.String
+VAL: Metal
+----------------------------------------
+KEY: MLatin
+TYPE: System.String
+VAL: Latin
+----------------------------------------
+KEY: MBlues
+TYPE: System.String
+VAL: Blues
+----------------------------------------
+KEY: MAsian
+TYPE: System.String
+VAL: Asian
+----------------------------------------
+KEY: MDisco
+TYPE: System.String
+VAL: Disco
+----------------------------------------
+KEY: MDance
+TYPE: System.String
+VAL: Dance
+----------------------------------------
+KEY: MYouth
+TYPE: System.String
+VAL: Youth
+----------------------------------------
+KEY: MWorld
+TYPE: System.String
+VAL: World
+----------------------------------------
+KEY: GPlatform
+TYPE: System.String
+VAL: Platform
+----------------------------------------
+KEY: MHardstyle
+TYPE: System.String
+VAL: Hardstyle
+----------------------------------------
+KEY: SexHard
+TYPE: System.String
+VAL: Hard
+----------------------------------------
+KEY: SexHomo
+TYPE: System.String
+VAL: Homo
+----------------------------------------
+KEY: SexDark
+TYPE: System.String
+VAL: Dark
+----------------------------------------
+KEY: SexSoft
+TYPE: System.String
+VAL: Soft
+----------------------------------------
+KEY: SexSolo
+TYPE: System.String
+VAL: Solo
+----------------------------------------
+KEY: BGNonFiction
+TYPE: System.String
+VAL: Non fiction
+----------------------------------------
+KEY: MDubstep
+TYPE: System.String
+VAL: Dubstep
+----------------------------------------
+KEY: GAdventure
+TYPE: System.String
+VAL: Adventure
+----------------------------------------
+KEY: MGAlbum
+TYPE: System.String
+VAL: Album
+----------------------------------------
+KEY: GTelevision
+TYPE: System.String
+VAL: Television
+----------------------------------------
+KEY: BGCrafts
+TYPE: System.String
+VAL: Crafts
+----------------------------------------
+KEY: BGScience
+TYPE: System.String
+VAL: Science
+----------------------------------------
+KEY: GHistory
+TYPE: System.String
+VAL: History
+----------------------------------------
+KEY: GMystery
+TYPE: System.String
+VAL: Mystery
+----------------------------------------
+KEY: LangNlWritten
+TYPE: System.String
+VAL: Dutch Written
+----------------------------------------
+KEY: BGBiography
+TYPE: System.String
+VAL: Biography
+----------------------------------------
+KEY: BGHealth
+TYPE: System.String
+VAL: Health
+----------------------------------------
+KEY: LangEnglish
+TYPE: System.String
+VAL: English
+----------------------------------------
+KEY: BGComputer
+TYPE: System.String
+VAL: Computer
+----------------------------------------
+KEY: GMusical
+TYPE: System.String
+VAL: Musical
+----------------------------------------
+KEY: MReggae
+TYPE: System.String
+VAL: Reggae
+----------------------------------------
+KEY: LangFrSpoken
+TYPE: System.String
+VAL: French spoken
+----------------------------------------
+KEY: TRadio
+TYPE: System.String
+VAL: Radio
+----------------------------------------
+KEY: TVinyl
+TYPE: System.String
+VAL: Vinyl
+----------------------------------------
+KEY: LangDutch
+TYPE: System.String
+VAL: Dutch
+----------------------------------------
+KEY: BGReligion
+TYPE: System.String
+VAL: Religion
+----------------------------------------
+KEY: MClassical
+TYPE: System.String
+VAL: Classical
+----------------------------------------
+KEY: MCountry
+TYPE: System.String
+VAL: Country
+----------------------------------------
+KEY: MTrance
+TYPE: System.String
+VAL: Trance
+----------------------------------------
+KEY: MTechno
+TYPE: System.String
+VAL: Techno
+----------------------------------------
+KEY: BGPoetry
+TYPE: System.String
+VAL: Poetry
+----------------------------------------
+KEY: GFantasy
+TYPE: System.String
+VAL: Fantasy
+----------------------------------------
+KEY: SexOld
+TYPE: System.String
+VAL: Old
+----------------------------------------
+KEY: SexBBW
+TYPE: System.String
+VAL: BBW
+----------------------------------------
+KEY: SexPOV
+TYPE: System.String
+VAL: POV
+----------------------------------------
+KEY: Source
+TYPE: System.String
+VAL: Source
+----------------------------------------
+KEY: MBalkans
+TYPE: System.String
+VAL: Balkans
+----------------------------------------
+KEY: GDetective
+TYPE: System.String
+VAL: Detective
+----------------------------------------
+KEY: MVarious
+TYPE: System.String
+VAL: Various
+----------------------------------------
+KEY: SwSpotnet
+TYPE: System.String
+VAL: Spotnet
+----------------------------------------
+KEY: BGTravel
+TYPE: System.String
+VAL: Travel
+----------------------------------------
+KEY: Category
+TYPE: System.String
+VAL: Category
+----------------------------------------
+KEY: CatSerie
+TYPE: System.String
+VAL: Serie
+----------------------------------------
+KEY: CatGames
+TYPE: System.String
+VAL: Games
+----------------------------------------
+KEY: CatBooks
+TYPE: System.String
+VAL: Books
+----------------------------------------
+KEY: CatFilms
+TYPE: System.String
+VAL: Movies
+----------------------------------------
+KEY: CatMusic
+TYPE: System.String
+VAL: Audio
+----------------------------------------
+KEY: GEducational
+TYPE: System.String
+VAL: Educational
+----------------------------------------
+KEY: BGComicStrip
+TYPE: System.String
+VAL: Comicbook
+----------------------------------------
+KEY: MCabaret
+TYPE: System.String
+VAL: Cabaret
+----------------------------------------
+KEY: MGLiveset
+TYPE: System.String
+VAL: Liveset
+----------------------------------------
+KEY: CatImages
+TYPE: System.String
+VAL: Images
+----------------------------------------
+KEY: CatBook
+TYPE: System.String
+VAL: Book
+----------------------------------------
+KEY: CatFilm
+TYPE: System.String
+VAL: Movie
+----------------------------------------
+KEY: CatMain
+TYPE: System.String
+VAL: Main category
+----------------------------------------
+KEY: MNederhop
+TYPE: System.String
+VAL: Nederhop
+----------------------------------------
+KEY: SwDevelopment
+TYPE: System.String
+VAL: Development
+----------------------------------------
+KEY: GStrategy
+TYPE: System.String
+VAL: Strategy
+----------------------------------------
+KEY: LangEnSubsInt
+TYPE: System.String
+VAL: English subtitles (internal)
+----------------------------------------
+KEY: LangEnSubsExt
+TYPE: System.String
+VAL: English subtitles (external)
+----------------------------------------
+KEY: LangEnSubsAdj
+TYPE: System.String
+VAL: English subtitles (adjustable)
+----------------------------------------
+KEY: Language
+TYPE: System.String
+VAL: Language
+----------------------------------------
+KEY: SwInternet
+TYPE: System.String
+VAL: Internet
+----------------------------------------
+KEY: GDocumentary
+TYPE: System.String
+VAL: Documentary
+----------------------------------------
+KEY: LangFrWritten
+TYPE: System.String
+VAL: French Written
+----------------------------------------
+KEY: GFamily
+TYPE: System.String
+VAL: Family
+----------------------------------------
+KEY: GThriller
+TYPE: System.String
+VAL: Thriller
+----------------------------------------
+KEY: GAction
+TYPE: System.String
+VAL: Action
+----------------------------------------
+KEY: GCabare
+TYPE: System.String
+VAL: Cabaret
+----------------------------------------
+KEY: GComedy
+TYPE: System.String
+VAL: Comedy
+----------------------------------------
+KEY: BGCooking
+TYPE: System.String
+VAL: Cooking
+----------------------------------------
+KEY: BGTechnique
+TYPE: System.String
+VAL: Technique
+----------------------------------------
+KEY: BGPsychology
+TYPE: System.String
+VAL: Psychology
+----------------------------------------
+KEY: BitrateVariable
+TYPE: System.String
+VAL: Variable
+----------------------------------------
+KEY: SwCommunication
+TYPE: System.String
+VAL: Communication
+----------------------------------------
+KEY: GHorror
+TYPE: System.String
+VAL: Horror
+----------------------------------------
+KEY: MGPodcast
+TYPE: System.String
+VAL: Podcast
+----------------------------------------
+KEY: BGHandicraft
+TYPE: System.String
+VAL: Handicraft
+----------------------------------------
+KEY: SwEducational
+TYPE: System.String
+VAL: Educational
+----------------------------------------
+KEY: MAmbient
+TYPE: System.String
+VAL: Ambient
+----------------------------------------
+KEY: GRace
+TYPE: System.String
+VAL: Race
+----------------------------------------
+KEY: BGArt
+TYPE: System.String
+VAL: Art
+----------------------------------------
+KEY: MJazz
+TYPE: System.String
+VAL: Jazz
+----------------------------------------
+KEY: MLive
+TYPE: System.String
+VAL: Live
+----------------------------------------
+KEY: MFolk
+TYPE: System.String
+VAL: Folk
+----------------------------------------
+KEY: MRock
+TYPE: System.String
+VAL: Rock
+----------------------------------------
+KEY: MSoul
+TYPE: System.String
+VAL: Soul
+----------------------------------------
+KEY: SexAmateur
+TYPE: System.String
+VAL: Amateur
+----------------------------------------
+KEY: SwOffice
+TYPE: System.String
+VAL: Office
+----------------------------------------
+KEY: SexBi
+TYPE: System.String
+VAL: Bi
+----------------------------------------
+KEY: SexSM
+TYPE: System.String
+VAL: SM
+----------------------------------------
+KEY: LangGrSpoken
+TYPE: System.String
+VAL: German spoken
+----------------------------------------
+KEY: MReligious
+TYPE: System.String
+VAL: Religious
+----------------------------------------
+KEY: MCompilation
+TYPE: System.String
+VAL: Compilation
+----------------------------------------
+KEY: SwSystem
+TYPE: System.String
+VAL: System
+----------------------------------------
+KEY: GPuzzel
+TYPE: System.String
+VAL: Puzzel
+----------------------------------------
+KEY: LangEnWritten
+TYPE: System.String
+VAL: English Written
+----------------------------------------
+KEY: GAnimals
+TYPE: System.String
+VAL: Animals
+----------------------------------------
+KEY: CatErotica
+TYPE: System.String
+VAL: Erotica
+----------------------------------------
+KEY: MElectro
+TYPE: System.String
+VAL: Electro
+----------------------------------------
+KEY: GFilmHouse
+TYPE: System.String
+VAL: Cinema
+----------------------------------------
+KEY: BGNewspaper
+TYPE: System.String
+VAL: Newspaper
+----------------------------------------
+KEY: LangSpSpoken
+TYPE: System.String
+VAL: Spanish spoken
+----------------------------------------
+KEY: SexLesbo
+TYPE: System.String
+VAL: Lesbo
+----------------------------------------
+KEY: SexGroup
+TYPE: System.String
+VAL: Group
+----------------------------------------
+KEY: SexYoung
+TYPE: System.String
+VAL: Young
+----------------------------------------
+KEY: SwSafeguard
+TYPE: System.String
+VAL: Safeguard
+----------------------------------------
+KEY: Platform
+TYPE: System.String
+VAL: Platform
+----------------------------------------
+KEY: SexOutside
+TYPE: System.String
+VAL: Outside
+----------------------------------------
+KEY: BGCover
+TYPE: System.String
+VAL: Cover
+----------------------------------------
+KEY: BGHobby
+TYPE: System.String
+VAL: Hobby
+----------------------------------------
+KEY: BGNovel
+TYPE: System.String
+VAL: Novel
+----------------------------------------
+KEY: BGStudy
+TYPE: System.String
+VAL: Study
+----------------------------------------
+KEY: SexHentai
+TYPE: System.String
+VAL: Hentai
+----------------------------------------
+KEY: SexHetero
+TYPE: System.String
+VAL: Hetero
+----------------------------------------
+KEY: GWhatHappened
+TYPE: System.String
+VAL: What Happened
+----------------------------------------
+KEY: GBoardGame
+TYPE: System.String
+VAL: Boardgame
+----------------------------------------
+KEY: SwDownload
+TYPE: System.String
+VAL: Download
+----------------------------------------
+KEY: BGFairytale
+TYPE: System.String
+VAL: Fairytale
+----------------------------------------
+KEY: MHollands
+TYPE: System.String
+VAL: Dutch
+----------------------------------------
+KEY: GRoleplay
+TYPE: System.String
+VAL: Roleplay
+----------------------------------------
+KEY: BGEconomy
+TYPE: System.String
+VAL: Economy
+----------------------------------------
+KEY: GRomantic
+TYPE: System.String
+VAL: Romantic
+----------------------------------------
+KEY: MChillout
+TYPE: System.String
+VAL: Chillout
+----------------------------------------
+KEY: BitrateLossless
+TYPE: System.String
+VAL: Lossless
+----------------------------------------
+KEY: TStream
+TYPE: System.String
+VAL: Stream
+----------------------------------------
+KEY: LangNlSpoken
+TYPE: System.String
+VAL: Dutch spoken
+----------------------------------------
+KEY: CatApplications
+TYPE: System.String
+VAL: Software
+----------------------------------------
+KEY: LangFrench
+TYPE: System.String
+VAL: French
+----------------------------------------
+KEY: LangGerman
+TYPE: System.String
+VAL: German
+----------------------------------------
+KEY: SexFetich
+TYPE: System.String
+VAL: Fetich
+----------------------------------------
+KEY: GAnimation
+TYPE: System.String
+VAL: Animation
+----------------------------------------
+KEY: LangSpWritten
+TYPE: System.String
+VAL: Spanish Written
+----------------------------------------
+KEY: LangNlSubsExt
+TYPE: System.String
+VAL: Dutch subtitles (external)
+----------------------------------------
+KEY: LangNlSubsAdj
+TYPE: System.String
+VAL: Dutch subtitles (adjustable)
+----------------------------------------
+KEY: LangNlSubsInt
+TYPE: System.String
+VAL: Dutch subtitles (internal)
+----------------------------------------
+KEY: SwAudio
+TYPE: System.String
+VAL: Audio
+----------------------------------------
+KEY: SwPhoto
+TYPE: System.String
+VAL: Photo
+----------------------------------------
+KEY: SwVideo
+TYPE: System.String
+VAL: Video
+----------------------------------------
+KEY: MClassics
+TYPE: System.String
+VAL: Classics
+----------------------------------------
+KEY: GFly
+TYPE: System.String
+VAL: Fly
+----------------------------------------
+KEY: GWar
+TYPE: System.String
+VAL: War
+----------------------------------------
+KEY: MDnB
+TYPE: System.String
+VAL: DnB
+----------------------------------------
+KEY: MRnB
+TYPE: System.String
+VAL: RnB
+----------------------------------------
+KEY: MPop
+TYPE: System.String
+VAL: Pop
+----------------------------------------
+KEY: Type
+TYPE: System.String
+VAL: Type
+----------------------------------------
+KEY: SwGraphic
+TYPE: System.String
+VAL: Graphic
+----------------------------------------

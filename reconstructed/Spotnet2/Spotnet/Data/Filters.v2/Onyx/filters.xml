@@ -1,0 +1,12 @@
+<Spotnet ImageResize="False">
+  <Filter Name="Favorieten" Image="\Images\favorites2.ico"><![CDATA[spots.msgid in favorieten]]></Filter>
+  <Filter Name="Nieuw" Image="\Images\new2.ico"><![CDATA[rowid > [SN:NEW]]]></Filter>
+  <Filter Name="Laatste 24 uur" Image="\Images\today.ico"><![CDATA[date > ( [SN:DATE] - 86400 )]]></Filter>
+  <Filter Name="Films" Image="\Images\video2.ico"><![CDATA[cat = 1]]></Filter>
+  <Filter Name="Series" Image="\Images\series2.ico"><![CDATA[cat = 6]]></Filter>
+  <Filter Name="Boeken" Image="\Images\books2.ico"><![CDATA[cat = 5]]></Filter>
+  <Filter Name="Muziek" Image="\Images\audio2.ico"><![CDATA[cat = 2]]></Filter>
+  <Filter Name="Spellen" Image="\Images\games2.ico"><![CDATA[cat = 3]]></Filter>
+  <Filter Name="Applicaties" Image="\Images\applications2.ico"><![CDATA[cat = 4]]></Filter>
+  <Filter Name="Erotiek" Image="\Images\x2.ico"><![CDATA[cat = 9]]></Filter>
+</Spotnet>

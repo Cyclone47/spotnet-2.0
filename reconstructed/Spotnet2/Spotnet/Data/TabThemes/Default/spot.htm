@@ -1,0 +1,1098 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<!--
+		[TITLE] 		= Titel    
+		[FROM] 		= Afzender    
+		[NICK]		= Nick
+		[AVATAR]		= Avatar
+		[TAG] 		= Tag    
+		[STAMP] 		= UNIX Timestamp   
+		[CAT] 		= Categorie    
+		[WEB] 		= Weblink    
+		[SUBCATS] 	= Subcats    
+		[DESC] 		= Beschrijving    
+		[UNIQUE] 	= Unique ID
+		[MODULUS] 	= Modulus    
+		[FILESIZE] 	= Omvang    
+		[WHITELIST] 	= True/False    
+		[PATH] 		= Installatie map 
+		[THEME]		= Thema map
+		[FONTSIZE] 		= Fontsize
+		[FONTSIZESMALL]	= Fontsize small
+		[BLACKLIST]	= Blacklist
+		[ARTICLE] 	= Comments
+		[DATE]		= Datum
+	-->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=9">
+    <script src='[SN:THEME]/js/jscolor.min.js'></script>
+	<script>
+
+var strsta = '<table><tr><td style="vertical-align:top; width:70px; font-size:12px; font-weight:bold;">';
+var strmid = '</td><td>';
+var strend = '</td></tr>';
+
+window.onload = function() {
+	loadImdb();
+};
+
+function onCommentBodyKeyUp(textarea) {
+	charsRemain(textarea);
+	autoheight(textarea);
+};
+
+function autoheight(a) {
+	newrows = a.value.split("\n").length + 1;
+	if (newrows < 6) {
+		newrows = 6;
+	}
+	a.rows = newrows;
+};
+
+//Max message length textarea  
+function charsRemain(textarea) {
+	var currentLength = textarea.value.length;
+	var charsLeft = 900 - currentLength;
+	if (charsLeft < 0) {
+			charsLeft = 0;
+	}
+	document.getElementById("textarea_charsRemain").innerHTML = charsLeft + ' [WORD:CHARSLEFT]';
+	if (currentLength > 900) {
+			var fullText = textarea.value.substring(0, 900);
+			textarea.value = fullText;
+	}
+};
+	
+//Remove unwanted stuff from title for lookup at imDb (Movies)
+function GetCleantitle() {
+        return escapeRegExp('[SN:TITLE]', '[SN:CAT]');
+};
+
+function smiley(code) {
+	textarea = document.getElementById('CommentBody');
+	if (document.selection) { // IE <= 10
+			textarea.focus();
+			var sel = document.selection.createRange();
+			sel.text = sel.text + '[img=' + code + ']';
+	} else { // IE 11 && Firefox, Opera .....
+			var len = textarea.value.length;
+			var start = textarea.selectionStart;
+			var end = textarea.selectionEnd;
+			var sel = textarea.value.substring(start, end);
+			var rep = '[img=' + code + ']'
+			textarea.value = textarea.value.substring(0, start) + rep + textarea.value.substring(end, len);
+			textarea.selectionStart = start + rep.length;
+			textarea.selectionEnd = textarea.selectionStart;
+			setTimeout(function() {
+					textarea.focus();
+			}, 50);
+	}
+}
+//Locate year as (2012), remove everything behind. return string
+function escapeRegExp(string, cat) {
+        if (cat == 'Films') {
+                var year = getyear(string);
+                //Find pos of year
+                var pos = string.search(year);
+                if (pos > 0) {
+                        //get part before year
+                        var partname = string.substr(0, pos - 1);
+                        //remove multiple spaces and replace it by 1, add year behind it.
+                        partname = partname.replace(/\s+/, ' ');
+                        partname = toCleanString(partname) + ' ' + year;
+                        partname = partname.replace(/\s+/g, ' ');
+                        return partname;
+                } else {
+                        string = toCleanString(string);
+                        return string;
+                }
+        } else if (cat == 'Series') {
+                return toCleanString(string);
+        } else if (cat == 'Muziek') {
+                string = allmusic(string);
+                return string;
+        } else {
+                return string;
+        }
+};
+
+//Make first Letter uppercase
+function toProperCase(s) {
+        return s.toLowerCase().replace(/^(.)|\s(.)/g, function($1) {
+                return $1.toUpperCase();
+        });
+};
+
+//Clean string make a check for date format
+function toCleanString(string) {
+        //Remove all special characters
+        string = string.replace(/\./g, ' ');
+        string = string.replace(/\_/g, ' ');
+        string = string.replace(/\`/g, '');
+        string = string.replace(/\'/g, '');
+        string = string.replace(/\-/g, ' ');
+        //Check if there is a date format, without ()
+        var year = getyear(string);
+        var pos = string.search(year);
+        //if date get leftstring
+        if (pos > 0) {
+                var partname = string.substr(0, pos - 1);
+                string = partname.replace(/\s+/, ' ');
+        }
+        //Strip all season related stuff
+        string = regexstr(string);
+        //Get proper case
+        string = toProperCase(string);
+        //Remove HTML entity tags like #123;
+        //string = html_entity_decode(string);
+        string = htmlDecode(string);
+        //Some cases a \s{2} is left, so remove it.
+        string = string.replace(/\s+/g, ' ');
+        //Give result back
+        if (pos > 0) {
+                return string = string.replace(/^\s+|\s+$/g, '') + ' (' + year + ')';
+        } else {
+                return string = string.replace(/^\s+|\s+$/g, '');
+        };
+};
+
+//Get year from title
+function getyear(string) {
+        var year = string.match(/\d{4}/);
+        var pos = string.search(year);
+        //if date get leftstring
+        if (pos > 0) {
+                year = '&year=' + year;
+        } else {
+                year = '';
+        }
+        return year;
+};
+
+//regex for movie
+function regexstr(string) {
+        return string.replace(/(\#?\*?\(?\{?\[?(19\d{2})\]?\}?\)?\*?.*)?(\*?\(?\{?\[?(20\d{2})\]?\}?\)?\*?\#?.*)?(\*?\(?\{?\[?\s?S\d{1,2}\s?e\d{1,2}\s?\]?\}?\)?\*?.*)?(deel\s*\d{1,2}?.*)?(\s*\[.*\]\s*)?(\s*\{.*\}\s*)?(seiz.*\s?\d{1,2}?.*)?((\(?\s?\d{3,4}[pmi]).*)?([a-zAZ]*verzoek[a-zAZ]*\s*)?(\(basp\)\s*)?(\(bbc\)\s*)?(\(itv\)\s*)?(\d{1,2}x\d{1,2})?(\(?\s?NL\s?\-?SUBS?\s?\)?)?(\(?\d{1,2}\-?\s?\.?\/?\d{1,2}\-?\s?\.?\/?\d{2,4}\)?.*)?(\bDVD\b.*)?(E\d{1,2}\s?.*)?(\#\s?)?(\d{3,4}\s?bluray.*)?(\bweb\b.*)?(\bdtv\b.*)?/ig, '');
+};
+
+// htmlDecode
+function htmlDecode(input) {
+	if (input) {
+		var e = document.createElement('div');
+		e.innerHTML = input;
+		return e.childNodes[0].nodeValue;
+	} else {
+		return '';
+	}
+}
+
+//Build IMDbLink
+function Setimdb() {
+        var re = new RegExp("\\s+", 'g'); // \s means white space (the extra \ is an escape), g means global
+        var clean = GetCleantitle();
+        var urltitle = clean;
+        var pos = clean.search(clean.match(/\(\s*\d{4}\s*\)(?!p)|\s\d{4}\s/));
+        if (pos > 0) {
+                var partname = clean.substr(0, pos - 1);
+                partname = toCleanString(partname).replace(/^\s+|\s+$/g, '');
+                urltitle = partname + '&y=' + clean.match(/\d{4}/);
+        } else {
+                urltitle = clean;
+        };
+        return urltitle + "&y=&plot=full&r=json";
+};
+
+//Build YouTubeLink
+function SetYouTube() {
+        var strURL = "link:http://www.youtube.com/results?search_query=" + GetCleantitle() + ' trailer';
+        var re = new RegExp("\\s+", 'g'); // \s means white space (the extra \ is an escape), g means global
+        return strURL.replace(re, "%20");
+};
+
+//http://www.allmusic.com/search/all/labour%20of%20love%20ub40
+function allmusic(string) {
+        var strTemp = string.replace(/(\(.*\))?((box)?\s?\d*\s?cd\'?s?\s?\d*)?(\[.*\]\s?)?(\bMP3\b)?(\d{4}.*)?(\'?\*?\#?)?(\d*\s*\-*bits?)?(\d*\s*\-*kbps)?(\d*\s*\-*\.*\d*khz)*(@\d*)?(\{.*\}\s?)?(\s?deel\s?\d{1,2})?(?:flac|stereo|deel|week|eac|ogg|wav\s|wave\)|lossless|dts|HD tracks)?/ig, '');
+        //strTemp = html_entity_decode(strTemp);
+        strTemp = htmlDecode(strTemp);
+        strTemp = strTemp.replace(/\-\s+s/g, '');
+        strTemp = strTemp.replace(/^\s+|\s+$/g, '');
+        strTemp = strTemp.replace(/^\-+|\-+$/g, '');
+        strTemp = strTemp.replace(/&39;/g, '\'');
+        return strTemp;
+};
+
+//Remove spaces pre and post
+function trimStr(str) {
+        return str.replace(/^\s+|\s+$/g, '');
+};
+
+
+function loadImdb() {
+	//Every row is placed in tupel, for better results display data
+	var strsta = '<table><tr><td align="right" style="vertical-align:top;width:85px;font-size:[SN:FONTSIZE]px;padding-right:15px"><b>';
+	var strmid = '</b></td><td>';
+	var strend = '</td></tr>';
+	if ('[SN:CAT]' == 'Films' || '[SN:CAT]' == 'Series') {
+		document.getElementById('imdbheader').innerHTML = '<b>IMDb</b>';
+		JSONP('http://www.omdbapi.com/?i=&t=' + Setimdb(), function(json) {
+			var url1 = 'link:http://www.imdb.com/title/' + json.imdbID;
+			var strURL = SetYouTube();
+			var s1 = String(json.Title);
+			if (s1 == 'undefined') {
+				document.getElementById('title').innerHTML = strsta + '[WORD:ERROR]:' + strmid + '[WORD:IMDBFILMNOTFOUND]' + strend;
+			} else {
+				document.getElementById('title').innerHTML = strsta + 'Title' + strmid + json.Title + strend;
+				document.getElementById('year').innerHTML = strsta + 'Year' + strmid + json.Year + strend;
+				var pg = String(json.Rated);
+				switch (pg) { //	(G--Al), (PG--6-9), (PG-13--12), (R--16), (NC-17--16)  
+					case 'G':
+						result = document.getElementById('rated').innerHTML = strsta + 'Rated' + strmid + '<img width="15px" src="[SN:THEME]/img/imdb/al.gif">' + strend;
+						break;
+					case 'PG':
+						result = document.getElementById('rated').innerHTML = strsta + 'Rated' + strmid + '<img width="15px" src="[SN:THEME]/img/imdb/6-9.gif">' + strend;
+						break;
+					case 'PG-13':
+						result = document.getElementById('rated').innerHTML = strsta + 'Rated' + strmid + '<img width="15px" src="[SN:THEME]/img/imdb/12.gif">' + strend;
+						break;
+					case 'R':
+						result = document.getElementById('rated').innerHTML = strsta + 'Rated' + strmid + '<img width="15px" src="[SN:THEME]/img/imdb/16.gif">' + strend;
+						break;
+					case 'NC-17':
+						result = document.getElementById('rated').innerHTML = strsta + 'Rated' + strmid + '<img width="15px"src="[SN:THEME]/img/imdb/16.gif">' + strend;
+						break;
+					default:
+						result = document.getElementById('rated').innerHTML = strsta + 'Rated' + strmid + '-' + strend;
+				}
+				//document.getElementById('capt').innerHTML = 'IMDb informatie:';
+				document.getElementById('released').innerHTML = strsta + 'Released' + strmid + json.Released + strend;
+				document.getElementById('runtime').innerHTML = strsta + 'Runtime' + strmid + json.Runtime + strend;
+				document.getElementById('genre').innerHTML = strsta + 'Genre' + strmid + json.Genre + strend;
+				document.getElementById('director').innerHTML = strsta + 'Director' + strmid + json.Director + strend;
+				document.getElementById('writer').innerHTML = strsta + 'Writer' + strmid + json.Writer + strend;
+				document.getElementById('actors').innerHTML = strsta + 'Actors' + strmid + json.Actors + strend;
+				document.getElementById('plot').innerHTML = strsta + 'Plot' + strmid + json.Plot + strend;
+				document.getElementById('imdbrating').innerHTML = strsta + 'ImdbRating' + strmid + json.imdbRating + strend;
+				document.getElementById('imdbvotes').innerHTML = strsta + 'ImdbVotes' + strmid + json.imdbVotes + strend;
+				document.getElementById('awards').innerHTML = strsta + 'Awards' + strmid + json.Awards + strend;
+				document.getElementById('imdbid').innerHTML = strsta + 'ImdbID' + strmid + '<a href=' + url1 + '>' + json.imdbID + '</a>' + strend;
+				document.getElementById('poster').innerHTML = strsta + 'Poster' + strmid + '<img class="img-polaroid" src="' + json.Poster + '">' + strend;
+				document.getElementById('trailer').innerHTML = strsta + 'Trailer' + strmid + '<a href=' + strURL + '>YouTube Trailer</a></td></tr></table>';
+			}
+		});
+	} else {
+		if ('[SN:CAT]' == 'Muziek') {
+			document.getElementById('itunesheader').innerHTML = '<b>Links & iTunes</b>';
+			var Music = allmusic('[SN:TITLE]');
+			var ren = new RegExp("\\-", 'g');
+			Music = Music.replace(ren, "");
+			Music = trimStr(Music);
+			var re = new RegExp("\\s+", 'g'); // \s means white space (the extra \ is an escape), g means global
+			var Music1 = Music.replace(re, "%20");
+			var Music2 = Music.replace(re, "+");
+			var Music3 = Music.replace(re, "%2B");
+			var Music = Music.replace(re, "-");
+			var strURL1 = 'link:http://www.allmusic.com/search/all/' + Music1;
+			var strURL2 = 'link:https://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=' + Music2;
+			var strURL3 = 'link:http://www.last.fm/search?q=' + Music2;
+			var strURL4 = 'link:http://www.bol.com/nl/s/muziek/zoekresultaten/Ntt/' + Music3 + '/N/3132/Nty/1/search/true/searchType/qck/suggestedFor/' + Music2 + '/originalSearchContext/media_all/originalSection/main/defaultSearchContext/media_all/sc/music_all/index.html';
+			document.getElementById('URL1').innerHTML = strsta + 'Link 1' + strmid + '<a href=' + strURL1 + '>Allmusic.com</a>' + strend;
+			document.getElementById('URL2').innerHTML = strsta + 'Link 2' + strmid + '<a href=' + strURL2 + '>Amazon.com</a>' + strend;
+			document.getElementById('URL3').innerHTML = strsta + 'Link 3' + strmid + '<a href=' + strURL3 + '>Last.fm</a>' + strend;
+			document.getElementById('URL4').innerHTML = strsta + 'Link 4' + strmid + '<a href=' + strURL4 + '>Bol.com</a>' + strend;
+			re = new RegExp("\\&amp;", 'g');
+			Music2 = Music2.replace(re, "")
+			re = new RegExp("\\+{2}", 'g');
+			Music2 = Music2.replace(re, "+")
+			urliTunes = 'https://itunes.apple.com/search?term=' + Music2 + '&country=NL&media=music&entity=album&callback=handleiTunesSearchAlbum'
+
+			var scriptTag = document.createElement("script");
+			scriptTag.src = urliTunes;
+			document.head.appendChild(scriptTag);
+		}
+	}
+};
+
+//Decode JSON object for Album
+var cntrun = 0;
+
+function handleiTunesSearchAlbum(arg) {
+		var strsta = '<table><tr><td align="right" style="vertical-align:top;width:85px;font-size:[SN:FONTSIZE]px;padding-right:15px"><b>';
+		var strmid = '<\/b><\/td><td>';
+		var strend = '<\/td><\/tr>';
+        var resultsT = arg.results;
+        if (arg.results == null || arg.results == '' || resultsT.length == 0) {
+                document.getElementById('error').innerHTML = strsta + '[WORD:ERROR]:' + strmid + '[WORD:IMDBALBUMNOTFOUND]' + strend;
+                if (cntrun == 0) {
+                        cntrun = 1;
+                        urliTunes = urliTunes.replace('NL&media', 'US&media');
+						var scriptTag = document.createElement("script");
+						scriptTag.src = urliTunes;
+						document.head.appendChild(scriptTag);
+                }
+        } else {
+                for (var i = 0; i < resultsT.length; i++) {
+                        var item = resultsT[i];
+                        var objT = {
+                                source: 0,
+                                artistId: item.artistId,
+                                collectionId: item.collectionId,
+                                amgArtistId: item.amgArtistId,
+                                artistName: item.artistName,
+                                collectionName: item.collectionName,
+                                collectionCensoredName: item.collectionCensoredName,
+                                artistViewUrl: item.artistViewUrl,
+                                collectionViewUrl: item.collectionViewUrl,
+                                artworkUrl60: item.artworkUrl60,
+                                artworkUrl100: item.artworkUrl100,
+                                collectionPrice: item.collectionPrice,
+                                collectionExplicitness: item.collectionExplicitness,
+                                trackCount: item.trackCount,
+                                copyright: item.copyright,
+                                country: item.country,
+                                currency: item.currency,
+                                releaseDate: item.releaseDate,
+                                primaryGenreName: item.primaryGenreName
+                        }
+                        resultsT[i] = objT;
+                        document.getElementById('error').innerHTML = '';
+                        document.getElementById('artist').innerHTML = strsta + '[WORD:ARTIST]:' + strmid + '<a href=link:' + objT.artistViewUrl + '>' + objT.artistName + '</a>' + strend;
+                        document.getElementById('album').innerHTML = strsta + 'Album:' + strmid + '<a href=link:' + objT.collectionViewUrl + '>' + objT.collectionName + '</a>' + strend;
+                        document.getElementById('copyright').innerHTML = strsta + 'Copyright: ' + strmid + objT.copyright + strend;
+                        document.getElementById('cover').innerHTML = strsta + 'Cover: ' + strmid + '<img style="width:180px;" src="' + objT.artworkUrl100 + '">' + strend;
+                        document.getElementById('genre').innerHTML = strsta + 'Genre: ' + strmid + objT.primaryGenreName + strend;
+                        document.getElementById('land').innerHTML = strsta + 'Land: ' + strmid + objT.country + strend;
+                        document.getElementById('track').innerHTML = strsta + '[WORD:TRACKS]:' + strmid + objT.trackCount + ' [WORD:PIECES],     <a href="#" onclick="javascript:GetTracks(' + objT.collectionId + ');">[WORD:OPENCLOSETRACKS]</a>' + strend;
+                        var d1 = objT.releaseDate;
+                        d1 = d1.substring(d1, d1.length - 10);
+                        var pattern = /(\d{4})\-(\d{2})\-(\d{2})/;
+                        var dt = d1.replace(pattern, '$3-$2-$1');
+                        document.getElementById('release').innerHTML = strsta + 'Release: ' + strmid + dt + strend;
+                        albumid = objT.collectionId;
+                        cntrun = 1;
+                }
+        }
+};
+
+function toggleDiv() {
+        if (document.getElementById("track-results").style.display == "inline") {
+                document.getElementById("track-results").style.display = "none";
+                return false;
+        } else {
+                document.getElementById("track-results").style.display = "inline";
+                return true;
+        }
+};
+
+//Sort Disc and Track nr
+var sort_by = function(field, reverse, primer) {
+        var key = primer ? function(x) {
+                return primer(x[field])
+        } : function(x) {
+                return x[field]
+        };
+        reverse = !reverse ? 1 : -1;
+        return function(a, b) {
+                return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+        }
+};
+
+//Decode JSON object for tracks
+function handleTunesSearchTracks(arg) {
+        if (toggleDiv()) {
+                var oldcnnr = 0;
+                var resultsT = arg.results;
+                resultsT.sort(sort_by('discNumber,trackNumber', false, parseInt));
+                var html = '';
+                for (var i = 0; i < resultsT.length; i++) {
+                        var item = resultsT[i];
+                        var objT = {
+                                source: 0,
+                                kind: item.kind,
+                                artistId: item.artistId,
+                                collectionId: item.collectionId,
+                                trackId: item.trackId,
+                                artistName: item.artistName,
+                                collectionName: item.collectionName,
+                                trackName: item.trackName,
+                                collectionCensoredName: item.collectionCensoredName,
+                                trackCensoredName: item.trackCensoredName,
+                                collectionArtistName: item.collectionArtistName,
+                                artistViewUrl: item.artistViewUrl,
+                                collectionViewUrl: item.collectionViewUrl,
+                                trackViewUrl: item.trackViewUrl,
+                                previewUrl: item.previewUrl,
+                                artworkUrl30: item.artworkUrl30,
+                                artworkUrl60: item.artworkUrl60,
+                                artworkUrl100: item.artworkUrl100,
+                                collectionPrice: item.collectionPrice,
+                                trackPrice: item.trackPrice,
+                                releaseDate: item.releaseDate,
+                                collectionExplicitness: item.collectionExplicitness,
+                                trackExplicitness: item.trackExplicitness,
+                                discCount: item.discCount,
+                                discNumber: item.discNumber,
+                                trackCount: item.trackCount,
+                                trackNumber: item.trackNumber,
+                                trackTimeMillis: item.trackTimeMillis,
+                                country: item.country,
+                                currency: item.currency,
+                                primaryGenreName: item.primaryGenreName,
+                                isStreamable: item.isStreamable
+                        };
+                        resultsT[i] = objT;
+                        html += '<div class="Track-search-result">';
+                        var nr = objT.trackNumber;
+                        nr = n(nr);
+                        var str = objT.previewUrl;
+                        var cdnr = objT.discNumber;
+                        if ((str == null) && (nr == '0undefined')) {
+                                html += strsta + strmid + strend;
+                        } else
+                        if ((str == null) && (nr > 0)) {
+                                html += strsta + 'Track ' + nr + ':' + strmid + objT.trackName + strend.replace("{2}", nr);
+                        } else {
+                                var sUrl = objT.previewUrl.replace(/http/ig, 'http');
+                                if (oldcnnr != objT.discNumber) {
+                                        html += strsta + 'CD ' + n(cdnr) + strmid + strend + '</br>';
+                                        var oldcnnr = cdnr
+                                        html += strsta + 'Track ' + nr + ':' + strmid + '<a href=' + sUrl + ' target="_blank">' + objT.trackName + '</a>' + strend;
+                                } else {
+                                        html += strsta + 'Track ' + nr + ':' + strmid + '<a href=' + sUrl + ' target="_blank">' + objT.trackName + '</a>' + strend;
+                                }
+                        }
+                        html += '</div>';
+                } // end for
+                document.getElementById('track-results').innerHTML = html;
+        }
+};
+
+//Make cd and tracknr into 2 digits
+function n(n) {
+        return n > 9 ? "" + n : "0" + n;
+}
+//Get tracks from iTunes by collectionID
+function GetTracks(id) {
+        var params = {
+                id: id,
+                country: 'NL',
+                entity: 'song',
+                limit: 200,
+                callback: 'handleTunesSearchTracks'
+        };
+        var params = urlEncode(params);
+        var url = 'https://itunes.apple.com/lookup?' + params;
+		var scriptTag = document.createElement("script");
+		scriptTag.src = url;
+		document.head.appendChild(scriptTag);
+};
+
+function urlEncode(obj) {
+        var s = '';
+        for (var key in obj) {
+                s += encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]) + '&';
+        }
+        if (s.length > 0) {
+                s = s.substr(0, s.length - 1);
+        }
+        return (s);
+};
+
+//JSON Reader
+(function(window, undefined) {
+        var JSONP = function(url, method, callback) {
+                url = url || '';
+                method = method || '';
+                callback = callback || function() {};
+                if (typeof method == 'function') {
+                        callback = method;
+                        method = 'callback';
+                }
+                var generatedFunction = 'jsonp' + Math.round(Math.random() * 1000001)
+                window[generatedFunction] = function(json) {
+                        callback(json);
+                };
+                if (url.indexOf('?') === -1) {
+                        url = url + '?';
+                } else {
+                        url = url + '&';
+                }
+                var jsonpScript = document.createElement('script');
+                jsonpScript.setAttribute("src", url + method + '=' + generatedFunction);
+                document.getElementsByTagName("head")[0].appendChild(jsonpScript)
+        }
+        window.JSONP = JSONP;
+})(window);
+
+	</script>
+    <style type='text/css'>
+        body, td, th, table, div, input, textarea {
+            font: [SN:FONTSIZE]px Verdana;
+			word-wrap: break-word;
+        }
+        .from {
+            color: black;
+            text-decoration: none;
+        }
+            .from:hover {
+                color: blue;
+            }
+        .category {
+            color: black;
+            text-decoration: none;
+        }
+            .category:hover {
+                color: blue;
+            }
+        .header {
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            font-size: [SN:FONTSIZESMALL]px;
+            width: 100%;
+            background-color: #ffffff;
+            word-break: break-all;
+        }
+        .date {
+            color: #888888;
+        }
+        .reply {
+            color: #223990;
+        }
+        .comment {
+            color: #777799;
+            font-weight: bold;
+            text-decoration: none;
+        }
+            .comment:hover {
+                color: #3B5970;
+            }
+        .author {
+            color: #800000;
+            font-weight: bold;
+            text-decoration: none;
+        }
+            .author:hover {
+                color: red;
+                font-weight: bold;
+                text-decoration: none;
+            }
+        .trusted {
+            color: #00AA00;
+            font-weight: bold;
+            text-decoration: none;
+        }
+            .trusted:hover {
+                color: green;
+                font-weight: bold;
+                text-decoration: none;
+            }
+        .untrusted {
+            color: #C8C8C8;
+            text-decoration: line-through;
+        }
+            .untrusted:hover {
+                color: #C8C8C8;
+            }
+        .desc {
+            padding-left: 5px;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+		
+		.button {
+			border: 1px solid #ccc;
+			margin: 1px;
+			padding: 1px;
+			margin-bottom: -3px;
+		}
+		.button:hover, .light_button:hover {
+			cursor: pointer;
+			opacity: 0.6;
+			-moz-opacity: 0.6;
+			-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+			filter: alpha(opacity =60);
+		}
+
+
+        blockquote {
+            font-size: [SN:FONTSIZESMALL]px;
+            font-style: italic;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            margin-left: 10px;
+            padding-left: 10px;
+            background-color: #fff1f1;
+            padding: 8px;
+            border-top: 1px solid #d5d5d5;
+            border-bottom: 1px solid #d5d5d5;
+            border-left: 4px solid #F1CC89;
+        }
+        cite {
+            color: #777;
+            font-size: [SN:FONTSIZESMALL]px;
+            font-style: italic;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* new style june 2015 */
+
+        #SpotImage {
+            position: relative;
+            border: 0;
+            margin: 0;
+            max-width: 363px;
+        }
+
+            #SpotImage.full {
+                display: block;
+                position:fixed;
+				z-index:100;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				-o-transform: translate(-50%, -50%);
+				-moz-transform: translate(-50%, -50%);
+				-ms-transform: translate(-50%, -50%);
+				-webkit-transform: translate(-50%, -50%);
+                width: auto;
+                height: auto;
+                max-width: 90%;
+                max-height: 90%;
+                box-shadow: 1.4em 1.4em 2.4em #BBB;
+                border-radius: 0.3em;
+            }
+
+        #wrapper-one {
+            float: left;
+            padding: 0 0 10px;
+            position: relative;
+            width: 34%;
+        }
+
+        #wrapper-two {
+            float: left;
+            margin-left: 17px;
+            width: 63%;
+        }
+
+            #wrapper-two a {
+                word-break: break-all;
+            }
+
+        #part-button {
+            background: #ffffff none repeat scroll 0 0;
+            border: 1px solid #ecedee;
+            float: left;
+            margin: 0px 2px 4px;
+            padding: 15px 1%;
+            width: 100%;
+        }
+
+        #part-one {
+            background: #ffffff none repeat scroll 0 0;
+            border: 1px solid #ecedee;
+            float: left;
+            margin: 4px 2px 6px;
+            padding: 15px 1%;
+            width: 100%;
+            position: relative;
+        }
+
+        #part-one-centered {
+            background: transparent none repeat scroll 0 0;
+            height: 94%;
+            margin: 0px 3%;
+            position: relative;
+            width: 94%;
+        }
+
+            #part-one-centered img {
+                width: 100%;
+                max-height: 100%;
+                margin: 0 auto;
+                display: block;
+            }
+
+        #DownloadButton {
+            background-color: #2e71b8;
+            border: 4px solid #f3f3f3;
+            color: #ffffff;
+            cursor: pointer;
+            margin: 0 auto;
+            padding: 13px;
+            text-align: center;
+            width: 64%;
+            min-width: 80px;
+        }
+
+            #DownloadButton:hover {
+                background-color: #2eb871;
+            }
+
+            #DownloadButton.disabled {
+                background-color: #CCC;
+                color: #333;
+                cursor: default;
+            }
+
+        #part-two, #ImdbPanel, #ImdbPanel2 {
+            background: #ffffff none repeat scroll 0 0;
+            border: 1px solid #ecedee;
+            float: left;
+            margin: 2px 2px 6px;
+            padding: 20px 1% 25px;
+            width: 100%;
+            word-wrap: break-word;
+            display: inline-block;
+        }
+
+		#part-two a, #ImdbPanel a, #ImdbPanel2 a {
+			word-break: break-all;
+			display: inline-block;
+		}
+
+        #part-three {
+            background: #ffffff none repeat scroll 0 0;
+            border: 1px solid #ecedee;
+            float: left;
+            margin: 0px 2px 6px;
+            padding: 25px 3% 30px;
+            width: 96%;
+        }
+
+            #part-three img {
+                max-width: 100%;
+            }
+
+        #part-four {
+            background: #ffffff none repeat scroll 0 0;
+            border: 1px solid #ecedee;
+            float: left;
+            margin: 2px 2px 6px;
+            padding: 25px 1% 30px;
+            width: 100%;
+        }
+
+        #part-five {
+            width: 97%;
+            margin: 0.4%;
+            float: left;
+            background: #ffffff;
+            padding: 10px 1%;
+            border: 1px solid #ecedee;
+        }
+
+            #part-five a {
+                word-break: break-all;
+            }
+
+        .header a {
+            background: #ffffff;
+            word-break: break-all;
+        }
+
+        /* comment input area */
+
+        input[type="text"] {
+            background: #f9f9f9;
+            border: 1px solid #ecedee;
+            padding: 6px 8px;
+            width: 98%;
+        }
+
+        #SmileysPanel {
+            margin-left: 5px;
+            border: 1px solid #ecedee;
+            padding: 6px 8px;
+            width: 98%;
+            margin-bottom: 5px;
+        }
+
+		.SmileyImg {vertical-align:bottom;cursor:pointer;}
+		
+        textarea {
+            background: #f9f9f9;
+            border: 1px solid #ecedee;
+            padding: 6px 8px;
+            width: 98%;
+        }
+
+        #AddComment {
+            background-color: #2e71b8;
+            border: 4px solid #f3f3f3;
+            color: #ffffff;
+            cursor: pointer;
+            float: left;
+            margin-left: 5px;
+            padding: 13px;
+            text-align: center;
+            width: 80px;
+        }
+
+		#AddComment:hover {
+			background-color: #2eb871;
+		}
+
+		#AddComment.disabled {
+			background-color: #CCC;
+			color: #333;
+			cursor: default;
+		}
+
+		.Closeable {
+			position:relative;
+			margin-left: 5px;
+			border: 1px solid #ecedee;
+			padding: 4px 8px;
+			width: 98%;
+			margin-bottom: 5px;
+		}
+
+		.Closeable:hover {
+			box-shadow: 2px 2px 3px rgba(0,0,0,.2);
+		}
+
+		.Close {
+			right: 0;
+			margin: 0 5px 1px 0;
+			position: absolute;
+			z-index:10;
+			display:inline;
+			background:#e7e7e7;
+			padding:0px 5px 2px 5px;
+		}
+
+		.Close:hover {
+			right: 0;
+			cursor: default;
+			margin: 0 5px 1px 0;
+			position: absolute;
+			z-index:10;
+			display:inline;
+			background:#ccc;
+			cursor:pointer;
+		}		
+		
+		a.fill-div {
+			display: block;
+			height: 100%;
+			width: 100%;
+			color: gray;
+			font-size: [SN:FONTSIZESMALL]px;
+			font-weight: bold;
+		}
+		
+        @media screen and (max-width: 1024px) {
+            #wrapper-one {
+                float: left;
+                padding: 0;
+                position: relative;
+                width: 100%;
+            }
+
+            #wrapper-two {
+                float: left;
+                margin-left: 0;
+                padding-top: 0;
+                width: 97%;
+            }
+
+            #part-button {
+                margin-right: 4%;
+                width: 47%;
+            }
+
+            #DownloadButton {
+                width: 92%;
+            }
+
+            #part-one {
+                width: 47%;
+            }
+
+            #part-two {
+                width: 47%;
+                margin: 4px 2px 6px;
+                word-wrap: break-word;
+            }
+
+			#ImdbPanel, #ImdbPanel2 {
+				float: left;
+				margin: 0px 2px 6px;
+				width: 97%;
+                word-wrap: break-word;
+            }
+			
+			#part-two a, #ImdbPanel a, #ImdbPanel2 a {
+				word-break: break-all;
+			}
+
+            #part-three {
+                margin-top: 0;
+            }
+			
+			#ImdbPanel .Close {
+				margin-right: 20px;
+			}
+
+			#ImdbPanel .Close:hover {
+				margin-right: 20px;
+			}		
+        }
+    </style>
+	
+</head>
+<body bgcolor="#f0f8fe" style='cursor:auto; margin-left: 10px;' ondragstart='return false;' hidefocus='true' link='blue' alink='blue' vlink='blue'>
+    <span style='float:; width: 95px; height:10px;'></span>
+    <div id="wrapper-one">
+        <div id="part-button">
+            <div id='DownloadButton' onfocus='this.blur()'>[WORD:DOWNLOAD]</div>
+        </div>
+        <div id="part-one">
+            <div id="part-one-centered">
+                <img id='SpotImage' src="[SN:THEME]/Images/loading.gif" onfocus='this.blur()'>
+            </div>
+        </div>
+        <div id="part-two">
+            <span>[SN:INFO]</span>
+        </div>
+        <div id="ImdbPanel">
+			<span class='Close' id='CloseImdb'>x</span>
+			<script type="text/javascript">
+				if('[SN:CAT]' == 'Films' || '[SN:CAT]' == 'Series') {
+					document.write('<center id="imdbheader"></center>');
+					document.write('<div><br></div>');
+					document.write('<div id="title"></div>');
+					document.write('<div id="year"></div>');
+					document.write('<div id="released"></div>');
+					document.write('<div><br></div>');
+					document.write('<div id="imdbrating"></div>');
+					document.write('<div id="imdbvotes"></div>');
+					document.write('<div id="awards"></div>');
+					document.write('<div><br></div>');
+					document.write('<div id="genre"></div>');
+					document.write('<div id="rated"></div>');
+					document.write('<div id="runtime"></div>');
+					document.write('<div><br></div>');
+					document.write('<div id="director"></div>');
+					document.write('<div id="writer"></div>');
+					document.write('<div id="actors"></div>');
+					document.write('<div><br></div>');
+					document.write('<div id="plot"></div>');
+					document.write('<div><br></div>');
+					document.write('<div id="imdbid"></div>');
+					document.write('<div id="trailer"></div>');
+					document.write('<div><br></div>');
+					document.write('<div id="poster"></div>');
+				}
+				if('[SN:CAT]' == 'Muziek') {
+					document.write('<center id="itunesheader"></center>');
+					document.write('<div><br></div>');
+					document.write('<div id="error"></div>');
+					document.write('<div id="artist"></div>');
+					document.write('<div id="album"></div>');
+					document.write('<div id="copyright"></div>');
+					document.write('<div id="albumid"></div>');
+					document.write('<div id="genre"></div>');
+					document.write('<div id="land"></div>');
+					document.write('<div id="release"></div>');
+					document.write('<div id="track"></div>');
+					document.write('<div id="track-results"></div>');
+					document.write('<div><br></div>');
+					document.write('<div id="cover"></div>');
+					document.write('<div><br></div>');
+					document.write('<div><h5>[WORD:EXTERNALLINKS]:</h5></div>');
+					document.write('<div id="URL1"></div>');
+					document.write('<div id="URL2"></div>');
+					document.write('<div id="URL3"></div>');
+					document.write('<div id="URL4"></div>');
+				}
+			</script>
+            <br clear='all'>
+        </div>
+		<script type="text/javascript">
+			if('[SN:CAT]' == 'Films' || '[SN:CAT]' == 'Series') {
+				document.write('<a id="ImdbPanel2" href="show:i" class="fill-div" style="display:inline-block;"><div style="text-align:center;"><b>IMDb</b></div></a>');
+			}
+			if('[SN:CAT]' == 'Muziek') {
+				document.write('<a id="ImdbPanel2" href="show:i" class="fill-div" style="display:inline-block;"><div style="text-align:center;"><b>Links & iTunes</b></div></a>');
+			}
+		</script>
+    </div><!-- einde wrapper one -->
+    <div id="wrapper-two">
+        <div id="part-three">
+            <span id='title' style='font-weight:bold;float:left;padding-bottom:20px;width:100%;margin-bottom:10px;font-size:1.35em;padding-top:7px;'>[SN:TITLE]</span>
+            <span id='Description' style="color:#212121;">[SN:DESC]</span>
+        </div>
+        <div id="part-four">
+            <span style='margin-top: 10px; visibility:hidden;' id='Comments'></span>
+            <div style='text-align: center; margin-top:25px;' id='CommentsProgress'>
+                <div id='CommentsStatus'>[WORD:LOADINGCOMMENTS]</div><br>
+                <img style='width: 32px; height:32px;' src="[SN:THEME]/Images/loading.gif">
+            </div>
+            <center>
+                <span style='margin-top: 50px; display:inline-block; border-top: 1px solid #ecedee;width:97%;'>
+                    <table width="*" style='margin:10px; margin-bottom:1px; text-align:left;'>
+                        <tr>
+                            <td>
+								<div><b>[WORD:PREVIEW]:</b></div>
+							</td>
+                            <td><div id='PreviewPanel' class='Closeable'></div></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style='margin-right:35px;'><b>[WORD:NAME]:</b></div>
+                            </td>
+                            <td><input name='Nickname' type="text" style='margin:5px;text-align:left;' value='[SN:NICK]'></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div>
+                                    &nbsp;
+                                    <a href='ubb:b'><img class='button' title='[WORD:BOLD]' alt='[WORD:BOLD]' 
+										src='[SN:THEME]/Images/icon-dash-bold.png'/></a>
+                                    <a href='ubb:i'><img class='button' title='[WORD:ITALIC]' alt='[WORD:ITALIC]' 
+										src='[SN:THEME]/Images/icon-dash-italic.png'/></a>
+                                    <a href='ubb:u'><img class='button' title='[WORD:UNDERLINE]' alt='[WORD:UNDERLINE]' 
+										src='[SN:THEME]/Images/icon-dash-underline.png'/></a>
+                                    <a href='ubb:l'><img class='button' title='[WORD:LINKTOSPOT]' alt='[WORD:LINKTOSPOT]' 
+										src='[SN:THEME]/Images/icon-dash-link.png'/></a>
+                                    &nbsp;<hr width="1" style="display:inline;margin-top:-3px;">&nbsp;
+                                    <input class='jscolor' value='000000' style='margin-top:-3px;' size=6 id="ColorInput">
+                                    <a href='ubb:c'><img style='border:0;margin-bottom:-3px;' class='light_button'
+										src='[SN:THEME]/Images/icon-dash-palette.png'/></a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div><b>[WORD:COMMENT]:</b></div>
+                            </td>
+                            <td>
+                                <textarea id='CommentBody' maxlength='899' style='margin-left:5px;overflow:auto;' 
+								cols='80' rows='6' onkeyup="onCommentBodyKeyUp(this)"></textarea>
+								<div id='textarea_charsRemain' style='padding-left:5px; font-size:10px; color:gray;'>&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div><b>[WORD:SMILEYS]:</b></div>
+                            </td>
+                            <td><div id='SmileysPanel' class='Closeable'></div></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div id='AddComment' onfocus='this.blur()' width="32" height="32" title='[WORD:REPLY]' style='cursor:hand;'>[WORD:REPLY]</div>
+                            </td>
+                        </tr>
+                    </table>
+                </span>
+            </center>
+        </div>
+        [SN:STATS]
+    </div>
+</body>
+</html>

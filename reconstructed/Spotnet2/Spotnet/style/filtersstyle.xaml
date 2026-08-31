@@ -1,0 +1,150 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:Spotnet.Controls" xmlns:converters="http://metro.mahapps.com/winfx/xaml/shared">
+  <Style x:Key="ExpandCollapseToggleStyle" TargetType="{x:Type ToggleButton}">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ToggleButton}">
+          <Grid Background="#00FFFFFF" Height="16" Width="16">
+            <Path Name="ExpandPath" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M4,0 L8,4 L4,8" Fill="#00FFFFFF" StrokeThickness="1" Stroke="{DynamicResource BlackBrush}" />
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="ToggleButton.IsChecked" Value="True">
+              <Setter TargetName="ExpandPath" Property="RenderTransform">
+                <Setter.Value>
+                  <RotateTransform Angle="45" CenterY="4" CenterX="4" />
+                </Setter.Value>
+              </Setter>
+              <Setter TargetName="ExpandPath" Value="{DynamicResource BlackBrush}" Property="Shape.Fill" />
+              <Setter TargetName="ExpandPath" Value="{DynamicResource BlackBrush}" Property="Shape.Stroke" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="ExpandPath" Value="{DynamicResource GrayBrush5}" Property="Shape.Stroke" />
+            </Trigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsEnabled" Value="False" />
+                <Condition Property="ToggleButton.IsChecked" Value="True" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="ExpandPath" Value="{DynamicResource GrayBrush5}" Property="Shape.Fill" />
+              <Setter TargetName="ExpandPath" Value="{DynamicResource GrayBrush5}" Property="Shape.Stroke" />
+            </MultiTrigger>
+            <Trigger Property="UIElement.IsMouseOver" Value="True">
+              <Setter TargetName="ExpandPath" Value="{DynamicResource AccentColorBrush}" Property="Shape.Stroke" />
+              <Setter TargetName="ExpandPath" Value="{DynamicResource AccentColorBrush}" Property="Shape.Fill" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="TreeViewItemFocusVisual">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border>
+            <Rectangle Margin="0,0,0,0" StrokeThickness="5" Stroke="#FF000000" StrokeDashArray="1 2" Opacity="0" />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <converters:TreeViewMarginConverter x:Key="LengthConverter" Length="12" />
+  <Style x:Key="BaseTreeItemStyle" TargetType="{x:Type TreeViewItem}">
+    <Setter Property="MinHeight" Value="20" />
+    <Setter Property="Foreground" Value="{DynamicResource BlackBrush}" />
+    <Setter Property="Background" Value="#00FFFFFF" />
+    <Setter Property="FrameworkElement.FocusVisualStyle" Value="{StaticResource TreeViewItemFocusVisual}" />
+    <Setter Property="UIElement.SnapsToDevicePixels" Value="True" />
+    <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TreeViewItem}">
+          <StackPanel>
+            <Border Name="Border" Background="{TemplateBinding Control.Background}" BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="{TemplateBinding Control.BorderThickness}" Padding="{TemplateBinding Control.Padding}" MinHeight="{TemplateBinding FrameworkElement.MinHeight}" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}">
+              <Grid VerticalAlignment="Stretch" Margin="{Binding RelativeSource={x:Static RelativeSource.TemplatedParent}, Converter={StaticResource LengthConverter}}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="19" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ToggleButton Name="Expander" ClickMode="Press" Style="{StaticResource ExpandCollapseToggleStyle}" IsChecked="{Binding Path=IsExpanded, RelativeSource={x:Static RelativeSource.TemplatedParent}, Mode=TwoWay}" />
+                <ContentPresenter Name="PART_Header" Grid.Column="1" ContentSource="Header" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}" />
+              </Grid>
+            </Border>
+            <ItemsPresenter Name="ItemsHost">
+              <FrameworkElement.LayoutTransform>
+                <ScaleTransform ScaleY="1" />
+              </FrameworkElement.LayoutTransform>
+            </ItemsPresenter>
+          </StackPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="TreeViewItem.IsExpanded" Value="False">
+              <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="ItemsControl.HasItems" Value="False">
+              <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
+            </Trigger>
+            <Trigger SourceName="Border" Property="UIElement.IsMouseOver" Value="True">
+              <Setter TargetName="Border" Value="{DynamicResource AccentColorBrush5}" Property="Border.Background" />
+              <Setter Value="{DynamicResource BlackColorBrush}" Property="Foreground" />
+            </Trigger>
+            <Trigger Property="TreeViewItem.IsSelected" Value="True">
+              <Setter TargetName="Border" Value="{DynamicResource AccentColorBrush3}" Property="Border.Background" />
+              <Setter Value="{DynamicResource BlackColorBrush}" Property="Foreground" />
+            </Trigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="TreeViewItem.IsSelected" Value="True" />
+                <Condition Property="Selector.IsSelectionActive" Value="False" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="Border" Value="{DynamicResource AccentColorBrush4}" Property="Border.Background" />
+              <Setter Value="{DynamicResource BlackColorBrush}" Property="Foreground" />
+            </MultiTrigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <HierarchicalDataTemplate x:Key="FiltersTreeItemTemplate" ItemsSource="{Binding Children, Mode=OneWay}">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Image Grid.Column="0" Focusable="False" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0" Source="{Binding Image, TargetNullValue={x:Null}}" Width="{Binding ImageSize}" Height="{Binding ImageSize}" />
+      <ContentPresenter Grid.Column="1" Margin="2,0" VerticalAlignment="Center" HorizontalAlignment="Left" Content="{Binding DisplayText}" />
+      <Ellipse Grid.Column="2" Focusable="False" Fill="#00FFFFFF" Stroke="#FFD3D3D3" Width="10" Height="10" Margin="1,1,9,1" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{Binding GenreColorVisibility}" />
+      <Ellipse Grid.Column="2" Focusable="False" Width="8" Height="8" Margin="1,1,10,1" VerticalAlignment="Center" HorizontalAlignment="Right" Fill="{Binding GenreColorBrush}" />
+    </Grid>
+  </HierarchicalDataTemplate>
+  <Style x:Key="FiltersTreeItemStyle" TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource BaseTreeItemStyle}">
+    <Setter Property="Visibility" Value="{Binding Visibility, Mode=OneWay}" />
+    <Setter Property="TreeViewItem.IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+    <Setter Property="TreeViewItem.IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+    <Setter Property="FontFamily" Value="Tahoma" />
+    <Setter Property="FontSize" Value="{DynamicResource MenuFontSize}" />
+    <Setter Property="FontStyle" Value="Normal" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style x:Key="FilterCatTreeItemStyle" TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource BaseTreeItemStyle}">
+    <Style.Resources>
+      <ResourceDictionary>
+        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
+      </ResourceDictionary>
+    </Style.Resources>
+    <Setter Property="TreeViewItem.IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+    <Setter Property="TreeViewItem.IsSelected" Value="{Binding IsInitiallySelected, Mode=OneTime}" />
+    <Setter Property="controls:VirtualToggleButton.IsVirtualToggleButton" Value="True" />
+    <Setter Property="controls:VirtualToggleButton.IsChecked" Value="{Binding IsChecked}" />
+  </Style>
+  <HierarchicalDataTemplate x:Key="FilterCatTreeItemTemplate" ItemsSource="{Binding Children, Mode=OneTime}">
+    <StackPanel Orientation="Horizontal">
+      <CheckBox Focusable="False" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0" Visibility="{Binding IsVisible}" IsChecked="{Binding IsChecked}" Width="{Binding TheMargin}" />
+      <ContentPresenter Margin="2,0" Content="{Binding Name, Mode=OneTime}" />
+    </StackPanel>
+  </HierarchicalDataTemplate>
+</ResourceDictionary>

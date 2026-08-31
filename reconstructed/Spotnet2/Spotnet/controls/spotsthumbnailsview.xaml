@@ -1,0 +1,278 @@
+<controls:SpotsContainer x:Class="Spotnet.Controls.SpotsThumbnailsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:system="clr-namespace:System;assembly=mscorlib" xmlns:controls="clr-namespace:Spotnet.Controls" xmlns:vm="clr-namespace:Spotnet.ViewModel" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:p="clr-namespace:Spotnet.Properties" xmlns:converters="clr-namespace:Spotnet.Converters" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:model="clr-namespace:Spotnet.Model" DataContext="{Binding SpotsList, Source={StaticResource Locator}}">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+      <converters:InverseBooleanToVisibilityConverter x:Key="BooleanToFalseVisibilityConverter" />
+      <system:Double x:Key="SpotAreaHeight">210</system:Double>
+      <system:Double x:Key="SpotAreaWidth">143</system:Double>
+      <vm:SpotRowViewModel x:Key="RowViewModel" />
+      <Style x:Key="TitleStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontFamily" Value="Verdana" />
+        <Setter Property="FontSize" Value="{DynamicResource ContextMenuFontSize}" />
+        <Setter Property="Foreground" Value="{Binding Data.Foreground, Mode=OneWay}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextBlock.TextAlignment" Value="Center" />
+        <Setter Property="Text" Value="{Binding Data.TitelUpper, Mode=OneWay}" />
+        <Setter Property="Height" Value="60" />
+        <Setter Property="DockPanel.Dock" Value="Bottom" />
+      </Style>
+      <Style x:Key="TooltipButtonStyle1" TargetType="{x:Type Button}" BasedOn="{x:Null}">
+        <Setter Property="Background" Value="#2e71b8" />
+        <Setter Property="Foreground" Value="#FFFFFFFF" />
+        <Setter Property="UIElement.SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Button}">
+              <Border BorderThickness="0" BorderBrush="{StaticResource HighlightBrush}">
+                <Border BorderThickness="0" Background="{TemplateBinding Control.Background}">
+                  <Grid>
+                    <ContentPresenter Name="Content" Content="{TemplateBinding ContentControl.Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" />
+                  </Grid>
+                </Border>
+              </Border>
+              <ControlTemplate.Triggers>
+                <Trigger Property="UIElement.IsMouseOver" Value="True">
+                  <Setter Property="Background" Value="#2eb871" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                  <Setter Property="Background" Value="#239841" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Storyboard x:Key="ThumbAnimation">
+        <DoubleAnimation Storyboard.TargetProperty="Width" From="0" To="0" Duration="0:0:0.1" BeginTime="0:0:0" />
+        <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="0" Duration="0:0:0.1" BeginTime="0:0:0" />
+        <DoubleAnimation Storyboard.TargetProperty="Width" From="1" Duration="0:0:0.2" BeginTime="0:0:0.1" To="{StaticResource SpotAreaWidth}" />
+        <DoubleAnimation Storyboard.TargetProperty="Height" From="1" Duration="0:0:0.2" BeginTime="0:0:0.1" To="{StaticResource SpotAreaHeight}" />
+      </Storyboard>
+      <DataTemplate x:Key="ThumbnailIsLoadedTemplate">
+        <Border Name="BorderAroundThumb" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="1,1,0,0" Background="{StaticResource TransparentWhiteBrush1}" BorderThickness="{Binding Data.IsNewSpotBorderThickness}" BorderBrush="{Binding Data.IsNewSpotBorderColor}">
+          <FrameworkElement.Style>
+            <Style TargetType="{x:Type Border}">
+              <Setter Property="Height" Value="{StaticResource SpotAreaHeight}" />
+              <Setter Property="Width" Value="{StaticResource SpotAreaWidth}" />
+              <Style.Triggers>
+                <MultiDataTrigger>
+                  <MultiDataTrigger.Conditions>
+                    <Condition Value="3" Binding="{Binding Data.SpotLoadingStatus}" />
+                    <Condition Value="False" Binding="{Binding Data.IsAnimatedAlready}" />
+                  </MultiDataTrigger.Conditions>
+                  <TriggerBase.EnterActions>
+                    <BeginStoryboard Storyboard="{StaticResource ThumbAnimation}" />
+                  </TriggerBase.EnterActions>
+                </MultiDataTrigger>
+              </Style.Triggers>
+            </Style>
+          </FrameworkElement.Style>
+          <Image Name="ThumbImage" Opacity="{Binding Data.ImageOpacity, Mode=OneWay}" Source="{Binding Data.BitmapSource, Mode=OneWay}">
+            <i:Interaction.Triggers>
+              <i:EventTrigger EventName="Loaded">
+                <model:SetPropertyAction PropertyName="IsAnimatedAlready" PropertyValue="true" TargetObject="{Binding}" />
+              </i:EventTrigger>
+            </i:Interaction.Triggers>
+          </Image>
+        </Border>
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailIsLoadingTemplate">
+        <controls:ProgressRing Width="30" Height="30" IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center" />
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailLoadFailedTemplate">
+        <Border Name="BorderAroundThumb" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="1,1,0,0" Background="{StaticResource TransparentWhiteBrush1}" BorderThickness="{Binding Data.IsNewSpotBorderThickness}" BorderBrush="{Binding Data.IsNewSpotBorderColor}">
+          <Grid VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="" FontSize="20" Style="{StaticResource FontAwesome}" />
+            <TextBlock Grid.Row="1" Text="{x:Static p:Words.CannotLoad}" TextAlignment="Center" />
+          </Grid>
+        </Border>
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailIsVisibleTemplate">
+        <Border Name="SelectionBorder" BorderThickness="0" />
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailIsNotVisibleTemplate">
+        <Border Name="SelectionBorder" DockPanel.Dock="Top" BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="0" />
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailIsVisible">
+        <ContentControl Name="SpotContentToBeLoaded" ContentTemplate="{StaticResource ThumbnailIsVisibleTemplate}" Content="{Binding}" />
+        <DataTemplate.Triggers>
+          <DataTrigger Value="1" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContentToBeLoaded" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailIsLoadingTemplate}" />
+          </DataTrigger>
+          <DataTrigger Value="2" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContentToBeLoaded" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailIsLoadingTemplate}" />
+          </DataTrigger>
+          <DataTrigger Value="3" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContentToBeLoaded" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailIsLoadedTemplate}" />
+          </DataTrigger>
+          <DataTrigger Value="4" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContentToBeLoaded" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailLoadFailedTemplate}" />
+          </DataTrigger>
+          <DataTrigger Value="5" Binding="{Binding Data.SpotLoadingStatus}">
+            <Setter TargetName="SpotContentToBeLoaded" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailLoadFailedTemplate}" />
+          </DataTrigger>
+        </DataTemplate.Triggers>
+      </DataTemplate>
+      <DataTemplate x:Key="ThumbnailTemplate">
+        <ContentControl Name="SpotContentToBeVisible" ContentTemplate="{StaticResource ThumbnailIsNotVisibleTemplate}" Content="{Binding}" />
+        <DataTemplate.Triggers>
+          <DataTrigger Value="True" Binding="{Binding Data.IsVisible}">
+            <Setter TargetName="SpotContentToBeVisible" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailIsVisible}" />
+          </DataTrigger>
+        </DataTemplate.Triggers>
+      </DataTemplate>
+      <Style x:Key="ThumbnailContainerStyle" TargetType="{x:Type ListBoxItem}">
+        <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate x:Name="ControlTemplateName" TargetType="{x:Type ListBoxItem}">
+              <Grid Name="ThumbTopGrid" MouseLeftButtonUp="ThumbTopGrid_OnMouseLeftButtonUp" MouseLeave="ThumbTopGrid_OnMouseLeave">
+                <Grid>
+                  <ContentPresenter Margin="0,0,0,0" />
+                  <Border Name="SelectionBorderAroundThumb" Margin="1,1,0,0" Opacity="0.80" BorderThickness="{Binding Data.IsNewSpotBorderThickness}" />
+                  <Grid Name="GridOverThumb" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="1*" />
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Border BorderThickness="1,0" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="2,2,1,1" BorderBrush="{Binding Data.PosterIdentBorderBrush, Mode=OneWay}" Background="{Binding Data.PosterIdentBorderBackground, Mode=OneWay}" Visibility="{Binding Data.PosterIdentVisibility, Mode=OneWay}" ToolTip="{Binding Data.PosterIdentTooltip, Mode=OneWay}">
+                      <TextBlock FontFamily="Courier New" Margin="3,0" Text="{Binding Data.PosterIdentLetter, Mode=OneWay}" Foreground="{Binding Data.PosterIdentForeground, Mode=OneWay}" />
+                    </Border>
+                    <TextBlock Name="SpotTitleText" Margin="6,30,6,5" VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Style="{StaticResource TitleStyle}" />
+                    <TextBlock Opacity="0.05" Margin="8,32,4,3" VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Style="{StaticResource TitleStyle}" />
+                    <Border Grid.Column="1" Grid.Row="2" BorderThickness="0">
+                      <UIElement.Effect>
+                        <DropShadowEffect Color="#FF3E3E3E" Direction="300" Opacity="0.3" ShadowDepth="3" BlurRadius="5" />
+                      </UIElement.Effect>
+                      <controls:SpotsListToolbar x:Name="SpotsListToolbar" Visibility="Collapsed" Background="#FFF5F5F5" Margin="2,2,1,20" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+                    </Border>
+                  </Grid>
+                </Grid>
+                <Popup Name="FloatingTip" AllowsTransparency="False" Placement="Bottom" IsOpen="False" PlacementTarget="{Binding ElementName=MainListBox}">
+                  <Border BorderBrush="#dcddde" BorderThickness="1" Background="#FFFFFFFF">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Border Padding="0" BorderThickness="1" VerticalAlignment="Stretch" HorizontalAlignment="Center" Margin="1" BorderBrush="{StaticResource GrayBrush7}" Background="{StaticResource TransparentWhiteBrush1}" Width="{StaticResource SpotAreaWidth}">
+                        <Image Name="ThumbImage" Opacity="{Binding Data.ImageOpacity, Mode=OneWay}" Source="{Binding Data.BitmapSource, Mode=OneWay}" />
+                      </Border>
+                      <Grid Column="1" Margin="10, 10, 10, 10">
+                        <Grid.RowDefinitions>
+                          <RowDefinition Height="Auto" />
+                          <RowDefinition Height="Auto" />
+                          <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                          <TextBlock MaxWidth="400" Height="Auto" FontWeight="Bold" Margin="0,0,0,5" TextWrapping="Wrap" MaxHeight="70" Text="{Binding Data.TitelUpper, Mode=OneWay}" />
+                          <TextBlock FontSize="{DynamicResource ContextMenuFontSize}">
+                            <Run Foreground="#FF4682B4" Text="{x:Static p:Words.ColumnFormat}" /> <Run Foreground="#FF4682B4" Text=":" /> <Run Text="{Binding Data.Formaat, Mode=OneWay}" /><LineBreak /><Run Foreground="#FF4682B4" Text="{x:Static p:Words.ColumnGenre}" /> <Run Foreground="#FF4682B4" Text=":" /> <Run Text="{Binding Data.Genre, Mode=OneWay}" /><LineBreak /><Run Foreground="#FF4682B4" Text="{x:Static p:Words.ColumnSize}" /> <Run Foreground="#FF4682B4" Text=":" /> <Run Text="{Binding Data.Omvang, Mode=OneWay}" /><LineBreak /><Run Foreground="#FF4682B4" Text="{x:Static p:Words.ColumnSender}" /> <Run Foreground="#FF4682B4" Text=":" /> <Run Text="{Binding Data.Afzender, Mode=OneWay}" /> <Run FontSize="{DynamicResource ContentFontSize}" Text=" (" /> <Run Text="{Binding Data.AfzenderId, Mode=OneWay}" /> <Run Text=")" /></TextBlock>
+                          <TextBlock TextOptions.TextFormattingMode="Display" RenderOptions.BitmapScalingMode="NearestNeighbor" Visibility="{Binding Data.Tag, Converter={converters:StringNullOrEmptyToVisibilityConverter}}">
+                            <Run Foreground="#FF4682B4" Text="{x:Static p:Words.ColumnTag}" /> <Run Foreground="#FF4682B4" Text=":" /> <Run Text="{Binding Data.Tag, Mode=OneWay}" /></TextBlock>
+                          <TextBlock TextOptions.TextFormattingMode="Display" RenderOptions.BitmapScalingMode="NearestNeighbor">
+                            <Run Foreground="#FF4682B4" Text="{x:Static p:Words.ColumnDate}" /> <Run Foreground="#FF4682B4" Text=":" /> <Run Text="{Binding Data.Datum, Mode=OneWay}" /><LineBreak /><Run Foreground="#FF4682B4" Text="{x:Static p:Words.NumberOfSpamReports}" /> <Run Foreground="#FF4682B4" Text=":" /> <Run Text="{Binding Data.NumberOfSpamReports, Mode=OneWay}" /></TextBlock>
+                        </StackPanel>
+                        <Grid Row="1" Margin="0,7,0,0" HorizontalAlignment="Left">
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                          </Grid.ColumnDefinitions>
+                          <Button Content="Open" HorizontalAlignment="Center" Width="100" Style="{StaticResource TooltipButtonStyle1}" Click="OpenSpotButton_Click" />
+                          <Button Content="Download" Grid.Column="1" Margin="10,0,0,0" HorizontalAlignment="Center" Width="100" Style="{StaticResource TooltipButtonStyle1}" Click="DownloadButton_Click" />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Border>
+                </Popup>
+              </Grid>
+              <ControlTemplate.Triggers>
+                <Trigger Property="UIElement.IsMouseOver" Value="True">
+                  <Setter TargetName="SelectionBorderAroundThumb" Property="Border.Background" Value="{StaticResource WhiteColorBrush}" />
+                  <Setter TargetName="SelectionBorderAroundThumb" Property="Border.BorderBrush" Value="{StaticResource GrayBrush6}" />
+                  <Setter TargetName="GridOverThumb" Property="Visibility" Value="Visible" />
+                  <Setter TargetName="SpotsListToolbar" Property="Visibility" Value="Visible" />
+                </Trigger>
+                <Trigger Property="ListBoxItem.IsSelected" Value="True">
+                  <Setter TargetName="SelectionBorderAroundThumb" Property="Border.Background" Value="{StaticResource WhiteColorBrush}" />
+                  <Setter TargetName="SelectionBorderAroundThumb" Property="Border.BorderBrush" Value="{StaticResource AccentColor1BackgroundBrush}" />
+                  <Setter TargetName="SelectionBorderAroundThumb" Property="Border.BorderThickness" Value="3" />
+                  <Setter TargetName="GridOverThumb" Property="Visibility" Value="Visible" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+        <EventSetter Event="MouseEnter" Handler="OnMouseEnterItem" />
+      </Style>
+      <Style x:Key="ThumbsListBoxStyle" TargetType="{x:Type ListBox}">
+        <Setter Property="HorizontalContentAlignment" Value="Right" />
+        <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Background" Value="#00FFFFFF" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ListBox}">
+              <Border Name="Bd" Background="{TemplateBinding Control.Background}" BorderBrush="{TemplateBinding Control.BorderBrush}" Padding="0,1,1,1" BorderThickness="0" SnapsToDevicePixels="True">
+                <ScrollViewer Focusable="False" Padding="{Binding ThumbsContainerPadding, Mode=OneWay}">
+                  <ItemsPresenter HorizontalAlignment="Center" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                </ScrollViewer>
+              </Border>
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                  <Setter TargetName="Bd" Property="Border.Background" Value="#FFFFFFFF" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid>
+    <DockPanel Name="Dock" Dock="Bottom" Height="Auto" Width="Auto" LastChildFill="True">
+      <Panel.Background>
+        <ImageBrush ImageSource="/Resources\ImagesInternal\spotsbg.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,150,150" />
+      </Panel.Background>
+      <controls:WarningTip DockPanel.Dock="Top" Focusable="False" Margin="0,1,0,-5" Text="{x:Static p:Words.DbIsNotUpToDateWarning}" Visibility="{Binding SpotsDbIsNotUpToDateWarningVisibility, Mode=TwoWay}" />
+      <Grid DockPanel.Dock="Top">
+        <ListBox Name="MainListBox" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.IsDeferredScrollingEnabled="True" ItemTemplate="{StaticResource ThumbnailTemplate}" ItemContainerStyle="{StaticResource ThumbnailContainerStyle}" SelectionMode="Single" Focusable="True" Style="{DynamicResource ThumbsListBoxStyle}" Visibility="{Binding Items.IsEmpty, Converter={StaticResource BooleanToFalseVisibilityConverter}, ElementName=MainListBox}" ItemsSource="{Binding}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" PreviewKeyDown="Spots_PreviewKeyDown" MouseDoubleClick="Spots_MouseDoubleClick" PreviewMouseDown="Spots_PreviewMouseDown" ContextMenuOpening="Spots_ContextMenuOpening" ScrollViewer.ScrollChanged="HandleScrollChanged">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <controls:VirtualizingWrapPanel x:Name="SpotsPanel" ScrollStep="50" ItemWidth="{Binding Source={StaticResource RowViewModel}, Path=ThumbGridWidth}" ItemHeight="{Binding Source={StaticResource RowViewModel}, Path=ThumbGridHeight}" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+        </ListBox>
+        <controls:WarningTip MouseDown="WarningTip_MouseDown" DockPanel.Dock="Top" Height="Auto" Width="Auto" Focusable="False" Margin="0,4,15,0" Opacity="0.95" VerticalAlignment="Top" HorizontalAlignment="Center" Text="{Binding NewSpotsBarText, Mode=OneWay}" Visibility="{Binding NewSpotsBarVisibility, Mode=TwoWay}" />
+      </Grid>
+      <TextBlock Margin="20,20,20,20" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource BlackColorBrush}" Text="{Binding NoSpotsFoundText}" Visibility="{Binding Items.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=MainListBox}" />
+    </DockPanel>
+    <Grid>
+      <FrameworkElement.Style>
+        <Style TargetType="{x:Type Grid}">
+          <Setter Property="Visibility" Value="Visible" />
+          <Style.Triggers>
+            <DataTrigger Value="False" Binding="{Binding IsSpotsListLoading}">
+              <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </FrameworkElement.Style>
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFA9A9A9" Opacity=".5" />
+      <controls:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource BrightColorBrush2}" IsActive="True" Width="30" Height="30" />
+    </Grid>
+  </Grid>
+</controls:SpotsContainer>
