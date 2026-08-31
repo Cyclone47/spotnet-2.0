@@ -28,22 +28,22 @@ A complete, maintainable, and fully compilable source code reconstruction and ar
 ```mermaid
 graph TD
     subgraph UI_Layer ["Presentation Layer (WPF / MVVM)"]
-        V[Views / MetroWindows] --> VM[ViewModels]
-        VM --> Controls[Custom Controls & AvalonDock]
-        V --> Awesomium[Awesomium Chromium Web Host]
+        V["Views / MetroWindows"] --> VM["ViewModels"]
+        VM --> Controls["Custom Controls & AvalonDock"]
+        V --> Awesomium["Awesomium Chromium Web Host"]
     end
 
     subgraph Core_Engine ["Business Logic & Downloader"]
-        VM --> Downloader[SpotnetDownloader & Queue]
-        Downloader --> PostProcess[PostProcessCoordinator (phpar2 & UnRAR)]
-        VM --> DbUpdater[DbUpdater Async BlockingCollection]
+        VM --> Downloader["SpotnetDownloader & Queue"]
+        Downloader --> PostProcess["PostProcessCoordinator (phpar2 & UnRAR)"]
+        VM --> DbUpdater["DbUpdater Async BlockingCollection"]
     end
 
     subgraph Data_Protocol ["Network & Storage"]
-        DbUpdater --> Phuse[Phuse NNTP Connection Pool]
-        Phuse --> Usenet((Usenet Newsgroups))
-        DbUpdater --> SQLite[(SQLite DBS / FTS4 Tables)]
-        Downloader --> YEnc[Spotnet.Enc Decoder]
+        DbUpdater --> Phuse["Phuse NNTP Connection Pool"]
+        Phuse --> Usenet["Usenet Newsgroups"]
+        DbUpdater --> SQLite[("SQLite DBS / FTS4 Tables")]
+        Downloader --> YEnc["Spotnet.Enc Decoder"]
     end
 ```
 
