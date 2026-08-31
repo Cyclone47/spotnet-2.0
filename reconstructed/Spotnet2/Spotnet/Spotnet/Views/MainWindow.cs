@@ -624,7 +624,13 @@ public partial class MainWindow : MetroWindow
     {
         try
         {
+            // Step 6: Interface ready — animate to 100% then fade splash
+            Views.SplashWindow.SetProgress(6);
+            System.Threading.Thread.Sleep(200); // brief pause so user sees the step
+            Views.SplashWindow.SetProgress(7); // "Ready!"
+            System.Threading.Thread.Sleep(300); // let the bar fill animate
             App.CloseSplash();
+
             if (AppHelper.ServersDb.ODown.Server.Trim().IsNullOrEmpty())
             {
                 if (SelectProvider())
@@ -1922,40 +1928,50 @@ public partial class MainWindow : MetroWindow
         {
             try
             {
-                if (!AppHelper.ServersDb.LoadServers())
+                // Step 2: Loading servers (30s timeout guards against infinite hang)
+                Views.SplashWindow.SetProgress(2);
+                var serversTask = Task.Run(() => AppHelper.ServersDb.LoadServers());
+                bool serversTimedOut = !serversTask.Wait(TimeSpan.FromSeconds(30));
+                bool serversLoaded = !serversTimedOut && serversTask.Result;
+
+                if (serversTimedOut || !serversLoaded)
                 {
+                    Log.Error(serversTimedOut ? "LoadServers timed out (30s)." : "LoadServers returned false.");
                     AppHelper.Error(Words.CannotLoad + " " + Pri.LongPath.Path.Combine(AppHelper.SettingsFolder, "servers.xml"));
                     Sys.Shutdown();
+                    return;
                 }
-                else if (!MainWindowVm.FiltersDb.LoadFilters())
+
+                // Step 3: Loading filters
+                Views.SplashWindow.SetProgress(3);
+                if (!MainWindowVm.FiltersDb.LoadFilters())
                 {
                     AppHelper.Error(Words.CannotLoad + " filters");
                     Sys.Shutdown();
+                    return;
+                }
+
+                if (AppHelper.ServersDb.ODown.Server.IsNullOrEmpty())
+                {
+                    Log.Info("Provider is not selected");
+                    System.Windows.Application.Current.Dispatcher.Invoke(delegate
+                    {
+                        base.Visibility = Visibility.Visible;
+                    });
                 }
                 else
                 {
-                    if (AppHelper.ServersDb.ODown.Server.IsNullOrEmpty())
-                    {
-                        Log.Info("Provider is not selected");
-                        System.Windows.Application.Current.Dispatcher.Invoke(delegate
-                        {
-                            base.Visibility = Visibility.Visible;
-                        });
-                    }
-                    else
-                    {
-                        _waitForProviderSelectedEvent.Set();
-                    }
+                    _waitForProviderSelectedEvent.Set();
+                }
 
-                    _pipe = new NamedPipeServerStream("Pipe\\Spotnet", PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
-                    _pipe.BeginWaitForConnection(WaitedConnection, null);
-                    _waitForProviderSelectedEvent.Wait();
-                    Log.Debug("Provider selected. Server {0}:{1}", AppHelper.ServersDb.ODown.Server, AppHelper.ServersDb.ODown.Port);
-                    if (!Sys.IsShutdownRequested)
-                    {
-                        InitializeDatabase();
-                        UserKeyHelper.GetModulus();
-                    }
+                _pipe = new NamedPipeServerStream("Pipe\\Spotnet", PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
+                _pipe.BeginWaitForConnection(WaitedConnection, null);
+                _waitForProviderSelectedEvent.Wait();
+                Log.Debug("Provider selected. Server {0}:{1}", AppHelper.ServersDb.ODown.Server, AppHelper.ServersDb.ODown.Port);
+                if (!Sys.IsShutdownRequested)
+                {
+                    InitializeDatabase();
+                    UserKeyHelper.GetModulus();
                 }
             }
             catch (Exception ex2)
@@ -2007,6 +2023,9 @@ public partial class MainWindow : MetroWindow
             }
         }
 
+        // Step 4: Connecting to database
+        Views.SplashWindow.SetProgress(4);
+
         bool opened = false;
         while (!opened)
         {
@@ -2036,6 +2055,8 @@ public partial class MainWindow : MetroWindow
             }
         }
 
+        // Step 5: Verifying database
+        Views.SplashWindow.SetProgress(5);
         SpotSaver.InitializeCommentsDb();
         SpotProvider.QueryName = "cat < 9";
         SpotProvider.RowFilter = "cat < 9";

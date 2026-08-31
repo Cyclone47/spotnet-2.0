@@ -20,13 +20,10 @@ namespace Spotnet;
 public partial class App : Application
 {
     private static readonly Logger Log;
-    private static SplashScreen _splash;
-    private static readonly object SyncRoot;
     public static List<string> Args { get; set; }
 
     static App()
     {
-        SyncRoot = new object ();
         NativeMethods.SetErrorMode(NativeMethods.SetErrorMode(ErrorModes.SystemDefault) | ErrorModes.SemNogpfaulterrorbox | ErrorModes.SemFailcriticalerrors | ErrorModes.SemNoopenfileerrorbox);
         Log = LogManager.GetCurrentClassLogger();
         Tracker tracker = new Tracker();
@@ -116,9 +113,13 @@ public partial class App : Application
 
             Log.Info("Start Spotnet {0} {1} channel", AppHelper.AppVersion, SquirrelStuff.UpdateChannel);
             Log.Debug("OS version: " + Sys.StatsReporter.OsVersion);
-            _splash = new SplashScreen("/Resources/ImagesInternal/splash.png");
-            _splash.Show(autoClose: false, topMost: true);
+
+            // Show our custom SplashWindow (replaces the plain WPF SplashScreen).
+            // Language is initialized before showing so the step labels are already localized.
             UserLanguageHelper.Initialize(Settings.Default.UserLanguage);
+            Views.SplashWindow.ShowSplash();
+            Views.SplashWindow.SetProgress(1); // "Loading settings..."
+
             SquirrelStuff.AfterDeploymentActions();
             Settings.Default.IsNewVersion = false;
             Settings.Default.MaxResults = 250;
@@ -138,36 +139,9 @@ public partial class App : Application
         }
     }
 
+    /// <summary>Close the custom splash window. Called from MainWindow.OnLoad() after the main window is ready.</summary>
     internal static void CloseSplash()
     {
-        lock (SyncRoot)
-        {
-            if (_splash == null)
-            {
-                return;
-            }
-
-            try
-            {
-                _splash.Close(TimeSpan.Zero);
-            }
-            catch (Exception ex)
-            {
-                Log.Exception(ex);
-                try
-                {
-                    Sys.MainWindow.Focus();
-                    _splash.Close(TimeSpan.Zero);
-                }
-                catch (Exception ex2)
-                {
-                    Log.Exception(ex2, showToClient: true);
-                }
-            }
-
-            _splash = null;
-        }
+        Views.SplashWindow.CloseSplash();
     }
-
-    
 }
