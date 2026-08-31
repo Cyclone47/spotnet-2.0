@@ -88,6 +88,13 @@
           </MenuItem.Icon>
         </MenuItem>
         <Separator />
+        <MenuItem Name="MenuStyle" Header="Style" SubmenuOpened="Style_OnSubmenuOpened">
+          <MenuItem.Icon>
+            <TextBlock Text="◐" FontSize="12" FontFamily="Segoe UI Symbol" VerticalAlignment="Center" HorizontalAlignment="Center" />
+          </MenuItem.Icon>
+          <MenuItem Name="StyleClassicLight" Header="Classic Light" IsCheckable="True" Click="StyleClassicLight_Click" />
+          <MenuItem Name="StyleModernDark" Header="Modern Dark (beta)" IsCheckable="True" Click="StyleModernDark_Click" />
+        </MenuItem>
         <MenuItem Name="MenuItem4" Header="{x:Static p:Words.MenuLanguage}" SubmenuOpened="Language_OnSubmenuOpened">
           <MenuItem.Icon>
             <TextBlock Name="LanguageLabel" Text="xx" FontWeight="Bold" HorizontalAlignment="Center" />

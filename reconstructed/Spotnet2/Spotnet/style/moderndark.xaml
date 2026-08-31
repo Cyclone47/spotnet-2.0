@@ -1,0 +1,76 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Core Palette Colors: Modern Dark Slate & Electric Cyan/Blue -->
+  <Color x:Key="HighlightColor">#FF00D4FF</Color>
+  <Color x:Key="AccentColor">#FF1E90FF</Color>
+  <Color x:Key="AccentColor2">#FF1565C0</Color>
+  <Color x:Key="AccentColor3">#FF0E3B6E</Color>
+  <Color x:Key="AccentColor4">#FF1C2839</Color>
+  <Color x:Key="AccentColor5">#FF0D1522</Color>
+
+  <!-- Background Shades (Dark surface layers) -->
+  <Color x:Key="NotSelectedBackground">#FF111B27</Color>
+  <Color x:Key="AccentColor1Background">#FF162332</Color>
+  <Color x:Key="AccentColor2Background">#FF1C2B3C</Color>
+  <Color x:Key="AccentColor3Background">#FF22364B</Color>
+  <Color x:Key="AccentColor4Background">#FF0E1722</Color>
+  <Color x:Key="AccentColor5Background">#FF091018</Color>
+
+  <!-- Solid Brushes for Spotnet controls -->
+  <SolidColorBrush x:Key="NotSelectedBackgroundBrush" Color="{StaticResource NotSelectedBackground}" />
+  <SolidColorBrush x:Key="AccentColor1BackgroundBrush" Color="{StaticResource AccentColor1Background}" />
+  <SolidColorBrush x:Key="AccentColor2BackgroundBrush" Color="{StaticResource AccentColor2Background}" />
+  <SolidColorBrush x:Key="AccentColor3BackgroundBrush" Color="{StaticResource AccentColor3Background}" />
+  <SolidColorBrush x:Key="AccentColor4BackgroundBrush" Color="{StaticResource AccentColor4Background}" />
+  <SolidColorBrush x:Key="AccentColor5BackgroundBrush" Color="{StaticResource AccentColor5Background}" />
+
+  <SolidColorBrush x:Key="HighlightBrush" Color="{StaticResource HighlightColor}" />
+  <SolidColorBrush x:Key="AccentColorBrush" Color="{StaticResource AccentColor}" />
+  <SolidColorBrush x:Key="AccentColorBrush2" Color="{StaticResource AccentColor2}" />
+  <SolidColorBrush x:Key="AccentColorBrush3" Color="{StaticResource AccentColor3}" />
+  <SolidColorBrush x:Key="AccentColorBrush4" Color="{StaticResource AccentColor4}" />
+  <SolidColorBrush x:Key="AccentColorBrush5" Color="{StaticResource AccentColor5}" />
+
+  <!-- Window & Surface Theme -->
+  <SolidColorBrush x:Key="WindowTitleColorBrush" Color="#FF0B121B" />
+  <SolidColorBrush x:Key="AccentSelectedColorBrush" Color="#FF00D4FF" />
+
+  <LinearGradientBrush x:Key="MainWindowBackgroundBrush" EndPoint="1,0.5" StartPoint="0,0.5">
+    <GradientStop Offset="0" Color="#FF091019" />
+    <GradientStop Offset="0.25" Color="#FF0D1623" />
+    <GradientStop Offset="1.0" Color="#FF0E1724" />
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="ProgressBrush" EndPoint="0.001,0.5" StartPoint="1.002,0.5">
+    <GradientStop Offset="0" Color="{StaticResource HighlightColor}" />
+    <GradientStop Offset="1" Color="{StaticResource AccentColor}" />
+  </LinearGradientBrush>
+
+  <SolidColorBrush x:Key="CheckmarkFill" Color="{StaticResource HighlightColor}" />
+  <SolidColorBrush x:Key="RightArrowFill" Color="{StaticResource HighlightColor}" />
+
+  <!-- Text & Typography Brushes (Light for dark theme) -->
+  <Color x:Key="IdealForegroundColor">#FFFFFFFF</Color>
+  <SolidColorBrush x:Key="IdealForegroundColorBrush" Color="{StaticResource IdealForegroundColor}" />
+  <SolidColorBrush x:Key="BlackBrush" Color="#FFE8EEF5" />
+  <Color x:Key="BlackColor">#FFE8EEF5</Color>
+  <SolidColorBrush x:Key="BlackColorBrush" Color="{StaticResource BlackColor}" />
+
+  <!-- Container White Inversion -->
+  <Color x:Key="WhiteColor">#FF131D2A</Color>
+  <SolidColorBrush x:Key="WhiteColorBrush" Color="{StaticResource WhiteColor}" />
+  <SolidColorBrush x:Key="WhiteBrush" Color="#FF131D2A" />
+
+  <!-- Grays tuned for Modern Dark -->
+  <SolidColorBrush x:Key="GrayBrush1" Color="#FF1A2736" />
+  <SolidColorBrush x:Key="GrayBrush2" Color="#FF233345" />
+  <SolidColorBrush x:Key="GrayBrush3" Color="#FF2D3F54" />
+  <SolidColorBrush x:Key="GrayBrush4" Color="#FF394F68" />
+  <SolidColorBrush x:Key="GrayBrush5" Color="#FF4A6482" />
+  <SolidColorBrush x:Key="GrayBrush6" Color="#FF6482A4" />
+  <SolidColorBrush x:Key="GrayBrush7" Color="#FF8CA5C3" />
+  <SolidColorBrush x:Key="GrayBrush8" Color="#FF182432" />
+  <SolidColorBrush x:Key="GrayBrush9" Color="#FF101822" />
+  <SolidColorBrush x:Key="GrayBrush10" Color="#FF0B121A" />
+</ResourceDictionary>

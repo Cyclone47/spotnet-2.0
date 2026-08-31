@@ -117,6 +117,7 @@ public partial class App : Application
             // Show our custom SplashWindow (replaces the plain WPF SplashScreen).
             // Language is initialized before showing so the step labels are already localized.
             UserLanguageHelper.Initialize(Settings.Default.UserLanguage);
+            ThemeHelper.Initialize();
             Views.SplashWindow.ShowSplash();
             Views.SplashWindow.SetProgress(1); // "Loading settings..."
 

@@ -2143,4 +2143,19 @@ internal sealed class Settings : ApplicationSettingsBase
 			this["VPNWarningLastsDate"] = value;
 		}
 	}
+
+	[UserScopedSetting]
+	[DebuggerNonUserCode]
+	[DefaultSettingValue("ClassicLight")]
+	public string AppTheme
+	{
+		get
+		{
+			return (string)(this["AppTheme"] ?? "ClassicLight");
+		}
+		set
+		{
+			this["AppTheme"] = value;
+		}
+	}
 }

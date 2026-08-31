@@ -458,4 +458,25 @@ public partial class MainToolBarControl : UserControl
         changeFiltersListWindow.Owner = Sys.MainWindow;
         changeFiltersListWindow.ShowDialog();
     }
+
+    private void Style_OnSubmenuOpened(object sender, RoutedEventArgs e)
+    {
+        bool isDark = ThemeHelper.IsModernDark;
+        StyleClassicLight.IsChecked = !isDark;
+        StyleModernDark.IsChecked = isDark;
+    }
+
+    private void StyleClassicLight_Click(object sender, RoutedEventArgs e)
+    {
+        ThemeHelper.ApplyTheme(ThemeHelper.ClassicLight);
+        StyleClassicLight.IsChecked = true;
+        StyleModernDark.IsChecked = false;
+    }
+
+    private void StyleModernDark_Click(object sender, RoutedEventArgs e)
+    {
+        ThemeHelper.ApplyTheme(ThemeHelper.ModernDark);
+        StyleClassicLight.IsChecked = false;
+        StyleModernDark.IsChecked = true;
+    }
 }
