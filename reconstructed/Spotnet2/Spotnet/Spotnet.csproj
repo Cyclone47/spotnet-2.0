@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
     <Platforms>x64</Platforms>
     <Prefer32Bit>false</Prefer32Bit>
@@ -50,6 +50,15 @@
     <!-- A framework assembly on .NET Framework, a package from .NET Core onward.
          Taking it from the package now means the reference survives a retarget. -->
     <PackageReference Include="System.Management" Version="8.0.0" />
+    <!-- Framework assemblies on .NET Framework, packages from .NET Core onward. -->
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="8.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <!-- The legacy Windows code pages, which .NET no longer carries in the box. The
+         header parser needs them; see EncodingSetup. -->
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <ProjectReference Include="..\Spotnet.Enc\Spotnet.Enc.csproj" />
   </ItemGroup>
 
@@ -93,20 +102,6 @@
 
   <!-- Framework Assemblies -->
   <ItemGroup>
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Security" />
-    <!-- ServiceManager and VPNStatusChecker query Windows services. On .NET Core
-         and later this comes from the System.ServiceProcess.ServiceController package. -->
-    <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.VisualBasic" />
   </ItemGroup>
 
   <!-- Embedded Text & Data Resources -->
@@ -127,6 +122,11 @@
     <Resource Include="Resources\ImagesInternal\**\*" />
     <Resource Include="Resources\fontawesome-webfont.ttf" />
     <Resource Include="Resources\snow-fall.js" />
+    <!-- NLog reads an app.config section only on .NET Framework; from .NET Core
+         onward it looks for this file. -->
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!-- Copy Native Binaries & Asset Folders to Output -->

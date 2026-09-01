@@ -2,7 +2,7 @@
 
 ## Download for Windows x64
 
-**[Download Spotnet 3.0.5 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.5/Spotnet-3.0-x64-Setup.exe)** Â· [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.5)
+**[Download Spotnet 3.0.5 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.5/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.5)
 
 **Latest fix:** a fresh profile now creates the complete spots database before the first list is loaded. Version 3.0.5 also repairs the specific incomplete two-table database left by 3.0.4, without deleting its existing rows.
 
@@ -14,13 +14,14 @@
 
 **Installer update:** choosing Nederlands now translates Spotnet's custom Setup pages and messages too. Lengthy pre-installation work shows its current stage and progress instead of an apparently frozen white page.
 
-For fresh installs and upgrades from compatible Spotnet 2.x profiles. Setup closes Spotnet safely, copies your selected profile, and updates your existing Desktop and Start Menu launch shortcuts to 3.0. Requires Windows 10/11 x64 and .NET Framework 4.7.2+. The installer is **unsigned**; Windows may show an unknown-publisher warning. Read the [installation and migration guide](docs/INSTALLER.md) before upgrading.
+For fresh installs and upgrades from compatible Spotnet 2.x profiles. Setup closes Spotnet safely, copies your selected profile, and updates your existing Desktop and Start Menu launch shortcuts to 3.0. Requires Windows 10/11 x64. Setup installs the .NET 8 Desktop Runtime and Microsoft Edge WebView2 if they are missing. The installer is **unsigned**; Windows may show an unknown-publisher warning. Read the [installation and migration guide](docs/INSTALLER.md) before upgrading.
 
 A reconstructed and modernized Windows Usenet client, built around the familiar Spotnet experience: browse spots, search a local index, read comments, manage NZB downloads, and preview media in one desktop application.
 
-**Current target:** Windows x64 Â· C# / WPF Â· .NET Framework 4.7.2
+**Current target:** Windows x64 · C# / WPF · .NET 8
 
-**Application version:** 3.0.6.0
+**Application version:** 3.0.6.0  
+**Runtime:** .NET 8 (Windows Desktop). Setup installs the runtime if it is missing.
 
 **Validation checkpoint:** 180 automated tests passing on the x64 Release test host.
 
@@ -78,7 +79,7 @@ The built application, decoder, and test assemblies have AMD64 PE headers. SQLit
 
 The bundled `phpar2.exe`, `UnRAR.exe`, and `7za.exe` are still **32-bit external executables**. They run as separate child processes and do not force Spotnet itself to run as a 32-bit process. Replacing those utilities is separate remaining work.
 
-This is a Windows x64 build, not a native ARM64 or cross-platform port. Moving to modern .NET or another UI framework is also separate from the completed application x64 migration.
+This is a Windows x64 build, not a native ARM64 or cross-platform port. WPF ties it to Windows regardless of the framework it targets.
 
 ### Database reliability and the startup fix
 
@@ -116,7 +117,7 @@ The application retains its WPF desktop shell with MVVM Light, MahApps.Metro, an
 - The integrated multi-connection NZB downloader and post-processing workflow.
 - Media preview, docking/tab behavior, and light/dark themes.
 
-The UI toolkit has not been replaced, the database has not migrated to FTS5, and the application still runs on **.NET Framework 4.7.2**. C# 11 source syntax does not mean it targets modern .NET.
+The application now targets **.NET 8**, the search index is FTS5, and the UI toolkit packages were replaced or removed. None of that has been exercised against a live news server yet.
 
 ## Build and run
 
@@ -129,7 +130,7 @@ Build it with `./build-installer.ps1 -BootstrapCompiler`. Output: `artifacts/ins
 ### Requirements
 
 - Windows x64; the documented development target is Windows 10/11.
-- A .NET SDK capable of compiling C# 11, plus the .NET Framework 4.7.2 targeting pack. Visual Studio 2022 / Build Tools with the .NET desktop development workload is the documented build environment.
+- The .NET 8 SDK or newer, with the Windows desktop workload. The setup helper still targets .NET Framework 4.7.2, which every supported Windows already has, so it can run before the runtime is installed.
 - The .NET Framework runtime compatible with the `net472` application.
 - **Microsoft Edge WebView2 Evergreen Runtime** for WebView2-backed pages.
 - NuGet access for package restore, and news-server access for live Usenet use.

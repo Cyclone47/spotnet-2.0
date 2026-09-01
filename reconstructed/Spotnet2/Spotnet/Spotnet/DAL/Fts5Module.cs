@@ -102,10 +102,14 @@ internal static class Fts5Module
 			Log.Warn("Could not enumerate loaded modules: {0}", ex.Message);
 		}
 
+		// Two layouts: .NET Framework staged the interop in x86/ and x64/ beside the
+		// executable, .NET puts native assets under runtimes/<rid>/native.
 		string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+		string architecture = Environment.Is64BitProcess ? "x64" : "x86";
 		string[] candidates =
 		{
-			Path.Combine(baseDirectory, Environment.Is64BitProcess ? "x64" : "x86", InteropFileName),
+			Path.Combine(baseDirectory, "runtimes", "win-" + architecture, "native", InteropFileName),
+			Path.Combine(baseDirectory, architecture, InteropFileName),
 			Path.Combine(baseDirectory, InteropFileName)
 		};
 		foreach (string candidate in candidates)

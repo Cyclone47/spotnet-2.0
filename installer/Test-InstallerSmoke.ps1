@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [string]$TestRoot,
     [ValidateSet('english', 'dutch')]
@@ -46,7 +46,7 @@ function Invoke-SmokeSetup([string]$LogName) {
 Invoke-SmokeSetup 'fresh.log'
 # nl\Spotnet.resources.dll is listed because its absence is silent: the app falls back to the
 # neutral English table and simply runs in the wrong language, which is how it shipped unnoticed.
-foreach ($required in @('Spotnet.exe', 'Spotnet.install', 'WebView2Loader.dll', 'x64\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll', 'Data\TabThemes', 'nl\Spotnet.resources.dll')) {
+foreach ($required in @('Spotnet.exe', 'Spotnet.dll', 'Spotnet.runtimeconfig.json', 'Spotnet.install', 'NLog.config', 'runtimes\win-x64\native\WebView2Loader.dll', 'runtimes\win-x64\native\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll', 'Data\TabThemes', 'nl\Spotnet.resources.dll')) {
     if (-not (Test-Path -LiteralPath (Join-Path $appRoot $required))) { throw "Missing payload: $required" }
 }
 if (-not (Test-Path -LiteralPath (Join-Path $profileRoot 'profile.ready'))) { throw 'Fresh profile was not initialized.' }

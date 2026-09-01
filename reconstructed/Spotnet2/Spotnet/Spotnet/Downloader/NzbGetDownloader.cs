@@ -270,12 +270,12 @@ public class NzbGetDownloader : IDownloader, INotifyPropertyChanged, IDisposable
 	private byte[] FixXmlEncodingInfo(byte[] xmlContentBytes)
 	{
 		int count = ((xmlContentBytes.Length > 200) ? 200 : xmlContentBytes.Length);
-		if (Encoding.Default.GetString(xmlContentBytes, 0, count).Trim().ToUpper()
+		if (AppHelper.AnsiEnc().GetString(xmlContentBytes, 0, count).Trim().ToUpper()
 			.Contains("<?XML "))
 		{
 			return xmlContentBytes;
 		}
-		return Encoding.Default.GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>").Concat(xmlContentBytes).ToArray();
+		return AppHelper.AnsiEnc().GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>").Concat(xmlContentBytes).ToArray();
 	}
 
 	private bool AddDownloadToNzbGet(DownloaderItemViewModel item, out string error)
@@ -348,7 +348,7 @@ public class NzbGetDownloader : IDownloader, INotifyPropertyChanged, IDisposable
 			jObject.Add(new JProperty("params", jArray));
 		}
 		string s = JsonConvert.SerializeObject(jObject);
-		byte[] bytes = Encoding.Default.GetBytes(s);
+		byte[] bytes = AppHelper.AnsiEnc().GetBytes(s);
 		httpWebRequest.ContentLength = bytes.Length;
 		lock (_lockRpcRequest)
 		{

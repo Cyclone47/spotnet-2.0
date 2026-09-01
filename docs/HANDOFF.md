@@ -312,13 +312,34 @@ need redoing. Weigh it against how much more theming is planned.
   referenced for `ApplicationDeployment.IsNetworkDeployed`, which is false in every install
   path this application has. `System.Management` now comes from its package.
 
-#### The .NET migration, measured rather than estimated
+#### The .NET migration (done)
 
-Retargeting a copy of the tree to `net8.0-windows` and building it gives **zero compiler
-errors, XAML included**. The blockers this backlog listed - `user.config`, the
-Microsoft.VisualBasic code, System.Drawing for avatars, the WCF references, the old WPF
-libraries - are either already resolved or do not stop the compiler. What the trial
-actually reported, once the three real blockers above were fixed, is a clean build.
+The application targets `net8.0-windows`. The blockers this backlog listed - `user.config`,
+the Microsoft.VisualBasic code, System.Drawing for avatars, the WCF references, the old WPF
+libraries - were either already resolved or never stopped the compiler.
+
+Two things did, and neither was on the list:
+
+- **Code pages.** `Microsoft.VisualBasic.Strings.Chr` resolves anything above 127 through
+  the system ANSI code page, and .NET no longer carries those. The header parser calls it
+  for every spot; the call threw, the per-line handler swallowed it, and an import yielded
+  nothing at all - no error, no log line. `EncodingSetup` registers the provider from a
+  module initializer so no entry path can miss it. Seven characterization tests caught this.
+- **`Encoding.Default` changed meaning**, from the system ANSI code page to UTF-8. Every
+  place that relied on the old meaning now names `AppHelper.AnsiEnc()` instead, including
+  the two that read files written by earlier versions.
+
+Also moved: NLog's configuration, which it reads from app.config only on .NET Framework,
+now lives in NLog.config where both find it. app.config keeps the settings defaults and
+nothing else - the startup, runtime and system.web elements were Framework directives.
+
+Squirrel was the expected casualty and is not one. Every entry point into it returns early
+for an Inno-installed profile, and its assembly, types and `UpdateManager` constructor were
+all verified to load on .NET 8.
+
+Setup installs the .NET 8 Desktop Runtime the same way it installs WebView2, which is why
+the installer grew from 43 MB to 98 MB. Both the English and Dutch installer smoke tests
+pass end to end.
 
 Compiling is not running - but the packages that would have been loaded in compatibility
 mode are all gone now, and a net8.0-windows build reports no errors and no NU1701 at all:

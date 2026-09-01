@@ -64,7 +64,11 @@ Name: "dutch"; MessagesFile: "compiler:Languages\Dutch.isl"
 english.LaunchSpotnet=Launch Spotnet 3.0
 dutch.LaunchSpotnet=Spotnet 3.0 starten
 english.DotNetRequired=.NET Framework 4.7.2 or later is required. Install it from Microsoft, restart Windows if requested, then run Setup again. No Spotnet files have been changed.
+english.DotNetRuntimeFailed=Installing the .NET 8 Desktop Runtime did not complete. Install it from Microsoft and run Setup again. No Spotnet data has been migrated.
+english.StatusDotNet=Installing the .NET 8 Desktop Runtime (internet access required)...
 dutch.DotNetRequired=.NET Framework 4.7.2 of nieuwer is vereist. Installeer dit via Microsoft, start Windows opnieuw op indien gevraagd en voer Setup daarna opnieuw uit. Er zijn geen Spotnet-bestanden gewijzigd.
+dutch.DotNetRuntimeFailed=De installatie van de .NET 8 Desktop Runtime is niet voltooid. Installeer deze via Microsoft en voer Setup opnieuw uit. Er zijn geen Spotnet-gegevens gemigreerd.
+dutch.StatusDotNet=.NET 8 Desktop Runtime installeren (internettoegang vereist)...
 english.DetectionFailed=Legacy profile detection failed. Setup cannot safely continue.
 dutch.DetectionFailed=Het zoeken naar oudere profielen is mislukt. Setup kan niet veilig doorgaan.
 english.NoOldInstall=No registered older installation found. Data folders are checked separately.
@@ -119,8 +123,8 @@ english.Welcome3=Setup will ask Spotnet to exit safely and wait for it to close.
 dutch.Welcome3=Setup vraagt Spotnet veilig af te sluiten en wacht tot het programma is gestopt. Grote databases vereisen extra schijfruimte en kopieertijd.
 english.Welcome4=Your existing Spotnet Desktop and Start Menu shortcuts will be updated to 3.0. Missing launch shortcuts are created.
 dutch.Welcome4=Bestaande Spotnet-snelkoppelingen op het bureaublad en in het Startmenu worden bijgewerkt naar 3.0. Ontbrekende snelkoppelingen worden aangemaakt.
-english.Welcome5=Microsoft Edge WebView2 is installed if missing (internet access required). Personal data is retained on uninstall.
-dutch.Welcome5=Microsoft Edge WebView2 wordt geïnstalleerd als het ontbreekt (internettoegang vereist). Persoonlijke gegevens blijven behouden bij verwijderen.
+english.Welcome5=The .NET 8 Desktop Runtime and Microsoft Edge WebView2 are installed if missing (internet access required). Personal data is retained on uninstall.
+dutch.Welcome5=De .NET 8 Desktop Runtime en Microsoft Edge WebView2 worden geïnstalleerd als ze ontbreken (internettoegang vereist). Persoonlijke gegevens blijven behouden bij verwijderen.
 english.SeparateFolder=Choose a separate installation folder. Setup will not overwrite a legacy or portable Spotnet installation.
 dutch.SeparateFolder=Kies een afzonderlijke installatiemap. Setup overschrijft geen oudere of draagbare Spotnet-installatie.
 english.NoDowngrade=A newer Spotnet version is installed here. Downgrades are not supported.
@@ -139,8 +143,8 @@ english.QueueNotice=Active download queues are not imported. Existing downloads 
 dutch.QueueNotice=Actieve downloadwachtrijen worden niet geïmporteerd. Bestaande downloads blijven op hun oorspronkelijke locatie.
 english.ShortcutNotice=Update your Spotnet Desktop and Start Menu shortcuts in place; create them if missing. Originals are backed up.
 dutch.ShortcutNotice=Bestaande Spotnet-snelkoppelingen op het bureaublad en in het Startmenu worden bijgewerkt; ontbrekende worden aangemaakt. Van originelen wordt een back-up gemaakt.
-english.WebViewNotice=If WebView2 is missing, its Microsoft bootstrapper will download/install the runtime.
-dutch.WebViewNotice=Als WebView2 ontbreekt, downloadt en installeert het Microsoft-installatieprogramma de runtime.
+english.WebViewNotice=If the .NET 8 Desktop Runtime or WebView2 is missing, Microsoft's own installer will add it.
+dutch.WebViewNotice=Als de .NET 8 Desktop Runtime of WebView2 ontbreekt, installeert Microsofts eigen installatieprogramma die alsnog.
 english.UninstallNotice=Uninstall removes application files, not your profile or backups.
 dutch.UninstallNotice=Verwijderen wist programmabestanden, maar niet uw profiel of back-ups.
 english.StatusClosing=Asking Spotnet to exit safely; waiting for database writes to finish...
@@ -186,6 +190,7 @@ dutch.CheckOld=Behoud uw oude installatie totdat u uw provider, databases en dow
 Source: "{#HelperDir}\Spotnet.SetupHelper.exe"; Flags: dontcopy
 Source: "{#HelperDir}\Spotnet.SetupHelper.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#WebViewBootstrapper}"; DestName: "MicrosoftEdgeWebview2Setup.exe"; Flags: dontcopy
+Source: "{#DotNetBootstrapper}"; DestName: "windowsdesktop-runtime.exe"; Flags: dontcopy
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "Spotnet.install"; DestDir: "{app}"; Flags: ignoreversion
 
@@ -273,6 +278,34 @@ begin
   Result := IsDotNetInstalled(net472, 0);
   if not Result then
     SuppressibleMsgBox(CM('DotNetRequired'), mbCriticalError, MB_OK, IDOK);
+end;
+
+{ The Windows Desktop shared framework the application runs on. Present when at least
+  one 8.x (or newer) version directory exists next to the dotnet host. }
+function DotNetDesktopInstalled: Boolean;
+var
+  Root: String;
+  Search: TFindRec;
+  Major: Integer;
+begin
+  Result := False;
+  Root := ExpandConstant('{commonpf64}\dotnet\shared\Microsoft.WindowsDesktop.App');
+  if not DirExists(Root) then exit;
+  if FindFirst(Root + '\*', Search) then begin
+    try
+      repeat
+        if (Search.Attributes and FILE_ATTRIBUTE_DIRECTORY) <> 0 then begin
+          Major := StrToIntDef(Copy(Search.Name, 1, Pos('.', Search.Name) - 1), 0);
+          if Major >= 8 then begin
+            Result := True;
+            exit;
+          end;
+        end;
+      until not FindNext(Search);
+    finally
+      FindClose(Search);
+    end;
+  end;
 end;
 
 function WebViewInstalled: Boolean;
@@ -430,6 +463,23 @@ begin
     exit;
   end;
 #endif
+  if ShowProgress then begin
+    ProgressPage.SetProgress(1, 4);
+    ProgressPage.SetText(CM('StatusDotNet'), CM('ProgressDetail'));
+  end;
+  if not DotNetDesktopInstalled then begin
+#ifdef SmokeTestRoot
+    Result := 'Smoke tests require an already installed .NET Desktop Runtime; they never install prerequisites.';
+    exit;
+#else
+    ExtractTemporaryFile('windowsdesktop-runtime.exe');
+    if not Exec(ExpandConstant('{tmp}\windowsdesktop-runtime.exe'), '/install /quiet /norestart', '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or
+       ((ExitCode <> 0) and (ExitCode <> 3010)) or not DotNetDesktopInstalled then begin
+      Result := CM('DotNetRuntimeFailed');
+      exit;
+    end;
+#endif
+  end;
   if ShowProgress then begin
     ProgressPage.SetProgress(1, 4);
     ProgressPage.SetText(CM('StatusWebView'), CM('ProgressDetail'));

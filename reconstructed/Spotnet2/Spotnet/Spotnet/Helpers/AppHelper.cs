@@ -1765,6 +1765,18 @@ public static class AppHelper
 		return Encoding.GetEncoding(28591);
 	}
 
+	/// <summary>The Windows ANSI code page, for data that was written with it.</summary>
+	/// <remarks>
+	/// Named explicitly because Encoding.Default no longer means this. On .NET Framework
+	/// it was the system ANSI code page; from .NET Core onward it is UTF-8, which decodes
+	/// the same bytes into different text. Every place that relied on the old meaning now
+	/// says so. EncodingSetup registers the provider this needs.
+	/// </remarks>
+	public static Encoding AnsiEnc()
+	{
+		return Encoding.GetEncoding(1252);
+	}
+
 	public static void LaunchInExternalProgram(string sUrl)
 	{
 		try

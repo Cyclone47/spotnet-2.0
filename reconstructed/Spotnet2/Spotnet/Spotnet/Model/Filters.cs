@@ -673,7 +673,7 @@ internal class Filters
 			{
 				try
 				{
-					System.IO.File.WriteAllLines(path, GetAllFamilyFullPathList(FiltersRoot, (FilterViewModel f) => f.IsExpanded), Encoding.Default);
+					System.IO.File.WriteAllLines(path, GetAllFamilyFullPathList(FiltersRoot, (FilterViewModel f) => f.IsExpanded), AppHelper.AnsiEnc());
 				}
 				catch (Exception ex)
 				{
@@ -693,7 +693,7 @@ internal class Filters
 			{
 				if (System.IO.File.Exists(path))
 				{
-					namesToExpand = System.IO.File.ReadAllLines(path, Encoding.Default);
+					namesToExpand = System.IO.File.ReadAllLines(path, AppHelper.AnsiEnc());
 				}
 			}
 			catch (Exception ex)

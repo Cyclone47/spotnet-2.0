@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
+using Spotnet.Helpers;
 using System.Text;
 using Microsoft.VisualBasic;
 
@@ -132,7 +133,7 @@ public static class StringExtension
 			}
 			throw new Exception("The char must be in byte's range");
 		}
-		return Encoding.Default.GetString(array, 0, array.Length);
+		return AppHelper.AnsiEnc().GetString(array, 0, array.Length);
 	}
 
 	public static string ReadLine(this string text, int lineNumber)

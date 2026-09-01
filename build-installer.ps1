@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [string]$CompilerPath,
     [switch]$BootstrapCompiler,
@@ -102,9 +102,9 @@ try {
     }
     & dotnet build tools/Spotnet.SetupHelper/Spotnet.SetupHelper.csproj -c Release -v minimal
     if ($LASTEXITCODE -ne 0) { throw 'Migration helper build failed.' }
-    $appOutput = Join-Path $repoRoot 'reconstructed\Spotnet2\Spotnet\bin\Release\net472'
+    $appOutput = Join-Path $repoRoot 'reconstructed\Spotnet2\Spotnet\bin\Release\net8.0-windows'
     $helperOutput = Join-Path $repoRoot 'tools\Spotnet.SetupHelper\bin\Release\net472'
-    foreach ($binary in @('Spotnet.exe', 'Spotnet.Enc.dll', 'WebView2Loader.dll', 'x64\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll')) {
+    foreach ($binary in @('Spotnet.exe', 'Spotnet.dll', 'Spotnet.Enc.dll', 'runtimes\win-x64\native\WebView2Loader.dll', 'runtimes\win-x64\native\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll')) {
         $binaryPath = Join-Path $appOutput $binary
         $bytes = [IO.File]::ReadAllBytes($binaryPath)
         $peOffset = [BitConverter]::ToInt32($bytes, 60)
@@ -116,12 +116,13 @@ try {
     $trackedAssets = @(git ls-files -- reconstructed/Spotnet2/Spotnet/Data reconstructed/Spotnet2/Spotnet/Resources/ReleaseNotes)
     if ($LASTEXITCODE -ne 0) { throw 'Cannot enumerate tracked application assets.' }
     foreach ($file in Get-ChildItem -LiteralPath $appOutput -File) {
-        if ($file.Extension -in @('.dll', '.exe') -or $file.Name -eq 'Spotnet.exe.config') {
+        if ($file.Extension -in @('.dll', '.exe', '.json') -or $file.Name -in @('Spotnet.dll.config', 'NLog.config')) {
             if ($file.Name -match '^(Awesomium|awesomium|Meta\.Vlc|Ionic\.Zip|Pri\.LongPath)' -or $file.Name -eq 'Squirrel.exe') { continue }
             Copy-Item -LiteralPath $file.FullName -Destination $payload
         }
     }
-    foreach ($directory in @('x64', 'libvlc\win-x64')) {
+    # Native assets sit under runtimes/<rid>/native on .NET; only the Windows x64 ones ship.
+    foreach ($directory in @('runtimes\win-x64', 'libvlc\win-x64')) {
         $target = Join-Path $payload (Split-Path $directory -Parent)
         New-Item -ItemType Directory -Force -Path $target | Out-Null
         Copy-Item -LiteralPath (Join-Path $appOutput $directory) -Destination $target -Recurse
@@ -139,11 +140,15 @@ try {
     }
     $webview = Join-Path $toolRoot 'MicrosoftEdgeWebview2Setup.exe'
     Get-SignedDownload 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' $webview 'O=Microsoft Corporation'
+    # The application targets .NET 8, which Windows does not ship. Setup installs the
+    # Desktop Runtime the same way it installs WebView2.
+    $dotnet = Join-Path $toolRoot 'windowsdesktop-runtime-8-win-x64.exe'
+    Get-SignedDownload 'https://aka.ms/dotnet/8.0/windowsdesktop-runtime-win-x64.exe' $dotnet 'O=Microsoft Corporation'
 
     # Sign what this repository produces. The third-party assemblies arrive signed by
     # their own publishers and are left alone.
     $signTemplate = Get-SignTemplate
-    $compilerArguments = @('/Q', ('/DPayloadDir=' + $payload), ('/DHelperDir=' + $helperOutput), ('/DWebViewBootstrapper=' + $webview), ('/DOutputDir=' + $artifactRoot))
+    $compilerArguments = @('/Q', ('/DPayloadDir=' + $payload), ('/DHelperDir=' + $helperOutput), ('/DWebViewBootstrapper=' + $webview), ('/DDotNetBootstrapper=' + $dotnet), ('/DOutputDir=' + $artifactRoot))
     if ($signTemplate) {
         $ourBinaries = @('Spotnet.exe', 'Spotnet.Enc.dll') |
             ForEach-Object { Join-Path $payload $_ }
