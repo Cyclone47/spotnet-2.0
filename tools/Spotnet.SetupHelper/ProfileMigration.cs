@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -66,7 +66,7 @@ public sealed class ProfileMigration
     }
 
     /// <summary>Read handles stay exclusively held for the whole snapshot, including WAL/SHM.</summary>
-    private static void Snapshot(string source, string destination, string settingsFile, Action<string> progress, bool wholeProfile)
+    private static void Snapshot(string source, string destination, string settingsFile, Action<string> progress, bool wholeProfile, string language)
     {
         var files = new List<Tuple<string, FileStream>>();
         FileStream settings = null;
@@ -124,6 +124,9 @@ public sealed class ProfileMigration
                 ProfileSettingsFile.Set(config, "AllowInvalidServerCertificate", "False");
                 ProfileSettingsFile.Set(config, "IsNewVersion", "False");
                 ProfileSettingsFile.Set(config, "FiltersAreInitialized", "False");
+                // Start the app in the language Setup ran in, unless the imported profile already
+                // states one. Without this a Dutch install still opened an English app.
+                ProfileSettingsFile.SetIfAbsent(config, "UserLanguage", language);
                 ProfileSettingsFile.SaveAtomic(config, Path.Combine(destination, "user.config"));
             }
         }
@@ -134,7 +137,7 @@ public sealed class ProfileMigration
         }
     }
 
-    public string Prepare(string profileRoot, string sourceData, string sourceSettings, Action<string> progress = null)
+    public string Prepare(string profileRoot, string sourceData, string sourceSettings, Action<string> progress = null, string language = null)
     {
         profileRoot = SafeDirectory(profileRoot);
         string data = Path.Combine(profileRoot, "Data");
@@ -161,7 +164,7 @@ public sealed class ProfileMigration
             {
                 if (sourceData != null || !string.IsNullOrEmpty(sourceSettings))
                     throw new IOException("A Spotnet 3.0 profile already exists. Upgrade preserves it; importing over it is not allowed.");
-                Snapshot(data, stage, null, progress, true);
+                Snapshot(data, stage, null, progress, true, null);
                 string backups = Path.Combine(profileRoot, "Backups");
                 SafeDirectory(backups);
                 Directory.CreateDirectory(backups);
@@ -169,7 +172,7 @@ public sealed class ProfileMigration
                 Directory.Move(stage, backup);
                 return "Existing profile preserved. Verified pre-upgrade backup: " + backup;
             }
-            Snapshot(sourceData, stage, sourceSettings, progress, false);
+            Snapshot(sourceData, stage, sourceSettings, progress, false, language);
             File.WriteAllText(Path.Combine(stage, ProfileMarker), "Spotnet3 profile format 1\r\n", Encoding.UTF8);
             File.WriteAllText(Path.Combine(stage, "migration.txt"),
                 "Created UTC: " + DateTime.UtcNow.ToString("O") + "\r\nSource data: " + (sourceData ?? "Fresh install") +

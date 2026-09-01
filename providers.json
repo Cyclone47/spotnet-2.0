@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "updated": "2026-09-01",
+  "comment": "Usenet providers offered in Spotnet's connect dialog. Edit this file to update the list; clients fetch it on launch and fall back to their built-in copy if it is missing or invalid. Every host/port below was verified by reading its NNTP greeting banner. 'group' is NL or INT. 'host' is the download server and the default for upload/headers; add 'upload'/'headers' only when they differ. 'port' must be 563, 443, 119 or 80, and defaults per-role via 'uploadPort'/'headersPort'.",
+  "providers": [
+    { "name": "5 Euro Usenet", "group": "NL", "host": "reader.5eurousenet.com", "port": 563 },
+    { "name": "Bulknews", "group": "NL", "host": "news.bulknews.eu", "port": 563 },
+    { "name": "Eweka", "group": "NL", "host": "newsreader1.eweka.nl", "port": 443, "upload": "upload.eweka.nl", "headers": "textnews.eweka.nl" },
+    { "name": "Extreme Usenet", "group": "NL", "host": "reader.extremeusenet.nl", "port": 443 },
+    { "name": "Hitnews", "group": "NL", "host": "news.hitnews.com", "port": 563 },
+    { "name": "NewsXS", "group": "NL", "host": "reader2.newsxs.nl", "port": 443 },
+    { "name": "Pure Usenet", "group": "NL", "host": "news.pureusenet.nl", "port": 443 },
+    { "name": "SnelNL", "group": "NL", "host": "reader.snelnl.com", "port": 563 },
+    { "name": "Sunny Usenet", "group": "NL", "host": "news.sunnyusenet.com", "port": 443 },
+    { "name": "Tele2", "group": "NL", "host": "tele2news.tweaknews.nl", "port": 563 },
+    { "name": "Tweaknews", "group": "NL", "host": "news.tweaknews.eu", "port": 563 },
+    { "name": "Usenet.Farm", "group": "NL", "host": "news.usenet.farm", "port": 563 },
+    { "name": "XLned", "group": "NL", "host": "news.xlned.com", "port": 563 },
+    { "name": "XSnews", "group": "NL", "host": "reader.xsnews.nl", "port": 443, "upload": "upload.xsnews.nl" },
+
+    { "name": "Astraweb", "group": "INT", "host": "ssl-eu.astraweb.com", "port": 563 },
+    { "name": "Cheapnews", "group": "INT", "host": "news.cheapnews.eu", "port": 563 },
+    { "name": "Easynews", "group": "INT", "host": "news.easynews.com", "port": 563 },
+    { "name": "Frugal Usenet", "group": "INT", "host": "news.frugalusenet.com", "port": 563 },
+    { "name": "Giganews", "group": "INT", "host": "news.giganews.com", "port": 563 },
+    { "name": "NewsDemon", "group": "INT", "host": "news.newsdemon.com", "port": 563 },
+    { "name": "Newsgroup Direct", "group": "INT", "host": "news.newsgroupdirect.com", "port": 563 },
+    { "name": "Newshosting", "group": "INT", "host": "news.newshosting.com", "port": 563 },
+    { "name": "Supernews", "group": "INT", "host": "news.supernews.com", "port": 563 },
+    { "name": "UsenetServer", "group": "INT", "host": "news.usenetserver.com", "port": 563 }
+  ]
+}

@@ -1,4 +1,4 @@
-using System.CodeDom.Compiler;
+﻿using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -908,14 +908,6 @@ public class Words
 
 	public static string SelectProvider => ResourceManager.GetString("SelectProvider", resourceCulture);
 
-	public static string SelectProviderLinkText1 => ResourceManager.GetString("SelectProviderLinkText1", resourceCulture);
-
-	public static string SelectProviderLinkText2 => ResourceManager.GetString("SelectProviderLinkText2", resourceCulture);
-
-	public static string SelectProviderLinkText3 => ResourceManager.GetString("SelectProviderLinkText3", resourceCulture);
-
-	public static string SelectProviderLinkURL => ResourceManager.GetString("SelectProviderLinkURL", resourceCulture);
-
 	public static string SelectTheme => ResourceManager.GetString("SelectTheme", resourceCulture);
 
 	public static string SelectVPNProvider => ResourceManager.GetString("SelectVPNProvider", resourceCulture);
@@ -1203,6 +1195,39 @@ public class Words
 	public static string yesterday => ResourceManager.GetString("yesterday", resourceCulture);
 
 	public static string YesWord => ResourceManager.GetString("YesWord", resourceCulture);
+
+	// Added for the Spotnet 3.0 connect dialog.
+	public static string SelectProviderSubtitle => ResourceManager.GetString("SelectProviderSubtitle", resourceCulture);
+
+	public static string ProviderGroupNetherlands => ResourceManager.GetString("ProviderGroupNetherlands", resourceCulture);
+
+	public static string ProviderGroupInternational => ResourceManager.GetString("ProviderGroupInternational", resourceCulture);
+
+	public static string ProviderGroupManual => ResourceManager.GetString("ProviderGroupManual", resourceCulture);
+
+	public static string OtherProvider => ResourceManager.GetString("OtherProvider", resourceCulture);
+
+	public static string ProviderManualSubtitle => ResourceManager.GetString("ProviderManualSubtitle", resourceCulture);
+
+	public static string SearchProviderHint => ResourceManager.GetString("SearchProviderHint", resourceCulture);
+
+	public static string ProviderCount => ResourceManager.GetString("ProviderCount", resourceCulture);
+
+	public static string HeadersServer => ResourceManager.GetString("HeadersServer", resourceCulture);
+
+	public static string DownloadServer => ResourceManager.GetString("DownloadServer", resourceCulture);
+
+	public static string UploadServer => ResourceManager.GetString("UploadServer", resourceCulture);
+
+	public static string SeparateDownloadServer => ResourceManager.GetString("SeparateDownloadServer", resourceCulture);
+
+	public static string SeparateUploadServer => ResourceManager.GetString("SeparateUploadServer", resourceCulture);
+
+	public static string AccountSectionHint => ResourceManager.GetString("AccountSectionHint", resourceCulture);
+
+	public static string ConnectionSecuredWithSsl => ResourceManager.GetString("ConnectionSecuredWithSsl", resourceCulture);
+
+	public static string Testing => ResourceManager.GetString("Testing", resourceCulture);
 
 	internal Words()
 	{

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -337,7 +337,6 @@
   <data name="MenuSendResponse" xml:space="preserve"><value>Send response to developers</value></data>
   <data name="EnterTag" xml:space="preserve"><value>Enter an appropriate tag</value></data>
   <data name="PictureCannotPost" xml:space="preserve"><value>Cannot post picture.</value></data>
-  <data name="SelectProviderLinkURL" xml:space="preserve"><value>https://www.5eurousenet.com/en/packages?a=14161</value></data>
   <data name="Username" xml:space="preserve"><value>Username</value></data>
   <data name="SpotCannotRetrieveXMLInvalid" xml:space="preserve"><value>Cannot retrieve Spot. XML is invalid.</value></data>
   <data name="MenuDnlModeOpenNZB" xml:space="preserve"><value>NZB Open</value></data>
@@ -545,9 +544,6 @@ Please write the reason why you want to remove it:</value></data>
   <data name="VPNInstallerDownloading" xml:space="preserve"><value>Downloading VPN Nederland Setup file {0}%</value></data>
   <data name="NZBFileInvalid" xml:space="preserve"><value>Invalid NZB file.</value></data>
   <data name="BlackListAddTo" xml:space="preserve"><value>Add to Black List</value></data>
-  <data name="SelectProviderLinkText1" xml:space="preserve"><value>If you have no an account yet, click </value></data>
-  <data name="SelectProviderLinkText3" xml:space="preserve"><value> to get it for free.</value></data>
-  <data name="SelectProviderLinkText2" xml:space="preserve"><value>HERE</value></data>
   <data name="SenderIsInBlackList" xml:space="preserve"><value>ATTENTION: The poster of the spot is in Black List!</value></data>
   <data name="SettingsText" xml:space="preserve"><value>Settings</value></data>
   <data name="SearchExtensiveToolTip" xml:space="preserve"><value>Show results that partially match</value></data>
@@ -610,4 +606,20 @@ Please write the reason why you want to remove it:</value></data>
   <data name="SpotThemeDownload" xml:space="preserve"><value>Download</value></data>
   <data name="StatMoving" xml:space="preserve"><value>Moving</value></data>
   <data name="sunday" xml:space="preserve"><value>sunday</value></data>
+  <data name="SelectProviderSubtitle" xml:space="preserve"><value>Connect Spotnet to your Usenet provider.</value></data>
+  <data name="ProviderGroupNetherlands" xml:space="preserve"><value>Dutch providers</value></data>
+  <data name="ProviderGroupInternational" xml:space="preserve"><value>International providers</value></data>
+  <data name="ProviderGroupManual" xml:space="preserve"><value>Manual</value></data>
+  <data name="OtherProvider" xml:space="preserve"><value>Other provider...</value></data>
+  <data name="ProviderManualSubtitle" xml:space="preserve"><value>Enter the server details yourself</value></data>
+  <data name="SearchProviderHint" xml:space="preserve"><value>Type to search by name or server</value></data>
+  <data name="ProviderCount" xml:space="preserve"><value>{0} of {1} providers</value></data>
+  <data name="HeadersServer" xml:space="preserve"><value>Headers server</value></data>
+  <data name="DownloadServer" xml:space="preserve"><value>Download server</value></data>
+  <data name="UploadServer" xml:space="preserve"><value>Upload server</value></data>
+  <data name="SeparateDownloadServer" xml:space="preserve"><value>Use a separate download server</value></data>
+  <data name="SeparateUploadServer" xml:space="preserve"><value>Use a separate upload server</value></data>
+  <data name="AccountSectionHint" xml:space="preserve"><value>The username and password you received from your provider.</value></data>
+  <data name="ConnectionSecuredWithSsl" xml:space="preserve"><value>The connection is secured with SSL where the provider supports it.</value></data>
+  <data name="Testing" xml:space="preserve"><value>Testing connection...</value></data>
   </root>

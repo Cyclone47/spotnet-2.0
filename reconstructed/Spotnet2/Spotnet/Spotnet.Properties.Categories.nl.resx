@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="0" use="required" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="GShooter" xml:space="preserve"><value>Shooter</value></data>
+  <data name="LangSpanish" xml:space="preserve"><value>Spaans</value></data>
+  <data name="MHiphop" xml:space="preserve"><value>Hiphop</value></data>
+  <data name="LangNoSubtitles" xml:space="preserve"><value>Geen ondertitels</value></data>
+  <data name="GSciFiction" xml:space="preserve"><value>Science Fiction</value></data>
+  <data name="MNewAge" xml:space="preserve"><value>New Age</value></data>
+  <data name="GWestern" xml:space="preserve"><value>Western</value></data>
+  <data name="LangGrWritten" xml:space="preserve"><value>Duits geschreven</value></data>
+  <data name="SubCategory" xml:space="preserve"><value>Sub categorie</value></data>
+  <data name="BGJournal" xml:space="preserve"><value>Tijdschrift</value></data>
+  <data name="MGAudiobook" xml:space="preserve"><value>Audiobook</value></data>
+  <data name="GCartoon" xml:space="preserve"><value>Cartoon</value></data>
+  <data name="LangEnSpoken" xml:space="preserve"><value>Engels gesproken</value></data>
+  <data name="MSmallArt" xml:space="preserve"><value>Kleinkunst</value></data>
+  <data name="MSoundtrack" xml:space="preserve"><value>Soundtrack</value></data>
+  <data name="GSimulation" xml:space="preserve"><value>Simulatie</value></data>
+  <data name="BGBusiness" xml:space="preserve"><value>Zakelijk</value></data>
+  <data name="CatSeries" xml:space="preserve"><value>Series</value></data>
+  <data name="GAnime" xml:space="preserve"><value>Anime</value></data>
+  <data name="GAsian" xml:space="preserve"><value>Aziatisch</value></data>
+  <data name="GCards" xml:space="preserve"><value>Kaart</value></data>
+  <data name="GCrime" xml:space="preserve"><value>Misdaad</value></data>
+  <data name="GDrama" xml:space="preserve"><value>Drama</value></data>
+  <data name="GMusic" xml:space="preserve"><value>Muziek</value></data>
+  <data name="GParty" xml:space="preserve"><value>Party</value></data>
+  <data name="Bitrate" xml:space="preserve"><value>Bitrate</value></data>
+  <data name="GSport" xml:space="preserve"><value>Sport</value></data>
+  <data name="GShort" xml:space="preserve"><value>Kort</value></data>
+  <data name="GWoman" xml:space="preserve"><value>Vrouw</value></data>
+  <data name="GYouth" xml:space="preserve"><value>Jeugd</value></data>
+  <data name="MMetal" xml:space="preserve"><value>Metal</value></data>
+  <data name="MLatin" xml:space="preserve"><value>Latin</value></data>
+  <data name="MBlues" xml:space="preserve"><value>Blues</value></data>
+  <data name="MAsian" xml:space="preserve"><value>Aziatisch</value></data>
+  <data name="MDisco" xml:space="preserve"><value>Disco</value></data>
+  <data name="MDance" xml:space="preserve"><value>Dance</value></data>
+  <data name="MYouth" xml:space="preserve"><value>Jeugd</value></data>
+  <data name="MWorld" xml:space="preserve"><value>Wereld</value></data>
+  <data name="GPlatform" xml:space="preserve"><value>Platform</value></data>
+  <data name="MHardstyle" xml:space="preserve"><value>Hardstyle</value></data>
+  <data name="SexHard" xml:space="preserve"><value>Hard</value></data>
+  <data name="SexHomo" xml:space="preserve"><value>Homo</value></data>
+  <data name="SexDark" xml:space="preserve"><value>Donker</value></data>
+  <data name="SexSoft" xml:space="preserve"><value>Soft</value></data>
+  <data name="SexSolo" xml:space="preserve"><value>Solo</value></data>
+  <data name="BGNonFiction" xml:space="preserve"><value>Non-fictie</value></data>
+  <data name="MDubstep" xml:space="preserve"><value>Dubstep</value></data>
+  <data name="GAdventure" xml:space="preserve"><value>Avontuur</value></data>
+  <data name="MGAlbum" xml:space="preserve"><value>Album</value></data>
+  <data name="GTelevision" xml:space="preserve"><value>Televisie</value></data>
+  <data name="BGCrafts" xml:space="preserve"><value>Knutselen</value></data>
+  <data name="BGScience" xml:space="preserve"><value>Wetenschap</value></data>
+  <data name="GHistory" xml:space="preserve"><value>Historie</value></data>
+  <data name="GMystery" xml:space="preserve"><value>Mysterie</value></data>
+  <data name="LangNlWritten" xml:space="preserve"><value>Nederlands geschreven</value></data>
+  <data name="BGBiography" xml:space="preserve"><value>Biografie</value></data>
+  <data name="BGHealth" xml:space="preserve"><value>Gezondheid</value></data>
+  <data name="LangEnglish" xml:space="preserve"><value>Engels</value></data>
+  <data name="BGComputer" xml:space="preserve"><value>Computer</value></data>
+  <data name="GMusical" xml:space="preserve"><value>Musical</value></data>
+  <data name="MReggae" xml:space="preserve"><value>Reggae</value></data>
+  <data name="LangFrSpoken" xml:space="preserve"><value>Frans gesproken</value></data>
+  <data name="TRadio" xml:space="preserve"><value>Radio</value></data>
+  <data name="TVinyl" xml:space="preserve"><value>Vinyl</value></data>
+  <data name="LangDutch" xml:space="preserve"><value>Nederlands</value></data>
+  <data name="BGReligion" xml:space="preserve"><value>Religie</value></data>
+  <data name="MClassical" xml:space="preserve"><value>Klassiek</value></data>
+  <data name="MCountry" xml:space="preserve"><value>Country</value></data>
+  <data name="MTrance" xml:space="preserve"><value>Trance</value></data>
+  <data name="MTechno" xml:space="preserve"><value>Techno</value></data>
+  <data name="BGPoetry" xml:space="preserve"><value>Poezie</value></data>
+  <data name="GFantasy" xml:space="preserve"><value>Fantasie</value></data>
+  <data name="SexOld" xml:space="preserve"><value>Oud</value></data>
+  <data name="SexBBW" xml:space="preserve"><value>BBW</value></data>
+  <data name="SexPOV" xml:space="preserve"><value>POV</value></data>
+  <data name="Source" xml:space="preserve"><value>Bron</value></data>
+  <data name="MBalkans" xml:space="preserve"><value>Balkan</value></data>
+  <data name="GDetective" xml:space="preserve"><value>Detective</value></data>
+  <data name="MVarious" xml:space="preserve"><value>Diversen</value></data>
+  <data name="SwSpotnet" xml:space="preserve"><value>Spotnet</value></data>
+  <data name="BGTravel" xml:space="preserve"><value>Reizen</value></data>
+  <data name="Category" xml:space="preserve"><value>Categorie</value></data>
+  <data name="CatSerie" xml:space="preserve"><value>Serie</value></data>
+  <data name="CatGames" xml:space="preserve"><value>Spellen</value></data>
+  <data name="CatBooks" xml:space="preserve"><value>Boeken</value></data>
+  <data name="CatFilms" xml:space="preserve"><value>Films</value></data>
+  <data name="CatMusic" xml:space="preserve"><value>Muziek</value></data>
+  <data name="GEducational" xml:space="preserve"><value>Educatie</value></data>
+  <data name="BGComicStrip" xml:space="preserve"><value>Stripboek</value></data>
+  <data name="MCabaret" xml:space="preserve"><value>Cabaret</value></data>
+  <data name="MGLiveset" xml:space="preserve"><value>Liveset</value></data>
+  <data name="CatImages" xml:space="preserve"><value>Afbeeldingen</value></data>
+  <data name="CatBook" xml:space="preserve"><value>Boek</value></data>
+  <data name="CatFilm" xml:space="preserve"><value>Film</value></data>
+  <data name="CatMain" xml:space="preserve"><value>Hoofd categorie</value></data>
+  <data name="MNederhop" xml:space="preserve"><value>Nederhop</value></data>
+  <data name="SwDevelopment" xml:space="preserve"><value>Ontwikkel</value></data>
+  <data name="GStrategy" xml:space="preserve"><value>Strategie</value></data>
+  <data name="LangEnSubsInt" xml:space="preserve"><value>Engels ondertiteld (ingebakken)</value></data>
+  <data name="LangEnSubsExt" xml:space="preserve"><value>Engels ondertiteld (extern)</value></data>
+  <data name="LangEnSubsAdj" xml:space="preserve"><value>Engels ondertiteld (instelbaar)</value></data>
+  <data name="Language" xml:space="preserve"><value>Taal</value></data>
+  <data name="SwInternet" xml:space="preserve"><value>Internet</value></data>
+  <data name="GDocumentary" xml:space="preserve"><value>Documentaire</value></data>
+  <data name="LangFrWritten" xml:space="preserve"><value>Frans geschreven</value></data>
+  <data name="GFamily" xml:space="preserve"><value>Familie</value></data>
+  <data name="GThriller" xml:space="preserve"><value>Thriller</value></data>
+  <data name="GAction" xml:space="preserve"><value>Actie</value></data>
+  <data name="GCabare" xml:space="preserve"><value>Cabaret</value></data>
+  <data name="GComedy" xml:space="preserve"><value>Komedie</value></data>
+  <data name="BGCooking" xml:space="preserve"><value>Koken</value></data>
+  <data name="BGTechnique" xml:space="preserve"><value>Techniek</value></data>
+  <data name="BGPsychology" xml:space="preserve"><value>Psychologie</value></data>
+  <data name="BitrateVariable" xml:space="preserve"><value>Variabel</value></data>
+  <data name="SwCommunication" xml:space="preserve"><value>Communicatie</value></data>
+  <data name="GHorror" xml:space="preserve"><value>Horror</value></data>
+  <data name="MGPodcast" xml:space="preserve"><value>Podcast</value></data>
+  <data name="BGHandicraft" xml:space="preserve"><value>Handwerk</value></data>
+  <data name="SwEducational" xml:space="preserve"><value>Educatief</value></data>
+  <data name="MAmbient" xml:space="preserve"><value>Ambient</value></data>
+  <data name="GRace" xml:space="preserve"><value>Race</value></data>
+  <data name="BGArt" xml:space="preserve"><value>Kunst</value></data>
+  <data name="MJazz" xml:space="preserve"><value>Jazz</value></data>
+  <data name="MLive" xml:space="preserve"><value>Live</value></data>
+  <data name="MFolk" xml:space="preserve"><value>Folk</value></data>
+  <data name="MRock" xml:space="preserve"><value>Rock</value></data>
+  <data name="MSoul" xml:space="preserve"><value>Soul</value></data>
+  <data name="SexAmateur" xml:space="preserve"><value>Amateur</value></data>
+  <data name="SwOffice" xml:space="preserve"><value>Kantoor</value></data>
+  <data name="SexBi" xml:space="preserve"><value>Bi</value></data>
+  <data name="SexSM" xml:space="preserve"><value>SM</value></data>
+  <data name="LangGrSpoken" xml:space="preserve"><value>Duits gesproken</value></data>
+  <data name="MReligious" xml:space="preserve"><value>Religieus</value></data>
+  <data name="MCompilation" xml:space="preserve"><value>Compilatie</value></data>
+  <data name="SwSystem" xml:space="preserve"><value>Systeem</value></data>
+  <data name="GPuzzel" xml:space="preserve"><value>Puzzel</value></data>
+  <data name="LangEnWritten" xml:space="preserve"><value>Engels geschreven</value></data>
+  <data name="GAnimals" xml:space="preserve"><value>Dieren</value></data>
+  <data name="CatErotica" xml:space="preserve"><value>Erotiek</value></data>
+  <data name="MElectro" xml:space="preserve"><value>Electro</value></data>
+  <data name="GFilmHouse" xml:space="preserve"><value>Filmhuis</value></data>
+  <data name="BGNewspaper" xml:space="preserve"><value>Dagblad</value></data>
+  <data name="LangSpSpoken" xml:space="preserve"><value>Spaans gesproken</value></data>
+  <data name="SexLesbo" xml:space="preserve"><value>Lesbo</value></data>
+  <data name="SexGroup" xml:space="preserve"><value>Groep</value></data>
+  <data name="SexYoung" xml:space="preserve"><value>Jong</value></data>
+  <data name="SwSafeguard" xml:space="preserve"><value>Beveiliging</value></data>
+  <data name="Platform" xml:space="preserve"><value>Platform</value></data>
+  <data name="SexOutside" xml:space="preserve"><value>Buiten</value></data>
+  <data name="BGCover" xml:space="preserve"><value>Cover</value></data>
+  <data name="BGHobby" xml:space="preserve"><value>Hobby</value></data>
+  <data name="BGNovel" xml:space="preserve"><value>Roman</value></data>
+  <data name="BGStudy" xml:space="preserve"><value>Studie</value></data>
+  <data name="SexHentai" xml:space="preserve"><value>Hentai</value></data>
+  <data name="SexHetero" xml:space="preserve"><value>Hetero</value></data>
+  <data name="GWhatHappened" xml:space="preserve"><value>Waargebeurd</value></data>
+  <data name="GBoardGame" xml:space="preserve"><value>Bordspel</value></data>
+  <data name="SwDownload" xml:space="preserve"><value>Download</value></data>
+  <data name="BGFairytale" xml:space="preserve"><value>Sprookje</value></data>
+  <data name="MHollands" xml:space="preserve"><value>Hollands</value></data>
+  <data name="GRoleplay" xml:space="preserve"><value>Rollenspel</value></data>
+  <data name="BGEconomy" xml:space="preserve"><value>Economie</value></data>
+  <data name="GRomantic" xml:space="preserve"><value>Romantiek</value></data>
+  <data name="MChillout" xml:space="preserve"><value>Chillout</value></data>
+  <data name="BitrateLossless" xml:space="preserve"><value>Lossless</value></data>
+  <data name="TStream" xml:space="preserve"><value>Stream</value></data>
+  <data name="LangNlSpoken" xml:space="preserve"><value>Nederlands gesproken</value></data>
+  <data name="CatApplications" xml:space="preserve"><value>Applicaties</value></data>
+  <data name="LangFrench" xml:space="preserve"><value>Frans</value></data>
+  <data name="LangGerman" xml:space="preserve"><value>Duits</value></data>
+  <data name="SexFetich" xml:space="preserve"><value>Fetisj</value></data>
+  <data name="GAnimation" xml:space="preserve"><value>Animatie</value></data>
+  <data name="LangSpWritten" xml:space="preserve"><value>Spaans geschreven</value></data>
+  <data name="LangNlSubsExt" xml:space="preserve"><value>Nederlands ondertiteld (extern)</value></data>
+  <data name="LangNlSubsAdj" xml:space="preserve"><value>Nederlands ondertiteld (instelbaar)</value></data>
+  <data name="LangNlSubsInt" xml:space="preserve"><value>Nederlands ondertiteld (ingebakken)</value></data>
+  <data name="SwAudio" xml:space="preserve"><value>Audio</value></data>
+  <data name="SwPhoto" xml:space="preserve"><value>Foto</value></data>
+  <data name="SwVideo" xml:space="preserve"><value>Video</value></data>
+  <data name="MClassics" xml:space="preserve"><value>Classics</value></data>
+  <data name="GFly" xml:space="preserve"><value>Vliegen</value></data>
+  <data name="GWar" xml:space="preserve"><value>Oorlog</value></data>
+  <data name="MDnB" xml:space="preserve"><value>DnB</value></data>
+  <data name="MRnB" xml:space="preserve"><value>RnB</value></data>
+  <data name="MPop" xml:space="preserve"><value>Pop</value></data>
+  <data name="Type" xml:space="preserve"><value>Type</value></data>
+  <data name="SwGraphic" xml:space="preserve"><value>Grafisch</value></data>
+  </root>

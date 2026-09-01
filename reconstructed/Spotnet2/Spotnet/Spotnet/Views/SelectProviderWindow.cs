@@ -1,8 +1,6 @@
-using System;
-using System.CodeDom.Compiler;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -11,9 +9,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
+using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using GalaSoft.MvvmLight.Threading;
@@ -46,18 +43,47 @@ public partial class SelectProviderWindow : MetroWindow
     }
 
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private readonly Brush _fieldValidBackground = Brushes.White;
-    private readonly Brush _fieldInvalidBackground = Brushes.LemonChiffon;
-    private readonly object _lockRoot = new object ();
+    private static readonly Color FieldValidColor = Colors.Transparent;
+    // A border colour, not a LemonChiffon fill: the fill was unreadable under the ModernDark theme.
+    private static readonly Color FieldInvalidColor = Color.FromRgb(0xD9, 0x53, 0x4F);
+    private readonly HashSet<Control> _invalidFields = new HashSet<Control>();
+    private readonly object _lockRoot = new object();
     public bool BSuc;
     private bool _initializationFinished;
     private string _lastSettingsString;
     private const string AutoConnectionsString = "Auto";
+
+    private ListCollectionView _providerView;
+    private string _providerFilter = string.Empty;
+    /// <summary>
+    /// Only genuine keystrokes narrow the list. The editable ComboBox also raises TextChanged when
+    /// its template is applied and whenever a row is selected, and treating those as a search left
+    /// the dropdown filtered down to the one entry whose name happened to be in the box.
+    /// </summary>
+    private bool _userIsSearching;
+    /// <summary>The provider whose servers are currently in the fields, so re-applying is a no-op.</summary>
+    private ProviderItem _appliedProvider;
+    /// <summary>Set when the user picks a row, so only a deliberate choice commits a search.</summary>
+    private bool _providerChosen;
+
     public static bool IsRunning => DispatcherHelper.UIDispatcher.Invoke(() => Application.Current.Windows.OfType<SelectProviderWindow>().Any());
     private string CurrentSettingsString => HeaderServerTextBox.Text + HeaderServerPortComboBox.Text.Split()[0] + DownloadServerTextBox.Text + DownloadServerPortComboBox.Text.Split()[0] + UploadServerTextBox.Text + UploadServerPortComboBox.Text.Split()[0] + ConnectionsCombo.Text + UserNameTextBox.Text + PasswordTextBox.Password;
     private Storyboard FieldAnimation => (Storyboard)base.Resources["FieldAnimationStoryboard"];
     public HighlightControl HighlightedControl { get; set; }
     private bool AreSettingsChanged => _lastSettingsString != CurrentSettingsString;
+
+    /// <summary>Every field that carries a validation border, paired with the border that shows it.</summary>
+    private IEnumerable<KeyValuePair<Control, Border>> ValidatedFields => new[]
+    {
+        new KeyValuePair<Control, Border>(HeaderServerTextBox, HeaderServerTextBoxBorder),
+        new KeyValuePair<Control, Border>(DownloadServerTextBox, DownloadServerTextBoxBorder),
+        new KeyValuePair<Control, Border>(UploadServerTextBox, UploadServerTextBoxBorder),
+        new KeyValuePair<Control, Border>(HeaderServerPortComboBox, HeaderServerPortComboBoxBorder),
+        new KeyValuePair<Control, Border>(DownloadServerPortComboBox, DownloadServerPortComboBoxBorder),
+        new KeyValuePair<Control, Border>(UploadServerPortComboBox, UploadServerPortComboBoxBorder),
+        new KeyValuePair<Control, Border>(UserNameTextBox, UserNameTextBoxBorder),
+        new KeyValuePair<Control, Border>(PasswordTextBox, PasswordTextBoxBorder)
+    };
 
     public SelectProviderWindow()
     {
@@ -86,7 +112,7 @@ public partial class SelectProviderWindow : MetroWindow
             serverForDownload.SSL = serverForDownload.DoesProviderUseSsl();
             serverForHeaders.SSL = serverForHeaders.DoesProviderUseSsl();
             serverForUpload.SSL = serverForUpload.DoesProviderUseSsl();
-            if (ConnectionsCombo.Text.Equals("Auto"))
+            if (ConnectionsCombo.Text.Equals(AutoConnectionsString))
             {
                 serverForDownload.Connections = 0;
             }
@@ -118,6 +144,7 @@ public partial class SelectProviderWindow : MetroWindow
                 base.Cursor = null;
                 Mouse.OverrideCursor = null;
                 ConnectProgressRing.IsActive = false;
+                StatusLabel.Text = string.Empty;
                 Sys.EuroUsenetRetention = 0;
                 if (t.Result)
                 {
@@ -308,401 +335,125 @@ public partial class SelectProviderWindow : MetroWindow
         return Strings.Replace(empty, "-", "");
     }
 
+    /// <summary>The borders each highlight flag points at.</summary>
+    private IEnumerable<Border> BordersFor(HighlightControl control)
+    {
+        if (control.HasFlag(HighlightControl.Login))
+        {
+            yield return UserNameTextBoxBorder;
+            yield return PasswordTextBoxBorder;
+        }
+        if (control.HasFlag(HighlightControl.HeaderAddress)) yield return HeaderServerTextBoxBorder;
+        if (control.HasFlag(HighlightControl.HeaderPort)) yield return HeaderServerPortComboBoxBorder;
+        if (control.HasFlag(HighlightControl.DownloadAddress)) yield return DownloadServerTextBoxBorder;
+        if (control.HasFlag(HighlightControl.DownloadPort)) yield return DownloadServerPortComboBoxBorder;
+        if (control.HasFlag(HighlightControl.UploadAddress)) yield return UploadServerTextBoxBorder;
+        if (control.HasFlag(HighlightControl.UploadPort)) yield return UploadServerPortComboBoxBorder;
+    }
+
     private void StartAnimation(HighlightControl control)
     {
-        switch (control)
+        if (control == HighlightControl.None)
         {
-            case HighlightControl.Login:
-                UserNameTextBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                UserNameTextBoxBorder.Visibility = Visibility.Visible;
-                PasswordTextBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                PasswordTextBoxBorder.Visibility = Visibility.Visible;
-                UserNameTextBox.Tag = true;
-                break;
-            case HighlightControl.HeaderAddress:
-                HeaderServerTextBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                HeaderServerTextBoxBorder.Visibility = Visibility.Visible;
-                HeaderServerTextBox.Tag = true;
-                HeaderServerPortComboBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                HeaderServerPortComboBoxBorder.Visibility = Visibility.Visible;
-                HeaderServerPortComboBoxBorder.Tag = true;
-                break;
-            case HighlightControl.DownloadAddress:
-                DownloadServerTextBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                DownloadServerTextBoxBorder.Visibility = Visibility.Visible;
-                DownloadServerTextBox.Tag = true;
-                DownloadServerPortComboBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                DownloadServerPortComboBoxBorder.Visibility = Visibility.Visible;
-                DownloadServerPortComboBoxBorder.Tag = true;
-                break;
-            case HighlightControl.UploadAddress:
-                UploadServerTextBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                UploadServerTextBoxBorder.Visibility = Visibility.Visible;
-                UploadServerTextBox.Tag = true;
-                UploadServerPortComboBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                UploadServerPortComboBoxBorder.Visibility = Visibility.Visible;
-                UploadServerPortComboBoxBorder.Tag = true;
-                break;
-            case HighlightControl.HeaderPort:
-                HeaderServerPortComboBoxBorder.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
-                HeaderServerPortComboBoxBorder.Visibility = Visibility.Visible;
-                HeaderServerPortComboBoxBorder.Tag = true;
-                break;
-            default:
-                Log.Warn(Words.WrongValueCheckHighlighted);
-                break;
+            Log.Warn(Words.WrongValueCheckHighlighted);
+            return;
         }
+        // The header address and port are reported together, as they were in 2.0.
+        if (control.HasFlag(HighlightControl.HeaderAddress)) control |= HighlightControl.HeaderPort;
+        foreach (Border border in BordersFor(control))
+        {
+            border.BeginStoryboard(FieldAnimation, HandoffBehavior.SnapshotAndReplace, isControllable: true);
+            border.Tag = true;
+        }
+        HighlightedControl = control;
     }
 
     private void StopAnimation(HighlightControl control = HighlightControl.All)
     {
-        bool flag = default(bool);
-        int num;
-        if (control.HasFlag(HighlightControl.Login))
+        foreach (Border border in BordersFor(control))
         {
-            object tag;
-            if ((tag = UserNameTextBox.Tag) is bool)
-            {
-                flag = (bool)tag;
-                num = 1;
-            }
-            else
-            {
-                num = 0;
-            }
+            if (!(border.Tag is bool running) || !running) continue;
+            FieldAnimation.Stop(border);
+            border.Tag = false;
+            // Stopping the storyboard leaves the animated colour behind; restore the validation state.
+            border.BorderBrush = new SolidColorBrush(FieldValidColor);
         }
-        else
-        {
-            num = 0;
-        }
-
-        if (((uint)num & (flag ? 1u : 0u)) != 0)
-        {
-            FieldAnimation.Stop(UserNameTextBoxBorder);
-            FieldAnimation.Stop(PasswordTextBoxBorder);
-            UserNameTextBox.Tag = false;
-        }
-
-        bool flag2 = default(bool);
-        int num2;
-        if (control.HasFlag(HighlightControl.HeaderAddress))
-        {
-            object tag;
-            if ((tag = HeaderServerTextBox.Tag) is bool)
-            {
-                flag2 = (bool)tag;
-                num2 = 1;
-            }
-            else
-            {
-                num2 = 0;
-            }
-        }
-        else
-        {
-            num2 = 0;
-        }
-
-        if (((uint)num2 & (flag2 ? 1u : 0u)) != 0)
-        {
-            FieldAnimation.Stop(HeaderServerTextBoxBorder);
-            HeaderServerTextBox.Tag = false;
-        }
-
-        bool flag3 = default(bool);
-        int num3;
-        if (control.HasFlag(HighlightControl.HeaderPort))
-        {
-            object tag;
-            if ((tag = HeaderServerPortComboBoxBorder.Tag) is bool)
-            {
-                flag3 = (bool)tag;
-                num3 = 1;
-            }
-            else
-            {
-                num3 = 0;
-            }
-        }
-        else
-        {
-            num3 = 0;
-        }
-
-        if (((uint)num3 & (flag3 ? 1u : 0u)) != 0)
-        {
-            FieldAnimation.Stop(HeaderServerPortComboBoxBorder);
-            HeaderServerPortComboBoxBorder.Tag = false;
-        }
-
-        bool flag4 = default(bool);
-        int num4;
-        if (control.HasFlag(HighlightControl.UploadAddress))
-        {
-            object tag;
-            if ((tag = UploadServerTextBox.Tag) is bool)
-            {
-                flag4 = (bool)tag;
-                num4 = 1;
-            }
-            else
-            {
-                num4 = 0;
-            }
-        }
-        else
-        {
-            num4 = 0;
-        }
-
-        if (((uint)num4 & (flag4 ? 1u : 0u)) != 0)
-        {
-            FieldAnimation.Stop(UploadServerTextBoxBorder);
-            UploadServerTextBox.Tag = false;
-        }
-
-        bool flag5 = default(bool);
-        int num5;
-        if (control.HasFlag(HighlightControl.UploadPort))
-        {
-            object tag;
-            if ((tag = UploadServerPortComboBoxBorder.Tag) is bool)
-            {
-                flag5 = (bool)tag;
-                num5 = 1;
-            }
-            else
-            {
-                num5 = 0;
-            }
-        }
-        else
-        {
-            num5 = 0;
-        }
-
-        if (((uint)num5 & (flag5 ? 1u : 0u)) != 0)
-        {
-            FieldAnimation.Stop(UploadServerPortComboBoxBorder);
-            UploadServerPortComboBoxBorder.Tag = false;
-        }
-
-        bool flag6 = default(bool);
-        int num6;
-        if (control.HasFlag(HighlightControl.DownloadAddress))
-        {
-            object tag;
-            if ((tag = DownloadServerTextBox.Tag) is bool)
-            {
-                flag6 = (bool)tag;
-                num6 = 1;
-            }
-            else
-            {
-                num6 = 0;
-            }
-        }
-        else
-        {
-            num6 = 0;
-        }
-
-        if (((uint)num6 & (flag6 ? 1u : 0u)) != 0)
-        {
-            FieldAnimation.Stop(DownloadServerTextBoxBorder);
-            DownloadServerTextBox.Tag = false;
-        }
-
-        bool flag7 = default(bool);
-        int num7;
-        if (control.HasFlag(HighlightControl.DownloadPort))
-        {
-            object tag;
-            if ((tag = DownloadServerPortComboBoxBorder.Tag) is bool)
-            {
-                flag7 = (bool)tag;
-                num7 = 1;
-            }
-            else
-            {
-                num7 = 0;
-            }
-        }
-        else
-        {
-            num7 = 0;
-        }
-
-        if (((uint)num7 & (flag7 ? 1u : 0u)) != 0)
-        {
-            FieldAnimation.Stop(DownloadServerPortComboBoxBorder);
-            DownloadServerPortComboBoxBorder.Tag = false;
-        }
+        HighlightedControl &= ~control;
+        RefreshFieldBorders();
     }
 
-    private void HeaderServerTextBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        object tag;
-        bool flag = default(bool);
-        int num;
-        if ((tag = HeaderServerTextBox.Tag) is bool)
-        {
-            flag = (bool)tag;
-            num = 1;
-        }
-        else
-        {
-            num = 0;
-        }
+    private void HeaderServerTextBox_GotFocus(object sender, RoutedEventArgs e) => StopAnimation(HighlightControl.HeaderAddress | HighlightControl.HeaderPort);
 
-        if (((uint)num & (flag ? 1u : 0u)) != 0)
-        {
-            StopAnimation(HighlightControl.HeaderAddress);
-        }
-    }
+    private void UploadServerTextBox_GotFocus(object sender, RoutedEventArgs e) => StopAnimation(HighlightControl.UploadAddress);
 
-    private void UploadServerTextBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        object tag;
-        bool flag = default(bool);
-        int num;
-        if ((tag = UploadServerTextBox.Tag) is bool)
-        {
-            flag = (bool)tag;
-            num = 1;
-        }
-        else
-        {
-            num = 0;
-        }
+    private void DownloadServerTextBox_GotFocus(object sender, RoutedEventArgs e) => StopAnimation(HighlightControl.DownloadAddress);
 
-        if (((uint)num & (flag ? 1u : 0u)) != 0)
-        {
-            StopAnimation(HighlightControl.UploadAddress);
-        }
-    }
+    private void HeaderServerPortComboBox_GotFocus(object sender, RoutedEventArgs e) => StopAnimation(HighlightControl.HeaderPort);
 
-    private void DownloadServerTextBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        object tag;
-        bool flag = default(bool);
-        int num;
-        if ((tag = DownloadServerTextBox.Tag) is bool)
-        {
-            flag = (bool)tag;
-            num = 1;
-        }
-        else
-        {
-            num = 0;
-        }
+    private void UploadServerPortComboBox_GotFocus(object sender, RoutedEventArgs e) => StopAnimation(HighlightControl.UploadPort);
 
-        if (((uint)num & (flag ? 1u : 0u)) != 0)
-        {
-            StopAnimation(HighlightControl.DownloadAddress);
-        }
-    }
+    private void DownloadServerPortComboBox_GotFocus(object sender, RoutedEventArgs e) => StopAnimation(HighlightControl.DownloadPort);
 
-    private void HeaderServerPortComboBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        object tag;
-        bool flag = default(bool);
-        int num;
-        if ((tag = HeaderServerPortComboBoxBorder.Tag) is bool)
-        {
-            flag = (bool)tag;
-            num = 1;
-        }
-        else
-        {
-            num = 0;
-        }
+    private void UserNameTextBox_GotFocus(object sender, RoutedEventArgs e) => StopAnimation(HighlightControl.Login);
 
-        if (((uint)num & (flag ? 1u : 0u)) != 0)
-        {
-            StopAnimation(HighlightControl.HeaderPort);
-        }
-    }
+    private void PasswordTextBox_GotFocus(object sender, RoutedEventArgs e) => StopAnimation(HighlightControl.Login);
 
-    private void UploadServerPortComboBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        object tag;
-        bool flag = default(bool);
-        int num;
-        if ((tag = UploadServerPortComboBoxBorder.Tag) is bool)
-        {
-            flag = (bool)tag;
-            num = 1;
-        }
-        else
-        {
-            num = 0;
-        }
-
-        if (((uint)num & (flag ? 1u : 0u)) != 0)
-        {
-            StopAnimation(HighlightControl.UploadPort);
-        }
-    }
-
-    private void DownloadServerPortComboBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        object tag;
-        bool flag = default(bool);
-        int num;
-        if ((tag = DownloadServerPortComboBoxBorder.Tag) is bool)
-        {
-            flag = (bool)tag;
-            num = 1;
-        }
-        else
-        {
-            num = 0;
-        }
-
-        if (((uint)num & (flag ? 1u : 0u)) != 0)
-        {
-            StopAnimation(HighlightControl.DownloadPort);
-        }
-    }
-
-    private void ProviderBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        StopAnimation();
-    }
-
-    private void UserNameTextBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        object tag;
-        bool flag = default(bool);
-        int num;
-        if ((tag = UserNameTextBox.Tag) is bool)
-        {
-            flag = (bool)tag;
-            num = 1;
-        }
-        else
-        {
-            num = 0;
-        }
-
-        if (((uint)num & (flag ? 1u : 0u)) != 0)
-        {
-            StopAnimation(HighlightControl.Login);
-        }
-    }
-
-    private void PasswordTextBox_GotFocus(object sender, RoutedEventArgs e)
-    {
-        UserNameTextBox_GotFocus(sender, e);
-    }
-
+    /// <summary>
+    /// While the user types, WPF keeps re-selecting whatever survived the filter. Applying those
+    /// interim selections would rewrite the server fields and clear the credentials on every
+    /// keystroke, so a search only commits when the dropdown closes.
+    /// </summary>
     private void ProviderBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        ProviderItem providerItem = (ProviderItem)ProviderBox.SelectedItem;
-        if (providerItem.Headers.IsNullOrEmpty())
+        // A search commits through CommitProviderChoice instead, never from an interim selection.
+        if (_userIsSearching) return;
+        ApplySelectedProvider();
+    }
+
+    private void ProviderBox_DropDownClosed(object sender, EventArgs e) => CommitProviderChoice();
+
+    /// <summary>
+    /// Ends a search. Only a real pick applies a provider: a dropdown that closes for any other
+    /// reason - losing focus, a click elsewhere - must leave the configured provider alone.
+    /// </summary>
+    private void CommitProviderChoice()
+    {
+        // Capture before clearing: refreshing the view resets the ComboBox selection.
+        ProviderItem chosen = _providerChosen ? ProviderBox.SelectedItem as ProviderItem : null;
+        _providerChosen = false;
+        ClearProviderFilter();
+        if (chosen != null)
+        {
+            if (!ReferenceEquals(ProviderBox.SelectedItem, chosen)) ProviderBox.SelectedItem = chosen;
+            ApplySelectedProvider();
+        }
+        RestoreProviderText();
+    }
+
+    /// <summary>A click that lands on a row of the dropdown, as opposed to anywhere else.</summary>
+    private void ProviderBox_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        for (DependencyObject node = e.OriginalSource as DependencyObject; node != null; node = VisualTreeHelper.GetParent(node))
+        {
+            if (node is ComboBoxItem)
+            {
+                _providerChosen = true;
+                return;
+            }
+        }
+    }
+
+    private void ApplySelectedProvider()
+    {
+        if (!(ProviderBox.SelectedItem is ProviderItem providerItem)) return;
+        // Re-applying the provider already in the fields would throw away typed credentials.
+        if (ReferenceEquals(providerItem, _appliedProvider)) return;
+        _appliedProvider = providerItem;
+
+        if (providerItem.IsManual)
         {
             AdvancedSettingsExpander.IsExpanded = true;
+            HeaderServerTextBox.Focus();
             return;
         }
 
@@ -716,7 +467,7 @@ public partial class SelectProviderWindow : MetroWindow
         EnableVal(bVal: true);
         UserNameTextBox.Clear();
         PasswordTextBox.Clear();
-        ConnectionsCombo.Text = "Auto";
+        ConnectionsCombo.Text = AutoConnectionsString;
         UserNameTextBox.Focus();
     }
 
@@ -741,14 +492,14 @@ public partial class SelectProviderWindow : MetroWindow
     {
         switch (port)
         {
-            case 0:
-            case 119:
+            case 563:
                 portCombo.SelectedIndex = 0;
                 break;
             case 443:
                 portCombo.SelectedIndex = 1;
                 break;
-            case 563:
+            case 0:
+            case 119:
                 portCombo.SelectedIndex = 2;
                 break;
             case 80:
@@ -762,47 +513,22 @@ public partial class SelectProviderWindow : MetroWindow
 
     private void ProviderSelectie_Initialized(object sender, EventArgs e)
     {
-        CreateTextWithTheLink();
-        Collection collection = new Collection();
         try
         {
             base.FontSize = (int)Settings.Default.FontSize;
-            collection.Add("5 Euro Usenet#reader.5eurousenet.com#80");
-            collection.Add("Eweka#newsreader1.eweka.nl#443#upload.eweka.nl#443#textnews.eweka.nl#443");
-            collection.Add("KPN v1#nova.planet.nl#563#text.nova.planet.nl#563#text.nova.planet.nl#563");
-            collection.Add("KPN v2#textnews.kpn.nl#563#news.kpn.nl#563");
-            collection.Add("NewsXS#reader2.newsxs.nl#443");
-            collection.Add("XSnews#reader.xsnews.nl#443#upload.xsnews.nl#443");
-            collection.Add("SnelNL#reader.snelnl.com#80");
-            collection.Add("Extreme Usenet#reader.extremeusenet.nl#443");
-            collection.Add("Sunny Usenet#news.sunnyusenet.com#443");
-            collection.Add("Pure Usenet#news.pureusenet.nl#443");
-            collection.Add("Tele2#tele2news.tweaknews.nl#563");
-            collection.Add(" ");
-            collection.Add(Words.Other + "...##563");
-            foreach (object item in collection)
+
+            // Each border needs its own unbound brush; the storyboard animates BorderBrush.Color,
+            // which cannot touch the frozen brush a Style setter would hand out.
+            foreach (KeyValuePair<Control, Border> field in ValidatedFields)
             {
-                string text = item.ToStringSafely();
-                if (!text.Trim().IsNullOrEmpty())
-                {
-                    string[] array = Strings.Split(text, "#");
-                    ProviderItem newItem = new ProviderItem
-                    {
-                        Download = array[1],
-                        Upload = ((array.Length > 3) ? array[3] : array[1]),
-                        Headers = ((array.Length > 5) ? array[5] : array[1]),
-                        Name = array[0],
-                        DownloadPort = Conversions.ToInteger(array[2]),
-                        UploadPort = Conversions.ToInteger((array.Length > 4) ? array[4] : array[2]),
-                        HeadersPort = Conversions.ToInteger((array.Length > 6) ? array[6] : array[2])
-                    };
-                    ProviderBox.Items.Add(newItem);
-                }
-                else
-                {
-                    ProviderBox.Items.Add(new ProviderItem());
-                }
+                field.Value.BorderBrush = new SolidColorBrush(FieldValidColor);
+                field.Value.Tag = false;
             }
+
+            BuildProviderView();
+            ProviderBox.AddHandler(TextBoxBase.TextChangedEvent, new TextChangedEventHandler(ProviderBox_OnTextChanged));
+            // Dropdown rows live in the popup; their mouse events still route through the ComboBox.
+            ProviderBox.AddHandler(UIElement.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(ProviderBox_PreviewMouseUp), handledEventsToo: true);
 
             ServerInfo oDown = AppHelper.ServersDb.ODown;
             ServerInfo oHeader = AppHelper.ServersDb.OHeader;
@@ -814,14 +540,15 @@ public partial class SelectProviderWindow : MetroWindow
             SetServerPort(oHeader.Port, HeaderServerPortComboBox);
             SetServerPort(oUp.Port, UploadServerPortComboBox);
             SyncCheckBoxesWithHeaderServer();
-            ConnectionsCombo.Text = (oDown.Connections + oHeader.Connections).ToString();
+            ConnectionsCombo.Text = (oDown.Connections + oHeader.Connections).ToString(CultureInfo.InvariantCulture);
             UserNameTextBox.Text = oDown.Username;
             PasswordTextBox.Password = ((!oDown.Password.IsNullOrEmpty()) ? oDown.Password : "");
             _lastSettingsString = CurrentSettingsString;
             _initializationFinished = true;
             ProviderBox.SelectionChanged += ProviderBox_SelectionChanged;
             UpdateProviderBoxSelection();
-            if (ProviderBox.SelectedIndex >= ProviderBox.Items.Count - 2)
+            UpdateProviderCountLabel();
+            if ((ProviderBox.SelectedItem as ProviderItem)?.IsManual != false)
             {
                 ProviderBox.Focus();
             }
@@ -833,12 +560,51 @@ public partial class SelectProviderWindow : MetroWindow
             ValidateAll();
             UpdateConnectButtonState();
             Activate();
+            StartCatalogueRefresh();
         }
         catch (Exception ex)
         {
             Log.Exception(ex, showToClient: true);
             Close();
         }
+    }
+
+    private void BuildProviderView()
+    {
+        _providerView = new ListCollectionView(UsenetProviders.All.ToList());
+        _providerView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProviderItem.GroupDisplayName)));
+        _providerView.Filter = candidate => ((ProviderItem)candidate).Matches(_providerFilter);
+        ProviderBox.ItemsSource = _providerView;
+    }
+
+    /// <summary>
+    /// Picks up a newly published catalogue without a restart. The dialog opens on whatever list is
+    /// already known, so this never delays it; if the fetch changes anything the list is rebuilt
+    /// around the provider currently selected.
+    /// </summary>
+    private void StartCatalogueRefresh()
+    {
+        ProviderCatalogueSource.RefreshAsync().ContinueWith(task =>
+        {
+            // Leave the list alone while the user is busy in it; a list that reorders mid-search
+            // is worse than one that updates the next time the dialog opens.
+            if (!task.Result || _userIsSearching || ProviderBox.IsDropDownOpen || !IsLoaded) return;
+            lock (_lockRoot)
+            {
+                ProviderBox.SelectionChanged -= ProviderBox_SelectionChanged;
+                try
+                {
+                    BuildProviderView();
+                    _appliedProvider = null;
+                }
+                finally
+                {
+                    ProviderBox.SelectionChanged += ProviderBox_SelectionChanged;
+                }
+            }
+            UpdateProviderBoxSelection();
+            UpdateProviderCountLabel();
+        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
     }
 
     private void SyncCheckBoxesWithHeaderServer()
@@ -850,25 +616,93 @@ public partial class SelectProviderWindow : MetroWindow
         UploadServerCheckBox.IsChecked = !text2.Equals(value);
     }
 
-    private void CreateTextWithTheLink()
+    /// <summary>Narrows the dropdown to what the user has typed, matching name as well as hostname.</summary>
+    private void ProviderBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
-        Run item = new Run(Words.SelectProviderLinkText1);
-        Run childInline = new Run(Words.SelectProviderLinkText2);
-        Run item2 = new Run(Words.SelectProviderLinkText3);
-        Hyperlink hyperlink = new Hyperlink(childInline)
+        if (!_userIsSearching || !_initializationFinished) return;
+        _providerFilter = ProviderBox.Text ?? string.Empty;
+        _providerView.Refresh();
+        UpdateProviderCountLabel();
+        if (!ProviderBox.IsDropDownOpen && _providerFilter.Length > 0)
         {
-            NavigateUri = new Uri(Words.SelectProviderLinkURL)
-        };
-        hyperlink.RequestNavigate += Hyperlink_OnClick;
-        TextWithTheLink.Inlines.Clear();
-        TextWithTheLink.Inlines.Add(item);
-        TextWithTheLink.Inlines.Add(hyperlink);
-        TextWithTheLink.Inlines.Add(item2);
+            ProviderBox.IsDropDownOpen = true;
+        }
     }
 
-    private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
+    /// <summary>A printable character in the edit box is the one unambiguous "user is searching" signal.</summary>
+    private void ProviderBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
-        Process.Start(((Hyperlink)sender).NavigateUri.ToString());
+        // The box still holds the selected provider's name. Select it so the TextBox replaces it
+        // with this keystroke; without that the first character appends, giving "Eweka" + "n" and
+        // an empty list. Selecting rather than clearing keeps this independent of when the
+        // TextBox does its own insert.
+        if (!_userIsSearching) ProviderEditBox?.SelectAll();
+        _userIsSearching = true;
+    }
+
+    /// <summary>Selecting the text on focus lets the next keystroke replace it, as a search box should.</summary>
+    private void ProviderBox_GotFocus(object sender, RoutedEventArgs e)
+    {
+        StopAnimation();
+        ProviderEditBox?.SelectAll();
+    }
+
+    private TextBox ProviderEditBox => ProviderBox.Template?.FindName("PART_EditableTextBox", ProviderBox) as TextBox;
+
+    private void ProviderBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case Key.Back:
+            case Key.Delete:
+                _userIsSearching = true;
+                break;
+            // Enter would otherwise reach the Connect button while the user is still searching.
+            case Key.Enter when _userIsSearching || ProviderBox.IsDropDownOpen:
+                if (ProviderBox.SelectedItem == null) SelectFirstMatch();
+                _providerChosen = ProviderBox.SelectedItem != null;
+                ProviderBox.IsDropDownOpen = false;
+                CommitProviderChoice();
+                e.Handled = true;
+                break;
+            case Key.Escape when _userIsSearching || ProviderBox.IsDropDownOpen:
+                ProviderBox.IsDropDownOpen = false;
+                _providerChosen = false;
+                CommitProviderChoice();
+                e.Handled = true;
+                break;
+            case Key.Down when !ProviderBox.IsDropDownOpen:
+                ProviderBox.IsDropDownOpen = true;
+                e.Handled = true;
+                break;
+        }
+    }
+
+    private void SelectFirstMatch()
+    {
+        ProviderItem first = _providerView.Cast<ProviderItem>().FirstOrDefault();
+        if (first != null) ProviderBox.SelectedItem = first;
+    }
+
+    private void ClearProviderFilter()
+    {
+        _userIsSearching = false;
+        if (_providerFilter.Length == 0) return;
+        _providerFilter = string.Empty;
+        _providerView.Refresh();
+        UpdateProviderCountLabel();
+    }
+
+    /// <summary>Puts the selected provider's name back in the edit box after an abandoned search.</summary>
+    private void RestoreProviderText()
+    {
+        _userIsSearching = false;
+        ProviderBox.Text = (ProviderBox.SelectedItem as ProviderItem)?.Name ?? string.Empty;
+    }
+
+    private void UpdateProviderCountLabel()
+    {
+        ProviderCountLabel.Text = string.Format(CultureInfo.CurrentCulture, Words.ProviderCount, _providerView.Count, UsenetProviders.All.Count);
     }
 
     private void UpdateProviderBoxSelection()
@@ -881,30 +715,17 @@ public partial class SelectProviderWindow : MetroWindow
         lock (_lockRoot)
         {
             ProviderBox.SelectionChanged -= ProviderBox_SelectionChanged;
+            _userIsSearching = false;
             try
             {
-                int selectedIndex = ProviderBox.SelectedIndex;
-                bool flag = false;
-                string text = HeaderServerTextBox.Text.Trim();
-                bool flag2 = text.ToLower().EndsWith(".snelnl.com");
-                for (int i = 0; i < ProviderBox.Items.Count; i++)
+                ProviderItem match = UsenetProviders.Match(UsenetProviders.All, HeaderServerTextBox.Text)
+                    ?? UsenetProviders.All.First(p => p.IsManual);
+                if (!ReferenceEquals(ProviderBox.SelectedItem, match))
                 {
-                    if ((flag2 && ((ProviderItem)ProviderBox.Items[i]).Name.Equals("SnelNL")) || ((ProviderItem)ProviderBox.Items[i]).Headers.EqualsIgnoreCase(text))
-                    {
-                        if (selectedIndex != i)
-                        {
-                            ProviderBox.SelectedIndex = i;
-                        }
-
-                        flag = true;
-                        break;
-                    }
+                    ProviderBox.SelectedItem = match;
                 }
-
-                if (!flag || ProviderBox.SelectedIndex == -1)
-                {
-                    ProviderBox.SelectedIndex = ProviderBox.Items.Count - 1;
-                }
+                ProviderBox.Text = match.Name;
+                _appliedProvider = match;
             }
             finally
             {
@@ -917,19 +738,7 @@ public partial class SelectProviderWindow : MetroWindow
     {
         if (_initializationFinished)
         {
-            List<Control> source = new List<Control>
-            {
-                HeaderServerTextBox,
-                UploadServerTextBox,
-                DownloadServerTextBox,
-                HeaderServerPortComboBox,
-                UploadServerPortComboBox,
-                DownloadServerPortComboBox,
-                ConnectionsCombo,
-                UserNameTextBox,
-                PasswordTextBox
-            };
-            ConnectButton.IsEnabled = AreSettingsChanged && !source.Any((Control f) => object.Equals(f.Background, _fieldInvalidBackground));
+            ConnectButton.IsEnabled = AreSettingsChanged && _invalidFields.Count == 0;
         }
     }
 
@@ -938,54 +747,56 @@ public partial class SelectProviderWindow : MetroWindow
         return ValidateAddress(HeaderServerTextBox) & ValidateAddress(DownloadServerTextBox) & ValidateAddress(UploadServerTextBox) & ValidatePort(HeaderServerPortComboBox) & ValidatePort(DownloadServerPortComboBox) & ValidatePort(UploadServerPortComboBox) & ValidateConnections() & ValidateUsername() & ValidatePassword();
     }
 
+    /// <summary>Records the outcome for one field and paints its border accordingly.</summary>
+    private bool Record(Control field, bool valid)
+    {
+        if (valid) _invalidFields.Remove(field);
+        else _invalidFields.Add(field);
+        RefreshFieldBorder(field);
+        return valid;
+    }
+
+    private void RefreshFieldBorders()
+    {
+        foreach (KeyValuePair<Control, Border> field in ValidatedFields) RefreshFieldBorder(field.Key);
+    }
+
+    private void RefreshFieldBorder(Control field)
+    {
+        Border border = ValidatedFields.FirstOrDefault(f => ReferenceEquals(f.Key, field)).Value;
+        // Leave a field alone while its "check this" storyboard is running.
+        if (border == null || (border.Tag is bool running && running)) return;
+        border.BorderBrush = new SolidColorBrush(_invalidFields.Contains(field) ? FieldInvalidColor : FieldValidColor);
+    }
+
     private bool ValidateAddress(TextBox addrBox)
     {
-        bool flag = !addrBox.Text.Trim().IsNullOrEmpty() && (AppHelper.IsDomainName(addrBox.Text) || AppHelper.IsIp(addrBox.Text));
-        addrBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
-        return flag;
+        return Record(addrBox, !addrBox.Text.Trim().IsNullOrEmpty() && (AppHelper.IsDomainName(addrBox.Text) || AppHelper.IsIp(addrBox.Text)));
     }
 
     private bool ValidatePort(ComboBox portCombo)
     {
         if (portCombo.Text.IsNullOrEmpty())
         {
-            portCombo.Background = _fieldInvalidBackground;
-            return false;
+            return Record(portCombo, valid: false);
         }
 
-        int result;
-        bool flag = int.TryParse(portCombo.Text.Split()[0], out result) && result > 0 && result < 65535;
-        portCombo.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
-        return flag;
+        return Record(portCombo, int.TryParse(portCombo.Text.Split()[0], out int result) && result > 0 && result < 65535);
     }
 
     private bool ValidateConnections()
     {
         if (ConnectionsCombo.Text.IsNullOrEmpty())
         {
-            ConnectionsCombo.Background = _fieldInvalidBackground;
-            return false;
+            return Record(ConnectionsCombo, valid: false);
         }
 
-        int result;
-        bool flag = ConnectionsCombo.Text.Equals("Auto") || (int.TryParse(ConnectionsCombo.Text, out result) && result >= 3 && result <= 100);
-        ConnectionsCombo.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
-        return flag;
+        return Record(ConnectionsCombo, ConnectionsCombo.Text.Equals(AutoConnectionsString) || (int.TryParse(ConnectionsCombo.Text, out int result) && result >= 3 && result <= 100));
     }
 
-    private bool ValidateUsername()
-    {
-        bool flag = UserNameTextBox.Text.Length < 200;
-        UserNameTextBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
-        return flag;
-    }
+    private bool ValidateUsername() => Record(UserNameTextBox, UserNameTextBox.Text.Length < 200);
 
-    private bool ValidatePassword()
-    {
-        bool flag = PasswordTextBox.Password.Length < 200;
-        PasswordTextBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
-        return flag;
-    }
+    private bool ValidatePassword() => Record(PasswordTextBox, PasswordTextBox.Password.Length < 200);
 
     private void ConnectButton_Click(object sender, RoutedEventArgs e)
     {
@@ -995,6 +806,7 @@ public partial class SelectProviderWindow : MetroWindow
         base.Cursor = Cursors.Wait;
         Mouse.OverrideCursor = Cursors.Wait;
         ConnectProgressRing.IsActive = true;
+        StatusLabel.Text = Words.Testing;
         UpdateLayout();
         DoButton();
     }
@@ -1100,15 +912,5 @@ public partial class SelectProviderWindow : MetroWindow
     {
         UploadServerTextBox.IsEnabled = true;
         UploadServerPortComboBox.IsEnabled = true;
-    }
-
-    private void SocksProxyCheckBox_OnChecked(object sender, RoutedEventArgs e)
-    {
-        UpdateConnectButtonState();
-    }
-
-    private void SocksProxyCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
-    {
-        UpdateConnectButtonState();
     }
 }

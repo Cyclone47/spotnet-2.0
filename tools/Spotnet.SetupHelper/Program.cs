@@ -44,7 +44,9 @@ internal static class Program
                 ProfileMigration.EnsureSpotnetClosed();
                 options.TryGetValue("--source-data", out string source);
                 options.TryGetValue("--source-settings", out string settings);
-                string result = new ProfileMigration().Prepare(options["--profile"], source, settings, Console.WriteLine);
+                options.TryGetValue("--language", out string language);
+                if (language != null && language != "nl" && language != "en") throw new ArgumentException("Unsupported language.");
+                string result = new ProfileMigration().Prepare(options["--profile"], source, settings, Console.WriteLine, language);
                 if (report != null) File.WriteAllText(report, result, Encoding.Unicode);
                 Console.WriteLine(result);
             }

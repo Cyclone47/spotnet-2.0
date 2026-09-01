@@ -153,6 +153,14 @@
     <EmbeddedResource Update="Spotnet.Properties.Categories.resx" LogicalName="Spotnet.Properties.Categories.resources" />
     <EmbeddedResource Update="Spotnet.Properties.Resources.resx" LogicalName="Spotnet.Properties.Resources.resources" />
     <EmbeddedResource Update="Spotnet.Properties.Words.resx" LogicalName="Spotnet.Properties.Words.resources" />
+    <!-- Dutch satellite resources. The 2.0 binary shipped nl\Spotnet.resources.dll; the
+         reconstruction only recovered the dumps, so every Dutch install silently fell back
+         to the neutral English table. These rebuild nl\Spotnet.resources.dll.
+         The culture belongs in the logical name: ResourceManager.GetResourceFileName appends
+         the culture for non-invariant lookups, so a satellite holding a name without it loads
+         but resolves nothing. This matches the 2.0 binary's own satellite. -->
+    <EmbeddedResource Update="Spotnet.Properties.Categories.nl.resx" LogicalName="Spotnet.Properties.Categories.nl.resources" Culture="nl" />
+    <EmbeddedResource Update="Spotnet.Properties.Words.nl.resx" LogicalName="Spotnet.Properties.Words.nl.resources" Culture="nl" />
     <EmbeddedResource Include="Spotnet.Resources.badwords.txt" LogicalName="Spotnet.Resources.badwords.txt" />
     <EmbeddedResource Include="Spotnet.Resources.null_modulus.txt" LogicalName="Spotnet.Resources.null_modulus.txt" />
     <Resource Include="Resources\ImagesInternal\**\*" />

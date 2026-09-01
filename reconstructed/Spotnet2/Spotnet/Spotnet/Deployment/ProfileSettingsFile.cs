@@ -65,6 +65,20 @@ public static class ProfileSettingsFile
         return result;
     }
 
+    public static string Get(XmlDocument document, string name)
+    {
+        XmlConvert.VerifyNCName(name);
+        return (Section(document)?.SelectSingleNode("setting[@name='" + name + "']/value"))?.InnerText;
+    }
+
+    /// <summary>Seeds a value the installer knows without overruling one the imported profile carried.</summary>
+    public static void SetIfAbsent(XmlDocument document, string name, string value)
+    {
+        if (string.IsNullOrEmpty(value)) return;
+        if (!string.IsNullOrWhiteSpace(Get(document, name))) return;
+        Set(document, name, value);
+    }
+
     public static void Set(XmlDocument document, string name, string value)
     {
         XmlConvert.VerifyNCName(name);

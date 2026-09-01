@@ -9,8 +9,8 @@ AppId={{76851D20-501E-45B0-9869-853F814BE60E}
 AppName=Spotnet 3.0 (64-bit)
 AppVersion={#AppVersion}
 AppPublisher=Spotnet 3.0 contributors
-AppPublisherURL=https://github.com/Cyclone47/spotnet-2.0
-AppSupportURL=https://github.com/Cyclone47/spotnet-2.0/issues
+AppPublisherURL=https://github.com/Cyclone47/spotnet-3.0
+AppSupportURL=https://github.com/Cyclone47/spotnet-3.0/issues
 #ifdef SmokeTestRoot
 DefaultDirName={#SmokeTestRoot}\App
 #else
@@ -444,6 +444,9 @@ begin
     ProgressPage.SetText(CM('StatusProfile'), CM('ProgressDetail'));
   end;
   Parameters := 'prepare --profile ' + Quote(ProfileRoot) + ' --report ' + Quote(ReportFile);
+  { A new profile starts in the language Setup ran in; an imported profile keeps its own choice. }
+  if IsDutch then Parameters := Parameters + ' --language nl'
+  else Parameters := Parameters + ' --language en';
   if SelectedData <> '' then Parameters := Parameters + ' --source-data ' + Quote(SelectedData);
   if SelectedSettings <> '' then Parameters := Parameters + ' --source-settings ' + Quote(SelectedSettings);
   if not Exec(Helper, Parameters, '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then begin

@@ -2,7 +2,7 @@
 
 ## Download for Windows x64
 
-**[Download Spotnet 3.0.2 Setup](https://github.com/Cyclone47/spotnet-2.0/releases/download/v3.0.2/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-2.0/releases/tag/v3.0.2)
+**[Download Spotnet 3.0.2 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.2/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.2)
 
 **Latest fix:** readable dark-mode menus, nested submenus, and right-click menus, including hover, checked, and disabled items. Light-mode contrast is corrected too.
 
@@ -38,7 +38,7 @@ The main reconstruction target is **Spotnet 2.0, build 2.0.0.284**, originally a
 
 The reconstruction recovered C# code from the application assemblies, extracted embedded resources and localization, and converted 61 compiled WPF BAML layouts back into XAML. The original mixed-mode `Spotnet.Enc` decoder was replaced with a managed C# implementation.
 
-Spotnet 3.0 is the name of the modernized application in this repository; it is not a claim of an official upstream release. The GitHub repository name `spotnet-2.0` and source folder `reconstructed/Spotnet2/` retain their historical names. References to 1.8.1 or 2.0 in provenance documents describe those original versions, not the current product version.
+Spotnet 3.0 is the name of the modernized application in this repository; it is not a claim of an official upstream release. The source folder `reconstructed/Spotnet2/` retains its historical name. References to 1.8.1 or 2.0 in provenance documents describe those original versions, not the current product version.
 
 See the [source provenance record](docs/SOURCE_PROVENANCE.md), [original binary inventory](docs/INVENTORY.md), and [1.8.1 versus 2.0 comparison](docs/181_VS_20_DIFF.md).
 
@@ -205,6 +205,7 @@ Use backups and understand the selected recovery operation before running repair
 
 - [Build and setup](docs/BUILDING.md)
 - [Installer, migration, and rollback](docs/INSTALLER.md)
+- [Updating the Usenet provider list](docs/PROVIDERS.md)
 - [Database schema and recovery background](docs/DATABASE.md)
 - [NNTP, spot XML, and signatures](docs/PROTOCOL.md)
 - [Development handoff and open work](docs/HANDOFF.md)
