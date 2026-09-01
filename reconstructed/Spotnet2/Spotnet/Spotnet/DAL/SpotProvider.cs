@@ -555,6 +555,58 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		sqlDbTransaction.Commit();
 	}
 
+	/// <summary>
+	/// Creates the core schema when SQLite has just opened a new file, and repairs the
+	/// small partial schema left behind by Spotnet 3.0.4's first-run initialization bug.
+	/// </summary>
+	/// <remarks>
+	/// Opening a writable SQLite connection creates a non-empty database header. The old
+	/// startup code checked the file length after opening the connection, so it skipped
+	/// schema creation and subsequently created only the two upgrade tables. Restrict the
+	/// repair path to exactly those known tables so an unrelated or damaged database is
+	/// never overwritten silently.
+	/// </remarks>
+	private bool EnsureSpotsSchema(ISqlDb db)
+	{
+		if (db.ExecuteScalar("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'spots'", null) == 1)
+		{
+			return false;
+		}
+
+		long tableCount = db.ExecuteScalar("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table'", null);
+		if (tableCount == 0)
+		{
+			CreateSpotsTablesOnEmptyDatabase(db);
+			return true;
+		}
+
+		string[] existingTables = db.ExecuteCommand(
+			"SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name", null)
+			.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+		string[] recoverableTables = { "spamgroup", "spamreports" };
+		if (existingTables.Length == 0 || existingTables.Any(name => !recoverableTables.Contains(name, StringComparer.OrdinalIgnoreCase)))
+		{
+			throw new Exception("The spots database is missing its core schema and cannot be repaired safely");
+		}
+
+		Log.Warn("Repairing incomplete first-run spots database {0}", db.Filename);
+		using ISqlDbTransaction transaction = db.BeginWriteTransaction(exclusive: true);
+		foreach (string statement in SpotsSchema.Tables)
+		{
+			if (db.ExecuteNonQuery(statement, transaction) < -1)
+			{
+				throw new Exception("Could not repair the incomplete spots database: " + statement);
+			}
+		}
+		transaction.Commit();
+
+		if (db.ExecuteScalar("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'spots'", null) != 1)
+		{
+			throw new Exception("The incomplete spots database repair did not create the spots table");
+		}
+		return true;
+	}
+
 	private long FDate()
 	{
 		return DateTime.UtcNow.ToUnixTime();
@@ -741,10 +793,9 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 				flag = true;
 			}
 			Filename = sqlDb.Filename;
-			if (!File.Exists(Filename) || new FileInfo(Filename).Length < 1)
+			if (EnsureSpotsSchema(sqlDb))
 			{
 				flag = true;
-				CreateSpotsTablesOnEmptyDatabase(sqlDb);
 				if (new FileInfo(Filename).Length < 1)
 				{
 					throw new Exception("db creation failed");
@@ -755,11 +806,17 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 			{
 				foreach (string statement in SpotsSchema.Indexes)
 				{
-					sqlDb.ExecuteNonQuery(statement, sqlDbTransaction);
+					if (sqlDb.ExecuteNonQuery(statement, sqlDbTransaction) < -1)
+					{
+						throw new Exception("Could not create database index: " + statement);
+					}
 				}
 				foreach (string statement in SpotsSchema.SearchTriggers)
 				{
-					sqlDb.ExecuteNonQuery(statement, sqlDbTransaction);
+					if (sqlDb.ExecuteNonQuery(statement, sqlDbTransaction) < -1)
+					{
+						throw new Exception("Could not create database trigger: " + statement);
+					}
 				}
 				sqlDbTransaction.Commit();
 			}

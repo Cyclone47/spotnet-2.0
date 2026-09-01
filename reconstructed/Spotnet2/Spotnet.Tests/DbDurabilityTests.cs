@@ -139,15 +139,39 @@ namespace Spotnet.Tests
         public void FreshInstallerProfile_CanCreateItsFirstSpotsDatabase()
         {
             using var db = new SQliteDb(_dbFile);
-            var method = typeof(SpotProvider).GetMethod("CreateSpotsTablesOnEmptyDatabase",
+            // Opening SQliteDb already creates a non-empty SQLite header. This is the
+            // real first-run order that regressed in 3.0.4.
+            Assert.True(File.Exists(_dbFile));
+            Assert.True(new FileInfo(_dbFile).Length > 0);
+            var method = typeof(SpotProvider).GetMethod("EnsureSpotsSchema",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             Assert.NotNull(method);
             // The schema method does not need UI/settings state from the constructor.
             var provider = (SpotProvider)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(SpotProvider));
-            method.Invoke(provider, new object[] { db });
+            Assert.True((bool)method.Invoke(provider, new object[] { db }));
             Assert.Equal(SpotsSchema.CurrentUserVersion, db.ExecuteScalar("PRAGMA user_version", null));
             Assert.Equal(SpotsSchema.SpotsPageSize, db.ExecuteScalar("PRAGMA page_size", null));
             Assert.Equal("wal", db.ExecuteCommand("PRAGMA journal_mode", null).Trim().ToLowerInvariant());
+            Assert.Equal(1L, db.ExecuteScalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='spots'", null));
+        }
+
+        [Fact]
+        public void IncompleteFirstRunDatabase_IsRepairedWithoutDeletingUpgradeTables()
+        {
+            using var db = new SQliteDb(_dbFile);
+            db.ExecuteNonQuery("CREATE TABLE spamreports(rowid INTEGER PRIMARY KEY, msgid TEXT, modulus TEXT, date INT, reportmsgid TEXT, sender TEXT)", null);
+            db.ExecuteNonQuery("CREATE TABLE spamgroup(msgid TEXT PRIMARY KEY NOT NULL, cnt INT DEFAULT 0)", null);
+            db.ExecuteNonQuery("INSERT INTO spamgroup(msgid, cnt) VALUES('preserve-me', 3)", null);
+            db.ExecuteNonQuery("PRAGMA user_version = 2", null);
+
+            var method = typeof(SpotProvider).GetMethod("EnsureSpotsSchema",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var provider = (SpotProvider)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(SpotProvider));
+            Assert.True((bool)method.Invoke(provider, new object[] { db }));
+
+            Assert.Equal(1L, db.ExecuteScalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='spots'", null));
+            Assert.Equal(3L, db.ExecuteScalar("SELECT cnt FROM spamgroup WHERE msgid='preserve-me'", null));
+            Assert.Equal(SpotsSchema.CurrentUserVersion, db.ExecuteScalar("PRAGMA user_version", null));
         }
 
         [Fact]
@@ -156,7 +180,7 @@ namespace Spotnet.Tests
             using var db = new SQliteDb(_dbFile);
             db.ExecuteNonQuery("CREATE TABLE personal(value TEXT)", null);
             db.ExecuteNonQuery("INSERT INTO personal VALUES('keep')", null);
-            var method = typeof(SpotProvider).GetMethod("CreateSpotsTablesOnEmptyDatabase",
+            var method = typeof(SpotProvider).GetMethod("EnsureSpotsSchema",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             var provider = (SpotProvider)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(SpotProvider));
             Assert.Throws<System.Reflection.TargetInvocationException>(() => method.Invoke(provider, new object[] { db }));
