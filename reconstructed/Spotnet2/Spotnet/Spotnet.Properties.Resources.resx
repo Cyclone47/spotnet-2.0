@@ -3304,7 +3304,7 @@ article:after {
     &lt;Filter Name=" Science Fiction" Image="/Images/cc/48px-Crystal_Clear_app_katomic.png"&gt;&lt;![CDATA[cats MATCH '((1b3 OR 1b7) AND (1c10 OR 1c11 OR 1c12 OR 1c13 OR 1c14 OR 1c3 OR 1c4 OR 1c7 OR 1c1 OR 1c2 OR 1c6) AND 1d17)']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Kids" Image="/Images/cc/48px-Crystal_Clear_app_gadu.png"&gt;&lt;![CDATA[cats MATCH '((1b3 OR 1b7) AND (1c10 OR 1c11 OR 1c3 OR 1c4 OR 1c7 OR 1c1 OR 1c2 OR 1c6) AND (1d2 OR 1d32 OR 1d33 OR 1d34 ))']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Music DVD" Image="/Images/cc/48px-Crystal_Clear_device_dvd_unmount.png"&gt;&lt;![CDATA[cats MATCH '((1a3 OR 1a10 OR 1a6) AND (1b3 OR 1b7) AND (1d13 OR 1d14))']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Christmas" Image="/Images/cc/48px-Crystal_Clear_app_ksplash.png"&gt;&lt;![CDATA[cats MATCH '1b3 OR 1b7' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%christmas%' OR subject LIKE '%kerst%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Christmas" Image="/Images/cc/48px-Crystal_Clear_app_ksplash.png"&gt;&lt;![CDATA[cats MATCH '1b3 OR 1b7' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%christmas%' OR subject LIKE '%kerst%')]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Sport" Image="/Images/cc/48px-Crystal_Clear_app_clicknrun.png"&gt;&lt;![CDATA[cats MATCH '1d18']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Thriller" Image="/Images/cc/48px-Crystal_Clear_app_pysol.png"&gt;&lt;![CDATA[cats MATCH '((1b3 OR 1b7) AND (1c10 OR 1c11 OR 1c12 OR 1c13 OR 1c14 OR 1c3 OR 1c4 OR 1c7 OR 1c1 OR 1c2 OR 1c6) AND 1d20)']]&gt;&lt;/Filter&gt;
   &lt;/Filter&gt;
@@ -3320,7 +3320,7 @@ article:after {
     &lt;Filter Name=" Epub" Image="/Images/cc/48px-Crystal_Clear_device_pda_blue.png"&gt;&lt;![CDATA[cat = 5 AND subject LIKE '%epub%' OR tag LIKE '%epub%']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Cuttingsheets" Image="/Images/cc/48px-Crystal_Clear_action_editcut.png"&gt;&lt;![CDATA[cat = 5 AND tag LIKE '%knipvel%' OR subject LIKE '%knipvel%']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Magazines" Image="/Images/cc/48px-Crystal_Clear_app_wine.png"&gt;&lt;![CDATA[cat = 5 AND subject LIKE '%Magazine%' OR subject LIKE '%Tijdschrift%' OR tag LIKE '%Magazine%' OR tag LIKE '%tijdschrift%']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Strips" Image="/Images/cc/48px-Crystal_Clear_app_krita.png"&gt;&lt;![CDATA[cats MATCH '5d31' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%strip%' OR tag LIKE '%strip%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Strips" Image="/Images/cc/48px-Crystal_Clear_app_krita.png"&gt;&lt;![CDATA[cats MATCH '5d31' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%strip%' OR tag LIKE '%strip%')]]&gt;&lt;/Filter&gt;
   &lt;/Filter&gt;
   &lt;Filter Name=" Music" Image="/Images/2/Music.png" Query="cat=2"&gt;
     &lt;Filter Name=" Compressed" Image="/Images/cc/48px-Crystal_Clear_compressed.png"&gt;&lt;![CDATA[cats MATCH '(2a0 OR 2a1)']]&gt;&lt;/Filter&gt;
@@ -3357,8 +3357,8 @@ article:after {
     &lt;Filter Name=" Windows" Image="/Images/os_windows.png"&gt;&lt;![CDATA[cats MATCH '3a0']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Mac" Image="/Images/os_apple.png"&gt;&lt;![CDATA[cats MATCH '3a1']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Linux" Image="/Images/os_linux.png"&gt;&lt;![CDATA[cats MATCH '3a2']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Retro / Emulators" Image="\Images\mario.ico"&gt;&lt;![CDATA[cats MATCH '3a0 OR 3a1 OR 3a2 OR 3a4 OR 3a5 OR 3a6 OR 3a7 OR 3a8 OR 3a9 OR 3a10 OR 3a11 OR 3a12' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%Amiga%' OR subject LIKE '%CPC%' OR subject LIKE '%Amstrad%' OR subject LIKE '%Atari%' OR subject LIKE '%C64%' OR subject LIKE '%Commodore%' OR subject LIKE '%CBM%' OR subject LIKE '%gameboy%' OR subject LIKE '%game boy%' OR subject LIKE '%MSX%' OR subject LIKE '% NES %' OR subject LIKE '%SNES%' OR subject LIKE '%ZX%' OR subject LIKE '% Spectrum %')]]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Flightsims" Image="\Images\aircraft.png"&gt;&lt;![CDATA[cats MATCH '3a0' AND docid IN (SELECT docid FROM search WHERE tag LIKE '%fsx%' OR subject LIKE '%fsx%' OR tag LIKE '%Flightsim%'OR subject LIKE '%Flightsim%' OR tag LIKE '%Fs2004%' or subject LIKE '%Fs2004%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Retro / Emulators" Image="\Images\mario.ico"&gt;&lt;![CDATA[cats MATCH '3a0 OR 3a1 OR 3a2 OR 3a4 OR 3a5 OR 3a6 OR 3a7 OR 3a8 OR 3a9 OR 3a10 OR 3a11 OR 3a12' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%Amiga%' OR subject LIKE '%CPC%' OR subject LIKE '%Amstrad%' OR subject LIKE '%Atari%' OR subject LIKE '%C64%' OR subject LIKE '%Commodore%' OR subject LIKE '%CBM%' OR subject LIKE '%gameboy%' OR subject LIKE '%game boy%' OR subject LIKE '%MSX%' OR subject LIKE '% NES %' OR subject LIKE '%SNES%' OR subject LIKE '%ZX%' OR subject LIKE '% Spectrum %')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Flightsims" Image="\Images\aircraft.png"&gt;&lt;![CDATA[cats MATCH '3a0' AND rowid IN (SELECT rowid FROM search WHERE tag LIKE '%fsx%' OR subject LIKE '%fsx%' OR tag LIKE '%Flightsim%'OR subject LIKE '%Flightsim%' OR tag LIKE '%Fs2004%' or subject LIKE '%Fs2004%')]]&gt;&lt;/Filter&gt;
   &lt;/Filter&gt;
   &lt;Filter Name=" Games - Console" Image="/Images/2/Games.png" Query="cat=3"&gt;
     &lt;Filter Name=" Playstation 1" Image="/Images/cc/48px-Crystal_Clear_device_joystick.png"&gt;&lt;![CDATA[cats MATCH '3a3']]&gt;&lt;/Filter&gt;
@@ -3378,7 +3378,7 @@ article:after {
   &lt;/Filter&gt;
   &lt;Filter Name=" Games - Mobile" Image="/Images/2/Games.png" Query="cat=3"&gt;
     &lt;Filter Name=" Android" Image="/Images/os_android.png"&gt;&lt;![CDATA[cat = 3 AND subject LIKE '%android%']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Android Tablet" Image="/Images/android-tablet.png"&gt;&lt;![CDATA[cats MATCH '3a13 OR 3a15' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%honeycomb%' OR subject LIKE '%ice cream sandwich%' OR subject LIKE '%tablet%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Android Tablet" Image="/Images/android-tablet.png"&gt;&lt;![CDATA[cats MATCH '3a13 OR 3a15' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%honeycomb%' OR subject LIKE '%ice cream sandwich%' OR subject LIKE '%tablet%')]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Windows Mobile" Image="/Images/os_windows.png"&gt;&lt;![CDATA[cats MATCH '3a13' AND (NOT( subject LIKE '%iphone%' OR subject LIKE '%ipad%' OR subject LIKE '%android%' OR subject LIKE '%blackberry%' ))]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Iphone" Image="/Images/os_apple.png"&gt;&lt;![CDATA[cat = 3 AND subject LIKE '%iphone%']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Ipad" Image="/Images/os_apple.png"&gt;&lt;![CDATA[cat = 3 AND subject LIKE '%ipad%']]&gt;&lt;/Filter&gt;
@@ -3395,7 +3395,7 @@ article:after {
   &lt;/Filter&gt;
   &lt;Filter Name=" Software - Mobile" Image="/Images/2/Applications.png" Query="cat=4"&gt;
     &lt;Filter Name=" Android " Image="/Images/os_android.png"&gt;&lt;![CDATA[cats MATCH '4a7 OR 4a4' AND subject LIKE '%android%']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Android Tablet " Image="/Images/android-tablet.png"&gt;&lt;![CDATA[cats MATCH '4a7 OR 4a8' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%honeycomb%' OR subject LIKE '%ice cream sandwich%' OR subject LIKE '%tablet%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Android Tablet " Image="/Images/android-tablet.png"&gt;&lt;![CDATA[cats MATCH '4a7 OR 4a8' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%honeycomb%' OR subject LIKE '%ice cream sandwich%' OR subject LIKE '%tablet%')]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Windows Mobile " Image="/Images/os_windows.png"&gt;&lt;![CDATA[cats MATCH '4a4' AND (NOT( subject LIKE '%iphone%' OR subject LIKE '%ipad%' OR subject LIKE '%android%' OR subject LIKE '%blackberry%' ))]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Iphone " Image="/Images/os_apple.png"&gt;&lt;![CDATA[cats MATCH '4a6' AND subject LIKE '%iphone%']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Ipad " Image="/Images/os_apple.png"&gt;&lt;![CDATA[cat=4 AND subject LIKE '%ipad%']]&gt;&lt;/Filter&gt;
@@ -3409,7 +3409,7 @@ article:after {
     &lt;Filter Name=" Bi" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '9d23 OR 9d24 OR 9d25 OR 9d26']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" HD All" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '(9a6 OR 9a9)']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" HD All (M/W only)" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '((9a6 OR 9a9) AND (9d23 OR 9d76 OR 9d84 OR 9d89 OR 9d87 OR 9d82 OR 9d77 OR 9d86 OR 9d88 OR 9d80 OR 9d83 OR 9d78 OR 9d85 OR 9d81 OR 9d79))']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Hentai" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '9a2 OR 9a1 OR 9a0 OR 9a3 OR 9a10 OR 9a6 OR 9a9' AND docid IN (SELECT docid FROM search WHERE tag LIKE '%hentai%' OR subject LIKE '%hentai%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Hentai" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '9a2 OR 9a1 OR 9a0 OR 9a3 OR 9a10 OR 9a6 OR 9a9' AND rowid IN (SELECT rowid FROM search WHERE tag LIKE '%hentai%' OR subject LIKE '%hentai%')]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Photos" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '((9a5) AND (9d23 OR 9d76 OR 9d84 OR 9d89 OR 9d87 OR 9d82 OR 9d77 OR 9d86 OR 9d88 OR 9d80 OR 9d83 OR 9d78 OR 9d85 OR 9d81 OR 9d79 OR 9d24 OR 9d25 OR 9d26))']]&gt;&lt;/Filter&gt;
   &lt;/Filter&gt;
 &lt;/Spotnet&gt;</value></data>
@@ -8226,7 +8226,7 @@ key-vol-down=Down
     &lt;Filter Name=" Documentaire" Image="/Images/cc/48px-Crystal_Clear_app_Staroffice.png"&gt;&lt;![CDATA[cats MATCH '((1a3 OR 1a6 OR 1a10) AND (1d6))']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Drama" Image="/Images/cc/48px-Crystal_Clear_app_ksame.png"&gt;&lt;![CDATA[cats MATCH '((1b3 OR 1b7) AND (1c10 OR 1c11 OR 1c12 OR 1c13 OR 1c14 OR 1c3 OR 1c4 OR 1c7 OR 1c1 OR 1c2 OR 1c6) AND 1d7)']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Horror" Image="/Images/cc/48px-Crystal_Clear_app_web.png"&gt;&lt;![CDATA[cats MATCH '((1b3 OR 1b7) AND (1c10 OR 1c11 OR 1c12 OR 1c13 OR 1c14 OR 1c3 OR 1c4 OR 1c7 OR 1c1 OR 1c2 OR 1c6) AND 1d12)']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Kerst" Image="/Images/cc/48px-Crystal_Clear_app_ksplash.png"&gt;&lt;![CDATA[cats MATCH '1b3 OR 1b7' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%christmas%' OR subject LIKE '%kerst%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Kerst" Image="/Images/cc/48px-Crystal_Clear_app_ksplash.png"&gt;&lt;![CDATA[cats MATCH '1b3 OR 1b7' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%christmas%' OR subject LIKE '%kerst%')]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Kids" Image="/Images/cc/48px-Crystal_Clear_app_gadu.png"&gt;&lt;![CDATA[cats MATCH '((1b3 OR 1b7) AND (1c10 OR 1c11 OR 1c3 OR 1c4 OR 1c7 OR 1c1 OR 1c2 OR 1c6) AND (1d2 OR 1d32 OR 1d33 OR 1d34 ))']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Muziek DVD" Image="/Images/cc/48px-Crystal_Clear_device_dvd_unmount.png"&gt;&lt;![CDATA[cats MATCH '((1a3 OR 1a10 OR 1a6) AND (1b3 OR 1b7) AND (1d13 OR 1d14))']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Oorlog" Image="/Images/cc/48px-Crystal_Clear_app_kbattleship.png"&gt;&lt;![CDATA[cats MATCH '((1b3 OR 1b7) AND (1c10 OR 1c11 OR 1c12 OR 1c13 OR 1c14 OR 1c3 OR 1c4 OR 1c7 OR 1c1 OR 1c2 OR 1c6) AND 1d21)']]&gt;&lt;/Filter&gt;
@@ -8246,7 +8246,7 @@ key-vol-down=Down
     &lt;Filter Name=" Epub" Image="/Images/cc/48px-Crystal_Clear_device_pda_blue.png"&gt;&lt;![CDATA[cat = 5 AND subject LIKE '%epub%' OR tag LIKE '%epub%']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Knipvellen" Image="/Images/cc/48px-Crystal_Clear_action_editcut.png"&gt;&lt;![CDATA[cat = 5 AND tag LIKE '%knipvel%' OR subject LIKE '%knipvel%']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Magazines" Image="/Images/cc/48px-Crystal_Clear_app_wine.png"&gt;&lt;![CDATA[cat = 5 AND subject LIKE '%Magazine%' OR subject LIKE '%Tijdschrift%' OR tag LIKE '%Magazine%' OR tag LIKE '%tijdschrift%']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Strips" Image="/Images/cc/48px-Crystal_Clear_app_krita.png"&gt;&lt;![CDATA[cats MATCH '5d31' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%strip%' OR tag LIKE '%strip%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Strips" Image="/Images/cc/48px-Crystal_Clear_app_krita.png"&gt;&lt;![CDATA[cats MATCH '5d31' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%strip%' OR tag LIKE '%strip%')]]&gt;&lt;/Filter&gt;
   &lt;/Filter&gt;
   &lt;Filter Name=" Muziek" Image="/Images/2/Music.png" Query="cat=2"&gt;
     &lt;Filter Name=" Compressed" Image="/Images/cc/48px-Crystal_Clear_compressed.png"&gt;&lt;![CDATA[cats MATCH '(2a0 OR 2a1)']]&gt;&lt;/Filter&gt;
@@ -8283,8 +8283,8 @@ key-vol-down=Down
     &lt;Filter Name=" Windows" Image="/Images/os_windows.png"&gt;&lt;![CDATA[cats MATCH '3a0']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Mac" Image="/Images/os_apple.png"&gt;&lt;![CDATA[cats MATCH '3a1']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Linux" Image="/Images/os_linux.png"&gt;&lt;![CDATA[cats MATCH '3a2']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Retro / Emulators" Image="\Images\mario.ico"&gt;&lt;![CDATA[cats MATCH '3a0 OR 3a1 OR 3a2 OR 3a4 OR 3a5 OR 3a6 OR 3a7 OR 3a8 OR 3a9 OR 3a10 OR 3a11 OR 3a12' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%Amiga%' OR subject LIKE '%CPC%' OR subject LIKE '%Amstrad%' OR subject LIKE '%Atari%' OR subject LIKE '%C64%' OR subject LIKE '%Commodore%' OR subject LIKE '%CBM%' OR subject LIKE '%gameboy%' OR subject LIKE '%game boy%' OR subject LIKE '%MSX%' OR subject LIKE '% NES %' OR subject LIKE '%SNES%' OR subject LIKE '%ZX%' OR subject LIKE '% Spectrum %')]]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Flightsims" Image="\Images\aircraft.png"&gt;&lt;![CDATA[cats MATCH '3a0' AND docid IN (SELECT docid FROM search WHERE tag LIKE '%fsx%' OR subject LIKE '%fsx%' OR tag LIKE '%Flightsim%'OR subject LIKE '%Flightsim%' OR tag LIKE '%Fs2004%' or subject LIKE '%Fs2004%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Retro / Emulators" Image="\Images\mario.ico"&gt;&lt;![CDATA[cats MATCH '3a0 OR 3a1 OR 3a2 OR 3a4 OR 3a5 OR 3a6 OR 3a7 OR 3a8 OR 3a9 OR 3a10 OR 3a11 OR 3a12' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%Amiga%' OR subject LIKE '%CPC%' OR subject LIKE '%Amstrad%' OR subject LIKE '%Atari%' OR subject LIKE '%C64%' OR subject LIKE '%Commodore%' OR subject LIKE '%CBM%' OR subject LIKE '%gameboy%' OR subject LIKE '%game boy%' OR subject LIKE '%MSX%' OR subject LIKE '% NES %' OR subject LIKE '%SNES%' OR subject LIKE '%ZX%' OR subject LIKE '% Spectrum %')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Flightsims" Image="\Images\aircraft.png"&gt;&lt;![CDATA[cats MATCH '3a0' AND rowid IN (SELECT rowid FROM search WHERE tag LIKE '%fsx%' OR subject LIKE '%fsx%' OR tag LIKE '%Flightsim%'OR subject LIKE '%Flightsim%' OR tag LIKE '%Fs2004%' or subject LIKE '%Fs2004%')]]&gt;&lt;/Filter&gt;
   &lt;/Filter&gt;
   &lt;Filter Name=" Spellen - Console" Image="/Images/2/Games.png" Query="cat=3"&gt;
     &lt;Filter Name=" Playstation 1" Image="/Images/cc/48px-Crystal_Clear_device_joystick.png"&gt;&lt;![CDATA[cats MATCH '3a3']]&gt;&lt;/Filter&gt;
@@ -8304,7 +8304,7 @@ key-vol-down=Down
   &lt;/Filter&gt;
   &lt;Filter Name=" Spellen - Mobile" Image="/Images/2/Games.png" Query="cat=3"&gt;
     &lt;Filter Name=" Android" Image="/Images/os_android.png"&gt;&lt;![CDATA[cat = 3 AND subject LIKE '%android%']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Android Tablet" Image="/Images/android-tablet.png"&gt;&lt;![CDATA[cats MATCH '3a13 OR 3a15' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%honeycomb%' OR subject LIKE '%ice cream sandwich%' OR subject LIKE '%tablet%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Android Tablet" Image="/Images/android-tablet.png"&gt;&lt;![CDATA[cats MATCH '3a13 OR 3a15' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%honeycomb%' OR subject LIKE '%ice cream sandwich%' OR subject LIKE '%tablet%')]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Windows Mobile" Image="/Images/os_windows.png"&gt;&lt;![CDATA[cats MATCH '3a13' AND (NOT( subject LIKE '%iphone%' OR subject LIKE '%ipad%' OR subject LIKE '%android%' OR subject LIKE '%blackberry%' ))]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Iphone" Image="/Images/os_apple.png"&gt;&lt;![CDATA[cat = 3 AND subject LIKE '%iphone%']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Ipad" Image="/Images/os_apple.png"&gt;&lt;![CDATA[cat = 3 AND subject LIKE '%ipad%']]&gt;&lt;/Filter&gt;
@@ -8321,7 +8321,7 @@ key-vol-down=Down
   &lt;/Filter&gt;
   &lt;Filter Name=" Applicaties - Mobile" Image="/Images/2/Applications.png" Query="cat=4"&gt;
     &lt;Filter Name=" Android " Image="/Images/os_android.png"&gt;&lt;![CDATA[cats MATCH '4a7 OR 4a4' AND subject LIKE '%android%']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Android Tablet " Image="/Images/android-tablet.png"&gt;&lt;![CDATA[cats MATCH '4a7 OR 4a8' AND docid IN (SELECT docid FROM search WHERE subject LIKE '%honeycomb%' OR subject LIKE '%ice cream sandwich%' OR subject LIKE '%tablet%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Android Tablet " Image="/Images/android-tablet.png"&gt;&lt;![CDATA[cats MATCH '4a7 OR 4a8' AND rowid IN (SELECT rowid FROM search WHERE subject LIKE '%honeycomb%' OR subject LIKE '%ice cream sandwich%' OR subject LIKE '%tablet%')]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Windows Mobile " Image="/Images/os_windows.png"&gt;&lt;![CDATA[cats MATCH '4a4' AND (NOT( subject LIKE '%iphone%' OR subject LIKE '%ipad%' OR subject LIKE '%android%' OR subject LIKE '%blackberry%' ))]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Iphone " Image="/Images/os_apple.png"&gt;&lt;![CDATA[cats MATCH '4a6' AND subject LIKE '%iphone%']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Ipad " Image="/Images/os_apple.png"&gt;&lt;![CDATA[cat=4 AND subject LIKE '%ipad%']]&gt;&lt;/Filter&gt;
@@ -8335,7 +8335,7 @@ key-vol-down=Down
     &lt;Filter Name=" Bi" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '9d23 OR 9d24 OR 9d25 OR 9d26']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" HD All" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '(9a6 OR 9a9)']]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" HD All No Gay (M/V)" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '((9a6 OR 9a9) AND (9d23 OR 9d76 OR 9d84 OR 9d89 OR 9d87 OR 9d82 OR 9d77 OR 9d86 OR 9d88 OR 9d80 OR 9d83 OR 9d78 OR 9d85 OR 9d81 OR 9d79))']]&gt;&lt;/Filter&gt;
-    &lt;Filter Name=" Hentai" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '9a2 OR 9a1 OR 9a0 OR 9a3 OR 9a10 OR 9a6 OR 9a9' AND docid IN (SELECT docid FROM search WHERE tag LIKE '%hentai%' OR subject LIKE '%hentai%')]]&gt;&lt;/Filter&gt;
+    &lt;Filter Name=" Hentai" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '9a2 OR 9a1 OR 9a0 OR 9a3 OR 9a10 OR 9a6 OR 9a9' AND rowid IN (SELECT rowid FROM search WHERE tag LIKE '%hentai%' OR subject LIKE '%hentai%')]]&gt;&lt;/Filter&gt;
     &lt;Filter Name=" Afbeeldingen" Image="/Images/sex-male-female.png"&gt;&lt;![CDATA[cats MATCH '((9a5) AND (9d23 OR 9d76 OR 9d84 OR 9d89 OR 9d87 OR 9d82 OR 9d77 OR 9d86 OR 9d88 OR 9d80 OR 9d83 OR 9d78 OR 9d85 OR 9d81 OR 9d79 OR 9d24 OR 9d25 OR 9d26))']]&gt;&lt;/Filter&gt;
   &lt;/Filter&gt;
 &lt;/Spotnet&gt;</value></data>

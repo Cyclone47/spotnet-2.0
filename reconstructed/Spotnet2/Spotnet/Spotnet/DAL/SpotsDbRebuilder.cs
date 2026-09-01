@@ -60,6 +60,9 @@ internal static class SpotsDbRebuilder
 			using (var conn = new SQLiteConnection($"Data Source={rebuilt};Version=3;Journal Mode=WAL;BusyTimeout=5000;"))
 			{
 				conn.Open();
+				// This connection creates and rebuilds the FTS5 `search` index itself,
+				// so it needs the module registered like any other.
+				Fts5Module.Register(conn);
 				using var cmd = conn.CreateCommand();
 
 				// page_size has to precede any write and cannot change after WAL is on.

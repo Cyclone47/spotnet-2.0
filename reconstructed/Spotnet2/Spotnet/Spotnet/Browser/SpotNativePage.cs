@@ -1209,7 +1209,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 		using (ISqlDbTransaction transaction = db.BeginReadTransaction())
 		{
 			DbCommand dbCommand = db.CreateCommand(transaction);
-			dbCommand.CommandText = "SELECT docid FROM comments WHERE spot MATCH '" + text2.Replace("'", "") + "' ORDER BY docid ASC";
+			dbCommand.CommandText = "SELECT rowid FROM comments WHERE spot MATCH '" + text2.Replace("'", "") + "' ORDER BY rowid ASC";
 			using DbDataReader dbDataReader = db.ExecuteReader(dbCommand);
 			if (dbDataReader == null)
 			{

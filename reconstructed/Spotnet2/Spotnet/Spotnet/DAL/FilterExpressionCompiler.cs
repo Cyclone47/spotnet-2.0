@@ -22,7 +22,7 @@ internal static class FilterExpressionCompiler
 		"spots", "search",
 
 		// Search/spots columns. Names are the only identifiers a filter may supply.
-		"rowid", "docid", "key", "cat", "subcat", "extcat", "date", "filesize",
+		"rowid", "key", "cat", "subcat", "extcat", "date", "filesize",
 		"cats", "sender", "tag", "subject", "msgid", "modulus"
 	};
 

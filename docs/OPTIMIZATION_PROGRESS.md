@@ -45,8 +45,8 @@ full-import, WebView2 desktop, and genuinely corrupt-database smoke tests remain
 - [x] **Golden-output tests on the query builders** — `Spotnet.Tests/QueryBuilderTests.cs` (18)
       All four builders across the sort-column / sort-direction / erotica-toggle /
       minRowId / search matrix, plus `[SN:DATE]` and `[SN:NEW]` substitution. The four
-      methods were made `internal` to allow this. **An FTS5 migration lands here first**
-      (`docid` → `rowid`, `matchinfo` → `bm25`).
+      methods were made `internal` to allow this. The FTS5 query shape (`rowid`, not
+      FTS4's `docid`) is pinned here.
 - [x] **Benchmark tool** — `tools/DbDiagnostic` rewritten
       `DbDiagnostic inspect [path]` reports journal mode, page size, synchronous, schema,
       row counts and `quick_check` on a real database (auto-discovers ProgramData).
@@ -140,8 +140,9 @@ full-import, WebView2 desktop, and genuinely corrupt-database smoke tests remain
       `ReturnsSpotsInAscendingArticleOrder`). That is a lot of risk for ~24 s per million
       spots on a path that is probably network-bound.
       **Measure a real import first** — if verification isn't a visible share of it, don't.
-- [ ] **FTS4 → FTS5** — schema migration behind a `user_version` bump. Note `docid` →
-      `rowid` and `matchinfo()` → `bm25()` in the query builders. Do this last in the phase.
+- [x] **FTS4 → FTS5** — `user_version` 2 → 3, `docid` → `rowid` throughout, `Fts5Module`
+      registering the module per connection (the shipped interop carries FTS5 as a
+      loadable extension rather than compiled in), legacy filters rewritten on load.
 - [ ] **Triage the 33 blocking waits / 47 `Thread.Sleep` calls** — UI-thread-reachable ones
       first. Leave deliberate backpressure (the 50 ms pause in the retention delete loop) alone.
 - [ ] **`Settings.Default.Save()` per batch** — writes the whole user.config after every

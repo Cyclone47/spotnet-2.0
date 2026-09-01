@@ -756,6 +756,42 @@ internal static class SpotSaver
 		return dbCommand;
 	}
 
+	internal static void EnsureCommentsFts5(ISqlDb db)
+	{
+		long commentsExists = db.ExecuteScalar(
+			"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='comments'", null);
+		if (commentsExists == 0)
+		{
+			using ISqlDbTransaction createTransaction = db.BeginWriteTransaction();
+			if (db.ExecuteNonQuery(SpotsSchema.CreateComments, createTransaction) < -1)
+			{
+				throw new Exception("Could not create the comments FTS5 database");
+			}
+			createTransaction.Commit();
+			return;
+		}
+
+		long isFts5 = db.ExecuteScalar(
+			"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='comments' AND lower(sql) LIKE '%using fts5%'", null);
+		if (isFts5 == 1)
+		{
+			return;
+		}
+
+		Log.Info("Migrating comments full-text index to FTS5");
+		using ISqlDbTransaction transaction = db.BeginWriteTransaction(exclusive: true);
+		if (db.ExecuteNonQuery("DROP TABLE IF EXISTS comments_fts5", transaction) < -1 ||
+			db.ExecuteNonQuery("CREATE VIRTUAL TABLE comments_fts5 USING fts5(spot)", transaction) < -1 ||
+			db.ExecuteNonQuery("INSERT INTO comments_fts5(rowid, spot) SELECT rowid, spot FROM comments", transaction) < -1 ||
+			db.ExecuteNonQuery("DROP TABLE comments", transaction) < -1 ||
+			db.ExecuteNonQuery("ALTER TABLE comments_fts5 RENAME TO comments", transaction) < -1)
+		{
+			throw new Exception("Could not migrate the comments database to FTS5");
+		}
+		transaction.Commit();
+		Log.Info("Comments full-text index migrated to FTS5");
+	}
+
 	private static void AddComments(IEnumerable<Comment> comments)
 	{
 		using ISqlDb sqlDb = SqlDbFactory.CreateSqlDbComments();
@@ -768,13 +804,13 @@ internal static class SpotSaver
 			// database. Setting it here keeps that, without the per-batch pragma.
 			sqlDb.ExecuteNonQuery("PRAGMA page_size = " + SpotsSchema.CommentsPageSize, null);
 			SetDbSettingsForInsertionImprove(sqlDb);
+			EnsureCommentsFts5(sqlDb);
 			using ISqlDbTransaction sqlDbTransaction = sqlDb.BeginWriteTransaction();
-			sqlDb.ExecuteNonQuery(SpotsSchema.CreateComments, sqlDbTransaction);
 			List<Comment> list = comments.ToList();
 			new Tracker();
 			using (DbCommand dbCommand = sqlDb.CreateCommand(sqlDbTransaction))
 			{
-				dbCommand.CommandText = "INSERT OR IGNORE INTO comments(docid, spot) VALUES (?,?);";
+				dbCommand.CommandText = "INSERT OR IGNORE INTO comments(rowid, spot) VALUES (?,?);";
 				DbParameter dbParameter = dbCommand.CreateParameter();
 				dbCommand.Parameters.Add(dbParameter);
 				DbParameter dbParameter2 = dbCommand.CreateParameter();

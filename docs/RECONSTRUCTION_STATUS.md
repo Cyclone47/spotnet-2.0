@@ -12,7 +12,7 @@ This tracker documents the current reconstruction milestone status according to 
 - **Spotnet 2.0 Architectural Specification:** Completed (Layered diagrams and component map in `docs/SPOTNET_20_ARCHITECTURE.md`).
 - **WPF XAML Extraction:** 100% Completed (61/61 BAML files extracted to pure, valid XAML in `reconstructed/Spotnet2/Spotnet/`).
 - **Resource Dictionaries & Localization:** Extracted and linked (Dutch satellite resources, category strings, words, badwords, modulus key list).
-- **Database Schema & Migrations:** Completed (`spots`, `search` FTS4, `spamreports`, `spamgroup`, `comments` FTS4 in `docs/DATABASE.md`).
+- **Database Schema & Migrations:** Completed (`spots`, `search` FTS5, `spamreports`, `spamgroup`, `comments` FTS5 in `docs/DATABASE.md`).
 - **Spotnet Protocol & Parsers:** Completed (NNTP synchronization, XML spot payload, RSA validation in `docs/PROTOCOL.md`).
 - **Downloader Architecture & Post-Processing:** Completed (Queue manager, segment workers, PAR2 and UnRAR integration).
 - **Managed `Spotnet.Enc` Decoder:** 100% Implemented in pure C# with fast unsafe pointer yEnc decoding (`reconstructed/Spotnet2/Spotnet.Enc/`).

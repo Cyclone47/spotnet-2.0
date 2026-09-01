@@ -39,6 +39,9 @@ namespace Spotnet.Tests
         {
             var conn = new SQLiteConnection($"Data Source={path};Version=3;Journal Mode=WAL;BusyTimeout=5000;");
             conn.Open();
+            // The fixture builds the FTS5 `search` index by hand, so it needs the module
+            // registered exactly as SQliteDb does for the app's own connections.
+            Fts5Module.Register(conn);
             return conn;
         }
 

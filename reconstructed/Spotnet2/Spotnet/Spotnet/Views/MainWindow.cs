@@ -2020,12 +2020,24 @@ public partial class MainWindow : MetroWindow
 
         // Step 4: Connecting to database
         Views.SplashWindow.SetProgress(4);
+        // A schema migration says what it is doing on the splash, because it is the one
+        // startup step that can run long enough to look like a hang.
+        DAL.SpotProvider.OnSchemaUpgradeMessage = Views.SplashWindow.SetMessage;
 
         bool opened = false;
         while (!opened)
         {
             Task<bool> openTask = Task.Run(() => SpotProvider.OpenDb());
-            if (openTask.Wait(TimeSpan.FromSeconds(20.0)))
+            // Twenty seconds is the limit for a database that will not open. It is not the
+            // limit for one that is being rebuilt: a search index migration on a large
+            // database legitimately takes minutes, and timing it out here would offer the
+            // recovery window over healthy data and start a second, competing open.
+            while (!openTask.Wait(TimeSpan.FromSeconds(20.0)) && DAL.SpotProvider.SchemaUpgradeInProgress)
+            {
+                Log.Info("Waiting for the database schema upgrade to finish.");
+            }
+
+            if (openTask.IsCompleted)
             {
                 opened = openTask.Result;
             }

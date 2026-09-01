@@ -1,7 +1,9 @@
 # Spotnet 3.0 Database Architecture & Compatibility Guide
 
-**Database Engine:** SQLite 3 (Managed via `System.Data.SQLite.dll` + `SQLite.Interop.dll` x86)  
-**Full-Text Search Engine:** SQLite FTS4 Virtual Tables with FTS3 matchinfo  
+**Database Engine:** SQLite 3 (Managed via `System.Data.SQLite.dll` + `SQLite.Interop.dll` x64)  
+**Full-Text Search Engine:** SQLite FTS5 virtual tables. The shipped interop is not built with
+`SQLITE_ENABLE_FTS5`; it carries FTS5 as a loadable extension, which `Fts5Module` registers on
+every connection before any query touches `search` or `comments`.  
 **Multi-Database Architecture:** Spotnet 3.0 separates domain data into distinct physical SQLite database files to optimize transaction isolation and performance.
 
 ---
@@ -43,20 +45,23 @@ CREATE TABLE spots (
 );
 ```
 
-### 2.2 `search` Virtual Table (FTS4 Full-Text Search)
-High-performance virtual search index synced with `spots`.
+### 2.2 `search` Virtual Table (FTS5 Full-Text Search)
+External-content virtual search index synced with `spots` by trigger. It stores no source
+data of its own, so it can always be regenerated from `spots` with no data loss.
 
 ```sql
-CREATE VIRTUAL TABLE search USING fts4(
-    content="spots",
-    cats TEXT,
-    sender TEXT,
-    tag TEXT,
-    subject TEXT,
-    order=desc,
-    matchinfo=fts3
+CREATE VIRTUAL TABLE search USING fts5(
+    cats,                             -- Column names must match those in `spots`
+    sender,
+    tag,
+    subject,
+    content='spots',
+    content_rowid='rowid'
 );
 ```
+
+Rows are addressed by `rowid`. FTS4 called the same thing `docid`, and filters written
+before the migration still use that name; they are rewritten while `filters.xml` is read.
 
 ### 2.3 `spamreports` Table
 Stores spam and DMCA/disposition reports sent by the community.
@@ -84,9 +89,8 @@ CREATE TABLE spamgroup (
 
 ### 2.5 `comments` Virtual Table (in `dbc` database)
 ```sql
-CREATE VIRTUAL TABLE comments USING fts4(
-    spot TEXT,                        -- Target spot Message-ID
-    matchinfo=fts3
+CREATE VIRTUAL TABLE comments USING fts5(
+    spot                              -- Target spot Message-ID
 );
 ```
 
@@ -101,6 +105,13 @@ Spotnet 3.0 tracks schema versions using `PRAGMA user_version`:
 - **Version 1 -> Version 2**:
   - Adds `reportmsgid TEXT` column to `spamreports`.
   - Adds `sender TEXT` column to `spamreports`.
+- **Version 2 -> Version 3**:
+  - Drops the FTS4 `search` triggers and the FTS4 `search` table, recreates `search` as
+    FTS5 and rebuilds it from `spots`, in one exclusive transaction. `spots` itself is
+    never touched, so a failure leaves the spots intact and the migration simply runs
+    again on the next start. `Connect()` recreates the triggers afterwards.
+  - The `comments` database carries no `user_version`; `SpotSaver.EnsureCommentsFts5`
+    detects an FTS4 `comments` table and copies its rows into an FTS5 one instead.
 - **Database Pragmas Applied on Open**:
   ```sql
   PRAGMA page_size = 4096;

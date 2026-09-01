@@ -89,6 +89,34 @@ public partial class SplashWindow : Window
         catch { /* splash already closed — ignore */ }
     }
 
+    /// <summary>
+    /// Replaces the step text without moving the progress bar.
+    /// </summary>
+    /// <remarks>
+    /// For work that happens inside one step and takes long enough that a user would
+    /// otherwise assume the application has hung - the one-time search index rebuild is
+    /// the reason this exists. The bar stays where it is because there is no progress to
+    /// report: the rebuild is a single SQLite statement.
+    /// </remarks>
+    public static void SetMessage(string dutch, string english)
+    {
+        try
+        {
+            Application.Current?.Dispatcher.Invoke(() =>
+            {
+                lock (_lock)
+                {
+                    if (_instance != null)
+                    {
+                        _instance.StatusText.Text =
+                            UserLanguageHelper.Language == UserLanguageHelper.Dutch ? dutch : english;
+                    }
+                }
+            });
+        }
+        catch { /* splash already closed - ignore */ }
+    }
+
     /// <summary>Close the splash window smoothly. Thread-safe.</summary>
     public static void CloseSplash()
     {

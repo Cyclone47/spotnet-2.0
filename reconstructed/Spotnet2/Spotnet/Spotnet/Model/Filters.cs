@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
@@ -28,6 +29,9 @@ internal class Filters
 	public bool DoNotResizeFilterImages;
 
 	private static readonly object LockExpandedFile = new object();
+
+	/// <summary>The FTS4 row identifier, as it appears in filters written before FTS5.</summary>
+	private static readonly Regex LegacyDocId = new Regex(@"\bdocid\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
 	private static string FilterFolder
 	{
@@ -499,6 +503,7 @@ internal class Filters
 			{
 				continue;
 			}
+			filterViewModel.Query = RewriteLegacyDocId(filterViewModel.Query);
 			string text = filterViewModel.Query.ToLower();
 			filterViewModel.Query = filterViewModel.Query.Replace("cat = 1 AND cats MATCH '1b4 OR 1d11'", "cat = 6");
 			if (!text.Contains("scat =") && !text.Contains("topcat =") && !text.Contains("subcat in") && !text.Contains("subcat =") && !text.Contains("subcats like") && !text.Contains("subcats like"))
@@ -513,6 +518,26 @@ internal class Filters
 				}
 			}
 		}
+	}
+
+	/// <summary>
+	/// Replaces FTS4's `docid` with FTS5's `rowid` in a stored filter query.
+	/// </summary>
+	/// <remarks>
+	/// Every filter that narrows a category by subject or tag was written as
+	/// `docid IN (SELECT docid FROM search ...)` - both the filters shipped with the app
+	/// and whatever the user has saved since. FTS5 has no `docid`, and the filter
+	/// compiler no longer accepts the name, so such a filter would fail outright.
+	/// Rewriting on load rather than migrating filters.xml in place keeps the user's own
+	/// file untouched, and repairs a hand-edited or restored one just the same.
+	/// </remarks>
+	private static string RewriteLegacyDocId(string query)
+	{
+		if (query.IsNullOrEmpty())
+		{
+			return query;
+		}
+		return LegacyDocId.Replace(query, "rowid");
 	}
 
 	public void RemoveFilter(string filterId)

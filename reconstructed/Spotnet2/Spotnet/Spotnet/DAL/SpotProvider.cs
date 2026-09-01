@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
@@ -410,7 +410,7 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		IReadOnlyList<SqlValue> values = Array.Empty<SqlValue>();
 		if (!filter.IsNullOrWhiteSpace())
 		{
-			string text3 = ((minRowId >= 0) ? "docid>={0} AND ".Format(minRowId) : "");
+			string text3 = ((minRowId >= 0) ? "rowid>={0} AND ".Format(minRowId) : "");
 			string text4 = ((Settings.Default.ShowEroticaInSearchResults || filter.ToLower().Contains("cats match ")) ? "" : "cats NOT LIKE '9 %' AND ");
 			filter = ResolveFilterMarkers(filter);
 			ParameterizedSql compiled = FilterExpressionCompiler.Compile(filter);
@@ -431,7 +431,7 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 			text8 = " ORDER BY rowid DESC " + text7 + " ";
 			text7 = "";
 		}
-		string result = text6 + " (SELECT docid FROM search" + text2 + text8 + ") AND key != 2 AND key != 5" + text5 + text7;
+		string result = text6 + " (SELECT rowid FROM search" + text2 + text8 + ") AND key != 2 AND key != 5" + text5 + text7;
 		countQuery = new ParameterizedSql("SELECT COUNT(1) FROM search" + text2, values);
 		return new ParameterizedSql(result, values);
 	}
@@ -472,7 +472,7 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		}
 		string arg = ((Settings.Default.ShowEroticaInSearchResults || filter.ToLower().Contains("cats match ")) ? "" : "cats NOT LIKE '9 %' AND ");
 		ParameterizedSql compiled = FilterExpressionCompiler.Compile(ResolveFilterMarkers(filter));
-		return new ParameterizedSql($"SELECT COUNT(1) FROM search WHERE docid>{RowNew} AND ({arg}{compiled.CommandText})", compiled.Values);
+		return new ParameterizedSql($"SELECT COUNT(1) FROM search WHERE rowid>{RowNew} AND ({arg}{compiled.CommandText})", compiled.Values);
 	}
 
 	private string ResolveFilterMarkers(string filter)
@@ -597,6 +597,14 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 			{
 				throw new Exception("Could not repair the incomplete spots database: " + statement);
 			}
+		}
+		// The repair writes the current schema, so the version has to say so. Left at the
+		// value the half-finished database carried, DatabaseUpgrade would run its
+		// migrations over tables that were just created in their final shape.
+		if (db.ExecuteNonQuery("PRAGMA user_version = " + SpotsSchema.CurrentUserVersion, transaction) < -1 ||
+			db.ExecuteScalar("PRAGMA user_version", transaction) != SpotsSchema.CurrentUserVersion)
+		{
+			throw new Exception("Could not record the schema version on the repaired database");
 		}
 		transaction.Commit();
 
@@ -868,6 +876,20 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 		}
 	}
 
+	/// <summary>
+	/// True while a schema migration is rewriting the database.
+	/// </summary>
+	/// <remarks>
+	/// Startup gives the database twenty seconds to open before it offers the recovery
+	/// window. That limit is there to catch a locked or hung file, and a migration that
+	/// rebuilds the whole search index is neither - on a large database it can legitimately
+	/// run for minutes. The startup path waits while this is set.
+	/// </remarks>
+	internal static volatile bool SchemaUpgradeInProgress;
+
+	/// <summary>Reports a long-running migration, so startup can say what it is doing.</summary>
+	internal static Action<string, string> OnSchemaUpgradeMessage;
+
 	private int DatabaseUpgrade(ISqlDb db)
 	{
 		long num = db.ExecuteScalar("PRAGMA user_version", null);
@@ -916,6 +938,42 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 				sqlDbTransaction2.Commit();
 			}
 			Log.Debug("DB upgraded to " + num2);
+		}
+		num2 = 3;
+		if (num < num2)
+		{
+			Log.Info("Rebuilding the spots full-text index as FTS5");
+			// Every row of `spots` is read back and reindexed, so on a large database this
+			// is the one startup step a user will actually notice.
+			SchemaUpgradeInProgress = true;
+			OnSchemaUpgradeMessage?.Invoke(
+				"Zoekindex eenmalig herbouwen. Dit kan enkele minuten duren...",
+				"Rebuilding the search index, once. This can take a few minutes...");
+			try
+			{
+				using ISqlDbTransaction transaction = db.BeginWriteTransaction(exclusive: true);
+				foreach (string trigger in new[] { "search_bu", "search_bd", "search_au", "search_ai" })
+				{
+					if (db.ExecuteNonQuery("DROP TRIGGER IF EXISTS " + trigger, transaction) < -1)
+					{
+						throw new Exception("DROP TRIGGER " + trigger);
+					}
+				}
+				if (db.ExecuteNonQuery("DROP TABLE IF EXISTS search", transaction) < -1 ||
+					db.ExecuteNonQuery(SpotsSchema.CreateSearch, transaction) < -1 ||
+					db.ExecuteNonQuery(SpotsSchema.RebuildSearchIndex, transaction) < -1 ||
+					db.ExecuteNonQuery("PRAGMA user_version = " + num2, transaction) < -1 ||
+					db.ExecuteScalar("PRAGMA user_version", transaction) != num2)
+				{
+					throw new Exception("Could not migrate the spots search index to FTS5");
+				}
+				transaction.Commit();
+				Log.Info("Spots full-text index migrated to FTS5");
+			}
+			finally
+			{
+				SchemaUpgradeInProgress = false;
+			}
 		}
 		return num2;
 	}

@@ -17,7 +17,7 @@ namespace Spotnet.Tests
     ///
     /// They are change detectors, not a specification. A failure means the generated SQL
     /// moved - confirm the new SQL is what you intended, then update the expectation.
-    /// Anything migrating to FTS5 (docid to rowid, matchinfo to bm25) will land here first.
+    /// The FTS5 rowid query shape is deliberately pinned here.
     /// </remarks>
     public class QueryBuilderTests : IDisposable
     {
@@ -158,12 +158,11 @@ namespace Spotnet.Tests
         // --- CreateSearchQuery ---------------------------------------------------
 
         [Fact]
-        public void CreateSearchQuery_GoesThroughTheFtsDocidIndex()
+        public void CreateSearchQuery_GoesThroughTheFts5RowidIndex()
         {
             string sql = Provider().CreateSearchQuery("subject MATCH 'ubuntu'", 0, 250, -1, out string countQuery);
 
-            // FTS4 addresses rows by docid. An FTS5 migration changes exactly this.
-            Assert.Contains("SELECT docid FROM search", sql);
+            Assert.Contains("SELECT rowid FROM search", sql);
             Assert.Contains("cats NOT LIKE '9 %' AND", sql);
             Assert.Contains("key != 2 AND key != 5", sql);
             Assert.Equal("SELECT COUNT(1) FROM search WHERE (cats NOT LIKE '9 %' AND subject MATCH @filter0)", countQuery);
@@ -178,11 +177,11 @@ namespace Spotnet.Tests
         }
 
         [Fact]
-        public void CreateSearchQuery_AppliesAMinimumDocIdWhenGiven()
+        public void CreateSearchQuery_AppliesAMinimumRowIdWhenGiven()
         {
             string sql = Provider().CreateSearchQuery("subject MATCH 'ubuntu'", 0, 50, minRowId: 99, out _);
 
-            Assert.Contains("docid>=99 AND", sql);
+            Assert.Contains("rowid>=99 AND", sql);
         }
 
         [Fact]
@@ -190,7 +189,7 @@ namespace Spotnet.Tests
         {
             string dateDesc = Provider(sortColumn: "date", sortDirection: "desc")
                 .CreateSearchQuery("subject MATCH 'ubuntu'", 0, 250, -1, out _);
-            // The limit is applied inside the docid subquery.
+            // The limit is applied inside the FTS rowid subquery.
             Assert.Contains("ORDER BY rowid DESC  LIMIT 250 OFFSET 0", dateDesc);
 
             string bySubject = Provider(sortColumn: "subject").CreateSearchQuery("subject MATCH 'ubuntu'", 0, 250, -1, out _);
@@ -222,7 +221,7 @@ namespace Spotnet.Tests
         {
             string sql = Provider(rowNew: 900).CreateSearchQueryCountNew("subject MATCH 'ubuntu'");
 
-            Assert.Equal("SELECT COUNT(1) FROM search WHERE docid>900 AND (cats NOT LIKE '9 %' AND subject MATCH @filter0)", sql);
+            Assert.Equal("SELECT COUNT(1) FROM search WHERE rowid>900 AND (cats NOT LIKE '9 %' AND subject MATCH @filter0)", sql);
         }
 
         [Fact]

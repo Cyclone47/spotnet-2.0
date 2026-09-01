@@ -1261,7 +1261,7 @@ public partial class LeftPanelUserControl : UserControl
             FilterViewModel filter = MainWindowVm.FiltersDb.GetFilter(UseFilterCheckBox.Tag.ToStringSafely());
             if (filter != null)
             {
-                text = RewriteQuery(filter.Query) + " AND docid IN (SELECT docid FROM search WHERE ";
+                text = RewriteQuery(filter.Query) + " AND rowid IN (SELECT rowid FROM search WHERE ";
                 text2 = ")";
             }
             else

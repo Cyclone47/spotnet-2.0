@@ -62,6 +62,10 @@ internal class SQliteDb : ISqlDb, IDisposable
 			{
 				throw new Exception(Words.CannotConnectToDatabase);
 			}
+			// `search` and `comments` are FTS5 tables, and the module is registered per
+			// connection rather than compiled in. Read-only connections need it too:
+			// they are the ones running the searches.
+			Fts5Module.Register(_connection);
 			lock (LockConnectionsPool)
 			{
 				ConnectionsPool.Add(this);

@@ -186,5 +186,42 @@ namespace Spotnet.Tests
             Assert.Throws<System.Reflection.TargetInvocationException>(() => method.Invoke(provider, new object[] { db }));
             Assert.Equal("keep", db.ExecuteCommand("SELECT value FROM personal", null).Trim());
         }
+
+        [Fact]
+        public void VersionTwoSpotsDatabase_MigratesItsSearchIndexToFts5()
+        {
+            using var db = new SQliteDb(_dbFile);
+            db.ExecuteNonQuery(SpotsSchema.CreateSpots, null);
+            db.ExecuteNonQuery("CREATE VIRTUAL TABLE search USING fts4(content='spots', cats TEXT, sender TEXT, tag TEXT, subject TEXT)", null);
+            db.ExecuteNonQuery(SpotsSchema.CreateSpamReports, null);
+            db.ExecuteNonQuery(SpotsSchema.CreateSpamGroup, null);
+            db.ExecuteNonQuery(SpotsSchema.CreateUserInfo, null);
+            db.ExecuteNonQuery(SpotsSchema.CreateUserKey, null);
+            db.ExecuteNonQuery("INSERT INTO spots(rowid,key,cat,subcat,extcat,date,filesize,cats,sender,tag,subject,msgid,modulus) VALUES(1,1,3,0,0,1,1,'3 a01','tester','linux','Ubuntu release','one@test','key')", null);
+            db.ExecuteNonQuery("INSERT INTO search(docid,cats,sender,tag,subject) VALUES(1,'3 a01','tester','linux','Ubuntu release')", null);
+            db.ExecuteNonQuery("PRAGMA user_version = 2", null);
+
+            var method = typeof(SpotProvider).GetMethod("DatabaseUpgrade",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var provider = (SpotProvider)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(SpotProvider));
+            Assert.Equal(SpotsSchema.CurrentUserVersion, (int)method.Invoke(provider, new object[] { db }));
+
+            Assert.Equal(SpotsSchema.CurrentUserVersion, db.ExecuteScalar("PRAGMA user_version", null));
+            Assert.Equal(1L, db.ExecuteScalar("SELECT COUNT(*) FROM sqlite_master WHERE name='search' AND lower(sql) LIKE '%using fts5%'", null));
+            Assert.Equal(1L, db.ExecuteScalar("SELECT COUNT(*) FROM search WHERE search MATCH 'Ubuntu'", null));
+        }
+
+        [Fact]
+        public void ExistingCommentsDatabase_MigratesRowsToFts5()
+        {
+            using var db = new SQliteDb(_dbFile);
+            db.ExecuteNonQuery("CREATE VIRTUAL TABLE comments USING fts4(spot TEXT)", null);
+            db.ExecuteNonQuery("INSERT INTO comments(docid, spot) VALUES(42, 'comment-message-id')", null);
+
+            SpotSaver.EnsureCommentsFts5(db);
+
+            Assert.Equal(1L, db.ExecuteScalar("SELECT COUNT(*) FROM sqlite_master WHERE name='comments' AND lower(sql) LIKE '%using fts5%'", null));
+            Assert.Equal(42L, db.ExecuteScalar("SELECT rowid FROM comments WHERE comments MATCH 'comment'", null));
+        }
     }
 }

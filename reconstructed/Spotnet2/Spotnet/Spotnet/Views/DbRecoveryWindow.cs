@@ -152,6 +152,9 @@ namespace Spotnet.Views
                             // crash-safety the rest of the app depends on.
                             using var conn = new SQLiteConnection($"Data Source={db};Version=3;Journal Mode=WAL;BusyTimeout=5000;");
                             conn.Open();
+                            // REINDEX and quick_check walk the whole schema, which
+                            // includes the FTS5 virtual tables.
+                            Fts5Module.Register(conn);
                             using var cmd = conn.CreateCommand();
                             cmd.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
                             cmd.ExecuteNonQuery();
