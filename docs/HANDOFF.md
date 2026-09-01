@@ -325,14 +325,14 @@ compatibility mode:
 
 | Package | Why it matters |
 |---|---|
-| ~~MahApps.Metro 1.6.5~~ | Done: on 2.4.11, which targets .NET 5+ as well |
-| ~~ControlzEx 3.0.2.4~~ | Done: 4.4.0 came with MahApps 2 |
-| MvvmLightLibs 5.4.1.1 | Unmaintained; CommunityToolkit.Mvvm is the successor |
-| Extended.Wpf.Toolkit 3.5.0 | 4.x+ supports modern .NET |
-| starksoft.aspen 1.1.8 | SOCKS proxy for NNTP; needs checking or replacing |
+| ~~MahApps.Metro 1.6.5~~ | Done: 2.4.11, which targets .NET 5+ |
+| ~~ControlzEx 3.0.2.4~~ | Done: 4.4.0, came with MahApps 2 |
+| ~~MvvmLightLibs 5.4.1.1~~ | Done: removed, its three used pieces now live in the project |
+| Extended.Wpf.Toolkit 3.5.0 | Only `DateTimeUpDown`, in one XAML file. 4.x supports modern .NET but changes the licence from MS-PL to the Xceed Community License, so this is a decision rather than a task |
+| starksoft.aspen 1.1.8 | SOCKS proxy for NNTP. 1.1.8 is the latest; there is no modern-.NET build. Pure networking, so it will probably run as-is - but that is the thing to try, not to assume |
 
-`System.Windows.Interactivity`, which MvvmLightLibs supplies, is the one to watch: it does
-not work on modern .NET and its replacement is Microsoft.Xaml.Behaviors.Wpf.
+`System.Windows.Interactivity` was the hard one - it does not work on modern .NET at all -
+and it is gone with MahApps 1.x and MVVM Light. Microsoft.Xaml.Behaviors.Wpf replaces it.
 
 So the sequencing in this backlog was right, but for a narrower reason than assumed. The
 UI-library track is not a prerequisite because the code will not compile otherwise - it
