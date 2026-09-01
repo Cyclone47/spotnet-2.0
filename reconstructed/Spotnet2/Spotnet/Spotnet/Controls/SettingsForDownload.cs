@@ -16,7 +16,6 @@ using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;
 using Spotnet.Properties;
-using Xceed.Wpf.Toolkit;
 
 namespace Spotnet.Controls;
 public partial class SettingsForDownload : System.Windows.Controls.UserControl, IAdvancedSettingsControl
@@ -233,7 +232,7 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
         DownloaderScheduleUpdateStates();
     }
 
-    private void DownloaderScheduleOnTimeChanged(object sender, RoutedPropertyChangedEventArgs<object> args)
+    private void DownloaderScheduleOnTimeChanged(object sender, TextChangedEventArgs args)
     {
         DownloaderScheduleUpdateStates();
     }

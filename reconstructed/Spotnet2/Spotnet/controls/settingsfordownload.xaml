@@ -1,4 +1,4 @@
-<UserControl x:Class="Spotnet.Controls.SettingsForDownload" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:p="clr-namespace:Spotnet.Properties" xmlns:viewModel="clr-namespace:Spotnet.ViewModel" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" xmlns:controls="clr-namespace:Spotnet.Controls" FontSize="{Binding ElementName=VisibilityVmProxy, Path=DataContext.FontSize, Mode=OneWay}">
+<UserControl x:Class="Spotnet.Controls.SettingsForDownload" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:p="clr-namespace:Spotnet.Properties" xmlns:viewModel="clr-namespace:Spotnet.ViewModel" xmlns:controls="clr-namespace:Spotnet.Controls" FontSize="{Binding ElementName=VisibilityVmProxy, Path=DataContext.FontSize, Mode=OneWay}">
   <FrameworkElement.Resources>
     <ResourceDictionary>
       <Storyboard x:Key="FieldAnimationStoryboard">
@@ -22,11 +22,11 @@
       <CheckBox Name="EnableScheduleCheckBox" Content="{x:Static p:Words.DownloaderScheduleText}" Click="EnableScheduleCheckBox_OnClick" />
       <StackPanel Orientation="Horizontal" Margin="25,0">
         <Border Name="DownloaderScheduleStartTimeTextBoxBorder" BorderBrush="#00FFFFFF" BorderThickness="2">
-          <xctk:DateTimeUpDown Name="DownloaderScheduleStartTime" TabIndex="2" AllowSpin="True" AllowTextInput="True" Format="Custom" FormatString="HH:mm" DefaultValue="00:00" IsEnabled="False" GotFocus="DownloaderScheduleTime_GotFocus" ValueChanged="DownloaderScheduleOnTimeChanged" />
+          <TextBox Name="DownloaderScheduleStartTime" TabIndex="2" Text="00:00" MaxLength="5" Width="52" TextAlignment="Center" IsEnabled="False" GotFocus="DownloaderScheduleTime_GotFocus" TextChanged="DownloaderScheduleOnTimeChanged" />
         </Border>
         <TextBlock Text=" - " />
         <Border Name="DownloaderScheduleEndTimeTextBoxBorder" BorderBrush="#00FFFFFF" BorderThickness="2">
-          <xctk:DateTimeUpDown Name="DownloaderScheduleEndTime" TabIndex="2" AllowSpin="True" AllowTextInput="True" Format="Custom" FormatString="HH:mm" DefaultValue="00:00" IsEnabled="False" GotFocus="DownloaderScheduleTime_GotFocus" ValueChanged="DownloaderScheduleOnTimeChanged" />
+          <TextBox Name="DownloaderScheduleEndTime" TabIndex="2" Text="00:00" MaxLength="5" Width="52" TextAlignment="Center" IsEnabled="False" GotFocus="DownloaderScheduleTime_GotFocus" TextChanged="DownloaderScheduleOnTimeChanged" />
         </Border>
       </StackPanel>
     </StackPanel>
