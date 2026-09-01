@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.CodeDom.Compiler;
 using System.Configuration;
 using System.Diagnostics;
@@ -1993,21 +1993,6 @@ internal sealed class Settings : ApplicationSettingsBase
 		set
 		{
 			this["Filter"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("False")]
-	public bool UseNativeBrowser
-	{
-		get
-		{
-			return (bool)this["UseNativeBrowser"];
-		}
-		set
-		{
-			this["UseNativeBrowser"] = value;
 		}
 	}
 

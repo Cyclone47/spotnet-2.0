@@ -274,10 +274,14 @@ need redoing. Weigh it against how much more theming is planned.
   running the bridge against a fixture built from the real `comment.htm` markup.
 - `SpotPageBridgeTests` pins the two sides against each other: a host call to a bridge
   function that does not exist is otherwise completely silent.
-- **Still open:** the page itself has not been exercised against a live spot with comments,
-  an image and a working news server. Until it has, `SpotNativePage`, `IEWebBrowser`,
-  `iewebbrowser.xaml` and the `mshtml` reference must stay. `WebNativePage` and
-  `ReleaseNotesNativePage` are already unreferenced and can go with them.
+- **The MSHTML stack is removed.** `SpotNativePage`, `IEWebBrowser`, `WebNativePage`,
+  `ReleaseNotesNativePage`, `iewebbrowser.xaml` and the `WindowsFormsIntegration`
+  reference are gone, and with them the last `using mshtml` and the last
+  `WindowsFormsHost` in the application. `UseNativeBrowser` went too: it selected the
+  engine and there is now only one.
+- **Still open:** the page has not been exercised against a live spot with comments, an
+  image and a working news server. The fallback for that is now the previous commit
+  rather than a runtime switch.
 
 ### Track 6 — Dependencies, signing, and what a .NET move actually costs
 

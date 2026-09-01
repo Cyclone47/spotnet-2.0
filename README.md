@@ -70,7 +70,7 @@ These are the dependencies used by the current application project, not a list o
 
 Awesomium's source integration, managed assemblies, native engine, helper process, and supporting assets were removed. The Meta.Vlc assemblies were removed as well. Web page events now use an engine-independent `IPage` contract, and the feedback page's JavaScript bridge was adapted to WebView2 messages.
 
-**Browser scope:** every page, the spot detail view and its comments included, now renders in WebView2. The spot page is `SpotWebView2Page`, which talks to its document through an injected script bridge rather than the direct DOM access MSHTML allowed. The MSHTML page (`SpotNativePage : IEWebBrowser`) is still in the build and is selected when `UseNativeBrowser` is on or the Edge WebView2 Runtime is missing; removing it is follow-up work once the new page has been exercised on real machines.
+**Browser scope:** every page, the spot detail view and its comments included, renders in WebView2, and the Windows WebBrowser/MSHTML control is gone from the source tree. The spot page is `SpotWebView2Page`, which talks to its document through an injected script bridge rather than the direct DOM access MSHTML allowed.
 
 ### What â€œx64â€ means here
 
@@ -165,7 +165,7 @@ Remaining validation and modernization work includes:
 - Live news-server TLS connections and a full header import.
 - Desktop checks for WebView2 navigation, feedback, downloads, and media playback controls.
 - Recovery testing with genuinely corrupt databases, beyond the automated fixtures.
-- Desktop verification of the WebView2 spot page against real spots, after which the MSHTML renderer can be deleted.
+- Desktop verification of the WebView2 spot page against real spots, comments and images.
 - Replacing the 32-bit child-process utilities (`phpar2.exe`, `UnRAR.exe`, `7za.exe`).
 - Proving MahApps.Metro, MVVM Light, the Xceed toolkit and Starksoft.Aspen at runtime on
   modern .NET, which is what the framework migration is actually waiting on.

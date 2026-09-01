@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;
-using Spotnet.Properties;
 
 namespace Spotnet.Browser;
 
@@ -64,12 +63,7 @@ internal static class PagesFactory
 			page = new AdvancedDownloadsPage();
 			break;
 		case PageTypeEnum.SpotLoaded:
-			// WebView2 is the engine for spot pages. The MSHTML page is kept behind
-			// UseNativeBrowser so a machine where the Evergreen Runtime is missing or
-			// misbehaving still has a way to read a spot.
-			page = (Settings.Default.UseNativeBrowser || !WebView2Page.IsRuntimeAvailable())
-				? (IPage)new SpotNativePage(urlOrTitle, spotEx)
-				: new SpotWebView2Page(urlOrTitle, spotEx);
+			page = new SpotWebView2Page(urlOrTitle, spotEx);
 			break;
 		default:
 			page = new WebView2Page(urlOrTitle);

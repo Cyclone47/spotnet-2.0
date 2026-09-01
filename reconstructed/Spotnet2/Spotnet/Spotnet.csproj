@@ -109,7 +109,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
 
   <!-- Embedded Text & Data Resources -->
