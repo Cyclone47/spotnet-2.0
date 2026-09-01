@@ -6,7 +6,6 @@ using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Properties;
-using Starksoft.Aspen.Proxy;
 
 namespace Spotnet.Model;
 
@@ -24,7 +23,7 @@ internal class SocksProxy
 
 	private readonly object _lockSocksClient = new object();
 
-	private Socks5ProxyClient _client;
+	private Socks5Client _client;
 
 	private EventHandler<CreateConnectionAsyncCompletedEventArgs> _onCreateConnectionAsyncCompleted;
 
@@ -93,7 +92,7 @@ internal class SocksProxy
 			{
 				Close();
 			}
-			_client = new Socks5ProxyClient(Host, Port, Username.ToInsecureString(), Password.ToInsecureString())
+			_client = new Socks5Client(Username.ToInsecureString(), Password.ToInsecureString())
 			{
 				TcpClient = socketClient
 			};

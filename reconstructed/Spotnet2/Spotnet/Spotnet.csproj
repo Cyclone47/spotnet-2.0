@@ -46,9 +46,7 @@
     <!-- MahApps 2 uses Xaml.Behaviors. System.Windows.Interactivity, which the
          MVVM Light package used to supply, does not run on modern .NET at all. -->
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="3.5.0" />
     <PackageReference Include="FileCache.Signed" Version="2.2.0" />
-    <PackageReference Include="Starksoft.Aspen" Version="1.1.8" />
     <!-- A framework assembly on .NET Framework, a package from .NET Core onward.
          Taking it from the package now means the reference survives a retarget. -->
     <PackageReference Include="System.Management" Version="8.0.0" />
