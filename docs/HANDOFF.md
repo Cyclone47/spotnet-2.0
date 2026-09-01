@@ -320,16 +320,16 @@ Microsoft.VisualBasic code, System.Drawing for avatars, the WCF references, the 
 libraries - are either already resolved or do not stop the compiler. What the trial
 actually reported, once the three real blockers above were fixed, is a clean build.
 
-Compiling is not running. Five packages are .NET Framework-only and would be loaded in
-compatibility mode:
+Compiling is not running - but the packages that would have been loaded in compatibility
+mode are all gone now, and a net8.0-windows build reports no errors and no NU1701 at all:
 
 | Package | Why it matters |
 |---|---|
 | ~~MahApps.Metro 1.6.5~~ | Done: 2.4.11, which targets .NET 5+ |
 | ~~ControlzEx 3.0.2.4~~ | Done: 4.4.0, came with MahApps 2 |
 | ~~MvvmLightLibs 5.4.1.1~~ | Done: removed, its three used pieces now live in the project |
-| Extended.Wpf.Toolkit 3.5.0 | Only `DateTimeUpDown`, in one XAML file. 4.x supports modern .NET but changes the licence from MS-PL to the Xceed Community License, so this is a decision rather than a task |
-| starksoft.aspen 1.1.8 | SOCKS proxy for NNTP. 1.1.8 is the latest; there is no modern-.NET build. Pure networking, so it will probably run as-is - but that is the thing to try, not to assume |
+| ~~Extended.Wpf.Toolkit 3.5.0~~ | Removed. Upgrading was not open to us: from 4.0 the licence permits distribution to fewer than ten end users. Its one control became a TextBox |
+| ~~starksoft.aspen 1.1.8~~ | Removed. There is no modern-.NET build and never will be, so the SOCKS5 handshake it provided is now `Socks5Client`, with the tests that package never had |
 
 `System.Windows.Interactivity` was the hard one - it does not work on modern .NET at all -
 and it is gone with MahApps 1.x and MVVM Light. Microsoft.Xaml.Behaviors.Wpf replaces it.
