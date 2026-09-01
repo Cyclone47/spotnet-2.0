@@ -4,16 +4,19 @@ The installer is built with Inno Setup 7 and installs **for the current Windows 
 
 ## Run Setup
 
-[Download Setup and its checksum from the GitHub release](https://github.com/Cyclone47/spotnet-2.0/releases/tag/v3.0.1). Local build output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`.
+[Download Setup and its checksum from the GitHub release](https://github.com/Cyclone47/spotnet-2.0/releases/tag/v3.0.2). Local build output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`.
 
 1. Run Setup under the Windows account that owns the old Spotnet profile; do not switch to a different administrator account.
 2. Confirm the installation folder, normally `%LOCALAPPDATA%\Programs\Spotnet3`.
 3. For migration, select the detected legacy **data folder** and the matching **preferences file**. If there are several candidates, inspect the paths and select one. Setup does not merge profiles or arbitrarily choose the newest settings file.
 4. Review the summary. Setup requests a graceful Spotnet exit and waits up to 30 seconds. It uses the existing tray-safe exit command, with a normal close-window fallback. If Spotnet does not exit, or belongs to another Windows session, Setup stops; it never force-kills Spotnet.
+   During shutdown, prerequisite handling, and profile copying/verification, Setup shows a dedicated progress page and the current operation. A large profile can still take several minutes, but the wizard no longer leaves the generic Preparing page blank.
 5. Missing WebView2 is installed using Microsoft's signed Evergreen bootstrapper. Internet access is needed for that step. Missing .NET Framework is reported before installation; install it from Microsoft and rerun Setup.
 6. Setup copies/verifies the profile, installs the application, updates your existing Spotnet launch shortcuts, and offers an optional launch. A fresh install creates both Desktop and Start Menu shortcuts automatically.
 
 A fresh installation gets defaults and the application's provider-selection flow on first launch. Old application files remain available until you have verified the new client. Setup does not change NZB associations or the `spotnet://` handler.
+
+The startup language applies to Inno Setup's standard controls and Spotnet's custom welcome text, migration/profile pages, Ready summary, progress/status text, errors, completion, shortcut messages, and uninstall prompts. English and Dutch are included. Low-level helper reports are replaced with localized safe summaries in the Dutch UI.
 
 ### Existing shortcuts
 
@@ -91,7 +94,7 @@ The Spotnet package is **unsigned** until a publisher code-signing certificate i
 
 ## Verification
 
-The 109-test x64 regression suite includes installer tests for fresh profiles, data/sidecar preservation, readable SQLite copies, preferences conversion, safe defaults, upgrade backups, unknown destinations, locked files, malformed XML, overlapping paths, excluded queues/caches, discovery, stable settings, and graceful-shutdown timeouts. Eighteen shortcut cases cover legacy/current/Squirrel matching, in-place replacement, fresh launchers, repeat upgrades, unrelated/uninstall links, locked files, backup-path bounds, and uninstall recovery/user edits. The 3.0.1 patch adds WPF menu rendering and live theme-switch coverage.
+The 111-test x64 regression suite includes installer tests for fresh profiles, data/sidecar preservation, readable SQLite copies, preferences conversion, safe defaults, upgrade backups, unknown destinations, locked files, malformed XML, overlapping paths, excluded queues/caches, discovery, stable settings, graceful-shutdown timeouts, translation completeness, and preparation progress. Eighteen shortcut cases cover legacy/current/Squirrel matching, in-place replacement, fresh launchers, repeat upgrades, unrelated/uninstall links, locked files, backup-path bounds, and uninstall recovery/user edits. The 3.0.1 patch adds WPF menu rendering and live theme-switch coverage.
 
 First-launch testing also caught and fixed a second SQLite PRAGMA return-value issue in fresh spots-database creation. That path now accepts successful no-row results, verifies the resulting settings/schema version, and applies the page size only to a verified-empty database. A regression test refuses initialization when user tables already exist.
 

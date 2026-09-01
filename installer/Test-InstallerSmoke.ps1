@@ -1,5 +1,9 @@
 [CmdletBinding()]
-param([string]$TestRoot)
+param(
+    [string]$TestRoot,
+    [ValidateSet('english', 'dutch')]
+    [string]$Language = 'english'
+)
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 if (-not $TestRoot) { $TestRoot = Join-Path $repoRoot 'artifacts\installer-smoke' }
@@ -36,7 +40,7 @@ function Assert-TestLink([string]$Path, [string]$Target) {
     if ($actual -ne $Target -or $arguments -ne '') { throw "Incorrect shortcut target/arguments: $Path" }
 }
 function Invoke-SmokeSetup([string]$LogName) {
-    $process = Start-Process -FilePath $testInstaller -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/FRESH=1', ('/DIR="' + $appRoot + '"'), ('/LOG="' + (Join-Path $testRoot $LogName) + '"')) -WindowStyle Hidden -Wait -PassThru
+    $process = Start-Process -FilePath $testInstaller -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/FRESH=1', ('/LANG=' + $Language), ('/DIR="' + $appRoot + '"'), ('/LOG="' + (Join-Path $testRoot $LogName) + '"')) -WindowStyle Hidden -Wait -PassThru
     if ($process.ExitCode -ne 0) { throw "Smoke setup failed ($($process.ExitCode)); inspect $LogName." }
 }
 Invoke-SmokeSetup 'fresh.log'
@@ -76,5 +80,5 @@ if ((Get-FileHash -LiteralPath $fixture).Hash -ne $fixtureHash) { throw 'Uninsta
 if (-not (Test-Path -LiteralPath $backups[0].FullName)) { throw 'Uninstall removed the backup.' }
 foreach ($link in $freshLinks) { if (Test-Path -LiteralPath $link) { throw 'Installer-created shortcut survived uninstall.' } }
 foreach ($link in $originalHashes.Keys) { if ((Get-FileHash -LiteralPath $link).Hash -ne $originalHashes[$link]) { throw "Original shortcut was not restored: $link" } }
-Write-Host 'PASS: fresh install, payloads, old/current/Squirrel shortcut replacement, no duplicates, unrelated links preserved, upgrade backup, uninstall restoring shortcuts and retaining data.'
+Write-Host "PASS ($Language): fresh install, payloads, old/current/Squirrel shortcut replacement, no duplicates, unrelated links preserved, upgrade backup, uninstall restoring shortcuts and retaining data."
 Write-Host "Logs and synthetic profile retained in $testRoot. Real installations and profiles were untouched."

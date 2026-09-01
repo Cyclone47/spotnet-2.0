@@ -3,8 +3,21 @@
 Single self-contained document: the prompt to start a new AI session, the current state,
 the sequenced plan for what remains, and the full record of what changed and why.
 
-**Build:** 0 errors. **Tests:** 109/109 passing under the x64 test host.
+**Build:** 0 errors. **Tests:** 111/111 passing under the x64 test host.
 Target: `net472`, `x64` only.
+
+## Installer UI fix: 3.0.2
+
+- Application version is `3.0.2.0`; the current release and README target `v3.0.2`.
+- All custom Setup wizard copy has matching English and Dutch messages. Choosing Dutch now
+  localizes welcome, profile/source/settings pages, Ready summary, progress, failures,
+  completion, shortcuts and uninstall prompts—not only Inno's standard controls.
+- `PrepareToInstall` shows a dedicated progress page with explicit shutdown, WebView2 and
+  profile copy/verification stages. It is hidden in a `finally` block on all exit paths.
+- Two regression tests enforce English/Dutch key parity, referenced-key existence, translated
+  welcome/run strings, and visible progress-page construction/cleanup.
+- 111 tests pass and the actual installer lifecycle passed with `/LANG=dutch` in an isolated
+  workspace root. The real installation, shell shortcuts and profile were untouched.
 
 ## Menu contrast fix: 3.0.1
 
@@ -25,7 +38,8 @@ Target: `net472`, `x64` only.
 `artifacts/installer/Spotnet-3.0-x64-Setup.exe`. See [INSTALLER.md](INSTALLER.md)
 for the full migration, backup, prerequisite, and recovery behavior.
 Initial package scope is recorded in [releases/v3.0.0.md](releases/v3.0.0.md);
-the current patch is described in [releases/v3.0.1.md](releases/v3.0.1.md).
+menu fixes are described in [releases/v3.0.1.md](releases/v3.0.1.md), and the current
+installer UI patch is described in [releases/v3.0.2.md](releases/v3.0.2.md).
 
 - Per-user application install with an isolated `%LOCALAPPDATA%\Spotnet3\Data` profile.
 - Detects legacy 2.x data/settings, requests a graceful Spotnet exit, and copies selected
@@ -37,7 +51,7 @@ the current patch is described in [releases/v3.0.1.md](releases/v3.0.1.md).
 - Updates current-user Desktop/Start Menu `.lnk` launchers for old/current/Squirrel Spotnet
   in place; creates both on a fresh install. Uninstall restores originals unless user-edited.
   Shared shortcuts, pins, and ClickOnce `.appref-ms` launchers are outside this scope.
-- 109 tests pass, including 19 installer/profile/shutdown tests, two fresh-database tests,
+- 111 tests pass, including installer/profile/shutdown/localization tests, two fresh-database tests,
   and 18 shortcut matching/replacement/recovery cases.
   Isolated actual Setup tests passed fresh installation, repeat upgrade/backup and uninstall.
 - First-run testing caught an additional SQLite PRAGMA return-value bug in fresh database
