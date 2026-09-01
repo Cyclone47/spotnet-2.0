@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using GalaSoft.MvvmLight;
+using Spotnet.Mvvm;
 using NLog;
 using Spotnet.Model;
 using Spotnet.Properties;

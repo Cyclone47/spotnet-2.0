@@ -23,7 +23,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using NLog;

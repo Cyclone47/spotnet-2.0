@@ -14,7 +14,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using MahApps.Metro.Controls;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;

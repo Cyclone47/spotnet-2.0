@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using GalaSoft.MvvmLight;
+using Spotnet.Mvvm;
 using Microsoft.VisualBasic;
 using Spotnet.Extensions;
 using Spotnet.Helpers;

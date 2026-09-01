@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using NLog;
 using System.IO;
 using Spotnet.Downloader.Controls;

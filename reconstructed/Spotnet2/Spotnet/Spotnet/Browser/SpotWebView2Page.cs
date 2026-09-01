@@ -16,7 +16,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using Microsoft.VisualBasic;
 using Microsoft.Web.WebView2.Core;
 using Newtonsoft.Json.Linq;

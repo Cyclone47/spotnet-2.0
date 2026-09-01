@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Navigation;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using NLog;
 using Spotnet.Deployment;
 using Spotnet.Helpers;

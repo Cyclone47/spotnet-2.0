@@ -6,7 +6,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using MahApps.Metro.Controls;
 using NLog;
 using Spotnet.Helpers;

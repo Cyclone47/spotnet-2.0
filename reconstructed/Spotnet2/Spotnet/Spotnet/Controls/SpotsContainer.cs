@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using Microsoft.VisualBasic;
 using NLog;
 using Spotnet.DataVirtualization;

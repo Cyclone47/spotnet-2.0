@@ -1,5 +1,5 @@
 using System;
-using GalaSoft.MvvmLight;
+using Spotnet.Mvvm;
 using NLog;
 
 namespace Spotnet.ViewModel;

@@ -25,7 +25,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Resources;
 using System.Windows.Threading;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using MahApps.Metro.Controls;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
@@ -623,7 +623,7 @@ public partial class MainWindow : MetroWindow
     {
         try
         {
-            // Step 6: Interface ready — animate to 100% then fade splash
+            // Step 6: Interface ready â€” animate to 100% then fade splash
             Views.SplashWindow.SetProgress(6);
             System.Threading.Thread.Sleep(200); // brief pause so user sees the step
             Views.SplashWindow.SetProgress(7); // "Ready!"

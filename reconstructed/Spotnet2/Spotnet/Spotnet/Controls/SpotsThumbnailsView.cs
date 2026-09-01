@@ -12,7 +12,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Threading;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using Spotnet.DataVirtualization;
 using Spotnet.Extensions;
 using Spotnet.Helpers;

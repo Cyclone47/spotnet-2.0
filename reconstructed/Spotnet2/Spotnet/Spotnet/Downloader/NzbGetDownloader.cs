@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Threading;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using NLog;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

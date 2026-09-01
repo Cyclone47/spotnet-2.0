@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using MahApps.Metro.Controls;
 using NLog;
 using Spotnet.Helpers;

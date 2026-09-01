@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shell;
-using GalaSoft.MvvmLight;
+using Spotnet.Mvvm;
 using NLog;
 using Spotnet.Controls;
 using Spotnet.DAL;

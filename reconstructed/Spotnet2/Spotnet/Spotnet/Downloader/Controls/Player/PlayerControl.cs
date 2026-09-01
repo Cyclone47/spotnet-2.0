@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media.Animation;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using LibVLCSharp.Shared;
 using NLog;
 using Spotnet.Downloader.ViewModel;

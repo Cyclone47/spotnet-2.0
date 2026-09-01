@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using GalaSoft.MvvmLight;
+using Spotnet.Mvvm;
 using NLog;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;

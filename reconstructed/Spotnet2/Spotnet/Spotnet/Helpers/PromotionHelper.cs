@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Xml.Serialization;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using NLog;
 using Spotnet.Model;
 using Spotnet.Properties;

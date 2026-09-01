@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Markup;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 using NLog;
 using Spotnet.Helpers;
 using Spotnet.Model;

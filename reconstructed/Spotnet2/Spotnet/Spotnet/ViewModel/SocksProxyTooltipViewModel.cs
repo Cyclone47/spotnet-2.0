@@ -1,5 +1,5 @@
 using System.Windows.Media;
-using GalaSoft.MvvmLight;
+using Spotnet.Mvvm;
 using NLog;
 using Spotnet.Model;
 using Spotnet.Properties;

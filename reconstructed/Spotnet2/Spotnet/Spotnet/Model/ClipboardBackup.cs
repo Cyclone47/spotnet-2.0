@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Windows;
-using GalaSoft.MvvmLight.Threading;
+using Spotnet.Mvvm.Threading;
 
 namespace Spotnet.Model;
 

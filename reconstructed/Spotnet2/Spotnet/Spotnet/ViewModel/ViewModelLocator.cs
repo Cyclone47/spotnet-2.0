@@ -1,29 +1,42 @@
-using GalaSoft.MvvmLight.Ioc;
-using CommonServiceLocator;
+using System;
 
 namespace Spotnet.ViewModel;
 
+/// <summary>
+/// The view models the XAML binds to, one instance each.
+/// </summary>
+/// <remarks>
+/// This used MVVM Light's SimpleIoc behind CommonServiceLocator, but only ever to hold
+/// five singletons with parameterless constructors - nothing was injected, resolved by
+/// interface, or replaced in a test. Five lazy fields do the same thing without the two
+/// packages, both of which were .NET Framework only.
+/// </remarks>
 public class ViewModelLocator
 {
-	public VisibilityViewModel Visibility => ServiceLocator.Current.GetInstance<VisibilityViewModel>();
+	private static readonly Lazy<VisibilityViewModel> VisibilityInstance =
+		new Lazy<VisibilityViewModel>(() => new VisibilityViewModel());
 
-	public SpotsListViewModel SpotsList => ServiceLocator.Current.GetInstance<SpotsListViewModel>();
+	private static readonly Lazy<SpotsListViewModel> SpotsListInstance =
+		new Lazy<SpotsListViewModel>(() => new SpotsListViewModel());
 
-	public StatusBarViewModel StatusBar => ServiceLocator.Current.GetInstance<StatusBarViewModel>();
+	private static readonly Lazy<StatusBarViewModel> StatusBarInstance =
+		new Lazy<StatusBarViewModel>(() => new StatusBarViewModel());
 
-	public MainWindowViewModel MainWindow => ServiceLocator.Current.GetInstance<MainWindowViewModel>();
+	private static readonly Lazy<MainWindowViewModel> MainWindowInstance =
+		new Lazy<MainWindowViewModel>(() => new MainWindowViewModel());
 
-	public SocksProxyTooltipViewModel SocksProxyTooltip => ServiceLocator.Current.GetInstance<SocksProxyTooltipViewModel>();
+	private static readonly Lazy<SocksProxyTooltipViewModel> SocksProxyTooltipInstance =
+		new Lazy<SocksProxyTooltipViewModel>(() => new SocksProxyTooltipViewModel());
 
-	static ViewModelLocator()
-	{
-		ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-		SimpleIoc.Default.Register<VisibilityViewModel>();
-		SimpleIoc.Default.Register<SpotsListViewModel>();
-		SimpleIoc.Default.Register<StatusBarViewModel>();
-		SimpleIoc.Default.Register<MainWindowViewModel>();
-		SimpleIoc.Default.Register<SocksProxyTooltipViewModel>();
-	}
+	public VisibilityViewModel Visibility => VisibilityInstance.Value;
+
+	public SpotsListViewModel SpotsList => SpotsListInstance.Value;
+
+	public StatusBarViewModel StatusBar => StatusBarInstance.Value;
+
+	public MainWindowViewModel MainWindow => MainWindowInstance.Value;
+
+	public SocksProxyTooltipViewModel SocksProxyTooltip => SocksProxyTooltipInstance.Value;
 
 	public static void Cleanup()
 	{
