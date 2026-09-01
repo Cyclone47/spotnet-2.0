@@ -3,12 +3,24 @@
 Single self-contained document: the prompt to start a new AI session, the current state,
 the sequenced plan for what remains, and the full record of what changed and why.
 
-**Build:** 0 errors. **Tests:** 177/177 passing under the x64 test host.
+**Build:** 0 errors. **Tests:** 179/179 passing under the x64 test host.
 Target: `net472`, `x64` only.
+
+## Provider-dialog hotfix: 3.0.4
+
+- Application version is `3.0.4.0`; the current release and README target `v3.0.4`.
+- The dialog caps its initial and maximum size to the Windows working area and can shrink to
+  480 x 360 DIPs. Its central content scrolls while the header and Connect/Cancel footer stay
+  visible.
+- Provider filtering is deferred until the editable ComboBox has completed the current
+  keystroke. It clears stale selection state before refreshing, then restores the exact text
+  and caret. This prevents changing provider names and the `ArgumentOutOfRangeException`
+  reported for `news`.
+- Two regression tests pin the small-screen layout and safe deferred filtering.
 
 ## Connect dialog, provider list and Dutch: 3.0.3
 
-- Application version is `3.0.3.0`; the current release and README target `v3.0.3`.
+- Superseded by the 3.0.4 hotfix above; this section records the 3.0.3 work.
 - The provider list was re-verified against the live servers by reading each NNTP greeting.
   KPN v1/v2 answer "500 ... gestopt met Usenet-toegang" and are removed; 5 Euro Usenet and
   SnelNL moved off port 80, which accepts a connection and never answers; 15 were added.

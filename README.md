@@ -2,9 +2,11 @@
 
 ## Download for Windows x64
 
-**[Download Spotnet 3.0.3 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.3/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.3)
+**[Download Spotnet 3.0.4 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.4/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.4)
 
-**Latest update:** a rebuilt connect dialog with a searchable provider list, a provider list re-verified against the live servers, and a Dutch interface that finally works. The list is now published as [providers.json](providers.json) and fetched on launch, so a provider that shuts down can be corrected without a new release.
+**Latest fix:** the first-use provider dialog now fits low-resolution/scaled desktops and remains resizable, with its action buttons always available. Typing searches such as `news` no longer replaces the text with changing providers or raises an index error.
+
+**Previous update:** a rebuilt connect dialog with a searchable provider list, a provider list re-verified against the live servers, and a Dutch interface that finally works. The list is now published as [providers.json](providers.json) and fetched on launch, so a provider that shuts down can be corrected without a new release.
 
 **Previous fix:** readable dark-mode menus, nested submenus, and right-click menus, including hover, checked, and disabled items. Light-mode contrast is corrected too.
 
@@ -16,9 +18,9 @@ A reconstructed and modernized Windows Usenet client, built around the familiar 
 
 **Current target:** Windows x64 · C# / WPF · .NET Framework 4.7.2
 
-**Application version:** 3.0.3.0
+**Application version:** 3.0.4.0
 
-**Validation checkpoint:** 177 automated tests passing on the x64 Release test host.
+**Validation checkpoint:** 179 automated tests passing on the x64 Release test host.
 
 ## The project idea
 

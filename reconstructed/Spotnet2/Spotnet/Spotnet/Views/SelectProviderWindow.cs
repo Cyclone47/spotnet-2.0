@@ -13,6 +13,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using GalaSoft.MvvmLight.Threading;
 using MahApps.Metro.Controls;
 using Microsoft.VisualBasic;
@@ -65,6 +66,10 @@ public partial class SelectProviderWindow : MetroWindow
     private ProviderItem _appliedProvider;
     /// <summary>Set when the user picks a row, so only a deliberate choice commits a search.</summary>
     private bool _providerChosen;
+    /// <summary>Suppresses routed ComboBox text events caused by our own view refresh.</summary>
+    private bool _updatingProviderView;
+    /// <summary>Coalesces rapid keystrokes and stale close events queued on the Dispatcher.</summary>
+    private int _providerUpdateRevision;
 
     public static bool IsRunning => DispatcherHelper.UIDispatcher.Invoke(() => Application.Current.Windows.OfType<SelectProviderWindow>().Any());
     private string CurrentSettingsString => HeaderServerTextBox.Text + HeaderServerPortComboBox.Text.Split()[0] + DownloadServerTextBox.Text + DownloadServerPortComboBox.Text.Split()[0] + UploadServerTextBox.Text + UploadServerPortComboBox.Text.Split()[0] + ConnectionsCombo.Text + UserNameTextBox.Text + PasswordTextBox.Password;
@@ -410,7 +415,16 @@ public partial class SelectProviderWindow : MetroWindow
         ApplySelectedProvider();
     }
 
-    private void ProviderBox_DropDownClosed(object sender, EventArgs e) => CommitProviderChoice();
+    private void ProviderBox_DropDownClosed(object sender, EventArgs e) => ScheduleProviderChoiceCommit();
+
+    private void ScheduleProviderChoiceCommit()
+    {
+        int revision = ++_providerUpdateRevision;
+        base.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+        {
+            if (revision == _providerUpdateRevision) CommitProviderChoice();
+        });
+    }
 
     /// <summary>
     /// Ends a search. Only a real pick applies a provider: a dropdown that closes for any other
@@ -515,6 +529,7 @@ public partial class SelectProviderWindow : MetroWindow
     {
         try
         {
+            FitToWorkingArea();
             base.FontSize = (int)Settings.Default.FontSize;
 
             // Each border needs its own unbound brush; the storyboard animates BorderBrush.Color,
@@ -567,6 +582,25 @@ public partial class SelectProviderWindow : MetroWindow
             Log.Exception(ex, showToClient: true);
             Close();
         }
+    }
+
+    /// <summary>
+    /// WPF sizes are device-independent pixels. A 700-DIP dialog is taller than a 720p desktop at
+    /// 125% scaling, so cap the initial and maximum size to the actual working area and let the
+    /// central ScrollViewer handle the remaining content.
+    /// </summary>
+    private void FitToWorkingArea()
+    {
+        const double margin = 24;
+        Rect workArea = SystemParameters.WorkArea;
+        double availableWidth = Math.Max(320, workArea.Width - margin);
+        double availableHeight = Math.Max(280, workArea.Height - margin);
+        MinWidth = Math.Min(MinWidth, availableWidth);
+        MinHeight = Math.Min(MinHeight, availableHeight);
+        MaxWidth = availableWidth;
+        MaxHeight = availableHeight;
+        Width = Math.Min(Width, MaxWidth);
+        Height = Math.Min(Height, MaxHeight);
     }
 
     private void BuildProviderView()
@@ -626,14 +660,55 @@ public partial class SelectProviderWindow : MetroWindow
     /// <summary>Narrows the dropdown to what the user has typed, matching name as well as hostname.</summary>
     private void ProviderBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
-        if (!_userIsSearching || !_initializationFinished) return;
-        _providerFilter = ProviderBox.Text ?? string.Empty;
-        _providerView.Refresh();
-        UpdateProviderCountLabel();
-        if (!ProviderBox.IsDropDownOpen && _providerFilter.Length > 0)
+        if (_updatingProviderView || !_userIsSearching || !_initializationFinished) return;
+
+        TextBox editBox = ProviderEditBox;
+        string text = editBox?.Text ?? ProviderBox.Text ?? string.Empty;
+        int caretIndex = editBox?.CaretIndex ?? text.Length;
+        int revision = ++_providerUpdateRevision;
+
+        // Refreshing a ListCollectionView synchronously from the editable ComboBox's routed
+        // TextChanged event invalidates the index WPF is still using for that same keystroke.
+        // Coalesce input and refresh after ComboBox has completed its internal edit operation.
+        base.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
         {
-            ProviderBox.IsDropDownOpen = true;
+            if (revision != _providerUpdateRevision || !_userIsSearching) return;
+            RefreshProviderFilter(text, caretIndex);
+        });
+    }
+
+    private void RefreshProviderFilter(string text, int caretIndex)
+    {
+        _updatingProviderView = true;
+        try
+        {
+            _providerFilter = text;
+            // A selection that disappears during Refresh is what made the editable ComboBox use a
+            // stale collection index. Clear it before the reset and restore only the edit text.
+            ProviderBox.SelectedItem = null;
+            _providerView.Refresh();
+            _providerView.MoveCurrentToPosition(-1);
+            ProviderBox.SelectedItem = null;
+
+            TextBox editBox = ProviderEditBox;
+            if (editBox != null)
+            {
+                editBox.Text = text;
+                editBox.CaretIndex = Math.Min(caretIndex, text.Length);
+                editBox.SelectionLength = 0;
+            }
+            else
+            {
+                ProviderBox.Text = text;
+            }
         }
+        finally
+        {
+            _updatingProviderView = false;
+        }
+
+        UpdateProviderCountLabel();
+        if (!ProviderBox.IsDropDownOpen && text.Length > 0) ProviderBox.IsDropDownOpen = true;
     }
 
     /// <summary>A printable character in the edit box is the one unambiguous "user is searching" signal.</summary>
@@ -668,14 +743,14 @@ public partial class SelectProviderWindow : MetroWindow
             case Key.Enter when _userIsSearching || ProviderBox.IsDropDownOpen:
                 if (ProviderBox.SelectedItem == null) SelectFirstMatch();
                 _providerChosen = ProviderBox.SelectedItem != null;
-                ProviderBox.IsDropDownOpen = false;
-                CommitProviderChoice();
+                if (ProviderBox.IsDropDownOpen) ProviderBox.IsDropDownOpen = false;
+                else ScheduleProviderChoiceCommit();
                 e.Handled = true;
                 break;
             case Key.Escape when _userIsSearching || ProviderBox.IsDropDownOpen:
-                ProviderBox.IsDropDownOpen = false;
                 _providerChosen = false;
-                CommitProviderChoice();
+                if (ProviderBox.IsDropDownOpen) ProviderBox.IsDropDownOpen = false;
+                else ScheduleProviderChoiceCommit();
                 e.Handled = true;
                 break;
             case Key.Down when !ProviderBox.IsDropDownOpen:
@@ -695,8 +770,16 @@ public partial class SelectProviderWindow : MetroWindow
     {
         _userIsSearching = false;
         if (_providerFilter.Length == 0) return;
-        _providerFilter = string.Empty;
-        _providerView.Refresh();
+        _updatingProviderView = true;
+        try
+        {
+            _providerFilter = string.Empty;
+            _providerView.Refresh();
+        }
+        finally
+        {
+            _updatingProviderView = false;
+        }
         UpdateProviderCountLabel();
     }
 
@@ -704,7 +787,17 @@ public partial class SelectProviderWindow : MetroWindow
     private void RestoreProviderText()
     {
         _userIsSearching = false;
-        ProviderBox.Text = (ProviderBox.SelectedItem as ProviderItem)?.Name ?? string.Empty;
+        _updatingProviderView = true;
+        try
+        {
+            if (_appliedProvider != null && !ReferenceEquals(ProviderBox.SelectedItem, _appliedProvider))
+                ProviderBox.SelectedItem = _appliedProvider;
+            ProviderBox.Text = _appliedProvider?.Name ?? string.Empty;
+        }
+        finally
+        {
+            _updatingProviderView = false;
+        }
     }
 
     private void UpdateProviderCountLabel()
