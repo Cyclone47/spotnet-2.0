@@ -4,7 +4,7 @@ The installer is built with Inno Setup 7 and installs **for the current Windows 
 
 ## Run Setup
 
-[Download Setup and its checksum from the GitHub release](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.2). Local build output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`.
+[Download Setup and its checksum from the GitHub release](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.3). Local build output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`.
 
 1. Run Setup under the Windows account that owns the old Spotnet profile; do not switch to a different administrator account.
 2. Confirm the installation folder, normally `%LOCALAPPDATA%\Programs\Spotnet3`.

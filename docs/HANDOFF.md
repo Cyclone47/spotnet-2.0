@@ -3,12 +3,25 @@
 Single self-contained document: the prompt to start a new AI session, the current state,
 the sequenced plan for what remains, and the full record of what changed and why.
 
-**Build:** 0 errors. **Tests:** 111/111 passing under the x64 test host.
+**Build:** 0 errors. **Tests:** 177/177 passing under the x64 test host.
 Target: `net472`, `x64` only.
+
+## Connect dialog, provider list and Dutch: 3.0.3
+
+- Application version is `3.0.3.0`; the current release and README target `v3.0.3`.
+- The provider list was re-verified against the live servers by reading each NNTP greeting.
+  KPN v1/v2 answer "500 ... gestopt met Usenet-toegang" and are removed; 5 Euro Usenet and
+  SnelNL moved off port 80, which accepts a connection and never answers; 15 were added.
+- Dutch worked for the first time. 2.0 shipped `nl\Spotnet.resources.dll` but the
+  reconstruction recovered only the text dumps, so every Dutch install fell back to English.
+  The culture must appear in the satellite's logical resource name or it resolves nothing.
+- The list is published as `providers.json` and fetched on launch. `ProviderCatalogue`
+  validates it before any of it is used and the built-in list stays authoritative until a
+  fetched copy passes in full. See [PROVIDERS.md](PROVIDERS.md).
 
 ## Installer UI fix: 3.0.2
 
-- Application version is `3.0.2.0`; the current release and README target `v3.0.2`.
+- Superseded by 3.0.3 above; this section records the 3.0.2 work.
 - All custom Setup wizard copy has matching English and Dutch messages. Choosing Dutch now
   localizes welcome, profile/source/settings pages, Ready summary, progress, failures,
   completion, shortcuts and uninstall prompts—not only Inno's standard controls.

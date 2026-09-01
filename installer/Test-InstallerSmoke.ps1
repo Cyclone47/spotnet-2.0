@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$TestRoot,
     [ValidateSet('english', 'dutch')]
@@ -44,10 +44,16 @@ function Invoke-SmokeSetup([string]$LogName) {
     if ($process.ExitCode -ne 0) { throw "Smoke setup failed ($($process.ExitCode)); inspect $LogName." }
 }
 Invoke-SmokeSetup 'fresh.log'
-foreach ($required in @('Spotnet.exe', 'Spotnet.install', 'WebView2Loader.dll', 'x64\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll', 'Data\TabThemes')) {
+# nl\Spotnet.resources.dll is listed because its absence is silent: the app falls back to the
+# neutral English table and simply runs in the wrong language, which is how it shipped unnoticed.
+foreach ($required in @('Spotnet.exe', 'Spotnet.install', 'WebView2Loader.dll', 'x64\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll', 'Data\TabThemes', 'nl\Spotnet.resources.dll')) {
     if (-not (Test-Path -LiteralPath (Join-Path $appRoot $required))) { throw "Missing payload: $required" }
 }
 if (-not (Test-Path -LiteralPath (Join-Path $profileRoot 'profile.ready'))) { throw 'Fresh profile was not initialized.' }
+# Setup seeds the language it ran in, so a Dutch install starts Spotnet in Dutch.
+$expectedLanguage = if ($Language -eq 'dutch') { 'nl' } else { 'en' }
+$seeded = Select-Xml -Path (Join-Path $profileRoot 'user.config') -XPath "/configuration/userSettings/Spotnet.Properties.Settings/setting[@name='UserLanguage']/value"
+if (-not $seeded -or $seeded.Node.InnerText -ne $expectedLanguage) { throw "Setup did not seed UserLanguage=$expectedLanguage into the new profile." }
 $freshLinks = @((Join-Path $desktopRoot 'Spotnet.lnk'), (Join-Path $programsRoot 'Spotnet.lnk'))
 foreach ($link in $freshLinks) { Assert-TestLink $link (Join-Path $appRoot 'Spotnet.exe') }
 # Seed legacy and earlier 3.0 links only inside the synthetic shell folders.
