@@ -584,27 +584,34 @@ public partial class SelectProviderWindow : MetroWindow
     /// </summary>
     private void StartCatalogueRefresh()
     {
+        // Marshalled with the Dispatcher rather than a captured TaskScheduler: this runs from
+        // Initialized, which can fire before a SynchronizationContext exists, and
+        // FromCurrentSynchronizationContext throws there.
         ProviderCatalogueSource.RefreshAsync().ContinueWith(task =>
         {
-            // Leave the list alone while the user is busy in it; a list that reorders mid-search
-            // is worse than one that updates the next time the dialog opens.
-            if (!task.Result || _userIsSearching || ProviderBox.IsDropDownOpen || !IsLoaded) return;
-            lock (_lockRoot)
+            if (!task.Result) return;
+            base.Dispatcher.BeginInvoke((Action)delegate
             {
-                ProviderBox.SelectionChanged -= ProviderBox_SelectionChanged;
-                try
+                // Leave the list alone while the user is busy in it; a list that reorders mid-search
+                // is worse than one that updates the next time the dialog opens.
+                if (_userIsSearching || ProviderBox.IsDropDownOpen || !IsLoaded) return;
+                lock (_lockRoot)
                 {
-                    BuildProviderView();
-                    _appliedProvider = null;
+                    ProviderBox.SelectionChanged -= ProviderBox_SelectionChanged;
+                    try
+                    {
+                        BuildProviderView();
+                        _appliedProvider = null;
+                    }
+                    finally
+                    {
+                        ProviderBox.SelectionChanged += ProviderBox_SelectionChanged;
+                    }
                 }
-                finally
-                {
-                    ProviderBox.SelectionChanged += ProviderBox_SelectionChanged;
-                }
-            }
-            UpdateProviderBoxSelection();
-            UpdateProviderCountLabel();
-        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                UpdateProviderBoxSelection();
+                UpdateProviderCountLabel();
+            });
+        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
     }
 
     private void SyncCheckBoxesWithHeaderServer()

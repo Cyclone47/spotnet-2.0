@@ -242,3 +242,79 @@ public sealed class PublishedProviderCatalogueTests
         throw new FileNotFoundException("Cannot find " + relative + " from the test output.");
     }
 }
+
+/// <summary>
+/// The cache is what makes an edit to providers.json reach users, so these cover the disk path:
+/// a good cache is used, a bad one is discarded rather than shrinking the list to nothing.
+/// </summary>
+public sealed class ProviderCatalogueCacheTests : IDisposable
+{
+    private static readonly Assembly App = typeof(Spotnet.Deployment.ProfileSettingsFile).Assembly;
+    private static readonly Type SourceType = App.GetType("Spotnet.Model.ProviderCatalogueSource", throwOnError: true);
+    private static readonly Type ProvidersType = App.GetType("Spotnet.Model.UsenetProviders", throwOnError: true);
+    private static readonly FieldInfo SettingsFolder =
+        App.GetType("Spotnet.Helpers.AppHelper", throwOnError: true).GetField("SettingsFolder", BindingFlags.Static | BindingFlags.NonPublic);
+
+    private readonly string _folder;
+    private readonly string _previousFolder;
+
+    public ProviderCatalogueCacheTests()
+    {
+        _previousFolder = (string)SettingsFolder.GetValue(null);
+        _folder = Path.Combine(Path.GetTempPath(), "spotnet-catalogue-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_folder);
+        SettingsFolder.SetValue(null, _folder + Path.DirectorySeparatorChar);
+        Reset();
+    }
+
+    public void Dispose()
+    {
+        SettingsFolder.SetValue(null, _previousFolder);
+        Reset();
+        try { Directory.Delete(_folder, true); } catch (IOException) { }
+    }
+
+    private static void Reset() => SourceType.GetMethod("Reset", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
+
+    private static List<object> Current() =>
+        ((IEnumerable)SourceType.GetProperty("Current", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null)).Cast<object>().ToList();
+
+    private static int BuiltInCount() =>
+        ((IEnumerable)ProvidersType.GetProperty("BuiltIn", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null)).Cast<object>().Count();
+
+    private void WriteCache(string json) => File.WriteAllText(Path.Combine(_folder, "providers.json"), json);
+
+    private static string Name(object provider) =>
+        (string)App.GetType("Spotnet.Model.ProviderItem", throwOnError: true).GetProperty("Name").GetValue(provider);
+
+    [Fact]
+    public void WithNoCacheTheBuiltInListIsUsed()
+    {
+        Assert.Equal(BuiltInCount(), Current().Count);
+    }
+
+    [Fact]
+    public void AValidCacheReplacesTheBuiltInList()
+    {
+        WriteCache("{\"schema\":1,\"providers\":[" +
+            "{\"name\":\"Eweka\",\"group\":\"NL\",\"host\":\"newsreader1.eweka.nl\",\"port\":443}," +
+            "{\"name\":\"Brand New Provider\",\"group\":\"NL\",\"host\":\"news.example-new.nl\",\"port\":563}]}");
+        Reset();
+
+        List<object> current = Current();
+        Assert.Equal(3, current.Count); // two published plus the client's own manual row
+        Assert.Contains("Brand New Provider", current.Select(Name));
+    }
+
+    [Theory]
+    [InlineData("{\"schema\":1,\"providers\":[{\"name\":\"Bad\",\"group\":\"NL\",\"host\":\"a.example.com\",\"port\":25}]}")]
+    [InlineData("{\"schema\":9,\"providers\":[]}")]
+    [InlineData("truncated {")]
+    [InlineData("")]
+    public void AnInvalidCacheFallsBackToTheBuiltInListRatherThanEmptying(string json)
+    {
+        WriteCache(json);
+        Reset();
+        Assert.Equal(BuiltInCount(), Current().Count);
+    }
+}
