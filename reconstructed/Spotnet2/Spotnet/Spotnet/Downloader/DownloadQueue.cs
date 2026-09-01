@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +26,7 @@ internal static class DownloadQueue
 
 	private static CancellationTokenSource _cTokenSource;
 
-	private static readonly SynchronizedCollection<Task> DownloadTasksList = new SynchronizedCollection<Task>();
+	private static readonly SynchronizedList<Task> DownloadTasksList = new SynchronizedList<Task>();
 
 	internal static bool IsQueueStarted;
 
@@ -50,7 +50,7 @@ internal static class DownloadQueue
 
 	private static readonly ManualResetEventSlim EmptyQueueEvent = new ManualResetEventSlim();
 
-	private static SynchronizedCollection<BlockingCollection<NNTPSegment>> _segmentsToDownload;
+	private static SynchronizedList<BlockingCollection<NNTPSegment>> _segmentsToDownload;
 
 	private static BlockingCollection<NNTPSegment> _segmentsToGetSlave;
 
@@ -103,7 +103,7 @@ internal static class DownloadQueue
 			_cTokenSource = new CancellationTokenSource();
 			_segmentsUnderTimeoutQueue = new ConcurrentQueue<NNTPSegment>();
 			_segmentsToProcessStack = new ConcurrentStack<NNTPSegment>();
-			_segmentsToDownload = new SynchronizedCollection<BlockingCollection<NNTPSegment>>();
+			_segmentsToDownload = new SynchronizedList<BlockingCollection<NNTPSegment>>();
 			SpotDownloader.UpdatePriorities();
 			StartDownloadSegmentsAsync();
 			bool isOnPause = false;

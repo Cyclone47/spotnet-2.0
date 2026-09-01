@@ -47,6 +47,14 @@ RestartApplications=no
 SetupMutex=Spotnet3Setup
 VersionInfoVersion={#AppVersion}
 UninstallDisplayName=Spotnet 3.0 (64-bit)
+; Authenticode signing is opt-in: build-installer.ps1 defines SignSetup and supplies the
+; named "spotnet" tool only when a certificate was given. Without it the compiler must
+; not know about a sign tool at all, or it refuses to build.
+#ifdef SignSetup
+SignTool=spotnet
+; The uninstaller is a separate executable and gets its own warning if left unsigned.
+SignedUninstaller=yes
+#endif
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

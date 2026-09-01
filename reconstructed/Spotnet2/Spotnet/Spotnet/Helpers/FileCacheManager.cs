@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Caching;
-using Codeplex.FileCache;
 using NLog;
 using Spotnet.Extensions;
 using Spotnet.Model;

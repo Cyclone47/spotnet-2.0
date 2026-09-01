@@ -1,8 +1,8 @@
-# Spotnet 3.0
+﻿# Spotnet 3.0
 
 ## Download for Windows x64
 
-**[Download Spotnet 3.0.5 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.5/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.5)
+**[Download Spotnet 3.0.5 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.5/Spotnet-3.0-x64-Setup.exe)** Â· [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.5)
 
 **Latest fix:** a fresh profile now creates the complete spots database before the first list is loaded. Version 3.0.5 also repairs the specific incomplete two-table database left by 3.0.4, without deleting its existing rows.
 
@@ -18,9 +18,9 @@ For fresh installs and upgrades from compatible Spotnet 2.x profiles. Setup clos
 
 A reconstructed and modernized Windows Usenet client, built around the familiar Spotnet experience: browse spots, search a local index, read comments, manage NZB downloads, and preview media in one desktop application.
 
-**Current target:** Windows x64 · C# / WPF · .NET Framework 4.7.2
+**Current target:** Windows x64 Â· C# / WPF Â· .NET Framework 4.7.2
 
-**Application version:** 3.0.5.0
+**Application version:** 3.0.6.0
 
 **Validation checkpoint:** 180 automated tests passing on the x64 Release test host.
 
@@ -70,9 +70,9 @@ These are the dependencies used by the current application project, not a list o
 
 Awesomium's source integration, managed assemblies, native engine, helper process, and supporting assets were removed. The Meta.Vlc assemblies were removed as well. Web page events now use an engine-independent `IPage` contract, and the feedback page's JavaScript bridge was adapted to WebView2 messages.
 
-**Browser scope matters:** spot-detail and comment pages still use `SpotNativePage : IEWebBrowser`, backed by the Windows WebBrowser/MSHTML control. WebView2 replaces the Awesomium-backed pages; it does **not** yet replace every HTML-rendering path in the application.
+**Browser scope:** every page, the spot detail view and its comments included, now renders in WebView2. The spot page is `SpotWebView2Page`, which talks to its document through an injected script bridge rather than the direct DOM access MSHTML allowed. The MSHTML page (`SpotNativePage : IEWebBrowser`) is still in the build and is selected when `UseNativeBrowser` is on or the Edge WebView2 Runtime is missing; removing it is follow-up work once the new page has been exercised on real machines.
 
-### What “x64” means here
+### What â€œx64â€ means here
 
 The built application, decoder, and test assemblies have AMD64 PE headers. SQLite, the WebView2 loader, and LibVLC use x64 in-process components. The solution build removes unused x86 and ARM64 runtime payload directories from its output.
 
@@ -124,7 +124,7 @@ The UI toolkit has not been replaced, the database has not migrated to FTS5, and
 
 The new per-user **Spotnet 3.0 x64 Setup** detects legacy installations, asks Spotnet to close safely, and offers a verified copy of the selected profile into a separate 3.0 data folder. Existing 3.0 profiles are backed up before an upgrade; uninstall keeps personal data. Old application files and source profiles remain untouched. Your existing Spotnet Desktop and Start Menu launch shortcuts are updated in place; missing launchers are created. Active download queues are not imported.
 
-Build it with `./build-installer.ps1 -BootstrapCompiler`. Output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`. The package is currently unsigned. See the [installer and migration guide](docs/INSTALLER.md) for compatibility, prerequisites, backups, and testing.
+Build it with `./build-installer.ps1 -BootstrapCompiler`. Output: `artifacts/installer/Spotnet-3.0-x64-Setup.exe`. Released packages are unsigned because no publisher certificate exists yet; the build supports signing whenever one does, with `-SignThumbprint <cert>` for a certificate in the current user's store or `-SignCommand` for an HSM or cloud signing service. It signs the application binaries, the installer and the uninstaller, and refuses to package if any of them ends up without a signature. See the [installer and migration guide](docs/INSTALLER.md) for compatibility, prerequisites, backups, and testing.
 
 ### Requirements
 
@@ -144,7 +144,7 @@ dotnet test reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj -c Release
 
 The project files set `PlatformTarget=x64`; the commands above build the 64-bit application.
 
-Alternatively, run `build.bat` from the repository root. It builds, runs tests, checks for the output executable, and offers to launch it. Its progress label still says “x86”; that is stale display text, not the compiled architecture. The script reports test failures as a warning, so inspect the test result.
+Alternatively, run `build.bat` from the repository root. It builds, runs tests, checks for the output executable, and offers to launch it. Its progress label still says â€œx86â€; that is stale display text, not the compiled architecture. The script reports test failures as a warning, so inspect the test result.
 
 Keep the **entire output directory** together when running or copying a build. `Spotnet.exe` alone is not a standalone distribution: native runtimes, managed dependencies, configuration, and data/resources are also required.
 
@@ -165,10 +165,12 @@ Remaining validation and modernization work includes:
 - Live news-server TLS connections and a full header import.
 - Desktop checks for WebView2 navigation, feedback, downloads, and media playback controls.
 - Recovery testing with genuinely corrupt databases, beyond the automated fixtures.
-- Migrating the remaining MSHTML spot-detail/comment renderer.
-- Replacing legacy child-process utilities and remaining loose dependencies.
+- Desktop verification of the WebView2 spot page against real spots, after which the MSHTML renderer can be deleted.
+- Replacing the 32-bit child-process utilities (`phpar2.exe`, `UnRAR.exe`, `7za.exe`).
+- Proving MahApps.Metro, MVVM Light, the Xceed toolkit and Starksoft.Aspen at runtime on
+  modern .NET, which is what the framework migration is actually waiting on.
 - Broader desktop/account acceptance testing of the new x64 installer and migration flow.
-- FTS5 migration, UI-toolkit updates, and a possible modern .NET migration.
+- UI-toolkit updates, then the modern .NET migration.
 - Profiling a real import before attempting parallel verification or SIMD decoding.
 
 Do not interpret a passing build or unit suite as a production-readiness guarantee.

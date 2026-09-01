@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -26,7 +26,10 @@
          ten years of engine fixes (including WAL recovery and corruption bugs), FTS5,
          and a much better query planner. The .Core package stages x86/ and x64/ copies
          of SQLite.Interop.dll and resolves the right one at runtime, so this is also one
-         of the two hard blockers on moving off x86. -->
+         of the two hard blockers on moving off x86.
+         These binaries are not built with SQLITE_ENABLE_FTS5; the interop carries
+         FTS5 as a loadable extension instead, registered per connection by
+         Fts5Module. -->
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
     <!-- Used only for NNTP's zlib-compressed header responses. ZIP archive extraction
          uses the traversal-safe System.IO.Compression boundary in SafeZip. -->
@@ -37,10 +40,24 @@
     <!-- Maintained 64-bit media stack replacing the obsolete x86-only wrapper. -->
     <PackageReference Include="LibVLCSharp.WPF" Version="3.10.1" />
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />
+    <!-- Formerly loose DLLs in lib/. Same major versions as the assemblies they
+         replace, so this is a sourcing change and not a library upgrade. -->
+    <PackageReference Include="MahApps.Metro" Version="1.6.5" />
+    <!-- Brings GalaSoft.MvvmLight, its Extras, CommonServiceLocator and
+         System.Windows.Interactivity in one package. -->
+    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="3.5.0" />
+    <PackageReference Include="FileCache.Signed" Version="2.2.0" />
+    <PackageReference Include="Starksoft.Aspen" Version="1.1.8" />
+    <!-- A framework assembly on .NET Framework, a package from .NET Core onward.
+         Taking it from the package now means the reference survives a retarget. -->
+    <PackageReference Include="System.Management" Version="8.0.0" />
     <ProjectReference Include="..\Spotnet.Enc\Spotnet.Enc.csproj" />
   </ItemGroup>
 
-  <!-- Third-party managed assembly references from lib/ -->
+  <!-- Squirrel 0.9.2 and the assemblies it loads at runtime. No NuGet release
+       matches this version, and the updater is woven through startup, so these
+       stay vendored until the updater itself is revisited. -->
   <ItemGroup>
     <Reference Include="ClickOnceUninstaller">
       <HintPath>..\lib\ClickOnceUninstaller.dll</HintPath>
@@ -50,31 +67,11 @@
       <HintPath>..\lib\DeltaCompressionDotNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FileCache.Signed">
-      <HintPath>..\lib\FileCache.Signed.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="GalaSoft.MvvmLight">
-      <HintPath>..\lib\GalaSoft.MvvmLight.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="GalaSoft.MvvmLight.Extras">
-      <HintPath>..\lib\GalaSoft.MvvmLight.Extras.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MahApps.Metro">
-      <HintPath>..\lib\MahApps.Metro.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Deployment.WindowsInstaller">
+<Reference Include="Microsoft.Deployment.WindowsInstaller">
       <HintPath>..\lib\Microsoft.Deployment.WindowsInstaller.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\lib\Microsoft.Practices.ServiceLocation.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Web.XmlTransform">
+<Reference Include="Microsoft.Web.XmlTransform">
       <HintPath>..\lib\Microsoft.Web.XmlTransform.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -94,52 +91,19 @@
       <HintPath>..\lib\Squirrel.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="starksoft.aspen">
-      <HintPath>..\lib\starksoft.aspen.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Windows.Interactivity">
-      <HintPath>..\lib\System.Windows.Interactivity.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock">
-      <HintPath>..\lib\Xceed.Wpf.AvalonDock.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero">
-      <HintPath>..\lib\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro">
-      <HintPath>..\lib\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010">
-      <HintPath>..\lib\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Xceed.Wpf.DataGrid">
-      <HintPath>..\lib\Xceed.Wpf.DataGrid.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Xceed.Wpf.Toolkit">
-      <HintPath>..\lib\Xceed.Wpf.Toolkit.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
+</ItemGroup>
 
   <!-- Framework Assemblies -->
   <ItemGroup>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
-    <Reference Include="System.ServiceModel" />
+    <!-- ServiceManager and VPNStatusChecker query Windows services. On .NET Core
+         and later this comes from the System.ServiceProcess.ServiceController package. -->
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -170,7 +134,10 @@
 
   <!-- Copy Native Binaries & Asset Folders to Output -->
   <ItemGroup>
-    <None Include="$(MSBuildProjectDirectory)\..\lib\*.exe">
+    <!-- The post-processing helpers and the Squirrel updater stub. Spotnet.exe is
+         excluded: lib/ still holds the decompiled 2.0 reference binary, and copying it
+         here would put it in the output next to - or over - the one just built. -->
+    <None Include="$(MSBuildProjectDirectory)\..\lib\*.exe" Exclude="$(MSBuildProjectDirectory)\..\lib\Spotnet.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>%(Filename)%(Extension)</Link>
     </None>

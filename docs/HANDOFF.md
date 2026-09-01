@@ -105,11 +105,11 @@ Solution: reconstructed/Spotnet2/Spotnet.sln
   dotnet build reconstructed/Spotnet2/Spotnet.sln -c Release
   dotnet test reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj -c Release
 
-Build has 0 errors and 69/69 tests pass. Warnings are an intentional analyzer backlog, not
-new defects.
+Build has 0 errors and 191/191 tests pass. Warnings are an intentional analyzer backlog,
+not new defects.
 
-Work through the open items in the order given in section 4 of HANDOFF.md. The x64 track is
-complete; FTS5 is the next unblocked data task, while performance work awaits measurement.
+Work through the open items in the order given in section 4 of HANDOFF.md. The x64 and
+FTS5 tracks are complete; performance work awaits measurement.
 
 Follow the conventions in section 5. The two that matter most:
 
@@ -190,8 +190,8 @@ to `True` and the matching entry in `app.config`.
 
 ## 4. What is left, sequenced
 
-The dependency, filter-hardening, browser replacement, media replacement, and x64 tracks are
-complete. FTS5 is the next unblocked data task; performance work remains blocked on measurement.
+The dependency, filter-hardening, browser replacement, media replacement, x64 and FTS5
+tracks are complete. Performance work remains blocked on measurement.
 
 ### Desktop gate — exercise WebView2 and LibVLCSharp on a real machine
 
@@ -229,23 +229,111 @@ need redoing. Weigh it against how much more theming is planned.
   user-authored mini-language against identifier/operator allowlists, rejects comments and
   statement separators, and binds every user literal. Parameter objects now flow through
   row queries and delayed count queries. All bundled advanced filters are regression-tested.
-- **FTS4 → FTS5** — SQLite 1.0.119 brings it: smaller index, faster queries, better
-  ranking. Real surface area though: `search` is a contentless external-content table, the
-  builders address rows by `docid` (FTS5 uses `rowid`), and ranking moves from
-  `matchinfo()` to `bm25()`. The comments store is a separate FTS4 table needing the same
-  treatment. Do it behind a `user_version` bump, with the rebuild running through the
-  recovery window's existing progress UI. `SpotsSchema` already centralizes the DDL so
-  created and rebuilt schemas cannot drift.
+- **FTS4 → FTS5 (completed).** `search` and `comments` are FTS5, addressed by `rowid`,
+  behind a `user_version` 2 → 3 bump that rebuilds the index from `spots` in one exclusive
+  transaction. Filters saved with FTS4's `docid` are rewritten as `filters.xml` is read,
+  and the bundled catalogue was updated in place.
+  **Correct the assumption this backlog carried:** the shipped `System.Data.SQLite.Core`
+  binaries are *not* built with `SQLITE_ENABLE_FTS5` — `USING fts5` on a bare connection
+  fails with "no such module: fts5". The interop carries FTS5 as a loadable extension and
+  exports `sqlite3_fts5_init`, so `Fts5Module` registers it per connection and switches
+  extension loading straight back off, because filters reach SQLite as user-supplied SQL.
+  No provider swap and no .NET migration were needed.
+  Ranking still uses neither `matchinfo()` nor `bm25()`; ordering is by `rowid` or by a
+  `spots` column, so there was nothing to port.
 
 ### Track 3 — x64 platform move (completed)
 
 - All three solution projects target AMD64 with `Prefer32Bit=false`.
-- Edge WebView2 is the sole browser engine. The legacy browser source, fallback switches,
-  managed references, and native assets were removed.
+- Edge WebView2 renders every page. The Awesomium source, managed references and native
+  assets were removed here; the spot page followed later (see Track 5), and the MSHTML
+  control it used is still present as its fallback.
 - Video preview now uses LibVLCSharp 3.10.1 and VideoLAN.LibVLC.Windows 3.0.23.1.
 - System.Data.SQLite.Core selects its x64 interop library at runtime.
 - `Spotnet.exe` and `Spotnet.Tests.dll` both report `ProcessorArchitecture=Amd64`.
 - The post-processing executables remain child processes and do not constrain host architecture.
+
+### Track 5 — Spot page on WebView2 (done in code; needs the desktop gate)
+
+- `SpotWebView2Page` replaces `SpotNativePage` for `PageTypeEnum.SpotLoaded`, and
+  `PagesFactory` picks it unless `UseNativeBrowser` is set or the Evergreen Runtime is
+  missing. That setting now selects the engine and nothing else; it used to also switch
+  `SpotParser.LocalFilePrefix` to an `asset://` scheme for a virtual host mapping that was
+  never wired up.
+- The document is written to a temporary file and opened over `file://`. A string-loaded
+  document has an opaque origin and could not load the theme's own script, stylesheet and
+  images, so this leaves all seven themes untouched.
+- `SpotPageBridge` is the whole host/document boundary. Page to host is one
+  `postMessage` channel; host to page is the `window.spotnet` functions. Messages that the
+  host would otherwise have to read the DOM for carry their data with them - a Send click
+  brings the nickname and comment body, a quote click brings the quoted text and its
+  author - which is what removes the synchronous DOM reads MSHTML allowed and WebView2
+  does not.
+- Listeners are delegated from `document`, so the panels the host rewrites wholesale (the
+  comment preview, the smiley strip) keep working with no rebinding. This was verified by
+  running the bridge against a fixture built from the real `comment.htm` markup.
+- `SpotPageBridgeTests` pins the two sides against each other: a host call to a bridge
+  function that does not exist is otherwise completely silent.
+- **Still open:** the page itself has not been exercised against a live spot with comments,
+  an image and a working news server. Until it has, `SpotNativePage`, `IEWebBrowser`,
+  `iewebbrowser.xaml` and the `mshtml` reference must stay. `WebNativePage` and
+  `ReleaseNotesNativePage` are already unreferenced and can go with them.
+
+### Track 6 — Dependencies, signing, and what a .NET move actually costs
+
+- **33 vendored DLLs removed from `lib/`.** MahApps.Metro, MVVM Light (with
+  CommonServiceLocator and System.Windows.Interactivity), the Xceed toolkit,
+  Starksoft.Aspen and FileCache now arrive as packages at the same major versions, so this
+  is a sourcing change and not a library upgrade. The rest were already superseded by
+  existing PackageReferences and had simply been left behind. The build output is
+  composed identically before and after, file for file.
+- **What stays vendored:** Squirrel 0.9.2 and the assemblies it loads. No NuGet release
+  matches that version, and the updater is 1096 lines woven through startup, profile
+  creation and restart. Replacing it is a feature decision, not dependency cleanup.
+- **`lib/Spotnet.exe` no longer reaches the output.** The copy rule globbed `lib/*.exe`,
+  which included the decompiled 2.0 reference binary. The compiler's own output won, so
+  nothing shipped wrong, but the hazard is now excluded explicitly.
+- **Authenticode signing is wired end to end**, opt-in via `-SignThumbprint` (a
+  certificate already in the user's store) or `-SignCommand` (HSM, cloud signing). No
+  password passes through the script. It signs what this repository produces - Spotnet.exe,
+  Spotnet.Enc.dll, the satellite resources and the setup helper - then hands the same
+  command to Inno Setup for the installer and, via `SignedUninstaller=yes`, the
+  uninstaller. Verified with a stub signer: Inno accepted the directives and called the
+  tool for `uninst.e64.tmp`, and both Inno and this script refuse to continue when the
+  tool reports success without producing a signature. Only a certificate is missing.
+- **WCF and ClickOnce are gone.** `System.ServiceModel` was referenced solely for
+  `SynchronizedCollection<T>`; there are no services. It is replaced by `SynchronizedList<T>`,
+  which additionally enumerates a snapshot, so the download queue can no longer throw
+  "collection was modified" while workers add and remove. `System.Deployment` was
+  referenced for `ApplicationDeployment.IsNetworkDeployed`, which is false in every install
+  path this application has. `System.Management` now comes from its package.
+
+#### The .NET migration, measured rather than estimated
+
+Retargeting a copy of the tree to `net8.0-windows` and building it gives **zero compiler
+errors, XAML included**. The blockers this backlog listed - `user.config`, the
+Microsoft.VisualBasic code, System.Drawing for avatars, the WCF references, the old WPF
+libraries - are either already resolved or do not stop the compiler. What the trial
+actually reported, once the three real blockers above were fixed, is a clean build.
+
+Compiling is not running. Five packages are .NET Framework-only and would be loaded in
+compatibility mode:
+
+| Package | Why it matters |
+|---|---|
+| MahApps.Metro 1.6.5 | Needs 2.x on modern .NET; resource dictionary paths change |
+| ControlzEx 3.0.2.4 | MahApps 1.x dependency, replaced with it |
+| MvvmLightLibs 5.4.1.1 | Unmaintained; CommunityToolkit.Mvvm is the successor |
+| Extended.Wpf.Toolkit 3.5.0 | 4.x+ supports modern .NET |
+| starksoft.aspen 1.1.8 | SOCKS proxy for NNTP; needs checking or replacing |
+
+`System.Windows.Interactivity`, which MvvmLightLibs supplies, is the one to watch: it does
+not work on modern .NET and its replacement is Microsoft.Xaml.Behaviors.Wpf.
+
+So the sequencing in this backlog was right, but for a narrower reason than assumed. The
+UI-library track is not a prerequisite because the code will not compile otherwise - it
+compiles today. It is a prerequisite because those five packages have to be proven at
+runtime first. That is a much smaller, better-defined job than "a separate large project".
 
 ### Track 4 — Performance, only where it is earned (blocked on measurement)
 
@@ -365,8 +453,8 @@ comes from the original plan and is kept so older notes still line up.
 - [x] **Golden-output tests on the query builders** — `Spotnet.Tests/QueryBuilderTests.cs` (18)
       All four builders across the sort-column / sort-direction / erotica-toggle /
       minRowId / search matrix, plus `[SN:DATE]` and `[SN:NEW]` substitution. The four
-      methods were made `internal` to allow this. **An FTS5 migration lands here first**
-      (`docid` → `rowid`, `matchinfo` → `bm25`).
+      methods were made `internal` to allow this. The FTS5 query shape (`rowid`, not
+      FTS4's `docid`) is pinned here.
 - [x] **Benchmark tool** — `tools/DbDiagnostic` rewritten
       `DbDiagnostic inspect [path]` reports journal mode, page size, synchronous, schema,
       row counts and `quick_check` on a real database (auto-discovers ProgramData).
@@ -460,8 +548,10 @@ comes from the original plan and is kept so older notes still line up.
       `ReturnsSpotsInAscendingArticleOrder`). That is a lot of risk for ~24 s per million
       spots on a path that is probably network-bound.
       **Measure a real import first** — if verification isn't a visible share of it, don't.
-- [ ] **FTS4 → FTS5** — schema migration behind a `user_version` bump. Note `docid` →
-      `rowid` and `matchinfo()` → `bm25()` in the query builders. Do this last in the phase.
+- [x] **FTS4 → FTS5** — `user_version` 2 → 3, `docid` → `rowid` throughout, `Fts5Module`
+      registering the module per connection, legacy filters rewritten on load.
+      `Fts5MigrationTests` migrates a seeded 3.0.5-shaped database and asserts the spots,
+      the search results and the FTS5 integrity check.
 - [ ] **Triage the 33 blocking waits / 47 `Thread.Sleep` calls** — UI-thread-reachable ones
       first. Leave deliberate backpressure (the 50 ms pause in the retention delete loop) alone.
 - [ ] **`Settings.Default.Save()` per batch** — writes the whole user.config after every

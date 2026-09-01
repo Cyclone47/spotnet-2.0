@@ -1,8 +1,17 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$CompilerPath,
     [switch]$BootstrapCompiler,
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+
+    # Authenticode signing, opt-in. Give a certificate thumbprint from the current user's
+    # store, or a complete command for anything else (HSM, cloud signing service). No
+    # password ever passes through this script: a PFX belongs in the certificate store
+    # first, and its thumbprint is what comes here.
+    [string]$SignThumbprint,
+    [string]$SignCommand,
+    [string]$SignTimestampUrl = 'http://timestamp.digicert.com',
+    [string]$SignToolPath
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -10,6 +19,46 @@ $repoRoot = $PSScriptRoot
 $artifactRoot = Join-Path $repoRoot 'artifacts\installer'
 $toolRoot = Join-Path $repoRoot 'artifacts\installer-tools'
 New-Item -ItemType Directory -Force -Path $artifactRoot, $toolRoot | Out-Null
+
+function Resolve-SignTool {
+    if ($SignToolPath) {
+        if (-not (Test-Path -LiteralPath $SignToolPath)) { throw "signtool.exe not found at $SignToolPath." }
+        return $SignToolPath
+    }
+    $kits = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\bin'
+    $found = Get-ChildItem -LiteralPath $kits -Filter 'signtool.exe' -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { $_.DirectoryName -like '*\x64' } |
+        Sort-Object -Property FullName -Descending |
+        Select-Object -First 1
+    if (-not $found) { throw 'signtool.exe was not found. Install the Windows SDK signing tools or pass -SignToolPath.' }
+    return $found.FullName
+}
+
+# The command Inno Setup runs per file, with $f standing in for the file name. The same
+# template drives the payload signing below, so both use exactly one code path.
+function Get-SignTemplate {
+    if ($SignThumbprint -and $SignCommand) {
+        throw 'Give either -SignThumbprint or -SignCommand, not both.'
+    }
+    if ($SignCommand) {
+        if ($SignCommand -notmatch '\$f') { throw '-SignCommand must contain $f, which is replaced by the file to sign.' }
+        return $SignCommand
+    }
+    if (-not $SignThumbprint) { return $null }
+    if ($SignThumbprint -notmatch '^[0-9A-Fa-f]{40}$') { throw '-SignThumbprint must be a 40-character SHA1 certificate thumbprint.' }
+    $tool = Resolve-SignTool
+    # RFC 3161 timestamping, so signatures outlive the certificate.
+    return ('"{0}" sign /fd sha256 /td sha256 /tr "{1}" /sha1 {2} $f' -f $tool, $SignTimestampUrl, $SignThumbprint)
+}
+
+function Invoke-SignFile([string]$Template, [string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path)) { throw "Cannot sign a file that does not exist: $Path" }
+    $command = $Template.Replace('$f', '"' + (Resolve-Path -LiteralPath $Path).Path + '"')
+    & cmd.exe /c $command
+    if ($LASTEXITCODE -ne 0) { throw "Signing failed for $Path (exit $LASTEXITCODE)." }
+    $signature = Get-AuthenticodeSignature -LiteralPath $Path
+    if ($signature.Status -eq 'NotSigned') { throw "Signing reported success but $Path carries no signature." }
+}
 
 function Get-SignedDownload([string]$Uri, [string]$Path, [string]$Publisher) {
     if (-not (Test-Path -LiteralPath $Path)) {
@@ -90,13 +139,44 @@ try {
     }
     $webview = Join-Path $toolRoot 'MicrosoftEdgeWebview2Setup.exe'
     Get-SignedDownload 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' $webview 'O=Microsoft Corporation'
-    & $CompilerPath /Q ('/DPayloadDir=' + $payload) ('/DHelperDir=' + $helperOutput) ('/DWebViewBootstrapper=' + $webview) ('/DOutputDir=' + $artifactRoot) installer/Spotnet3.iss
+
+    # Sign what this repository produces. The third-party assemblies arrive signed by
+    # their own publishers and are left alone.
+    $signTemplate = Get-SignTemplate
+    $compilerArguments = @('/Q', ('/DPayloadDir=' + $payload), ('/DHelperDir=' + $helperOutput), ('/DWebViewBootstrapper=' + $webview), ('/DOutputDir=' + $artifactRoot))
+    if ($signTemplate) {
+        $ourBinaries = @('Spotnet.exe', 'Spotnet.Enc.dll') |
+            ForEach-Object { Join-Path $payload $_ }
+        $ourBinaries += Get-ChildItem -LiteralPath $payload -Filter 'Spotnet.resources.dll' -Recurse |
+            Select-Object -ExpandProperty FullName
+        $ourBinaries += (Join-Path $helperOutput 'Spotnet.SetupHelper.exe')
+        foreach ($binary in $ourBinaries) {
+            Write-Host "Signing $(Split-Path $binary -Leaf)..."
+            Invoke-SignFile $signTemplate $binary
+        }
+        # Inno signs the installer and the uninstaller with the same named tool.
+        $compilerArguments += '/DSignSetup'
+        $compilerArguments += ('/Sspotnet=' + $signTemplate)
+    }
+
+    & $CompilerPath @compilerArguments installer/Spotnet3.iss
     if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed.' }
     $setupFile = Join-Path $artifactRoot 'Spotnet-3.0-x64-Setup.exe'
     $hash = (Get-FileHash -LiteralPath $setupFile -Algorithm SHA256).Hash
     "$hash  Spotnet-3.0-x64-Setup.exe" | Set-Content -LiteralPath ($setupFile + '.sha256') -Encoding ASCII
     Write-Host "Built: $setupFile"
     Write-Host "SHA256: $hash"
-    Write-Warning 'The Spotnet installer is unsigned until a publisher signing certificate is supplied. No installer was run against your profile.'
+    if ($signTemplate) {
+        $signature = Get-AuthenticodeSignature -LiteralPath $setupFile
+        if ($signature.Status -eq 'NotSigned') { throw 'The installer was built but carries no signature.' }
+        Write-Host ("Signed by: " + $signature.SignerCertificate.Subject)
+        Write-Host ("Signature status: " + $signature.Status)
+        if ($signature.Status -ne 'Valid') {
+            Write-Warning 'The signature is present but does not chain to a trusted root on this machine. That is expected for a test certificate; a real publisher certificate will validate.'
+        }
+    }
+    else {
+        Write-Warning 'The Spotnet installer is unsigned. Pass -SignThumbprint or -SignCommand to sign it. No installer was run against your profile.'
+    }
 }
 finally { Pop-Location }

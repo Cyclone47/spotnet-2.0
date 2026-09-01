@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Deployment.Application;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -249,10 +248,9 @@ public static class AppHelper
 		{
 			try
 			{
-				if (ApplicationDeployment.IsNetworkDeployed)
-				{
-					return ApplicationDeployment.CurrentDeployment.CurrentVersion;
-				}
+				// Spotnet 3.0 is installed by its own setup and was never published with
+				// ClickOnce, so IsNetworkDeployed was always false here. Reading it cost a
+				// reference to System.Deployment, which modern .NET does not have.
 				return Assembly.GetEntryAssembly().GetName().Version;
 			}
 			catch (Exception ex)
