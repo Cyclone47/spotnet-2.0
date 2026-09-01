@@ -2,9 +2,9 @@
 
 ## Download for Windows x64
 
-**[Download Spotnet 3.0.5 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.5/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.5)
+**[Download Spotnet 3.0.6 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.6/Spotnet-3.0-x64-Setup.exe)** · [Release notes and SHA-256 checksum](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.6)
 
-**Latest fix:** a fresh profile now creates the complete spots database before the first list is loaded. Version 3.0.5 also repairs the specific incomplete two-table database left by 3.0.4, without deleting its existing rows.
+**Latest release:** 3.0.6 moves the application to .NET 8, renders spot pages in WebView2 instead of the Windows browser control, and rebuilds the search index on SQLite FTS5. See the [release notes](docs/releases/v3.0.6.md).
 
 **Previous fix:** the first-use provider dialog now fits low-resolution/scaled desktops and remains resizable, with its action buttons always available. Typing searches such as `news` no longer replaces the text with changing providers or raises an index error.
 
