@@ -562,11 +562,44 @@ begin
   if ShortcutFailure then Result := 10;
 end;
 
+// Removes everything a previous version put in the application directory, keeping the
+// profile data, the install marker and the uninstaller. The payload is self-contained,
+// so anything else is a leftover - and leftovers are not harmless: upgrading from the
+// .NET Framework layout left x64\SQLite.Interop.dll behind beside the new copy under
+// runtimes, which loaded a second SQLite into the process and corrupted its heap on
+// the first query.
+procedure CleanApplicationDirectory;
+var
+  Search: TFindRec;
+  Target, Root: String;
+begin
+  Root := ExpandConstant('{app}');
+  if not DirExists(Root) then exit;
+  if FindFirst(Root + '\*', Search) then begin
+    try
+      repeat
+        if (Search.Name = '.') or (Search.Name = '..') then continue;
+        if CompareText(Search.Name, 'Data') = 0 then continue;
+        if CompareText(Search.Name, 'Spotnet.install') = 0 then continue;
+        if CompareText(Copy(Search.Name, 1, 5), 'unins') = 0 then continue;
+        Target := Root + '\' + Search.Name;
+        if (Search.Attributes and FILE_ATTRIBUTE_DIRECTORY) <> 0 then
+          DelTree(Target, True, True, True)
+        else
+          DeleteFile(Target);
+      until not FindNext(Search);
+    finally
+      FindClose(Search);
+    end;
+  end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   ExitCode: Integer;
   ShortcutReport, Heading: String;
 begin
+  if CurStep = ssInstall then CleanApplicationDirectory;
   if CurStep = ssPostInstall then begin
     WizardForm.StatusLabel.Caption := CM('StatusShortcuts');
     DeleteFile(ReportFile);

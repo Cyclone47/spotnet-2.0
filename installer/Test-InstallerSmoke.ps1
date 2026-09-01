@@ -70,7 +70,17 @@ foreach ($link in @($oldLink, $currentLink, $squirrelLink, $unrelatedLink)) { $o
 $fixture = Join-Path $profileRoot 'smoke-personal-data.txt'
 'preserve-this-test-fixture' | Set-Content -LiteralPath $fixture
 $fixtureHash = (Get-FileHash -LiteralPath $fixture).Hash
+# Stand in for a binary an earlier layout left behind. The one that mattered was
+# x64\SQLite.Interop.dll: beside the copy under runtimes it loaded a second SQLite into
+# the process, and the first query corrupted the heap. Setup has to clear these.
+$staleDirectory = Join-Path $appRoot 'x64'
+New-Item -ItemType Directory -Force -Path $staleDirectory | Out-Null
+'not a real library' | Set-Content -LiteralPath (Join-Path $staleDirectory 'SQLite.Interop.dll')
+$staleFile = Join-Path $appRoot 'GalaSoft.MvvmLight.dll'
+'retired dependency' | Set-Content -LiteralPath $staleFile
 Invoke-SmokeSetup 'upgrade.log'
+if (Test-Path -LiteralPath $staleDirectory) { throw 'Upgrade kept a stale directory from an earlier layout.' }
+if (Test-Path -LiteralPath $staleFile) { throw 'Upgrade kept a retired dependency.' }
 foreach ($link in @($oldLink, $currentLink, $squirrelLink) + $freshLinks) { Assert-TestLink $link (Join-Path $appRoot 'Spotnet.exe') }
 if ((Get-ChildItem -LiteralPath $desktopRoot -Filter '*.lnk').Count -ne 4) { throw 'Duplicate desktop launcher created.' }
 if ((Get-FileHash -LiteralPath $unrelatedLink).Hash -ne $originalHashes[$unrelatedLink]) { throw 'Unrelated shortcut changed.' }
