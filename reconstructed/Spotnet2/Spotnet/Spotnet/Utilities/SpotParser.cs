@@ -35,17 +35,15 @@ internal class SpotParser
 
 	private const string InfoRowStyle = "padding-right:15px;word-wrap:normal;";
 
-	internal static string LocalFilePrefix
-	{
-		get
-		{
-			if (!Settings.Default.UseNativeBrowser)
-			{
-				return "asset://";
-			}
-			return "file://";
-		}
-	}
+	/// <summary>
+	/// Scheme prefix for theme images, scripts and stylesheets inside a rendered page.
+	/// </summary>
+	/// <remarks>
+	/// Both engines open the document from a file on disk, so both resolve these the same
+	/// way. This used to return an "asset://" prefix under WebView2, for a virtual host
+	/// mapping that was never wired up and that a file:// document does not need.
+	/// </remarks>
+	internal const string LocalFilePrefix = "file://";
 
 	static SpotParser()
 	{

@@ -17,6 +17,52 @@ internal class ImageHelper
 {
 	private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+	/// <summary>
+	/// Asks the user for an avatar image and returns it as a 32x32 base64 string.
+	/// </summary>
+	/// <remarks>
+	/// Lives here rather than on a browser page because both the settings screen and the
+	/// spot page's author menu offer it.
+	/// </remarks>
+	internal static bool ChangeAvatar(out string newAvatar)
+	{
+		newAvatar = "";
+		try
+		{
+			string initialDirectory = (Settings.Default.AvatarFolder.IsNullOrEmpty() ? Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) : Settings.Default.AvatarFolder);
+			System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog
+			{
+				Title = Words.ChangeAvatar,
+				InitialDirectory = initialDirectory,
+				Filter = Words.FilterToAvatar,
+				FilterIndex = 1,
+				RestoreDirectory = true,
+				CheckFileExists = true,
+				ShowReadOnly = false,
+				DefaultExt = "gif",
+				Multiselect = false
+			};
+			if (openFileDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+			{
+				return false;
+			}
+			System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(openFileDialog.FileName);
+			if (bitmap.Width > 32 || bitmap.Height > 32)
+			{
+				bitmap = bitmap.Resize(32, 32);
+			}
+			newAvatar = Convert.ToBase64String(bitmap.ToByteArray());
+			Settings.Default.AvatarFolder = System.IO.Path.GetDirectoryName(openFileDialog.FileName);
+			Settings.Default.Save();
+			return true;
+		}
+		catch (Exception ex)
+		{
+			Log.Exception(ex);
+		}
+		return false;
+	}
+
 	internal static BitmapImage BytesToBitmapImage(byte[] imageData)
 	{
 		if (imageData == null || imageData.Length == 0)

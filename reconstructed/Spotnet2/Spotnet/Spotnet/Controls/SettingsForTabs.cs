@@ -166,7 +166,7 @@ public partial class SettingsForTabs : UserControl, IAdvancedSettingsControl
 
     private void ChangeAvatar_OnClick(object sender, RoutedEventArgs e)
     {
-        if (SpotNativePage.ChangeAvatar(out var newAvatar) && !newAvatar.IsNullOrEmpty())
+        if (ImageHelper.ChangeAvatar(out var newAvatar) && !newAvatar.IsNullOrEmpty())
         {
             _newAvatar = newAvatar;
             UpdateAvatar();

@@ -1375,45 +1375,6 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 		return comment.User.Modulus.Equals(UserKeyHelper.GetModulus());
 	}
 
-	internal static bool ChangeAvatar(out string newAvatar)
-	{
-		newAvatar = "";
-		try
-		{
-			string initialDirectory = (Settings.Default.AvatarFolder.IsNullOrEmpty() ? Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) : Settings.Default.AvatarFolder);
-			OpenFileDialog openFileDialog = new OpenFileDialog
-			{
-				Title = Words.ChangeAvatar,
-				InitialDirectory = initialDirectory,
-				Filter = Words.FilterToAvatar,
-				FilterIndex = 1,
-				RestoreDirectory = true,
-				CheckFileExists = true,
-				ShowReadOnly = false,
-				DefaultExt = "gif",
-				Multiselect = false
-			};
-			if (openFileDialog.ShowDialog() != DialogResult.OK)
-			{
-				return false;
-			}
-			Bitmap bitmap = new Bitmap(openFileDialog.FileName);
-			if (bitmap.Width > 32 || bitmap.Height > 32)
-			{
-				bitmap = bitmap.Resize(32, 32);
-			}
-			newAvatar = Convert.ToBase64String(bitmap.ToByteArray());
-			Settings.Default.AvatarFolder = System.IO.Path.GetDirectoryName(openFileDialog.FileName);
-			Settings.Default.Save();
-			return true;
-		}
-		catch (Exception ex)
-		{
-			Log.Exception(ex);
-		}
-		return false;
-	}
-
 	private string ShowComments()
 	{
 		try
@@ -1582,7 +1543,7 @@ public class SpotNativePage : IEWebBrowser, ISpotPage, IPage, ICloseableView, ID
 			}
 			else if (text.EqualsIgnoreCase("ava"))
 			{
-				if (ChangeAvatar(out var newAvatar) && !newAvatar.IsNullOrEmpty())
+				if (ImageHelper.ChangeAvatar(out var newAvatar) && !newAvatar.IsNullOrEmpty())
 				{
 					Settings.Default.Avatar = newAvatar;
 					Settings.Default.Save();

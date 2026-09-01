@@ -1998,7 +1998,7 @@ internal sealed class Settings : ApplicationSettingsBase
 
 	[UserScopedSetting]
 	[DebuggerNonUserCode]
-	[DefaultSettingValue("True")]
+	[DefaultSettingValue("False")]
 	public bool UseNativeBrowser
 	{
 		get

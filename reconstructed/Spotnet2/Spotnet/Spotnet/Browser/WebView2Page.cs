@@ -255,8 +255,7 @@ public partial class WebView2Page : System.Windows.Controls.UserControl, IPage, 
 	{
 		ShowUnavailableMessage(
 			"The Microsoft Edge WebView2 Runtime is not installed on this machine, so this " +
-			"page cannot be displayed.\n\nInstall it from Microsoft, or turn off " +
-			"'Use WebView2 browser' in the settings to fall back to the built-in engine.");
+			"page cannot be displayed.\n\nInstall it from Microsoft to use this tab.");
 	}
 
 	private void ShowUnavailableMessage(string message)
