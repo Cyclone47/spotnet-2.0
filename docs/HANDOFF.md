@@ -325,8 +325,8 @@ compatibility mode:
 
 | Package | Why it matters |
 |---|---|
-| MahApps.Metro 1.6.5 | Needs 2.x on modern .NET; resource dictionary paths change |
-| ControlzEx 3.0.2.4 | MahApps 1.x dependency, replaced with it |
+| ~~MahApps.Metro 1.6.5~~ | Done: on 2.4.11, which targets .NET 5+ as well |
+| ~~ControlzEx 3.0.2.4~~ | Done: 4.4.0 came with MahApps 2 |
 | MvvmLightLibs 5.4.1.1 | Unmaintained; CommunityToolkit.Mvvm is the successor |
 | Extended.Wpf.Toolkit 3.5.0 | 4.x+ supports modern .NET |
 | starksoft.aspen 1.1.8 | SOCKS proxy for NNTP; needs checking or replacing |

@@ -110,7 +110,8 @@ public sealed class MenuThemeTests
                 app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
                 // Match the production merge order, without starting Spotnet or loading a user profile.
                 app.Resources.MergedDictionaries.Add(Load("MahApps.Metro;component/Styles/Controls.xaml"));
-                app.Resources.MergedDictionaries.Add(Load("MahApps.Metro;component/Styles/Colors.xaml"));
+                app.Resources.MergedDictionaries.Add(Load("MahApps.Metro;component/Styles/Fonts.xaml"));
+                app.Resources.MergedDictionaries.Add(Load("MahApps.Metro;component/Styles/Themes/Light.Blue.xaml"));
                 app.Resources.MergedDictionaries.Add(Load("Spotnet;component/Style/MainMenuStyle.xaml"));
                 var palette = Load("Spotnet;component/Style/classiclight.xaml");
                 app.Resources.MergedDictionaries.Add(palette);

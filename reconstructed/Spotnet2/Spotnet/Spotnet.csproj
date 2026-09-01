@@ -42,7 +42,10 @@
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />
     <!-- Formerly loose DLLs in lib/. Same major versions as the assemblies they
          replace, so this is a sourcing change and not a library upgrade. -->
-    <PackageReference Include="MahApps.Metro" Version="1.6.5" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.11" />
+    <!-- MahApps 2.x uses Xaml.Behaviors; System.Windows.Interactivity, which
+         MvvmLightLibs still carries, does not run on modern .NET. -->
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <!-- Brings GalaSoft.MvvmLight, its Extras, CommonServiceLocator and
          System.Windows.Interactivity in one package. -->
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />

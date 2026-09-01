@@ -1,4 +1,4 @@
-<UserControl x:Class="Spotnet.Controls.LeftPanelUserControl" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:properties="clr-namespace:Spotnet.Properties" xmlns:converters="http://metro.mahapps.com/winfx/xaml/shared" Width="Auto" Height="Auto" xmlns:controls="clr-namespace:Spotnet.Controls">
+﻿<UserControl x:Class="Spotnet.Controls.LeftPanelUserControl" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:properties="clr-namespace:Spotnet.Properties" xmlns:converters="http://metro.mahapps.com/winfx/xaml/shared" Width="Auto" Height="Auto" xmlns:controls="clr-namespace:Spotnet.Controls">
   <FrameworkElement.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
@@ -43,7 +43,7 @@
                 <ColumnDefinition Width="25" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
-              <ComboBox Name="SearchBox" IsEnabled="True" IsEditable="True" IsTextSearchEnabled="False" Grid.ColumnSpan="3" Background="{DynamicResource WhiteColorBrush}" Foreground="{DynamicResource BlackBrush}" VerticalContentAlignment="Center" Style="{StaticResource MetroComboBox}" KeyUp="SearchBox_KeyUp" ContextMenuOpening="SearchBox_ContextMenuOpening" LostFocus="SearchBox_LostFocus" Loaded="SearchBox_Loaded">
+              <ComboBox Name="SearchBox" IsEnabled="True" IsEditable="True" IsTextSearchEnabled="False" Grid.ColumnSpan="3" Background="{DynamicResource WhiteColorBrush}" Foreground="{DynamicResource BlackBrush}" VerticalContentAlignment="Center" Style="{StaticResource MahApps.Styles.ComboBox}" KeyUp="SearchBox_KeyUp" ContextMenuOpening="SearchBox_ContextMenuOpening" LostFocus="SearchBox_LostFocus" Loaded="SearchBox_Loaded">
                 <FrameworkElement.ContextMenu>
                   <ContextMenu FontSize="{DynamicResource ContextMenuFontSize}">
                     <MenuItem Command="Copy" />
@@ -54,8 +54,8 @@
                   </ContextMenu>
                 </FrameworkElement.ContextMenu>
               </ComboBox>
-              <Button Grid.Column="1" Width="22" Height="22" Margin="2" BorderThickness="0" Content="" FontSize="14" Foreground="{DynamicResource GrayBrush5}" Style="{StaticResource FontAwesome}" Background="{Binding ElementName=SearchBox, Path=Background}" Click="ClickOnSearch" />
-              <Button Grid.Column="2" Width="22" Height="22" Margin="-3,2,2,2" BorderThickness="0" Content="" FontSize="12" Style="{StaticResource FontAwesome}" Foreground="{DynamicResource GrayBrush5}" Background="{Binding ElementName=SearchBox, Path=Background}" Visibility="{Binding IsSearchResetVisible, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" Click="ClickOnSearchClear" />
+              <Button Grid.Column="1" Width="22" Height="22" Margin="2" BorderThickness="0" Content="ï€‚" FontSize="14" Foreground="{DynamicResource GrayBrush5}" Style="{StaticResource FontAwesome}" Background="{Binding ElementName=SearchBox, Path=Background}" Click="ClickOnSearch" />
+              <Button Grid.Column="2" Width="22" Height="22" Margin="-3,2,2,2" BorderThickness="0" Content="ï€" FontSize="12" Style="{StaticResource FontAwesome}" Foreground="{DynamicResource GrayBrush5}" Background="{Binding ElementName=SearchBox, Path=Background}" Visibility="{Binding IsSearchResetVisible, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" Click="ClickOnSearchClear" />
             </Grid>
             <Grid Row="2" Margin="15,10,21,15">
               <Grid.ColumnDefinitions>

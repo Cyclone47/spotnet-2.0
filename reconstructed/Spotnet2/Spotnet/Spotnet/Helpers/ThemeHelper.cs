@@ -67,13 +67,10 @@ public static class ThemeHelper
                 // 1. Swap MahApps Metro BaseDark / BaseLight theme
                 try
                 {
-                    var baseTheme = isDark ? "BaseDark" : "BaseLight";
-                    var appTheme = ThemeManager.GetAppTheme(baseTheme);
-                    var accent = ThemeManager.GetAccent("Blue");
-                    if (appTheme != null && accent != null)
-                    {
-                        ThemeManager.ChangeAppStyle(app, accent, appTheme);
-                    }
+                    // MahApps 2 replaced the separate accent and base theme with one
+                    // named theme, and moved the manager itself into ControlzEx.
+                    ControlzEx.Theming.ThemeManager.Current.ChangeTheme(
+                        app, isDark ? "Dark.Blue" : "Light.Blue");
                 }
                 catch (Exception ex)
                 {
