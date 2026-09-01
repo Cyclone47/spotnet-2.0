@@ -4,9 +4,6 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="..\Style\MainWindowStyle.xaml" />
       </ResourceDictionary.MergedDictionaries>
-      <BitmapImage x:Key="View1Icon" UriSource="..\Resources\ImagesInternal\icon-spots-list.png" />
-      <BitmapImage x:Key="View2Icon" UriSource="..\Resources\ImagesInternal\icon-spots-list-w-thumb.png" />
-      <BitmapImage x:Key="View3Icon" UriSource="..\Resources\ImagesInternal\icon-spots-thumbs.png" />
       <BooleanToVisibilityConverter x:Key="VisibilityConverter" />
     </ResourceDictionary>
   </FrameworkElement.Resources>
@@ -83,24 +80,10 @@
         <RowDefinition />
       </Grid.RowDefinitions>
       <Grid Row="0" Margin="4,4,4,0" HorizontalAlignment="Stretch" Width="Auto" SizeChanged="LeftPanel_OnSizeChanged">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <DockPanel Name="MainToolBarDockInLeftPanel" Grid.Column="0" LastChildFill="True" Opacity="1" />
-        <Grid Name="SpotsTypeIconsGrid" Column="1" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center" Height="28">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-            <ColumnDefinition />
-          </Grid.ColumnDefinitions>
-          <Image Name="View1Icon" Grid.Column="0" Source="{StaticResource View1Icon}" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="0,2,0,0" VerticalAlignment="Top" />
-          <Border Grid.Column="0" Background="#00FFFFFF" CornerRadius="1" BorderThickness="2" Width="24" Height="24" ToolTip="{x:Static p:Words.MenuSpotsListNoDetails}" Cursor="Hand" BorderBrush="{Binding ElementName=SpotsListVmProxy, Path=DataContext.View1IconColor}" MouseEnter="MouseOnSpotsViewTypeIcon1" MouseLeave="MouseOffSpotsViewTypeIcon" MouseDown="MouseClickSpotsViewTypeIcon1" />
-          <Image Name="View2Icon" Grid.Column="1" Source="{StaticResource View2Icon}" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
-          <Border Grid.Column="1" Background="#00FFFFFF" CornerRadius="1" BorderThickness="2" Width="24" Height="24" ToolTip="{x:Static p:Words.MenuSpotsListDetails}" Cursor="Hand" BorderBrush="{Binding ElementName=SpotsListVmProxy, Path=DataContext.View2IconColor}" MouseEnter="MouseOnSpotsViewTypeIcon2" MouseLeave="MouseOffSpotsViewTypeIcon" MouseDown="MouseClickSpotsViewTypeIcon2" />
-          <Image Name="View3Icon" Grid.Column="2" Source="{StaticResource View3Icon}" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
-          <Border Grid.Column="2" Background="#00FFFFFF" CornerRadius="1" BorderThickness="2" Width="24" Height="24" ToolTip="{x:Static p:Words.MenuSpotsListPics}" Cursor="Hand" BorderBrush="{Binding ElementName=SpotsListVmProxy, Path=DataContext.View3IconColor}" MouseEnter="MouseOnSpotsViewTypeIcon3" MouseLeave="MouseOffSpotsViewTypeIcon" MouseDown="MouseClickSpotsViewTypeIcon3" />
-        </Grid>
+        <!-- The view-mode buttons used to sit to the right of the menu here. They only
+             ever got the width the menu did not take, so a menu that grew clipped them.
+             They are entries in the View menu now. -->
+        <DockPanel Name="MainToolBarDockInLeftPanel" LastChildFill="True" Opacity="1" />
       </Grid>
       <controls:LeftPanelUserControl Grid.Row="1" />
     </Grid>

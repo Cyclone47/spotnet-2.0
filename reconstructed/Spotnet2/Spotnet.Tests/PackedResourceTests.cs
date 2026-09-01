@@ -27,10 +27,6 @@ namespace Spotnet.Tests
         /// <summary>Resource paths the application asks for by name, as pack URIs do.</summary>
         private static readonly string[] LoadedByPath =
         {
-            // The view-mode buttons above the spots list.
-            "resources/imagesinternal/icon-spots-list.png",
-            "resources/imagesinternal/icon-spots-list-w-thumb.png",
-            "resources/imagesinternal/icon-spots-thumbs.png",
             // The copy entry in the spot page's selection menu.
             "resources/imagesinternal/copy.png",
             // Tray icon and the spots-list backdrop.

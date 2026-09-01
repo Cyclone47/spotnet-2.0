@@ -265,7 +265,6 @@ public partial class MainWindow : MetroWindow
         }
 
         _mainToolBar.UpdateVisibility();
-        SpotsTypeIconsGrid.Visibility = ((!VisibilityVm.IsVisibleMainMenu) ? Visibility.Collapsed : Visibility.Visible);
     }
 
     internal bool OnKeyDown(PreviewKeyDownEventArgs e, bool updateDownloadFolder = true)
@@ -1837,60 +1836,6 @@ public partial class MainWindow : MetroWindow
         base.WindowState = WindowState.Normal;
     }
 
-    private void FixViewTypeChangeColor()
-    {
-        View1Icon.Source = ChangedColorForResource("Resources/ImagesInternal/icon-spots-list.png");
-        View2Icon.Source = ChangedColorForResource("Resources/ImagesInternal/icon-spots-list-w-thumb.png");
-        View3Icon.Source = ChangedColorForResource("Resources/ImagesInternal/icon-spots-thumbs.png");
-    }
-
-    /// <summary>Loads a packed image and darkens it, for the view-mode buttons.</summary>
-    /// <remarks>
-    /// The paths here used backslashes and were resolved relative to this window's base
-    /// URI. .NET Framework quietly rewrote those to forward slashes; modern .NET leaves
-    /// them alone, so the lookup returned nothing, the images stayed empty and the three
-    /// buttons showed as bare outlines. Absolute pack URIs with forward slashes work on
-    /// both.
-    /// </remarks>
-    private WriteableBitmap ChangedColorForResource(string resourcePath)
-    {
-        Uri resourceUri = new Uri("pack://application:,,,/Spotnet;component/" + resourcePath, UriKind.Absolute);
-        StreamResourceInfo resourceStream = System.Windows.Application.GetResourceStream(resourceUri);
-        if (resourceStream == null)
-        {
-            // Silence here is what hid this for a whole migration.
-            Log.Warn("Image resource not found: {0}", resourceUri);
-            return null;
-        }
-
-        BitmapFrame bitmapFrame = BitmapDecoder.Create(resourceStream.Stream, BitmapCreateOptions.None, BitmapCacheOption.Default).Frames[0];
-        byte[] array = new byte[bitmapFrame.PixelWidth * bitmapFrame.PixelHeight * 4];
-        bitmapFrame.CopyPixels(array, bitmapFrame.PixelWidth * 4, 0);
-        for (int i = 0; i < array.Length / 4; i++)
-        {
-            byte b = array[i * 4];
-            byte b2 = array[i * 4 + 1];
-            byte num = array[i * 4 + 2];
-            byte b3 = array[i * 4 + 3];
-            if (num == byte.MaxValue && b2 == byte.MaxValue && b == byte.MaxValue && b3 == byte.MaxValue)
-            {
-                array[i * 4 + 2] = 0;
-                array[i * 4 + 1] = 0;
-                array[i * 4] = 0;
-            }
-            else if (b3 != 0)
-            {
-                array[i * 4 + 2] = (byte)(array[i * 4 + 2] / 3);
-                array[i * 4 + 1] = (byte)(array[i * 4 + 1] / 3);
-                array[i * 4] = (byte)(array[i * 4] / 3);
-            }
-        }
-
-        WriteableBitmap writeableBitmap = new WriteableBitmap(bitmapFrame.PixelWidth, bitmapFrame.PixelHeight, bitmapFrame.DpiX, bitmapFrame.DpiY, PixelFormats.Bgra32, null);
-        writeableBitmap.WritePixels(new Int32Rect(0, 0, bitmapFrame.PixelWidth, bitmapFrame.PixelHeight), array, bitmapFrame.PixelWidth * 4, 0);
-        return writeableBitmap;
-    }
-
     private void InitStatusBar()
     {
         if (!IsDownloadsTabSelectedAndVisible)
@@ -1917,7 +1862,6 @@ public partial class MainWindow : MetroWindow
         }
 
         base.OnInitialized(e);
-        FixViewTypeChangeColor();
         InitStatusBar();
         SettingsForSpotsList.ColoringForSpotsChanged += delegate
         {
@@ -2544,31 +2488,14 @@ public partial class MainWindow : MetroWindow
         });
     }
 
-    private void MouseOnSpotsViewTypeIcon1(object sender, System.Windows.Input.MouseEventArgs e)
+    /// <summary>Switches the spots list to a view mode and puts the user back in it.</summary>
+    internal void ShowSpotsListAs(SpotsListTypeEnum type)
     {
-        SpotsListVm.ChangeSelectedIcon(SpotsListTypeEnum.NoDetails);
-    }
-
-    private void MouseOnSpotsViewTypeIcon2(object sender, System.Windows.Input.MouseEventArgs e)
-    {
-        SpotsListVm.ChangeSelectedIcon(SpotsListTypeEnum.WithDetails);
-    }
-
-    private void MouseOnSpotsViewTypeIcon3(object sender, System.Windows.Input.MouseEventArgs e)
-    {
-        SpotsListVm.ChangeSelectedIcon(SpotsListTypeEnum.Thumbs);
-    }
-
-    private void MouseOffSpotsViewTypeIcon(object sender, System.Windows.Input.MouseEventArgs e)
-    {
-        SpotsListVm.ChangeSelectedIcon(SpotsListTypeEnum.Default);
-    }
-
-    private void MouseClickSpotsViewTypeIcon1(object sender, MouseButtonEventArgs e)
-    {
-        SpotsListVm.UpdateSpotsListType(SpotsListTypeEnum.NoDetails);
+        SpotsListVm.UpdateSpotsListType(type);
         TabControl1.SelectedIndex = 0;
-        if (SpotsListVm.SpotsContainer.Spots is System.Windows.Controls.DataGrid { SelectedItem: null } dataGrid)
+        // The thumbnail view has no rows to select.
+        if (type != SpotsListTypeEnum.Thumbs
+            && SpotsListVm.SpotsContainer.Spots is System.Windows.Controls.DataGrid { SelectedItem: null } dataGrid)
         {
             dataGrid.SelectedIndex = 0;
             if (dataGrid.SelectedItem != null)
@@ -2576,26 +2503,6 @@ public partial class MainWindow : MetroWindow
                 dataGrid.ScrollIntoView(dataGrid.SelectedItem, dataGrid.Columns[0]);
             }
         }
-    }
-
-    private void MouseClickSpotsViewTypeIcon2(object sender, MouseButtonEventArgs e)
-    {
-        SpotsListVm.UpdateSpotsListType(SpotsListTypeEnum.WithDetails);
-        TabControl1.SelectedIndex = 0;
-        if (SpotsListVm.SpotsContainer.Spots is System.Windows.Controls.DataGrid { SelectedItem: null } dataGrid)
-        {
-            dataGrid.SelectedIndex = 0;
-            if (dataGrid.SelectedItem != null)
-            {
-                dataGrid.ScrollIntoView(dataGrid.SelectedItem, dataGrid.Columns[0]);
-            }
-        }
-    }
-
-    private void MouseClickSpotsViewTypeIcon3(object sender, MouseButtonEventArgs e)
-    {
-        SpotsListVm.UpdateSpotsListType(SpotsListTypeEnum.Thumbs);
-        TabControl1.SelectedIndex = 0;
     }
 
     private void StatusBarSystemStateImage_OnIsMouseDirectlyOverChanged(object sender, DependencyPropertyChangedEventArgs e)
