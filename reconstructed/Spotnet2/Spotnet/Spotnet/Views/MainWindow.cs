@@ -1839,16 +1839,27 @@ public partial class MainWindow : MetroWindow
 
     private void FixViewTypeChangeColor()
     {
-        View1Icon.Source = ChangedColorForResource("..\\Resources\\ImagesInternal\\icon-spots-list.png");
-        View2Icon.Source = ChangedColorForResource("..\\Resources\\ImagesInternal\\icon-spots-list-w-thumb.png");
-        View3Icon.Source = ChangedColorForResource("..\\Resources\\ImagesInternal\\icon-spots-thumbs.png");
+        View1Icon.Source = ChangedColorForResource("Resources/ImagesInternal/icon-spots-list.png");
+        View2Icon.Source = ChangedColorForResource("Resources/ImagesInternal/icon-spots-list-w-thumb.png");
+        View3Icon.Source = ChangedColorForResource("Resources/ImagesInternal/icon-spots-thumbs.png");
     }
 
+    /// <summary>Loads a packed image and darkens it, for the view-mode buttons.</summary>
+    /// <remarks>
+    /// The paths here used backslashes and were resolved relative to this window's base
+    /// URI. .NET Framework quietly rewrote those to forward slashes; modern .NET leaves
+    /// them alone, so the lookup returned nothing, the images stayed empty and the three
+    /// buttons showed as bare outlines. Absolute pack URIs with forward slashes work on
+    /// both.
+    /// </remarks>
     private WriteableBitmap ChangedColorForResource(string resourcePath)
     {
-        StreamResourceInfo resourceStream = System.Windows.Application.GetResourceStream(new Uri(BaseUriHelper.GetBaseUri(this), resourcePath));
+        Uri resourceUri = new Uri("pack://application:,,,/Spotnet;component/" + resourcePath, UriKind.Absolute);
+        StreamResourceInfo resourceStream = System.Windows.Application.GetResourceStream(resourceUri);
         if (resourceStream == null)
         {
+            // Silence here is what hid this for a whole migration.
+            Log.Warn("Image resource not found: {0}", resourceUri);
             return null;
         }
 
