@@ -3243,6 +3243,79 @@ article:after {
     background-position: 0 -350px;
     border-color: #999
 }
+
+
+/* --- Release sections built from the project's GitHub releases --- */
+.gh-release h3 {
+    align-items: baseline;
+    border-bottom: 1px solid #e6e6e6;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 8px;
+}
+
+.gh-release .gh-date {
+    color: #767676;
+    font-size: 12px;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.gh-release .gh-tag {
+    background: #e8f3fc;
+    border-radius: 3px;
+    color: #123b5d;
+    font-size: 11px;
+    padding: 1px 7px;
+    text-transform: uppercase;
+}
+
+.gh-body { padding-top: 12px }
+
+/* GitHub renders the description as ordinary markup, so the page has to give that
+   markup the same rhythm as the rest of the notes rather than browser defaults. */
+.gh-body p { margin: 0 0 10px }
+.gh-body ul, .gh-body ol { margin: 0 0 12px; padding-left: 22px }
+.gh-body li { margin-bottom: 5px }
+.gh-body h1, .gh-body h2, .gh-body h3, .gh-body h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 16px 0 6px;
+}
+.gh-body code {
+    background: #f2f4f7;
+    border-radius: 3px;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    padding: 1px 5px;
+}
+.gh-body pre {
+    background: #f2f4f7;
+    border-radius: 4px;
+    margin: 0 0 12px;
+    overflow-x: auto;
+    padding: 10px 12px;
+}
+.gh-body pre code { background: none; padding: 0 }
+.gh-body blockquote {
+    border-left: 3px solid #d8dee4;
+    color: #57606a;
+    margin: 0 0 12px;
+    padding: 0 0 0 12px;
+}
+.gh-body img { max-width: 100% }
+.gh-body table { border-collapse: collapse; margin: 0 0 12px }
+.gh-body th, .gh-body td { border: 1px solid #e0e0e0; padding: 5px 9px; text-align: left }
+.gh-body hr { border-top: 1px solid #e6e6e6; margin: 14px 0 }
+
+.gh-archive summary {
+    color: #0096dd;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.gh-archive summary:hover { text-decoration: underline }
 </value></data>
   <data name="ReleaseNotes_en" xml:space="preserve"><value>&lt;html lang="en-US" &gt;
     &lt;head&gt;

@@ -48,8 +48,10 @@ public class ReleaseNotesPage : WebView2Page
 				ResponsePage.GetResponseSiteUrl()
 			},
 			{
+				// The project's GitHub releases are the notes; the built-in list is what
+				// a client that has never reached GitHub falls back to.
 				"WHATSNEW",
-				Spotnet.Properties.Resources.whatsnew
+				ReleaseNotesFeed.GetNotesHtml(Spotnet.Properties.Resources.whatsnew)
 			}
 		};
 		string contents = ((UserLanguageHelper.Language == "en") ? Spotnet.Properties.Resources.ReleaseNotes_en : Spotnet.Properties.Resources.ReleaseNotes).FormatFromDictionary(valueDict).FormatFromDictionary(valueDict);
