@@ -21,8 +21,8 @@ namespace Spotnet.Controls;
 public partial class SettingsForDownload : System.Windows.Controls.UserControl, IAdvancedSettingsControl
 {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private readonly Brush _fieldInvalidBackground = Brushes.LemonChiffon;
-    private readonly Brush _fieldValidBackground = Brushes.White;
+    private Brush _fieldInvalidBackground => (Brush)FindResource("NoticeBackgroundBrush");
+    private Brush _fieldValidBackground => (Brush)FindResource("WhiteColorBrush");
     private readonly Action<string> _onDownloadFolderChanged;
     private DateTime DownloaderScheduleStartDateTime
     {
@@ -222,8 +222,8 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
             flag2 = DownloaderScheduleEndDateTime != DateTime.MinValue;
         }
 
-        DownloaderScheduleStartTime.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
-        DownloaderScheduleEndTime.Background = (flag2 ? _fieldValidBackground : _fieldInvalidBackground);
+        DownloaderScheduleStartTime.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
+        DownloaderScheduleEndTime.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag2 ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag && flag2;
     }
 
@@ -255,7 +255,7 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
             flag = result >= 50 && result < 200000;
         }
 
-        SpeedLimitTextBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
+        SpeedLimitTextBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag;
     }
 
@@ -285,11 +285,11 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
     {
         if (DownloadFolderTextBox.Text.IsNullOrEmpty())
         {
-            DownloadFolderTextBox.Background = _fieldInvalidBackground;
+            DownloadFolderTextBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "NoticeBackgroundBrush");
             return;
         }
 
-        DownloadFolderTextBox.Background = _fieldValidBackground;
+        DownloadFolderTextBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "WhiteColorBrush");
         _onDownloadFolderChanged?.Invoke(DownloadFolderTextBox.Text);
     }
 

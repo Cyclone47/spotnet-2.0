@@ -44,8 +44,6 @@ public class SpotRowViewModel : ViewModelBase, ISpotRow, IDisposable
 
 	private FontWeight _fontWeight;
 
-	private SolidColorBrush _foreground;
-
 	private double _imageOpacity;
 
 	private SpotLoadingStatusEnum _spotLoadingStatus;
@@ -341,22 +339,6 @@ public class SpotRowViewModel : ViewModelBase, ISpotRow, IDisposable
 			{
 				_fontWeight = value;
 				RaisePropertyChanged("FontWeight");
-			}
-		}
-	}
-
-	public SolidColorBrush Foreground
-	{
-		get
-		{
-			return _foreground;
-		}
-		set
-		{
-			if (_foreground == null || !_foreground.Equals(value))
-			{
-				_foreground = value;
-				RaisePropertyChanged("Foreground");
 			}
 		}
 	}

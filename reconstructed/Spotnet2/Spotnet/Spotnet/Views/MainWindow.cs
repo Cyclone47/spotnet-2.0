@@ -972,9 +972,10 @@ public partial class MainWindow : MetroWindow
             {
                 if (item.Content is IPage page)
                 {
+                    string title = page.Title;
                     item.Content = null;
                     page.Dispose();
-                    UpdateTabItemHeader(page.Title, PageTypeEnum.SpotNotLoaded, item);
+                    UpdateTabItemHeader(title, PageTypeEnum.SpotNotLoaded, item);
                 }
             }
 
@@ -1082,20 +1083,18 @@ public partial class MainWindow : MetroWindow
 
     internal void RefreshSpotsList(bool force = false)
     {
-        if (SpotsListVm.SpotsContainer.IsSpotKeyboardFocused && !force)
+        var container = SpotsListVm.SpotsContainer;
+        // Startup and view changes can run before the background provider publishes
+        // an ItemsSource. A refresh is not a reason to close the application.
+        if (container?.Spots?.ItemsSource is not VirtualList<ISpotRow> virtualList) return;
+        if (container.IsSpotKeyboardFocused && !force)
         {
             return;
         }
 
         bool flag = Settings.Default.SpotsListType == 3;
-        SpotsListVm.SpotsContainer.Spots.SelectedItem = null;
-        VirtualList<ISpotRow> virtualList = (VirtualList<ISpotRow>)SpotsListVm.SpotsContainer.Spots.ItemsSource;
-        if (virtualList == null)
-        {
-            Log.Error("ItemsSource is null");
-            Close();
-        }
-        else if (!flag || virtualList.Count <= 50 || force)
+        container.Spots.SelectedItem = null;
+        if (!flag || virtualList.Count <= 50 || force)
         {
             virtualList.Clear();
             if (flag)

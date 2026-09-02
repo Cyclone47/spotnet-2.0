@@ -7,15 +7,16 @@
           <Setter Property="Margin" Value="0,1,0,0" />
           <Setter Property="VerticalAlignment" Value="Center" />
           <Setter Property="BorderThickness" Value="0" />
-          <Setter Property="Background" Value="{StaticResource TransparentBrownBrush0}" />
-          <Setter Property="Foreground" Value="#FF000000" />
+          <Setter Property="Background" Value="{DynamicResource NoticeBackgroundBrush}" />
+          <Setter Property="Foreground" Value="{DynamicResource NoticeForegroundBrush}" />
         </Style>
         <Style x:Key="TotalRowStyle" TargetType="{x:Type DataGridRow}">
           <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}" />
           <Setter Property="BorderThickness" Value="0,1,0,0" />
           <Setter Property="BorderBrush" Value="{StaticResource AccentColorBrush2}" />
           <Setter Property="VerticalAlignment" Value="Center" />
-          <Setter Property="Background" Value="{StaticResource TransparentBrownBrush0}" />
+          <Setter Property="Background" Value="{DynamicResource NoticeBackgroundBrush}" />
+          <Setter Property="Foreground" Value="{DynamicResource NoticeForegroundBrush}" />
           <Setter Property="Height" Value="Auto" />
           <Setter Property="Margin" Value="0,0,0,0" />
         </Style>

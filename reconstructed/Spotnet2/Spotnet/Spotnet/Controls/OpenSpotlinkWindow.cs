@@ -14,8 +14,8 @@ namespace Spotnet.Controls;
 public partial class OpenSpotlinkWindow : MetroWindow
 {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private readonly Brush _fieldValidBackground = Brushes.White;
-    private readonly Brush _fieldInvalidBackground = Brushes.LemonChiffon;
+    private Brush _fieldValidBackground => (Brush)FindResource("WhiteColorBrush");
+    private Brush _fieldInvalidBackground => (Brush)FindResource("NoticeBackgroundBrush");
     public string Link = "";
     public OpenSpotlinkWindow()
     {

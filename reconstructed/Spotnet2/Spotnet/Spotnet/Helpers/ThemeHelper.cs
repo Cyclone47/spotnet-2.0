@@ -31,7 +31,8 @@ public static class ThemeHelper
 
     public static event Action ThemeChanged;
 
-    public static string CurrentTheme => Normalize(Settings.Default.AppTheme);
+    private static string _appliedTheme;
+    public static string CurrentTheme => _appliedTheme ?? Normalize(Settings.Default.AppTheme);
 
     public static bool IsModernDark => string.Equals(CurrentTheme, ModernDark, StringComparison.OrdinalIgnoreCase);
 
@@ -98,6 +99,7 @@ public static class ThemeHelper
             {
                 var app = Application.Current;
                 if (app == null) return;
+                _appliedTheme = themeName;
 
                 // 1. Swap MahApps Metro BaseDark / BaseLight theme
                 try
@@ -130,17 +132,14 @@ public static class ThemeHelper
                         IsThemeDictionary(d.Source.OriginalString)
                     )).ToList();
 
-                foreach (var d in existing)
-                {
-                    merged.Remove(d);
-                }
-
                 // Insert the new theme dictionary
                 var newDict = new ResourceDictionary
                 {
                     Source = new Uri($"pack://application:,,,/Spotnet;component/Style/{targetDictName}", UriKind.Absolute)
                 };
                 merged.Add(newDict);
+                // Add before removing so live controls never see missing resources.
+                foreach (var d in existing) merged.Remove(d);
 
                 // 3. Update active windows
                 foreach (Window win in app.Windows)
@@ -153,15 +152,11 @@ public static class ThemeHelper
                                 IsThemeDictionary(d.Source.OriginalString)
                             )).ToList();
 
-                        foreach (var d in winExisting)
-                        {
-                            winMerged.Remove(d);
-                        }
-
                         winMerged.Add(new ResourceDictionary
                         {
                             Source = new Uri($"pack://application:,,,/Spotnet;component/Style/{targetDictName}", UriKind.Absolute)
                         });
+                        foreach (var d in winExisting) winMerged.Remove(d);
 
                         // The dictionary above only carries Spotnet's own brushes. The
                         // MahApps control templates - radio buttons, text boxes, buttons -
@@ -188,11 +183,12 @@ public static class ThemeHelper
 
                 ThemeChanged?.Invoke();
 
-                // Refresh spots list rows and reload open spot pages so they re-render immediately
+                // Reload open spot pages; WPF surfaces update through dynamic resources.
                 try
                 {
                     SpotParser.ResetThemeFiles();
-                    Sys.MainWindow?.RefreshSpotsList(force: true);
+                    // Row colors are dynamic resources. Do not clear/requery a list
+                    // while its background provider is adding spots just to repaint it.
                     Sys.MainWindow?.ReloadAllSpotPages();
                 }
                 catch { }

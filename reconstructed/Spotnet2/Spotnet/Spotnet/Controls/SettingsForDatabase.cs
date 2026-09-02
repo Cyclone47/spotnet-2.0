@@ -17,8 +17,8 @@ namespace Spotnet.Controls;
 public partial class SettingsForDatabase : UserControl, IAdvancedSettingsControl
 {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private readonly Brush _fieldInvalidBackground = Brushes.LemonChiffon;
-    private readonly Brush _fieldValidBackground = Brushes.White;
+    private Brush _fieldInvalidBackground => (Brush)FindResource("NoticeBackgroundBrush");
+    private Brush _fieldValidBackground => (Brush)FindResource("WhiteColorBrush");
     public SettingsForDatabase()
     {
         base.Initialized += OnInitialized;
@@ -99,7 +99,7 @@ public partial class SettingsForDatabase : UserControl, IAdvancedSettingsControl
             flag = result >= 1 && result < 10000;
         }
 
-        RetentionTextBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
+        RetentionTextBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag;
     }
 

@@ -101,4 +101,12 @@
   <SolidColorBrush x:Key="TreeSelectedForegroundBrush" Color="{StaticResource BlackColor}" />
   <SolidColorBrush x:Key="TreeHoverBackgroundBrush" Color="{StaticResource AccentColor4}" />
   <SolidColorBrush x:Key="TreeHoverForegroundBrush" Color="{StaticResource BlackColor}" />
+  <SolidColorBrush x:Key="NoticeBackgroundBrush" Color="#E8F3FC" />
+  <SolidColorBrush x:Key="NoticeForegroundBrush" Color="#123B5D" />
+  <SolidColorBrush x:Key="NoticeBorderBrush" Color="#82B3D8" />
+  <SolidColorBrush x:Key="NoticeLinkBrush" Color="#1D4ED8" />
+  <SolidColorBrush x:Key="SpotRowForegroundBrush" Color="#111827" />
+  <SolidColorBrush x:Key="SpotRowTrustedBrush" Color="#166534" />
+  <SolidColorBrush x:Key="SpotRowMutedBrush" Color="#595959" />
+  <SolidColorBrush x:Key="SpotRowFavoriteBrush" Color="#1D4ED8" />
 </ResourceDictionary>

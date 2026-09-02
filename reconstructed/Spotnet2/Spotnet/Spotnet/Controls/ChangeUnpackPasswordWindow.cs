@@ -21,8 +21,8 @@ public partial class ChangeUnpackPasswordWindow : MetroWindow
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     private bool _initializationFinished;
     private string _lastSettingsString;
-    private readonly Brush _fieldInvalidBackground = Brushes.LemonChiffon;
-    private readonly Brush _fieldValidBackground = Brushes.White;
+    private Brush _fieldInvalidBackground => (Brush)FindResource("NoticeBackgroundBrush");
+    private Brush _fieldValidBackground => (Brush)FindResource("WhiteColorBrush");
     private string _oldUnpackPassword;
     public string Password;
     public bool BSuc;
@@ -92,7 +92,7 @@ public partial class ChangeUnpackPasswordWindow : MetroWindow
     private bool ValidatePassword()
     {
         bool flag = !PasswordTextBox.IsEnabled || PasswordTextBox.Text.Length < 300;
-        PasswordTextBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
+        PasswordTextBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag;
     }
 

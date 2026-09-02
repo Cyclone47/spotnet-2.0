@@ -6,11 +6,10 @@
       <system:Double x:Key="SpotAreaHeight">210</system:Double>
       <system:Double x:Key="SpotAreaWidth">143</system:Double>
       <vm:SpotRowViewModel x:Key="RowViewModel" />
-      <Style x:Key="TitleStyle" TargetType="{x:Type TextBlock}">
+      <Style x:Key="TitleStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SpotRowTextStyle}">
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="FontFamily" Value="Verdana" />
         <Setter Property="FontSize" Value="{DynamicResource ContextMenuFontSize}" />
-        <Setter Property="Foreground" Value="{Binding Data.Foreground, Mode=OneWay}" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="HorizontalAlignment" Value="Center" />
@@ -244,9 +243,7 @@
   </FrameworkElement.Resources>
   <Grid>
     <DockPanel Name="Dock" Dock="Bottom" Height="Auto" Width="Auto" LastChildFill="True">
-      <Panel.Background>
-        <ImageBrush ImageSource="/Resources\ImagesInternal\spotsbg.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,150,150" />
-      </Panel.Background>
+      <Panel.Background><DynamicResource ResourceKey="SpotBackgroundBrush" /></Panel.Background>
       <controls:WarningTip DockPanel.Dock="Top" Focusable="False" Margin="0,1,0,-5" Text="{x:Static p:Words.DbIsNotUpToDateWarning}" Visibility="{Binding SpotsDbIsNotUpToDateWarningVisibility, Mode=TwoWay}" />
       <Grid DockPanel.Dock="Top">
         <ListBox Name="MainListBox" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.IsDeferredScrollingEnabled="True" ItemTemplate="{StaticResource ThumbnailTemplate}" ItemContainerStyle="{StaticResource ThumbnailContainerStyle}" SelectionMode="Single" Focusable="True" Style="{DynamicResource ThumbsListBoxStyle}" Visibility="{Binding Items.IsEmpty, Converter={StaticResource BooleanToFalseVisibilityConverter}, ElementName=MainListBox}" ItemsSource="{Binding}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" PreviewKeyDown="Spots_PreviewKeyDown" MouseDoubleClick="Spots_MouseDoubleClick" PreviewMouseDown="Spots_PreviewMouseDown" ContextMenuOpening="Spots_ContextMenuOpening" ScrollViewer.ScrollChanged="HandleScrollChanged">

@@ -50,13 +50,13 @@
           <Setter.Value>
             <ControlTemplate TargetType="{x:Type ContentControl}">
               <Grid SnapsToDevicePixels="True" DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}">
-                <Border Name="Bd" BorderThickness="1" BorderBrush="{StaticResource GrayBrush8}" Background="{StaticResource TransparentBrownBrush1}">
+                <Border Name="Bd" BorderThickness="1" BorderBrush="{DynamicResource NoticeBorderBrush}" Background="{DynamicResource NoticeBackgroundBrush}">
                   <DockPanel Margin="5,5,5,4" Height="Auto" Width="Auto" HorizontalAlignment="Stretch" ClipToBounds="False">
                     <Image HorizontalAlignment="Left" Margin="15,0,5,0" Width="32" Height="32" Source="/Resources/ImagesInternal/info.png" Stretch="Fill" />
-                    <TextBlock Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="{DynamicResource BlackColorBrush}">
-                      <Run Text="{Binding Text1}" /> <Hyperlink NavigateUri="http://somesite.com" RequestNavigate="Hyperlink_RequestNavigate"><Run Text="{Binding Text2}" /></Hyperlink> <Run Text="{Binding Text3}" /></TextBlock>
+                    <TextBlock Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="{DynamicResource NoticeForegroundBrush}">
+                      <Run Text="{Binding Text1}" /> <Hyperlink Foreground="{DynamicResource NoticeLinkBrush}" NavigateUri="http://somesite.com" RequestNavigate="Hyperlink_RequestNavigate"><Run Text="{Binding Text2}" /></Hyperlink> <Run Text="{Binding Text3}" /></TextBlock>
                     <Button Name="PART_Close" Margin="3,0,3,0" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Visible" Width="16" Height="16" Style="{DynamicResource CloseButtonStyle}" Click="CloseMe">
-                      <Path Name="Path" Stretch="Fill" StrokeThickness="0.5" Stroke="#FF333333" Fill="#FF969696" Data="F1 M2.28484E-07,1.33331 L1.33333,0 L4.00001,2.66669 L6.66667,6.10352E-05 L8,1.33331 L5.33334,4 L8,6.66669 L6.66667,8 L4,5.33331 L1.33333,8 L1.086E-07,6.66669 L2.66667,4 L2.28484E-07,1.33331" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                      <Path Name="Path" Stretch="Fill" StrokeThickness="0.5" Stroke="{DynamicResource NoticeForegroundBrush}" Fill="{DynamicResource NoticeForegroundBrush}" Data="F1 M2.28484E-07,1.33331 L1.33333,0 L4.00001,2.66669 L6.66667,6.10352E-05 L8,1.33331 L5.33334,4 L8,6.66669 L6.66667,8 L4,5.33331 L1.33333,8 L1.086E-07,6.66669 L2.66667,4 L2.28484E-07,1.33331" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                     </Button>
                   </DockPanel>
                 </Border>

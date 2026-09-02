@@ -202,7 +202,7 @@ public class FilterViewModel : ViewModelBase
 		get
 		{
 			string text = ((IsSelected && !ImageSelected.IsNullOrEmpty()) ? ImageSelected : ImageNormal);
-			text = text.Trim();
+			text = (text ?? "").Trim();
 			if (!text.Contains(":"))
 			{
 				while (text.StartsWith("/"))

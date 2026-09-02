@@ -52,8 +52,6 @@ public interface ISpotRow : IDisposable
 
 	FontWeight FontWeight { get; set; }
 
-	SolidColorBrush Foreground { get; set; }
-
 	double ImageOpacity { get; set; }
 
 	string SpotMessageId { get; }

@@ -4,13 +4,13 @@
       <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
       <vm:SpotRowViewModel x:Key="RowViewModel" />
       <DataTemplate x:Key="ThumbnailIsLoaded">
-        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{StaticResource AccentColor5BackgroundBrush}">
+        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource AccentColor5BackgroundBrush}">
           <Image Width="{Binding Path=ThumbMaxWidth, Source={StaticResource RowViewModel}}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}" Opacity="{Binding Data.ImageOpacity, Mode=OneWay}" Source="{Binding Data.BitmapSource, Mode=OneWay}" />
           <TextBlock Margin="15, 10, 5, 5" FontWeight="Normal" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="{Binding Data.Description, Mode=OneWay}" />
         </DockPanel>
       </DataTemplate>
       <DataTemplate x:Key="ThumbnailDescriptionIsLoaded">
-        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{StaticResource AccentColor5BackgroundBrush}">
+        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource AccentColor5BackgroundBrush}">
           <Border Name="SelectionBorder" BorderBrush="#FFB0E0E6" BorderThickness="1" CornerRadius="1" Width="{Binding Path=ThumbMaxWidth, Source={StaticResource RowViewModel}}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}">
             <controls:ProgressRing Width="30" Height="30" IsActive="True" />
           </Border>
@@ -18,8 +18,8 @@
         </DockPanel>
       </DataTemplate>
       <DataTemplate x:Key="ThumbnailLoadFailed">
-        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{StaticResource AccentColor5BackgroundBrush}">
-          <Grid Background="{StaticResource AccentColor5BackgroundBrush}">
+        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource AccentColor5BackgroundBrush}">
+          <Grid Background="{DynamicResource AccentColor5BackgroundBrush}">
             <Grid VerticalAlignment="Center">
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -32,7 +32,7 @@
         </DockPanel>
       </DataTemplate>
       <DataTemplate x:Key="ThumbnailImageLoadFailed">
-        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{StaticResource AccentColor5BackgroundBrush}">
+        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{DynamicResource AccentColor5BackgroundBrush}">
           <Grid Width="{Binding Path=ThumbMaxWidth, Source={StaticResource RowViewModel}}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}">
             <Grid VerticalAlignment="Center">
               <Grid.RowDefinitions>
@@ -47,12 +47,12 @@
         </DockPanel>
       </DataTemplate>
       <DataTemplate x:Key="ThumbnailIsLoading">
-        <Grid Background="{StaticResource AccentColor5BackgroundBrush}">
+        <Grid Background="{DynamicResource AccentColor5BackgroundBrush}">
           <controls:ProgressRing IsActive="True" />
         </Grid>
       </DataTemplate>
       <DataTemplate x:Key="ThumbnailTemplate">
-        <ContentControl Name="SpotContent" MinWidth="400" Foreground="{StaticResource BlackColorBrush}" ContentTemplate="{StaticResource ThumbnailIsLoading}" Content="{Binding}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}" IsVisibleChanged="RowDetails_IsVisibleChanged" Loaded="RowDetails_Loaded" />
+        <ContentControl Name="SpotContent" MinWidth="400" Foreground="{DynamicResource BlackColorBrush}" ContentTemplate="{StaticResource ThumbnailIsLoading}" Content="{Binding}" Height="{Binding Path=ThumbMaxHeight, Source={StaticResource RowViewModel}}" IsVisibleChanged="RowDetails_IsVisibleChanged" Loaded="RowDetails_Loaded" />
         <DataTemplate.Triggers>
           <DataTrigger Value="2" Binding="{Binding Data.SpotLoadingStatus}">
             <Setter TargetName="SpotContent" Property="ContentControl.ContentTemplate" Value="{StaticResource ThumbnailDescriptionIsLoaded}" />
@@ -72,8 +72,9 @@
         <Setter Property="FontWeight" Value="{Binding Data.FontWeight, Mode=OneWay}" />
         <EventSetter Event="MouseEnter" Handler="OnMouseEnterItem" />
       </Style>
-      <Style x:Key="SpotsListDataGridCellStyle" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource DataGridCellStyle}">
-        <Setter Property="Foreground" Value="{Binding Data.Foreground, Mode=OneWay}" />
+      <Style x:Key="SpotsListDataGridCellStyle" TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource SpotRowTextStyle}">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
       </Style>
@@ -116,7 +117,7 @@
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="7,2,0,2" Text="{Binding Data.Titel, Mode=OneWay}" />
-                    <controls:SpotsListToolbar x:Name="SpotsListToolbar" Grid.Column="0" HorizontalAlignment="Right" Background="{StaticResource TransparentBrownBrush1}" Margin="0">
+                    <controls:SpotsListToolbar x:Name="SpotsListToolbar" Grid.Column="0" HorizontalAlignment="Right" Background="{DynamicResource NoticeBackgroundBrush}" Margin="0">
                       <FrameworkElement.Style>
                         <Style>
                           <Setter Property="UIElement.Visibility" Value="Collapsed" />

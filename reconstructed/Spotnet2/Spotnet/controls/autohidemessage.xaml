@@ -9,7 +9,7 @@
       </Storyboard>
     </ResourceDictionary>
   </FrameworkElement.Resources>
-  <Border Name="LayoutRoot" BorderThickness="4" BorderBrush="{StaticResource BrightColorBrush4}" Background="{StaticResource TransparentBrownBrush0}" Opacity="0">
-    <TextBlock Name="TextBlock" Text="Test" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30,20,30,20" />
+  <Border Name="LayoutRoot" BorderThickness="4" BorderBrush="{DynamicResource NoticeBorderBrush}" Background="{DynamicResource NoticeBackgroundBrush}" Opacity="0">
+    <TextBlock Foreground="{DynamicResource NoticeForegroundBrush}" Name="TextBlock" Text="Test" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30,20,30,20" />
   </Border>
 </UserControl>

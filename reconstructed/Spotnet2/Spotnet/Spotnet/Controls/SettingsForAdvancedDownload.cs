@@ -20,8 +20,8 @@ namespace Spotnet.Controls;
 public partial class SettingsForAdvancedDownload : System.Windows.Controls.UserControl, IAdvancedSettingsControl
 {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private readonly Brush _fieldInvalidBackground = Brushes.LemonChiffon;
-    private readonly Brush _fieldValidBackground = Brushes.White;
+    private Brush _fieldInvalidBackground => (Brush)FindResource("NoticeBackgroundBrush");
+    private Brush _fieldValidBackground => (Brush)FindResource("WhiteColorBrush");
     public Action<string> DownloadFolderChanged;
     private string _lastDownloadFolder;
     private bool IsExternalSelected => ExternalNzbGetRadioButton.IsChecked.GetValueOrDefault();
@@ -154,7 +154,7 @@ public partial class SettingsForAdvancedDownload : System.Windows.Controls.UserC
     private bool ValidateAddress(System.Windows.Controls.TextBox textBox)
     {
         bool flag = !textBox.Text.Trim().IsNullOrEmpty() && (textBox.Text.EqualsIgnoreCase("localhost") || Regex.IsMatch(textBox.Text, " # Rev:2013-03-26\r\n                                                                        # Match DNS host domain having one or more subdomains.\r\n                                                                        # Top level domain subset taken from IANA.ORG. See:\r\n                                                                        # http://data.iana.org/TLD/tlds-alpha-by-domain.txt\r\n                                                                        ^                  # Anchor to start of string.\r\n                                                                        (?!.{256})         # Whole domain must be 255 or less.\r\n                                                                        (?:                # Group for one or more sub-domains.\r\n                                                                          [a-z0-9]         # Either subdomain length from 2-63.\r\n                                                                          [a-z0-9-]{0,61}  # Middle part may have dashes.\r\n                                                                          [a-z0-9]         # Starts and ends with alphanum.\r\n                                                                          \\.               # Dot separates subdomains.\r\n                                                                        | [a-z0-9]         # or subdomain length == 1 char.\r\n                                                                          \\.               # Dot separates subdomains.\r\n                                                                        )+                 # One or more sub-domains.\r\n                                                                        (?:                # Top level domain alternatives.\r\n                                                                          [a-z]{2}         # Either any 2 char country code,\r\n                                                                        | AERO|ARPA|ASIA|BIZ|CAT|COM|COOP|EDU|  # or TLD \r\n                                                                          GOV|INFO|INT|JOBS|MIL|MOBI|MUSEUM|    # from list.\r\n                                                                          NAME|NET|ORG|POST|PRO|TEL|TRAVEL|XXX  # IANA.ORG\r\n                                                                        )                  # End group of TLD alternatives.\r\n                                                                        $                  # Anchor to end of string.", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace) || Regex.IsMatch(textBox.Text, "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
-        textBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
+        textBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag;
     }
 
@@ -162,21 +162,21 @@ public partial class SettingsForAdvancedDownload : System.Windows.Controls.UserC
     {
         int result;
         bool flag = int.TryParse(textBox.Text, out result);
-        textBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
+        textBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag;
     }
 
     private bool ValidateUsername(System.Windows.Controls.TextBox control)
     {
         bool flag = control.Text.Length < 200;
-        control.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
+        control.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag;
     }
 
     private bool ValidatePassword(PasswordBox control)
     {
         bool flag = control.Password.Length < 200;
-        control.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
+        control.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag;
     }
 
@@ -205,19 +205,19 @@ public partial class SettingsForAdvancedDownload : System.Windows.Controls.UserC
     private void DestDir_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         System.Windows.Controls.TextBox obj = (System.Windows.Controls.TextBox)sender;
-        obj.Background = ((!obj.Text.IsNullOrWhiteSpace()) ? _fieldValidBackground : _fieldInvalidBackground);
+        obj.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, (!obj.Text.IsNullOrWhiteSpace()) ? "WhiteColorBrush" : "NoticeBackgroundBrush");
     }
 
     private void InterDir_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         System.Windows.Controls.TextBox obj = (System.Windows.Controls.TextBox)sender;
-        obj.Background = ((!obj.Text.IsNullOrWhiteSpace()) ? _fieldValidBackground : _fieldInvalidBackground);
+        obj.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, (!obj.Text.IsNullOrWhiteSpace()) ? "WhiteColorBrush" : "NoticeBackgroundBrush");
     }
 
     private void QueueDir_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         System.Windows.Controls.TextBox obj = (System.Windows.Controls.TextBox)sender;
-        obj.Background = ((!obj.Text.IsNullOrWhiteSpace()) ? _fieldValidBackground : _fieldInvalidBackground);
+        obj.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, (!obj.Text.IsNullOrWhiteSpace()) ? "WhiteColorBrush" : "NoticeBackgroundBrush");
     }
 
     private void Server1EncryptionComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)

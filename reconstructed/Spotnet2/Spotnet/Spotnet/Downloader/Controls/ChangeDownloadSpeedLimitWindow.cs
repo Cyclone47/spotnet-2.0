@@ -23,8 +23,8 @@ public partial class ChangeDownloadSpeedLimitWindow : MetroWindow
     private bool _initializationFinished;
     private string _lastSettingsString;
     public bool BSuc;
-    private readonly Brush _fieldInvalidBackground = Brushes.LemonChiffon;
-    private readonly Brush _fieldValidBackground = Brushes.White;
+    private Brush _fieldInvalidBackground => (Brush)FindResource("NoticeBackgroundBrush");
+    private Brush _fieldValidBackground => (Brush)FindResource("WhiteColorBrush");
     public static bool IsRunning => DispatcherHelper.UIDispatcher.Invoke(() => Application.Current.Windows.OfType<SelectProviderWindow>().Any());
     private string CurrentSettingsString => SpeedLimitTextBox.Text;
     private bool AreSettingsChanged => _lastSettingsString != CurrentSettingsString;
@@ -100,7 +100,7 @@ public partial class ChangeDownloadSpeedLimitWindow : MetroWindow
             flag = result >= 50 && result < 200000;
         }
 
-        SpeedLimitTextBox.Background = (flag ? _fieldValidBackground : _fieldInvalidBackground);
+        SpeedLimitTextBox.SetResourceReference(Control.BackgroundProperty, flag ? "WhiteColorBrush" : "NoticeBackgroundBrush");
         return flag;
     }
 

@@ -10,6 +10,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Windows.Data;
+using System.Threading.Tasks;
+using Spotnet.Controls;
+using Spotnet.ViewModel;
 using Spotnet.Helpers;
 using Xunit;
 
@@ -178,6 +182,7 @@ public sealed class MenuThemeTests
                     CheckRow(contextItem, background);
                     SavePreview(parent, theme);
                 }
+                CheckSpotSurfaces(app);
             }
             catch (Exception ex) { error = ex; }
             finally { app?.Shutdown(); }
@@ -186,5 +191,100 @@ public sealed class MenuThemeTests
         thread.Start();
         Assert.True(thread.Join(TimeSpan.FromSeconds(30)), "WPF menu test timed out.");
         if (error != null) ExceptionDispatchInfo.Capture(error).Throw();
+    }
+
+    // Shares the one WPF Application allowed per test process. No real MainWindow,
+    // provider, network connection, or persisted settings are created here.
+    private static void CheckSpotSurfaces(Application app)
+    {
+        app.Resources.MergedDictionaries.Add(Load("Spotnet;component/Style/shared.xaml"));
+        ThemeHelper.ApplyTheme(ThemeHelper.ModernDark, persist: false);
+        MainWindowViewModel vm = Task.Run(() => new MainWindowViewModel()).GetAwaiter().GetResult();
+        Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+        Assert.Same(ThemeBrushes.DarkFilterBackground, vm.FiltersBackground);
+        Assert.True(vm.FiltersBackground.IsFrozen);
+
+        var panel = new StackPanel { Width = 900 };
+        var filter = new Border { Height = 30 };
+        filter.SetBinding(Border.BackgroundProperty, new Binding(nameof(vm.FiltersBackground)) { Source = vm });
+        panel.Children.Add(filter);
+        var notice = new WarningTip { Text = "Zoekresultaten kunnen onvolledig zijn, omdat de database nog niet up-to-date is." };
+        panel.Children.Add(notice);
+        var linkNotice = new WarningTipWithLink();
+        panel.Children.Add(linkNotice);
+        var host = new Window { Content = panel, Width = 930, Height = 550 };
+        var rows = new[] {
+            new RowState { PosterIdent = PosterIdentType.Unspecified },
+            new RowState { PosterIdent = PosterIdentType.White },
+            new RowState { PosterIdent = PosterIdentType.Black },
+            new RowState { PosterIdent = PosterIdentType.White, IsInFavorites = true }
+        };
+        string[] keys = { "SpotRowForegroundBrush", "SpotRowTrustedBrush", "SpotRowMutedBrush", "SpotRowFavoriteBrush" };
+        var cells = new DataGridCell[rows.Length];
+        var titles = new TextBlock[rows.Length];
+        for (int i = 0; i < rows.Length; i++)
+        {
+            var wrapper = new { Data = rows[i] };
+            cells[i] = new DataGridCell { Content = "Incoming spot " + i, DataContext = wrapper,
+                Style = new Style(typeof(DataGridCell), (Style)app.FindResource("SpotRowTextStyle")), Padding = new Thickness(8) };
+            cells[i].SetResourceReference(Control.BackgroundProperty, "SpotBackgroundBrush");
+            panel.Children.Add(cells[i]);
+            titles[i] = new TextBlock { Text = "Thumbnail title " + i, DataContext = wrapper,
+                Style = new Style(typeof(TextBlock), (Style)app.FindResource("SpotRowTextStyle")) };
+            panel.Children.Add(titles[i]);
+        }
+        foreach (string theme in new[] { ThemeHelper.ModernDark, ThemeHelper.ModernLight, ThemeHelper.Classic, ThemeHelper.ModernDark })
+        {
+            // Simulates filter loading while an already populated view changes style.
+            Task.Run(() => vm.SetFiltersBackground("#FFFFFF")).GetAwaiter().GetResult();
+            ThemeHelper.ApplyTheme(theme, persist: false);
+            Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+            Layout(host);
+            Layout(panel);
+            for (int i = 0; i < cells.Length; i++)
+            {
+                Brush expected = (Brush)app.FindResource(keys[i]);
+                Assert.Equal(ColorOf(expected), ColorOf(cells[i].Foreground));
+                Assert.Equal(ColorOf(expected), ColorOf(titles[i].Foreground));
+                Readable(cells[i].Foreground, cells[i].Background);
+            }
+            Assert.True(vm.FiltersBackground.IsFrozen);
+            if (theme == ThemeHelper.ModernDark) Assert.Same(ThemeBrushes.DarkFilterBackground, filter.Background);
+            // Each tip's surface is its single ContentControl child. Compiled BAML keeps
+            // that name in a generated field rather than a namescope FindName can query.
+            foreach (ContentControl content in new[] { (ContentControl)notice.Content, (ContentControl)linkNotice.Content })
+            {
+                Layout(content);
+                var surface = Assert.IsType<Border>(content.Template.FindName("Bd", content));
+                Assert.Equal(ColorOf((Brush)app.FindResource("NoticeBackgroundBrush")), ColorOf(surface.Background));
+                Readable((Brush)app.FindResource("NoticeForegroundBrush"), surface.Background);
+                Readable((Brush)app.FindResource("NoticeLinkBrush"), surface.Background);
+            }
+            // The row wrappers survive a theme switch; recoloring must not reload data.
+            Assert.Same(rows[0], ((dynamic)cells[0].DataContext).Data);
+            string output = Environment.GetEnvironmentVariable("SPOTNET_MENU_PREVIEW_DIR");
+            if (!string.IsNullOrEmpty(output))
+            {
+                var bitmap = new RenderTargetBitmap((int)panel.ActualWidth, (int)panel.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+                bitmap.Render(panel);
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                using var stream = File.Create(System.IO.Path.Combine(output, "spots-" + theme + ".png"));
+                encoder.Save(stream);
+            }
+        }
+        // A filter set that omits the Image attribute used to throw while its node was
+        // built, because Image trimmed a null. Building and reading must both be safe.
+        var namedNode = new FilterViewModel("No icon", "cat=1", null, null);
+        Assert.Null(Record.Exception(() => namedNode.Image));
+        // Without a name no default icon is assigned, so the null path stays reachable.
+        Assert.Null(new FilterViewModel("", "cat=1", null, null).Image);
+        ThemeHelper.ApplyTheme(ThemeHelper.Classic, persist: false);
+    }
+
+    public sealed class RowState
+    {
+        public PosterIdentType PosterIdent { get; set; }
+        public bool IsInFavorites { get; set; }
     }
 }

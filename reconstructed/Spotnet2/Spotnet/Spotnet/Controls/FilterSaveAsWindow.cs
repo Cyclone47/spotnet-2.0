@@ -16,8 +16,8 @@ namespace Spotnet.Controls;
 public partial class FilterSaveAsWindow : MetroWindow
 {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private readonly Brush _fieldValidBackground = Brushes.White;
-    private readonly Brush _fieldInvalidBackground = Brushes.LemonChiffon;
+    private Brush _fieldValidBackground => (Brush)FindResource("WhiteColorBrush");
+    private Brush _fieldInvalidBackground => (Brush)FindResource("NoticeBackgroundBrush");
     public string NewName = "";
     public FilterSaveAsWindow()
     {
@@ -75,11 +75,11 @@ public partial class FilterSaveAsWindow : MetroWindow
         Regex regex = new Regex("^[a-zA-Z0-9\\ ]+$");
         if (!text.IsNullOrEmpty() && text.Length < 18 && regex.IsMatch(text))
         {
-            NameTextBox.Background = _fieldValidBackground;
+            NameTextBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "WhiteColorBrush");
         }
         else
         {
-            NameTextBox.Background = _fieldInvalidBackground;
+            NameTextBox.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "NoticeBackgroundBrush");
         }
     }
 }

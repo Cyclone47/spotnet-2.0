@@ -139,13 +139,13 @@ public class Spots
 	{
 		return cat switch
 		{
-			1 => new BrushConverter().ConvertFromString("#21409A") as SolidColorBrush, 
-			2 => new BrushConverter().ConvertFromString("#FFFFAA") as SolidColorBrush, 
-			3 => new BrushConverter().ConvertFromString("#FF4D25") as SolidColorBrush, 
-			4 => new BrushConverter().ConvertFromString("#FF7BAC") as SolidColorBrush, 
-			5 => new BrushConverter().ConvertFromString("#7AC943") as SolidColorBrush, 
-			6 => new BrushConverter().ConvertFromString("#3FA9F5") as SolidColorBrush, 
-			9 => new BrushConverter().ConvertFromString("#BDCCD4") as SolidColorBrush, 
+			1 => ThemeBrushes.Frozen("#21409A"),
+			2 => ThemeBrushes.Frozen("#FFFFAA"),
+			3 => ThemeBrushes.Frozen("#FF4D25"),
+			4 => ThemeBrushes.Frozen("#FF7BAC"),
+			5 => ThemeBrushes.Frozen("#7AC943"),
+			6 => ThemeBrushes.Frozen("#3FA9F5"),
+			9 => ThemeBrushes.Frozen("#BDCCD4"),
 			_ => Brushes.OrangeRed, 
 		};
 	}

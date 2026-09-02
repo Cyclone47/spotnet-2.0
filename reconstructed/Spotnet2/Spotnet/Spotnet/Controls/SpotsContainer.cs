@@ -159,7 +159,8 @@ public abstract class SpotsContainer : UserControl, ISpotsContainer
 	{
 		if (row != null)
 		{
-			if (Sys.MainWindow.SpotProvider.RowNew > 1 && row.Id > Sys.MainWindow.SpotProvider.RowNew)
+			long rowNew = Sys.MainWindow?.SpotProvider?.RowNew ?? 0;
+			if (rowNew > 1 && row.Id > rowNew)
 			{
 				row.FontWeight = FontWeights.Bold;
 				row.IsNewSpotBorderThickness = 3;
@@ -171,26 +172,10 @@ public abstract class SpotsContainer : UserControl, ISpotsContainer
 				row.IsNewSpotBorderThickness = 1;
 				row.IsNewSpotBorderColor = _brushForOldSpot;
 			}
-			PosterIdentType posterIdent = row.PosterIdent;
-			bool isDark = ThemeHelper.IsModernDark;
-			if (posterIdent == PosterIdentType.White)
-			{
-				row.Foreground = isDark ? new SolidColorBrush(Color.FromRgb(74, 222, 128)) : Brushes.Green;
-			}
-			else if (!Settings.Default.HideBlacklistedSpots && posterIdent == PosterIdentType.Black)
-			{
-				row.Foreground = isDark ? new SolidColorBrush(Color.FromRgb(148, 163, 184)) : Brushes.DarkGray;
-				row.ImageOpacity = 0.4;
-			}
-			else
-			{
-				row.Foreground = isDark ? Brushes.White : Brushes.Black;
-				row.ImageOpacity = 1.0;
-			}
-			if (row.IsInFavorites)
-			{
-				row.Foreground = isDark ? new SolidColorBrush(Color.FromRgb(250, 204, 21)) : Brushes.DarkGoldenrod;
-			}
+			// Row text colour comes from SpotRowTextStyle, whose triggers read the
+			// theme's brushes, so a cached row repaints without reloading the list.
+			bool isBlacklisted = !Settings.Default.HideBlacklistedSpots && row.PosterIdent == PosterIdentType.Black;
+			row.ImageOpacity = (isBlacklisted ? 0.4 : 1.0);
 		}
 	}
 

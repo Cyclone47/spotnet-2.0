@@ -114,4 +114,12 @@
   <SolidColorBrush x:Key="TreeSelectedForegroundBrush" Color="#FFF1F5F9" />
   <SolidColorBrush x:Key="TreeHoverBackgroundBrush" Color="#FF1B2634" />
   <SolidColorBrush x:Key="TreeHoverForegroundBrush" Color="#FFD6DCE5" />
+  <SolidColorBrush x:Key="NoticeBackgroundBrush" Color="#17334D" />
+  <SolidColorBrush x:Key="NoticeForegroundBrush" Color="#E0F2FE" />
+  <SolidColorBrush x:Key="NoticeBorderBrush" Color="#4386B5" />
+  <SolidColorBrush x:Key="NoticeLinkBrush" Color="#93C5FD" />
+  <SolidColorBrush x:Key="SpotRowForegroundBrush" Color="#F1F5F9" />
+  <SolidColorBrush x:Key="SpotRowTrustedBrush" Color="#4ADE80" />
+  <SolidColorBrush x:Key="SpotRowMutedBrush" Color="#94A3B8" />
+  <SolidColorBrush x:Key="SpotRowFavoriteBrush" Color="#93C5FD" />
 </ResourceDictionary>

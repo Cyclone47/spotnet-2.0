@@ -34,6 +34,7 @@ public class MainWindowViewModel : ViewModelBase
 	private static readonly ImageBrush FiltersBackgroundDefault;
 
 	private Brush _filtersBackground = FiltersBackgroundDefault;
+	private volatile string _filterBackgroundColor;
 
 	private bool _isShowTrustedTemporaryDisabled;
 
@@ -196,16 +197,18 @@ public class MainWindowViewModel : ViewModelBase
 	static MainWindowViewModel()
 	{
 		Log = LogManager.GetCurrentClassLogger();
-		StreamResourceInfo resourceStream = Application.GetResourceStream(new Uri("Resources/ImagesInternal/spotsbg.png", UriKind.Relative));
+		StreamResourceInfo resourceStream = Application.GetResourceStream(new Uri("pack://application:,,,/Spotnet;component/Resources/ImagesInternal/spotsbg.png", UriKind.Absolute));
 		if (resourceStream != null)
 		{
+			using var stream = resourceStream.Stream;
 			FiltersBackgroundDefault = new ImageBrush
 			{
-				ImageSource = BitmapFrame.Create(resourceStream.Stream),
+				ImageSource = BitmapFrame.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad),
 				TileMode = TileMode.Tile,
 				ViewportUnits = BrushMappingMode.Absolute,
 				Viewport = new Rect(new Point(0.0, 0.0), new Point(150.0, 150.0))
 			};
+			FiltersBackgroundDefault.Freeze();
 		}
 	}
 
@@ -213,9 +216,10 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		FiltersDb = new Filters();
 		WarningsList = new ObservableCollection<FrameworkElement>();
+		SetFiltersBackground(null);
 		ThemeHelper.ThemeChanged += () =>
 		{
-			SetFiltersBackground(null);
+			SetFiltersBackground(_filterBackgroundColor);
 			// Classic draws the filter set's bitmaps, the Modern styles draw glyphs, so
 			// every node has to re-read its icon when the style changes.
 			FiltersDb?.FiltersRoot?.RefreshIcon();
@@ -224,20 +228,18 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void SetFiltersBackground(string color)
 	{
-		if (color.IsNullOrEmpty())
-		{
-			FiltersBackground = ThemeHelper.IsModernDark
-				? new SolidColorBrush(Color.FromRgb(0x11, 0x1B, 0x27))
-				: (Brush)FiltersBackgroundDefault;
-			return;
-		}
+		// Record before dispatching: a theme change raised right behind this call has
+		// to see the colour of the filter set that is loading, not the previous one.
+		_filterBackgroundColor = color;
 		DispatcherHelper.CheckBeginInvokeOnUI(delegate
 		{
-			object obj = ColorConverter.ConvertFromString(color);
-			if (obj != null)
-			{
-				FiltersBackground = new SolidColorBrush((Color)obj);
-			}
+			// Read the field rather than the captured value so the last request wins
+			// even if two loads queue their updates out of order.
+			string wanted = _filterBackgroundColor;
+			// Filter packs can specify a light background. Dark mode must override
+			// that too, and startup must use the same rule as a live theme change.
+			FiltersBackground = ThemeHelper.IsModernDark ? ThemeBrushes.DarkFilterBackground
+				: wanted.IsNullOrEmpty() ? FiltersBackgroundDefault : ThemeBrushes.Frozen(wanted);
 		});
 	}
 
