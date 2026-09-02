@@ -33,9 +33,9 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
-              <RadioButton Name="SearchByTitleRadio" Foreground="{DynamicResource BlackBrush}" Grid.Column="0" Content="{x:Static properties:Words.ColumnSubject}" ToolTip="{x:Static properties:Words.SearchSubjectToolTip}" IsChecked="True" HorizontalAlignment="Left" Click="SearchByTitleRadio_Click" />
-              <RadioButton Name="SearchBySenderRadio" Foreground="{DynamicResource BlackBrush}" Grid.Column="1" Content="{x:Static properties:Words.ColumnSender}" ToolTip="{x:Static properties:Words.SearchSenderToolTip}" IsEnabled="True" HorizontalAlignment="Center" Click="SearchBySenderRadio_Click" />
-              <RadioButton Name="SearchByTagRadio" Foreground="{DynamicResource BlackBrush}" Grid.Column="2" Content="{x:Static properties:Words.ColumnTag}" ToolTip="{x:Static properties:Words.SearchTagToolTip}" IsEnabled="True" HorizontalAlignment="Right" Click="SearchByTagRadio_Click" />
+              <RadioButton Name="SearchByTitleRadio" Background="Transparent" Foreground="{DynamicResource BlackBrush}" Grid.Column="0" Content="{x:Static properties:Words.ColumnSubject}" ToolTip="{x:Static properties:Words.SearchSubjectToolTip}" IsChecked="True" HorizontalAlignment="Left" Click="SearchByTitleRadio_Click" />
+              <RadioButton Name="SearchBySenderRadio" Background="Transparent" Foreground="{DynamicResource BlackBrush}" Grid.Column="1" Content="{x:Static properties:Words.ColumnSender}" ToolTip="{x:Static properties:Words.SearchSenderToolTip}" IsEnabled="True" HorizontalAlignment="Center" Click="SearchBySenderRadio_Click" />
+              <RadioButton Name="SearchByTagRadio" Background="Transparent" Foreground="{DynamicResource BlackBrush}" Grid.Column="2" Content="{x:Static properties:Words.ColumnTag}" ToolTip="{x:Static properties:Words.SearchTagToolTip}" IsEnabled="True" HorizontalAlignment="Right" Click="SearchByTagRadio_Click" />
             </Grid>
             <Grid Row="1" Margin="15,5,20,5">
               <Grid.ColumnDefinitions>
@@ -54,8 +54,8 @@
                   </ContextMenu>
                 </FrameworkElement.ContextMenu>
               </ComboBox>
-              <Button Grid.Column="1" Width="22" Height="22" Margin="2" BorderThickness="0" Content="ï€‚" FontSize="14" Foreground="{DynamicResource GrayBrush5}" Style="{StaticResource FontAwesome}" Background="{Binding ElementName=SearchBox, Path=Background}" Click="ClickOnSearch" />
-              <Button Grid.Column="2" Width="22" Height="22" Margin="-3,2,2,2" BorderThickness="0" Content="ï€" FontSize="12" Style="{StaticResource FontAwesome}" Foreground="{DynamicResource GrayBrush5}" Background="{Binding ElementName=SearchBox, Path=Background}" Visibility="{Binding IsSearchResetVisible, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" Click="ClickOnSearchClear" />
+              <Button Grid.Column="1" Width="22" Height="22" Margin="2" BorderThickness="0" Content="&#xF002;" FontSize="14" Foreground="{DynamicResource GrayBrush5}" Style="{StaticResource FontAwesome}" Background="{Binding ElementName=SearchBox, Path=Background}" Click="ClickOnSearch" />
+              <Button Grid.Column="2" Width="22" Height="22" Margin="-3,2,2,2" BorderThickness="0" Content="&#xF00D;" FontSize="12" Style="{StaticResource FontAwesome}" Foreground="{DynamicResource GrayBrush5}" Background="{Binding ElementName=SearchBox, Path=Background}" Visibility="{Binding IsSearchResetVisible, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" Click="ClickOnSearchClear" />
             </Grid>
             <Grid Row="2" Margin="15,10,21,15">
               <Grid.ColumnDefinitions>

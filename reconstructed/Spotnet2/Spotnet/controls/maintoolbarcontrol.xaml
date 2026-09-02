@@ -97,8 +97,10 @@
           <MenuItem.Icon>
             <TextBlock Text="◐" FontSize="12" FontFamily="Segoe UI Symbol" VerticalAlignment="Center" HorizontalAlignment="Center" />
           </MenuItem.Icon>
-          <MenuItem Name="StyleClassicLight" Header="Classic Light" IsCheckable="True" Click="StyleClassicLight_Click" />
-          <MenuItem Name="StyleModernDark" Header="Modern Dark (beta)" IsCheckable="True" Click="StyleModernDark_Click" />
+          <MenuItem Name="StyleClassic" Header="Classic" IsCheckable="True" Click="StyleClassic_Click" />
+          <Separator />
+          <MenuItem Name="StyleModernLight" Header="Modern Light" IsCheckable="True" Click="StyleModernLight_Click" />
+          <MenuItem Name="StyleModernDark" Header="Modern Dark" IsCheckable="True" Click="StyleModernDark_Click" />
         </MenuItem>
         <MenuItem Name="MenuItem4" Header="{x:Static p:Words.MenuLanguage}" SubmenuOpened="Language_OnSubmenuOpened">
           <MenuItem.Icon>

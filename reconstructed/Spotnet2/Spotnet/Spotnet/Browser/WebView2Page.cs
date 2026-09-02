@@ -299,11 +299,27 @@ public partial class WebView2Page : System.Windows.Controls.UserControl, IPage, 
 		}
 	}
 
+	/// <summary>
+	/// Adopts the document title, but only for pages that browse the web.
+	/// </summary>
+	/// <remarks>
+	/// Spots, the release notes and the downloads page all carry a title the app itself
+	/// decided on. They are rendered from a generated local file with no &lt;title&gt;
+	/// element, so the engine falls back to reporting the file name - a GUID .htm - and
+	/// that overwrote the spot title in the tab header and the window caption a moment
+	/// after the spot opened.
+	/// </remarks>
 	private void OnDocumentTitleChanged(object sender, object e)
 	{
-		if (!CancellationTokenSource.IsCancellationRequested)
+		if (CancellationTokenSource.IsCancellationRequested || PageDefaultType != PageTypeEnum.WebPage)
 		{
-			Title = Browser.CoreWebView2?.DocumentTitle;
+			return;
+		}
+
+		string documentTitle = Browser.CoreWebView2?.DocumentTitle;
+		if (!documentTitle.IsNullOrWhiteSpace())
+		{
+			Title = documentTitle;
 		}
 	}
 

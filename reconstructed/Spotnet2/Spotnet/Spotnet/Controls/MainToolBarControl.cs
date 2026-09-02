@@ -475,22 +475,38 @@ public partial class MainToolBarControl : UserControl
 
     private void Style_OnSubmenuOpened(object sender, RoutedEventArgs e)
     {
-        bool isDark = ThemeHelper.IsModernDark;
-        StyleClassicLight.IsChecked = !isDark;
-        StyleModernDark.IsChecked = isDark;
+        ShowCheckedStyle(ThemeHelper.CurrentTheme);
     }
 
-    private void StyleClassicLight_Click(object sender, RoutedEventArgs e)
+    private void StyleClassic_Click(object sender, RoutedEventArgs e)
     {
-        ThemeHelper.ApplyTheme(ThemeHelper.ClassicLight);
-        StyleClassicLight.IsChecked = true;
-        StyleModernDark.IsChecked = false;
+        ApplyStyle(ThemeHelper.Classic);
+    }
+
+    private void StyleModernLight_Click(object sender, RoutedEventArgs e)
+    {
+        ApplyStyle(ThemeHelper.ModernLight);
     }
 
     private void StyleModernDark_Click(object sender, RoutedEventArgs e)
     {
-        ThemeHelper.ApplyTheme(ThemeHelper.ModernDark);
-        StyleClassicLight.IsChecked = false;
-        StyleModernDark.IsChecked = true;
+        ApplyStyle(ThemeHelper.ModernDark);
+    }
+
+    private void ApplyStyle(string theme)
+    {
+        ThemeHelper.ApplyTheme(theme);
+        ShowCheckedStyle(theme);
+    }
+
+    /// <summary>
+    /// Exactly one style is ticked. The items are checkable, so clicking one would
+    /// otherwise leave two ticks behind.
+    /// </summary>
+    private void ShowCheckedStyle(string theme)
+    {
+        StyleClassic.IsChecked = theme == ThemeHelper.Classic;
+        StyleModernLight.IsChecked = theme == ThemeHelper.ModernLight;
+        StyleModernDark.IsChecked = theme == ThemeHelper.ModernDark;
     }
 }

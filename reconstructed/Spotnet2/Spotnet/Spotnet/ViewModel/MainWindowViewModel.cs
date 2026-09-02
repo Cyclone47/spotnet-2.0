@@ -216,6 +216,9 @@ public class MainWindowViewModel : ViewModelBase
 		ThemeHelper.ThemeChanged += () =>
 		{
 			SetFiltersBackground(null);
+			// Classic draws the filter set's bitmaps, the Modern styles draw glyphs, so
+			// every node has to re-read its icon when the style changes.
+			FiltersDb?.FiltersRoot?.RefreshIcon();
 		};
 	}
 

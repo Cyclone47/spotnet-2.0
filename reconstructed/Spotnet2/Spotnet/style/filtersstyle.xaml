@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:Spotnet.Controls" xmlns:converters="http://metro.mahapps.com/winfx/xaml/shared">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:Spotnet.Controls" xmlns:converters="http://metro.mahapps.com/winfx/xaml/shared" xmlns:conv="clr-namespace:Spotnet.Converters">
   <Style x:Key="ExpandCollapseToggleStyle" TargetType="{x:Type ToggleButton}">
     <Setter Property="Focusable" Value="False" />
     <Setter Property="Width" Value="16" />
@@ -50,6 +50,8 @@
       </Setter.Value>
     </Setter>
   </Style>
+  <BooleanToVisibilityConverter x:Key="FilterGlyphVisibility" />
+  <conv:InverseBooleanToVisibilityConverter x:Key="FilterGlyphInverseVisibility" />
   <converters:TreeViewMarginConverter x:Key="LengthConverter" Length="12" />
   <Style x:Key="BaseTreeItemStyle" TargetType="{x:Type TreeViewItem}">
     <Setter Property="MinHeight" Value="20" />
@@ -90,16 +92,16 @@
               <Setter Value="{DynamicResource BlackColorBrush}" Property="Foreground" />
             </Trigger>
             <Trigger Property="TreeViewItem.IsSelected" Value="True">
-              <Setter TargetName="Border" Value="{DynamicResource AccentColorBrush3}" Property="Border.Background" />
-              <Setter Value="{DynamicResource BlackColorBrush}" Property="Foreground" />
+              <Setter TargetName="Border" Value="{DynamicResource TreeSelectedBackgroundBrush}" Property="Border.Background" />
+              <Setter Value="{DynamicResource TreeSelectedForegroundBrush}" Property="Foreground" />
             </Trigger>
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Property="TreeViewItem.IsSelected" Value="True" />
                 <Condition Property="Selector.IsSelectionActive" Value="False" />
               </MultiTrigger.Conditions>
-              <Setter TargetName="Border" Value="{DynamicResource AccentColorBrush4}" Property="Border.Background" />
-              <Setter Value="{DynamicResource BlackColorBrush}" Property="Foreground" />
+              <Setter TargetName="Border" Value="{DynamicResource TreeHoverBackgroundBrush}" Property="Border.Background" />
+              <Setter Value="{DynamicResource TreeHoverForegroundBrush}" Property="Foreground" />
             </MultiTrigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -113,7 +115,13 @@
         <ColumnDefinition Width="Auto" />
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
-      <Image Grid.Column="0" Focusable="False" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0" Source="{Binding Image, TargetNullValue={x:Null}}" Width="{Binding ImageSize}" Height="{Binding ImageSize}" />
+      <!-- Classic draws the filter set's own bitmap; the Modern styles draw a
+           FontAwesome glyph instead, so the tree matches the rest of the chrome
+           and follows the palette. HasGlyph decides which of the two is shown. -->
+      <Grid Grid.Column="0">
+        <Image Focusable="False" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0" Source="{Binding Image, TargetNullValue={x:Null}}" Width="{Binding ImageSize}" Height="{Binding ImageSize}" Visibility="{Binding HasGlyph, Converter={StaticResource FilterGlyphInverseVisibility}}" />
+        <TextBlock Focusable="False" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="18" TextAlignment="Center" Text="{Binding Glyph}" FontSize="{Binding GlyphSize}" Style="{DynamicResource FontAwesome}" Foreground="{DynamicResource AccentColorBrush}" Visibility="{Binding HasGlyph, Converter={StaticResource FilterGlyphVisibility}}" />
+      </Grid>
       <ContentPresenter Grid.Column="1" Margin="2,0" VerticalAlignment="Center" HorizontalAlignment="Left" Content="{Binding DisplayText}" />
       <Ellipse Grid.Column="2" Focusable="False" Fill="#00FFFFFF" Stroke="#FFD3D3D3" Width="10" Height="10" Margin="1,1,9,1" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{Binding GenreColorVisibility}" />
       <Ellipse Grid.Column="2" Focusable="False" Width="8" Height="8" Margin="1,1,10,1" VerticalAlignment="Center" HorizontalAlignment="Right" Fill="{Binding GenreColorBrush}" />

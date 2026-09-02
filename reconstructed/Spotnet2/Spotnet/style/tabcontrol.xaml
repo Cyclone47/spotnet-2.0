@@ -76,7 +76,10 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type controls:CloseableTabItem}">
           <Grid SnapsToDevicePixels="True">
-            <Border Name="Bd" Background="{TemplateBinding Control.Background}" BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="1,1,1,1">
+            <Border Name="Bd" Background="{TemplateBinding Control.Background}" BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="{DynamicResource TabBorderThickness}" CornerRadius="{DynamicResource TabCornerRadius}">
+              <!-- Underline is transparent and zero-thickness under Classic, so
+                   that style keeps the solid accent block it always had. -->
+              <Border Name="Underline" BorderBrush="Transparent" BorderThickness="{DynamicResource TabUnderlineThickness}">
               <DockPanel>
                 <Button Name="PART_Close" HorizontalAlignment="Center" Margin="3,0,3,0" VerticalAlignment="Center" Visibility="Hidden" Width="16" Height="16" DockPanel.Dock="Right" Style="{DynamicResource CloseableTabItemButtonStyle}" ToolTip="Close (Ctrl+W)">
                   <Path Name="Path" Stretch="Fill" StrokeThickness="0.5" Stroke="#FF333333" Fill="#FF969696" Data="F1 M2.28484E-07,1.33331 L1.33333,0 L4.00001,2.66669 L6.66667,6.10352E-05 L8,1.33331 L5.33334,4 L8,6.66669 L6.66667,8 L4,5.33331 L1.33333,8 L1.086E-07,6.66669 L2.66667,4 L2.28484E-07,1.33331" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
@@ -85,6 +88,7 @@
                   <ContentPresenter Name="Content" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" ContentSource="Header" RecognizesAccessKey="True" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Control.Padding}" />
                 </Grid>
               </DockPanel>
+              </Border>
             </Border>
           </Grid>
           <ControlTemplate.Triggers>
@@ -94,8 +98,9 @@
             <Trigger Property="TabItem.IsSelected" Value="True">
               <Setter Property="Panel.ZIndex" Value="1" />
               <Setter TargetName="Bd" Value="{DynamicResource BackgroundSelected}" Property="Border.Background" />
+              <Setter TargetName="Underline" Value="{DynamicResource TabUnderlineBrush}" Property="Border.BorderBrush" />
               <Setter TargetName="PART_Close" Property="Visibility" Value="Visible" />
-              <Setter Value="{DynamicResource IdealForegroundColorBrush}" Property="Foreground" />
+              <Setter Value="{DynamicResource TabSelectedForegroundBrush}" Property="Foreground" />
             </Trigger>
             <MultiTrigger>
               <MultiTrigger.Conditions>
@@ -127,17 +132,20 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type controls:UnCloseableTabItem}">
           <Grid SnapsToDevicePixels="True">
-            <Border Name="Bd" BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="1,1,1,1" Background="{TemplateBinding Control.Background}" Padding="{TemplateBinding Control.Padding}">
+            <Border Name="Bd" BorderBrush="{TemplateBinding Control.BorderBrush}" BorderThickness="{DynamicResource TabBorderThickness}" CornerRadius="{DynamicResource TabCornerRadius}" Background="{TemplateBinding Control.Background}" Padding="{TemplateBinding Control.Padding}">
+              <Border Name="Underline" BorderBrush="Transparent" BorderThickness="{DynamicResource TabUnderlineThickness}">
               <DockPanel Name="ContentPanel">
                 <ContentPresenter Name="Content" ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
               </DockPanel>
+              </Border>
             </Border>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="TabItem.IsSelected" Value="True">
               <Setter Property="Panel.ZIndex" Value="1" />
               <Setter TargetName="Bd" Value="{DynamicResource BackgroundSelected}" Property="Border.Background" />
-              <Setter Value="{DynamicResource IdealForegroundColorBrush}" Property="Foreground" />
+              <Setter TargetName="Underline" Value="{DynamicResource TabUnderlineBrush}" Property="Border.BorderBrush" />
+              <Setter Value="{DynamicResource TabSelectedForegroundBrush}" Property="Foreground" />
             </Trigger>
             <MultiTrigger>
               <MultiTrigger.Conditions>

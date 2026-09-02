@@ -121,6 +121,9 @@ public class FilterViewModel : ViewModelBase
 			{
 				_isExpanded = value;
 				RaisePropertyChanged("IsExpanded");
+				// A group with no icon of its own shows the folder pair, so folding it
+				// changes the glyph.
+				RaisePropertyChanged(nameof(Glyph));
 			}
 			if (_isExpanded && Parent != null)
 			{
@@ -138,6 +141,59 @@ public class FilterViewModel : ViewModelBase
 				return Visibility.Hidden;
 			}
 			return Visibility.Visible;
+		}
+	}
+
+	/// <summary>
+	/// The FontAwesome glyph for this filter under the Modern styles, or null when the
+	/// bitmap in <see cref="Image" /> should be drawn instead.
+	/// </summary>
+	/// <remarks>
+	/// A group whose own icon is not one the glyph table knows still gets an icon: the
+	/// folder pair, which follows whether the group is folded or unfolded.
+	/// </remarks>
+	public string Glyph
+	{
+		get
+		{
+			if (!ThemeHelper.UsesGlyphIcons)
+			{
+				return null;
+			}
+
+			string glyph = FilterIconGlyphs.ForIcon(
+				(IsSelected && !ImageSelected.IsNullOrEmpty()) ? ImageSelected : ImageNormal);
+			if (glyph != null)
+			{
+				return glyph;
+			}
+
+			return (Children != null && Children.Count > 0)
+				? (IsExpanded ? FilterIconGlyphs.FolderOpen : FilterIconGlyphs.FolderClosed)
+				: null;
+		}
+	}
+
+	public bool HasGlyph => Glyph != null;
+
+	/// <summary>Font size for <see cref="Glyph" />, matched to <see cref="ImageSize" />.</summary>
+	public double GlyphSize => (NestingLevel < 2) ? 15.0 : 12.0;
+
+	/// <summary>
+	/// Re-reads everything that depends on the active style. Called for every filter when
+	/// the style changes, so the tree swaps between bitmaps and glyphs in place.
+	/// </summary>
+	public void RefreshIcon()
+	{
+		RaisePropertyChanged(nameof(Glyph));
+		RaisePropertyChanged(nameof(HasGlyph));
+		RaisePropertyChanged(nameof(GlyphSize));
+		RaisePropertyChanged(nameof(Image));
+		RaisePropertyChanged(nameof(ImageSize));
+
+		foreach (FilterViewModel child in Children ?? Enumerable.Empty<FilterViewModel>())
+		{
+			child.RefreshIcon();
 		}
 	}
 
@@ -243,6 +299,7 @@ public class FilterViewModel : ViewModelBase
 				if (!ImageSelected.IsNullOrEmpty())
 				{
 					RaisePropertyChanged("Image");
+					RaisePropertyChanged(nameof(Glyph));
 				}
 			}
 		}
