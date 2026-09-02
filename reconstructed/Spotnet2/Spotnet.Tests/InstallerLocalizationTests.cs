@@ -49,6 +49,43 @@ public sealed class InstallerLocalizationTests
         Assert.Contains("CreateOutputProgressPage(CM('ProgressTitle'), CM('ProgressDescription'))", source);
         Assert.Contains("ProgressPage.Show", source);
         Assert.Contains("ProgressPage.SetText(CM('StatusProfile'), CM('ProgressDetail'))", source);
-        Assert.Matches(@"(?s)try.*finally\s+if ShowProgress then ProgressPage\.Hide", source);
+        // The page is hidden and the marquee stopped on every exit path, successful or not.
+        Assert.Matches(@"(?s)try.*finally\s+if ShowProgress then begin\s+SetBusy\(False\);\s+ProgressPage\.Hide;", source);
+    }
+
+    [Fact]
+    public void PrerequisiteStepsShowMovementTheyCannotMeasure()
+    {
+        string source = InstallerScript();
+        // Microsoft's installers report nothing back, so a step bar would stand still for
+        // minutes and read as a hang. The bar marquees and the unpack step says so.
+        Assert.Contains("ProgressPage.ProgressBar.Style := npbstMarquee", source);
+        Assert.Contains("CM('StatusDotNetPrepare')", source);
+        // An attended run shows Microsoft's own progress window; an unattended one stays silent.
+        Assert.Contains("'/install /passive /norestart'", source);
+        Assert.Contains("'/install /quiet /norestart'", source);
+    }
+
+    [Fact]
+    public void SetupRefusesAProfileCopyTheDriveCannotHold()
+    {
+        string source = InstallerScript();
+        Assert.Contains("measure --profile", source);
+        Assert.Contains("CM('SpaceShort')", source);
+        // Measured on the Ready page, and refused there rather than halfway through the copy.
+        Assert.Matches(@"(?s)CurPageID = wpReady.*SpaceMeasured and not SpaceFits.*Result := False", source);
+    }
+
+    [Fact]
+    public void ShortcutTasksAreOfferedAndReachTheHelper()
+    {
+        string source = InstallerScript();
+        foreach (string task in new[] { "programsicon", "desktopicon" })
+        {
+            Assert.Contains("Name: \"" + task + "\"", source);
+            Assert.Contains("WizardIsTaskSelected('" + task + "')", source);
+        }
+        Assert.Contains("' --create '", source);
+        Assert.Contains("ShortcutParameters + ShortcutCreation", source);
     }
 }

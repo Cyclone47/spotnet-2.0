@@ -65,10 +65,24 @@ english.LaunchSpotnet=Launch Spotnet 3.0
 dutch.LaunchSpotnet=Spotnet 3.0 starten
 english.DotNetRequired=.NET Framework 4.7.2 or later is required. Install it from Microsoft, restart Windows if requested, then run Setup again. No Spotnet files have been changed.
 english.DotNetRuntimeFailed=Installing the .NET 8 Desktop Runtime did not complete. Install it from Microsoft and run Setup again. No Spotnet data has been migrated.
-english.StatusDotNet=Installing the .NET 8 Desktop Runtime (internet access required)...
+english.StatusDotNet=Installing the .NET 8 Desktop Runtime. Microsoft's own installer shows its progress; this usually takes a few minutes...
+english.StatusDotNetPrepare=Unpacking the .NET 8 Desktop Runtime installer that ships with Setup (56 MB)...
 dutch.DotNetRequired=.NET Framework 4.7.2 of nieuwer is vereist. Installeer dit via Microsoft, start Windows opnieuw op indien gevraagd en voer Setup daarna opnieuw uit. Er zijn geen Spotnet-bestanden gewijzigd.
 dutch.DotNetRuntimeFailed=De installatie van de .NET 8 Desktop Runtime is niet voltooid. Installeer deze via Microsoft en voer Setup opnieuw uit. Er zijn geen Spotnet-gegevens gemigreerd.
-dutch.StatusDotNet=.NET 8 Desktop Runtime installeren (internettoegang vereist)...
+dutch.StatusDotNet=.NET 8 Desktop Runtime installeren. Microsofts eigen installatieprogramma toont de voortgang; dit duurt meestal enkele minuten...
+dutch.StatusDotNetPrepare=Het meegeleverde installatieprogramma voor de .NET 8 Desktop Runtime uitpakken (56 MB)...
+english.ShortcutGroup=Shortcuts:
+dutch.ShortcutGroup=Snelkoppelingen:
+english.ProgramsIcon=Add shortcut to Start Menu
+dutch.ProgramsIcon=Snelkoppeling toevoegen aan het Startmenu
+english.DesktopIcon=Add shortcut to Desktop
+dutch.DesktopIcon=Snelkoppeling toevoegen aan het bureaublad
+english.SpaceMemo=Profile copy: %1 of data; %2 free on %3.
+dutch.SpaceMemo=Profielkopie: %1 aan gegevens; %2 vrij op %3.
+english.SpaceMemoUpgrade=Pre-upgrade backup: %1 of data; %2 free on %3.
+dutch.SpaceMemoUpgrade=Back-up vóór upgrade: %1 aan gegevens; %2 vrij op %3.
+english.SpaceShort=Not enough free disk space. The profile copy and its safety margin need %1 on %2, and only %3 is free. Free up space or choose a smaller source, then try again. Nothing has been changed.
+dutch.SpaceShort=Onvoldoende vrije schijfruimte. De profielkopie en de veiligheidsmarge vragen %1 op %2, en er is slechts %3 vrij. Maak ruimte vrij of kies een kleinere bron en probeer het opnieuw. Er is niets gewijzigd.
 english.DetectionFailed=Legacy profile detection failed. Setup cannot safely continue.
 dutch.DetectionFailed=Het zoeken naar oudere profielen is mislukt. Setup kan niet veilig doorgaan.
 english.NoOldInstall=No registered older installation found. Data folders are checked separately.
@@ -143,10 +157,10 @@ english.Welcome2=Setup detects older Spotnet installations and offers a verified
 dutch.Welcome2=Setup zoekt oudere Spotnet-installaties en biedt een gecontroleerde, niet-destructieve kopie van het profiel aan. Van bestaande 3.0-profielen wordt vóór een upgrade een back-up gemaakt.
 english.Welcome3=Setup will ask Spotnet to exit safely and wait for it to close. Large databases require extra disk space and copying time.
 dutch.Welcome3=Setup vraagt Spotnet veilig af te sluiten en wacht tot het programma is gestopt. Grote databases vereisen extra schijfruimte en kopieertijd.
-english.Welcome4=Your existing Spotnet Desktop and Start Menu shortcuts will be updated to 3.0. Missing launch shortcuts are created.
-dutch.Welcome4=Bestaande Spotnet-snelkoppelingen op het bureaublad en in het Startmenu worden bijgewerkt naar 3.0. Ontbrekende snelkoppelingen worden aangemaakt.
-english.Welcome5=The .NET 8 Desktop Runtime and Microsoft Edge WebView2 are installed if missing (internet access required). Personal data is retained on uninstall.
-dutch.Welcome5=De .NET 8 Desktop Runtime en Microsoft Edge WebView2 worden geïnstalleerd als ze ontbreken (internettoegang vereist). Persoonlijke gegevens blijven behouden bij verwijderen.
+english.Welcome4=Your existing Spotnet Desktop and Start Menu shortcuts will be updated to 3.0. You choose whether Setup adds a new one.
+dutch.Welcome4=Bestaande Spotnet-snelkoppelingen op het bureaublad en in het Startmenu worden bijgewerkt naar 3.0. U kiest zelf of Setup er een nieuwe toevoegt.
+english.Welcome5=The .NET 8 Desktop Runtime ships with Setup and is installed if missing; Microsoft Edge WebView2 is fetched from Microsoft if missing (internet access required). Personal data is retained on uninstall.
+dutch.Welcome5=De .NET 8 Desktop Runtime zit in Setup en wordt geïnstalleerd als deze ontbreekt; Microsoft Edge WebView2 wordt bij Microsoft opgehaald als het ontbreekt (internettoegang vereist). Persoonlijke gegevens blijven behouden bij verwijderen.
 english.SeparateFolder=Choose a separate installation folder. Setup will not overwrite a legacy or portable Spotnet installation.
 dutch.SeparateFolder=Kies een afzonderlijke installatiemap. Setup overschrijft geen oudere of draagbare Spotnet-installatie.
 english.NoDowngrade=A newer Spotnet version is installed here. Downgrades are not supported.
@@ -163,10 +177,10 @@ english.EmptySource=Empty source means fresh/default settings. Legacy files rema
 dutch.EmptySource=Een lege bron betekent een nieuw profiel met standaardinstellingen. Oudere bestanden blijven ongewijzigd.
 english.QueueNotice=Active download queues are not imported. Existing downloads remain at their original paths.
 dutch.QueueNotice=Actieve downloadwachtrijen worden niet geïmporteerd. Bestaande downloads blijven op hun oorspronkelijke locatie.
-english.ShortcutNotice=Update your Spotnet Desktop and Start Menu shortcuts in place; create them if missing. Originals are backed up.
-dutch.ShortcutNotice=Bestaande Spotnet-snelkoppelingen op het bureaublad en in het Startmenu worden bijgewerkt; ontbrekende worden aangemaakt. Van originelen wordt een back-up gemaakt.
-english.WebViewNotice=If the .NET 8 Desktop Runtime or WebView2 is missing, Microsoft's own installer will add it.
-dutch.WebViewNotice=Als de .NET 8 Desktop Runtime of WebView2 ontbreekt, installeert Microsofts eigen installatieprogramma die alsnog.
+english.ShortcutNotice=Update your existing Spotnet shortcuts in place, and add the ones selected above. Originals are backed up.
+dutch.ShortcutNotice=Bestaande Spotnet-snelkoppelingen worden bijgewerkt en de hierboven gekozen snelkoppelingen worden toegevoegd. Van originelen wordt een back-up gemaakt.
+english.WebViewNotice=The .NET 8 Desktop Runtime ships with Setup; WebView2 is downloaded from Microsoft if it is missing.
+dutch.WebViewNotice=De .NET 8 Desktop Runtime zit in Setup; WebView2 wordt bij Microsoft gedownload als het ontbreekt.
 english.UninstallNotice=Uninstall removes application files, not your profile or backups.
 dutch.UninstallNotice=Verwijderen wist programmabestanden, maar niet uw profiel of back-ups.
 english.StatusClosing=Asking Spotnet to exit safely; waiting for database writes to finish...
@@ -219,6 +233,14 @@ Source: "{#DotNetBootstrapper}"; DestName: "windowsdesktop-runtime.exe"; Flags: 
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "Spotnet.install"; DestDir: "{app}"; Flags: ignoreversion
 
+[Tasks]
+; Both are checked by default: Setup used to add these launchers unconditionally, and an
+; upgrade must not quietly take away the icon the user already launches Spotnet from.
+; Unchecking one only declines a NEW shortcut - existing Spotnet launchers are still
+; re-pointed at 3.0, wherever the user keeps them.
+Name: "programsicon"; Description: "{cm:ProgramsIcon}"; GroupDescription: "{cm:ShortcutGroup}"
+Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:ShortcutGroup}"
+
 [Run]
 #ifndef SmokeTestRoot
 Filename: "{app}\Spotnet.exe"; Description: "{cm:LaunchSpotnet}"; Flags: nowait postinstall skipifsilent unchecked; Check: ShortcutsSucceeded
@@ -240,12 +262,25 @@ var
   ExistingProfile: Boolean;
   Prepared: Boolean;
   ShortcutFailure: Boolean;
-  Helper, DetectionFile, ReportFile, Summary: String;
+  Helper, DetectionFile, ReportFile, SpaceFile, Summary: String;
   CurrentTheme, CurrentLanguage: String;
+  { The pre-flight disk-space measurement of the selected profile, in megabytes. }
+  SpaceMeasured, SpaceFits: Boolean;
+  SpaceBytesMB, SpaceRequiredMB, SpaceFreeMB: Integer;
+  SpaceDrive, SpaceKind: String;
 
 function CM(const Key: String): String;
 begin
   Result := ExpandConstant('{cm:' + Key + '}');
+end;
+
+{ Microsoft's prerequisite installers report no progress back to Setup, so a step
+  bar would stand still for minutes and read as a hang. A marquee says "working"
+  without inventing a percentage. }
+procedure SetBusy(Busy: Boolean);
+begin
+  if Busy then ProgressPage.ProgressBar.Style := npbstMarquee
+  else ProgressPage.ProgressBar.Style := npbstNormal;
 end;
 
 function IsDutch: Boolean;
@@ -394,7 +429,10 @@ begin
   Helper := ExpandConstant('{tmp}\Spotnet.SetupHelper.exe');
   DetectionFile := ExpandConstant('{tmp}\spotnet-detection.ini');
   ReportFile := ExpandConstant('{tmp}\spotnet-migration.txt');
-  if not Exec(Helper, 'detect --output ' + Quote(DetectionFile), '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
+  SpaceFile := ExpandConstant('{tmp}\spotnet-space.ini');
+  { Name the profile this run targets. Without it detection reads whatever profile sits
+    in the user's own AppData, which is the wrong one under a smoke-test root. }
+  if not Exec(Helper, 'detect --profile ' + Quote(ProfileRoot) + ' --output ' + Quote(DetectionFile), '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
     RaiseException(CM('DetectionFailed'));
   ExistingProfile := FileExists(ProfileRoot + '\Data\profile.ready');
   Count := GetIniInt('Detection', 'InstallCount', 0, 0, 1000, DetectionFile);
@@ -496,6 +534,48 @@ begin
   else if SettingsPage.SelectedValueIndex > 0 then Result := SettingsSources[SettingsPage.SelectedValueIndex - 1];
 end;
 
+{ Megabytes as a person reads them; Dutch gets its own decimal comma. }
+function FormatMB(Megabytes: Integer): String;
+var
+  Whole, Tenths: Integer;
+  Separator: String;
+begin
+  if Megabytes < 1024 then begin
+    Result := IntToStr(Megabytes) + ' MB';
+    exit;
+  end;
+  Whole := Megabytes div 1024;
+  Tenths := ((Megabytes mod 1024) * 10) div 1024;
+  if IsDutch then Separator := ',' else Separator := '.';
+  Result := IntToStr(Whole) + Separator + IntToStr(Tenths) + ' GB';
+end;
+
+{ What the profile copy will cost, measured before anything is installed or copied.
+  The helper opens no file handles for this, so it is safe while Spotnet still holds
+  its database. Migration keeps its own check as the backstop; this one exists so a
+  3 GB profile onto a full drive is refused on the Ready page instead of halfway
+  through the copy. A measurement that fails leaves Setup free to continue. }
+procedure MeasureSpace;
+var
+  ExitCode: Integer;
+  Parameters: String;
+begin
+  SpaceMeasured := False;
+  DeleteFile(SpaceFile);
+  Parameters := 'measure --profile ' + Quote(ProfileRoot) + ' --output ' + Quote(SpaceFile);
+  if SelectedData <> '' then Parameters := Parameters + ' --source-data ' + Quote(SelectedData);
+  if SelectedSettings <> '' then Parameters := Parameters + ' --source-settings ' + Quote(SelectedSettings);
+  if not Exec(Helper, Parameters, '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then exit;
+  if GetIniInt('Space', 'Measured', 0, 0, 1, SpaceFile) <> 1 then exit;
+  SpaceKind := GetIniString('Space', 'Kind', '', SpaceFile);
+  SpaceBytesMB := GetIniInt('Space', 'BytesMB', 0, 0, 2000000000, SpaceFile);
+  SpaceRequiredMB := GetIniInt('Space', 'RequiredMB', 0, 0, 2000000000, SpaceFile);
+  SpaceFreeMB := GetIniInt('Space', 'FreeMB', 0, 0, 2000000000, SpaceFile);
+  SpaceDrive := GetIniString('Space', 'Drive', '', SpaceFile);
+  SpaceFits := GetIniInt('Space', 'Fits', 1, 0, 1, SpaceFile) = 1;
+  SpaceMeasured := True;
+end;
+
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
   Version: String;
@@ -527,6 +607,16 @@ begin
       SettingsPage.SelectedValueIndex := 0;
     end;
   end;
+  { Refuse a copy the drive cannot hold while nothing has been touched yet. }
+  if (CurPageID = wpReady) and Result then begin
+    if not SpaceMeasured then MeasureSpace;
+    if SpaceMeasured and not SpaceFits then begin
+      Log('The destination drive cannot hold the profile copy; installation was not started.');
+      SuppressibleMsgBox(FmtMessage(CM('SpaceShort'), [FormatMB(SpaceRequiredMB), SpaceDrive, FormatMB(SpaceFreeMB)]),
+        mbCriticalError, MB_OK, IDOK);
+      Result := False;
+    end;
+  end;
 end;
 
 function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;
@@ -535,6 +625,15 @@ begin
   if ExistingProfile then Result := Result + CM('KeepProfile') + NewLine
   else Result := Result + CM('DataSource') + ' ' + SelectedData + NewLine + CM('Preferences') + ' ' + SelectedSettings + NewLine +
     CM('EmptySource') + NewLine;
+  { Measured here, where the source and destination are both final, so the memo can
+    state the real cost of the copy before the user commits to it. }
+  MeasureSpace;
+  if SpaceMeasured and (SpaceBytesMB > 0) then begin
+    if SpaceKind = 'upgrade' then
+      Result := Result + FmtMessage(CM('SpaceMemoUpgrade'), [FormatMB(SpaceBytesMB), FormatMB(SpaceFreeMB), SpaceDrive]) + NewLine
+    else
+      Result := Result + FmtMessage(CM('SpaceMemo'), [FormatMB(SpaceBytesMB), FormatMB(SpaceFreeMB), SpaceDrive]) + NewLine;
+  end;
   Result := Result + NewLine + CM('QueueNotice') + NewLine + CM('ShortcutNotice') + NewLine +
     CM('WebViewNotice') + NewLine + CM('UninstallNotice') + NewLine + MemoTasksInfo;
 end;
@@ -542,12 +641,22 @@ end;
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   ExitCode: Integer;
-  Parameters: String;
+  Parameters, RuntimeArguments: String;
+  RuntimeWindow: Integer;
   ShowProgress: Boolean;
 begin
   Result := '';
   if Prepared then exit;
   ShowProgress := not WizardSilent;
+  { An attended run lets Microsoft's runtime installer show its own progress window;
+    an unattended one keeps it silent. }
+  if ShowProgress then begin
+    RuntimeArguments := '/install /passive /norestart';
+    RuntimeWindow := SW_SHOWNORMAL;
+  end else begin
+    RuntimeArguments := '/install /quiet /norestart';
+    RuntimeWindow := SW_HIDE;
+  end;
   if ShowProgress then begin
     ProgressPage.SetText(CM('StatusClosing'), CM('ProgressDetail'));
     ProgressPage.SetProgress(0, 4);
@@ -570,16 +679,24 @@ begin
     Result := 'Smoke tests require an already installed .NET Desktop Runtime; they never install prerequisites.';
     exit;
 #else
+    { Unpacking the bundled 56 MB installer is itself a slow step on a slow disk,
+      so it gets its own line before the install starts. }
+    if ShowProgress then begin
+      SetBusy(True);
+      ProgressPage.SetText(CM('StatusDotNetPrepare'), CM('ProgressDetail'));
+    end;
     ExtractTemporaryFile('windowsdesktop-runtime.exe');
-    if not Exec(ExpandConstant('{tmp}\windowsdesktop-runtime.exe'), '/install /quiet /norestart', '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or
+    if ShowProgress then ProgressPage.SetText(CM('StatusDotNet'), CM('ProgressDetail'));
+    if not Exec(ExpandConstant('{tmp}\windowsdesktop-runtime.exe'), RuntimeArguments, '', RuntimeWindow, ewWaitUntilTerminated, ExitCode) or
        ((ExitCode <> 0) and (ExitCode <> 3010)) or not DotNetDesktopInstalled then begin
       Result := CM('DotNetRuntimeFailed');
       exit;
     end;
+    if ShowProgress then SetBusy(False);
 #endif
   end;
   if ShowProgress then begin
-    ProgressPage.SetProgress(1, 4);
+    ProgressPage.SetProgress(2, 4);
     ProgressPage.SetText(CM('StatusWebView'), CM('ProgressDetail'));
   end;
   if not WebViewInstalled then begin
@@ -587,16 +704,19 @@ begin
     Result := 'Smoke tests require an already installed WebView2 Runtime; they never install prerequisites.';
     exit;
 #else
+    if ShowProgress then SetBusy(True);
     ExtractTemporaryFile('MicrosoftEdgeWebview2Setup.exe');
     if not Exec(ExpandConstant('{tmp}\MicrosoftEdgeWebview2Setup.exe'), '/silent /install', '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or
        (ExitCode <> 0) or not WebViewInstalled then begin
       Result := CM('WebViewFailed');
       exit;
     end;
+    if ShowProgress then SetBusy(False);
 #endif
   end;
   if ShowProgress then begin
-    ProgressPage.SetProgress(2, 4);
+    SetBusy(False);
+    ProgressPage.SetProgress(3, 4);
     ProgressPage.SetText(CM('StatusProfile'), CM('ProgressDetail'));
   end;
   Parameters := 'prepare --profile ' + Quote(ProfileRoot) + ' --report ' + Quote(ReportFile);
@@ -621,7 +741,10 @@ begin
   end;
   Prepared := True;
   finally
-    if ShowProgress then ProgressPage.Hide;
+    if ShowProgress then begin
+      SetBusy(False);
+      ProgressPage.Hide;
+    end;
   end;
 end;
 
@@ -641,6 +764,21 @@ end;
 function ShortcutParameters: String;
 begin
   Result := ' --profile ' + Quote(ProfileRoot) + ' --desktop ' + Quote(DesktopRoot) + ' --programs ' + Quote(ProgramsRoot);
+end;
+
+{ The shortcuts the user asked Setup to add on the tasks page. }
+function ShortcutCreation: String;
+var
+  Wanted: String;
+begin
+  Wanted := '';
+  if WizardIsTaskSelected('programsicon') then Wanted := 'programs';
+  if WizardIsTaskSelected('desktopicon') then begin
+    if Wanted <> '' then Wanted := Wanted + ',';
+    Wanted := Wanted + 'desktop';
+  end;
+  if Wanted = '' then Wanted := 'none';
+  Result := ' --create ' + Wanted;
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
@@ -703,7 +841,7 @@ begin
     WizardForm.StatusLabel.Caption := CM('StatusShortcuts');
     DeleteFile(ReportFile);
     ShortcutFailure := not Exec(ExpandConstant('{app}\Spotnet.SetupHelper.exe'),
-      'shortcuts' + ShortcutParameters + ' --executable ' + Quote(ExpandConstant('{app}\Spotnet.exe')) + ' --report ' + Quote(ReportFile),
+      'shortcuts' + ShortcutParameters + ShortcutCreation + ' --executable ' + Quote(ExpandConstant('{app}\Spotnet.exe')) + ' --report ' + Quote(ReportFile),
       '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
     if ExitCode <> 0 then ShortcutFailure := True;
     if not ReadReport(ShortcutReport) then ShortcutReport := CM('ShortcutReportMissing');

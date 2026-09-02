@@ -30,6 +30,45 @@ public sealed class InstallerMigrationTests : IDisposable
     }
 
     [Fact]
+    public void MeasureCountsExactlyWhatTheCopyWillWrite()
+    {
+        Seed();
+        File.WriteAllBytes(Path.Combine(Source, "spots.dbs"), new byte[3 * 1024 * 1024]);
+        File.WriteAllBytes(Path.Combine(Source, "spots.dbs-wal"), new byte[1024 * 1024]);
+        // Neither of these is migrated, so neither may count towards the space needed.
+        File.WriteAllBytes(Path.Combine(Source, "thumbnail.cache-blob"), new byte[8 * 1024 * 1024]);
+        Directory.CreateDirectory(Path.Combine(Source, "Logs"));
+        File.WriteAllBytes(Path.Combine(Source, "Logs", "spotnet.txt"), new byte[8 * 1024 * 1024]);
+
+        var estimate = ProfileMigration.Measure(Target, Source, null);
+        Assert.True(estimate.Measured);
+        Assert.Equal("import", estimate.Kind);
+        Assert.Equal(4, estimate.Files); // servers.xml, keys.xml, the database and its WAL
+        Assert.InRange(estimate.Bytes, 4L * 1024 * 1024, 4L * 1024 * 1024 + 4096);
+        Assert.Equal(estimate.Bytes + ProfileMigration.SafetyMargin, estimate.Required);
+        Assert.False(string.IsNullOrEmpty(estimate.Drive));
+    }
+
+    [Fact]
+    public void MeasureSizesThePreUpgradeBackupOfAnExistingProfile()
+    {
+        new ProfileMigration().Prepare(Target, null, null);
+        File.WriteAllBytes(Path.Combine(Target, "Data", "spots.dbs"), new byte[2 * 1024 * 1024]);
+        var estimate = ProfileMigration.Measure(Target, null, null);
+        Assert.Equal("upgrade", estimate.Kind);
+        Assert.True(estimate.Bytes >= 2L * 1024 * 1024, "The whole profile is backed up, so all of it is measured.");
+    }
+
+    [Fact]
+    public void MeasureOfAFreshInstallAsksOnlyForTheSafetyMargin()
+    {
+        var estimate = ProfileMigration.Measure(Target, null, null);
+        Assert.Equal("fresh", estimate.Kind);
+        Assert.Equal(0, estimate.Files);
+        Assert.Equal(ProfileMigration.SafetyMargin, estimate.Required);
+    }
+
+    [Fact]
     public void FreshInstallCreatesAnIsolatedMarkedProfile()
     {
         new ProfileMigration().Prepare(Target, null, null);

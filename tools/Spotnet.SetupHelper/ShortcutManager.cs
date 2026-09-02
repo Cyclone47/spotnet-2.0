@@ -172,7 +172,12 @@ public sealed class ShortcutManager
         else File.Move(temporary, path);
     }
 
-    public string Install(string executable)
+    /// <summary>
+    /// Re-points every Spotnet launcher the user already has, and adds a missing one only
+    /// where Setup was asked to. Declining a shortcut never touches an existing link: an
+    /// upgrade must not leave a Desktop icon pointing at the old installation.
+    /// </summary>
+    public string Install(string executable, bool addDesktop = true, bool addPrograms = true)
     {
         executable = Path.GetFullPath(executable);
         if (!File.Exists(executable) || !Path.GetFileName(executable).Equals("Spotnet.exe", StringComparison.OrdinalIgnoreCase))
@@ -181,10 +186,11 @@ public sealed class ShortcutManager
         using (var guard = new FileStream(Path.Combine(_state, "shortcuts.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
         {
             var manifest = LoadManifest();
-            int replaced = 0, created = 0;
+            int replaced = 0, created = 0, declined = 0;
             var warnings = new List<string>();
-            foreach (string root in new[] { _desktop, _programs })
+            foreach (var location in new[] { Tuple.Create(_desktop, addDesktop), Tuple.Create(_programs, addPrograms) })
             {
+                string root = location.Item1;
                 bool found = false;
                 foreach (string path in FindLinks(root, 6))
                 {
@@ -200,6 +206,7 @@ public sealed class ShortcutManager
                     { warnings.Add("Could not inspect/update shortcut: " + path); }
                 }
                 if (found) continue; // Keep names/locations and do not add a duplicate launcher.
+                if (!location.Item2) { declined++; continue; }
                 string target = Path.Combine(root, "Spotnet.lnk");
                 if (File.Exists(target)) target = Path.Combine(root, "Spotnet 3.0.lnk");
                 if (File.Exists(target)) target = Path.Combine(root, "Spotnet 3.0 (64-bit).lnk");
@@ -208,6 +215,7 @@ public sealed class ShortcutManager
                 created++;
             }
             string summary = "Spotnet shortcuts updated: " + replaced + "; created: " + created + ".";
+            if (declined != 0) summary += " Shortcuts you did not ask for were not added: " + declined + ".";
             if (warnings.Count != 0) throw new IOException(summary + "\r\n" + string.Join("\r\n", warnings));
             return summary;
         }

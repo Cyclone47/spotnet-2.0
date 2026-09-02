@@ -62,6 +62,27 @@ public sealed class ShortcutMigrationTests : IDisposable
     }
 
     [Fact]
+    public void DeclinedShortcutsAreNotAddedButExistingLaunchersStillMove()
+    {
+        Directory.CreateDirectory(Programs);
+        string legacy = Path.Combine(Programs, "My old Spotnet.lnk");
+        SeedLink(legacy, Path.Combine(_root, "Legacy", "Spotnet.exe"));
+        Manager.Install(Exe, addDesktop: false, addPrograms: false);
+        // Nothing new anywhere, but the launcher that exists now opens 3.0.
+        Assert.False(Directory.Exists(Desktop) && Directory.GetFiles(Desktop, "*.lnk").Length != 0);
+        Assert.Equal(legacy, Assert.Single(Directory.GetFiles(Programs, "*.lnk")));
+        Assert.Equal(Exe, ShortcutManager.Read(legacy).Target, ignoreCase: true);
+    }
+
+    [Fact]
+    public void OnlyTheRequestedShortcutIsAdded()
+    {
+        Manager.Install(Exe, addDesktop: true, addPrograms: false);
+        Assert.Equal("Spotnet.lnk", Path.GetFileName(Assert.Single(Directory.GetFiles(Desktop, "*.lnk"))));
+        Assert.False(Directory.Exists(Programs) && Directory.GetFiles(Programs, "*.lnk").Length != 0);
+    }
+
+    [Fact]
     public void FreshInstallCreatesBothLinksAndUninstallRemovesThem()
     {
         Manager.Install(Exe);

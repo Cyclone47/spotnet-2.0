@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Spotnet.Deployment;
 
@@ -33,7 +34,16 @@ internal static class Program
             else if (args[0] == "shortcuts" || args[0] == "restore-shortcuts")
             {
                 var manager = new ShortcutManager(options["--desktop"], options["--programs"], options["--profile"]);
-                string result = args[0] == "shortcuts" ? manager.Install(options["--executable"]) : manager.Restore();
+                // Which missing shortcuts Setup was asked to add. Absent means both, so an
+                // older command line keeps the behaviour it had.
+                options.TryGetValue("--create", out string create);
+                var wanted = (create ?? "desktop,programs").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(entry => entry.Trim()).ToList();
+                foreach (string entry in wanted)
+                    if (entry != "desktop" && entry != "programs" && entry != "none") throw new ArgumentException("Unsupported shortcut location.");
+                string result = args[0] == "shortcuts"
+                    ? manager.Install(options["--executable"], wanted.Contains("desktop"), wanted.Contains("programs"))
+                    : manager.Restore();
                 if (report != null) File.WriteAllText(report, result, Encoding.Unicode);
                 Console.WriteLine(result);
             }
@@ -41,6 +51,24 @@ internal static class Program
             {
                 GracefulShutdown.CloseSpotnet();
                 if (report != null) File.WriteAllText(report, "Spotnet is closed.", Encoding.Unicode);
+            }
+            else if (args[0] == "measure")
+            {
+                // Advisory only: Setup shows the numbers and refuses an impossible copy up
+                // front, but a measurement that fails must never block an install the real
+                // migration would have completed. It keeps its own space check regardless.
+                var estimate = new SpaceEstimate();
+                try
+                {
+                    options.TryGetValue("--source-data", out string measureSource);
+                    options.TryGetValue("--source-settings", out string measureSettings);
+                    estimate = ProfileMigration.Measure(options["--profile"], measureSource, measureSettings);
+                }
+                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException)
+                {
+                    estimate = new SpaceEstimate();
+                }
+                estimate.SaveIni(options["--output"]);
             }
             else if (args[0] == "prepare")
             {

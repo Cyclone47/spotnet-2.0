@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -10,9 +11,46 @@ using Spotnet.Deployment;
 
 namespace Spotnet.Setup;
 
+/// <summary>
+/// What a profile copy will cost and what the destination drive has. Setup shows this
+/// on its Ready page, so a 3 GB database is not discovered halfway through a copy.
+/// </summary>
+public sealed class SpaceEstimate
+{
+    public bool Measured;
+    public string Kind = "fresh";
+    public int Files;
+    public long Bytes;
+    public long Required;
+    public long Free;
+    public string Drive = "";
+    public bool Fits => !Measured || Free >= Required;
+
+    public void SaveIni(string path)
+    {
+        // Megabytes, rounded up: Setup reads these with 32-bit integer INI helpers, and
+        // a whole megabyte is precise enough for a disk-space warning.
+        var text = new StringBuilder();
+        text.AppendLine("[Space]");
+        text.AppendLine("Measured=" + (Measured ? "1" : "0"));
+        text.AppendLine("Kind=" + Kind);
+        text.AppendLine("Files=" + Files.ToString(CultureInfo.InvariantCulture));
+        text.AppendLine("BytesMB=" + Megabytes(Bytes).ToString(CultureInfo.InvariantCulture));
+        text.AppendLine("RequiredMB=" + Megabytes(Required).ToString(CultureInfo.InvariantCulture));
+        text.AppendLine("FreeMB=" + Megabytes(Free).ToString(CultureInfo.InvariantCulture));
+        text.AppendLine("Drive=" + Drive);
+        text.AppendLine("Fits=" + (Fits ? "1" : "0"));
+        File.WriteAllText(path, text.ToString(), Encoding.Unicode);
+    }
+
+    private static int Megabytes(long bytes) => (int)Math.Min(int.MaxValue, (bytes + 1024L * 1024 - 1) / (1024L * 1024));
+}
+
 public sealed class ProfileMigration
 {
     public const string ProfileMarker = "profile.ready";
+    /// <summary>Headroom over the copy itself, so a full drive is refused before the copy starts.</summary>
+    public const long SafetyMargin = 256L * 1024 * 1024;
     private static readonly HashSet<string> DataFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         { "Filters.v2", "TabThemes", "Images" };
 
@@ -86,9 +124,15 @@ public sealed class ProfileMigration
                 if (settings == null) settings = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.None);
             }
 
-            long required = files.Sum(f => f.Item2.Length) + (settings?.Length ?? 0) + 256L * 1024 * 1024;
-            if (new DriveInfo(Path.GetPathRoot(destination)).AvailableFreeSpace < required)
-                throw new IOException("Not enough free disk space for the profile copy and safety margin. The source is unchanged.");
+            long payload = files.Sum(f => f.Item2.Length);
+            if (settings != null && !files.Any(f => ReferenceEquals(f.Item2, settings))) payload += settings.Length;
+            long required = payload + SafetyMargin;
+            string drive = Path.GetPathRoot(destination);
+            long free = new DriveInfo(drive).AvailableFreeSpace;
+            if (free < required)
+                throw new IOException(string.Format(CultureInfo.InvariantCulture,
+                    "Not enough free disk space on {0}. The profile copy needs {1} plus a {2} safety margin, and only {3} is free. The source is unchanged.",
+                    drive, Describe(payload), Describe(SafetyMargin), Describe(free)));
 
             Directory.CreateDirectory(destination);
             int count = 0;
@@ -154,6 +198,53 @@ public sealed class ProfileMigration
         if (language != null) ProfileSettingsFile.Set(document, "UserLanguage", language);
         if (theme != null) ProfileSettingsFile.Set(document, "AppTheme", theme);
         ProfileSettingsFile.SaveAtomic(document, config);
+    }
+
+    /// <summary>A size a person can read, in the invariant culture Setup parses.</summary>
+    public static string Describe(long bytes)
+    {
+        if (bytes >= 1024L * 1024 * 1024) return (bytes / (1024.0 * 1024 * 1024)).ToString("0.0", CultureInfo.InvariantCulture) + " GB";
+        if (bytes >= 1024L * 1024) return (bytes / (1024.0 * 1024)).ToString("0", CultureInfo.InvariantCulture) + " MB";
+        return Math.Max(1, (bytes + 1023) / 1024).ToString(CultureInfo.InvariantCulture) + " KB";
+    }
+
+    /// <summary>
+    /// Measures the same file set <see cref="Snapshot"/> would copy, without opening a
+    /// single handle: this runs while Spotnet may still have its database open. An
+    /// upgrade measures the pre-upgrade backup of the existing profile instead.
+    /// </summary>
+    public static SpaceEstimate Measure(string profileRoot, string sourceData, string sourceSettings)
+    {
+        var estimate = new SpaceEstimate();
+        profileRoot = SafeDirectory(profileRoot);
+        string data = Path.Combine(profileRoot, "Data");
+        bool existing = Directory.Exists(data) && Directory.EnumerateFileSystemEntries(data).Any();
+        string source = existing ? data : (string.IsNullOrWhiteSpace(sourceData) ? null : SafeDirectory(sourceData));
+        estimate.Kind = existing ? "upgrade" : (source == null ? "fresh" : "import");
+        var counted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (source != null)
+        {
+            foreach (string file in Walk(source, existing))
+            {
+                estimate.Bytes += new FileInfo(file).Length;
+                estimate.Files++;
+                counted.Add(Path.GetFullPath(file));
+            }
+        }
+        if (!existing && !string.IsNullOrWhiteSpace(sourceSettings))
+        {
+            string settings = Path.GetFullPath(sourceSettings);
+            if (File.Exists(settings) && counted.Add(settings))
+            {
+                estimate.Bytes += new FileInfo(settings).Length;
+                estimate.Files++;
+            }
+        }
+        estimate.Required = estimate.Bytes + SafetyMargin;
+        estimate.Drive = Path.GetPathRoot(data);
+        estimate.Free = new DriveInfo(estimate.Drive).AvailableFreeSpace;
+        estimate.Measured = true;
+        return estimate;
     }
 
     public string Prepare(string profileRoot, string sourceData, string sourceSettings, Action<string> progress = null, string language = null, string theme = null)
