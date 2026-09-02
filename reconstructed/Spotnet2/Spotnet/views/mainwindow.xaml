@@ -121,14 +121,6 @@
             <TextBlock Name="ProxyIcon" Width="14" TextAlignment="Center" Style="{StaticResource FontAwesome}" Cursor="Hand" ToolTipService.HasDropShadow="True" ToolTipService.Placement="Top" Text="{Binding ProxyIcon, Mode=OneWay}" Foreground="{Binding ProxyIconForeground, Mode=OneWay}" ToolTip="{Binding ProxyIconToolTip, Mode=OneWay}" MouseDown="ProxyIcon_MouseDown" IsMouseDirectlyOverChanged="StatusBarSocksProxy_OnIsMouseDirectlyOverChanged" />
           </Grid>
         </StatusBarItem>
-        <StatusBarItem DockPanel.Dock="Right" Margin="2,0" Visibility="{Binding VPNIconVisibility, Mode=OneWay}">
-          <Grid>
-            <Popup Name="VPNInstallWarningPopup" Placement="Top" VerticalOffset="-5" HorizontalOffset="-290" AllowsTransparency="True" PlacementTarget="{Binding ElementName=VPNIcon}" IsOpen="{Binding ElementName=VPNInstallStatusWarning, Path=StatusWarningIsVisible, UpdateSourceTrigger=PropertyChanged}">
-              <controls:VPNInstallStatusWarning x:Name="VPNInstallStatusWarning" Background="#00FFFFFF" Visibility="{Binding Path=IsActive, ElementName=MainWindowName, Converter={StaticResource VisibilityConverter}, UpdateSourceTrigger=PropertyChanged}" />
-            </Popup>
-            <TextBlock Name="VPNIcon" Width="14" TextAlignment="Center" Style="{StaticResource FontAwesome}" Cursor="Hand" ToolTipService.HasDropShadow="True" ToolTipService.Placement="Top" Text="{Binding VPNIcon, Mode=OneWay}" Foreground="{Binding VPNIconForeground, Mode=OneWay}" ToolTip="{Binding VPNIconToolTip, Mode=OneWay}" MouseDown="VPNIcon_MouseDown" />
-          </Grid>
-        </StatusBarItem>
         <Separator DockPanel.Dock="Right" Margin="3,3" />
         <StatusBarItem DockPanel.Dock="Right" Margin="2,0">
           <TextBlock Name="StatusBarUpdateIcon" Style="{StaticResource FontAwesome}" ToolTipService.HasDropShadow="True" ToolTipService.Placement="Top" Text="{Binding DbUpdateIcon, Mode=OneWay}" Foreground="{Binding DbUpdateIconForeground, Mode=OneWay}" Cursor="{Binding DbUpdateImageCursor, Mode=OneWay}" ToolTip="{Binding DbUpdateImageToolTip, Mode=OneWay}" MouseDown="ExecuteUpdateDb_MouseDown" />

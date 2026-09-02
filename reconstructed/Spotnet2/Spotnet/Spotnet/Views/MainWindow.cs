@@ -143,8 +143,6 @@ public partial class MainWindow : MetroWindow
                 {
                     UpdateNewCats(null, restoreTheLastResult: true);
                 };
-                Sys.VPNStatusChecker = new VPNStatusChecker();
-                Sys.VPNStatusChecker.Start();
             }
         }
         catch (Exception ex)
@@ -643,24 +641,11 @@ public partial class MainWindow : MetroWindow
             }
 
             _waitForMainWindowLoaded.Set();
-            ShowVPNWarning();
         }
         catch (Exception ex)
         {
             Log.Exception(ex, showToClient: true);
             Close();
-        }
-    }
-
-    private async void ShowVPNWarning()
-    {
-        await Task.Delay(3000);
-        StatusBarVm.IconBlink(VPNIcon, 5);
-        if ((DateTime.Now - Settings.Default.VPNWarningLastsDate.Date).TotalDays >= 7.0)
-        {
-            VPNInstallStatusWarning.StatusWarningIsVisible = true;
-            Settings.Default.VPNWarningLastsDate = DateTime.Now;
-            Settings.Default.Save();
         }
     }
 
@@ -2580,14 +2565,6 @@ public partial class MainWindow : MetroWindow
     private void SystemStateImage_MouseDown(object sender, MouseButtonEventArgs e)
     {
         StatusBarSystemStateTooltip.TooltipIsVisible = true;
-    }
-
-    private void VPNIcon_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ClickCount == 1)
-        {
-            VPNInstallStatusWarning.StatusWarningIsVisible = !VPNInstallStatusWarning.StatusWarningIsVisible;
-        }
     }
 
     static MainWindow()

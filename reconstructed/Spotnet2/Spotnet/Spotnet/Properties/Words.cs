@@ -68,9 +68,7 @@ public class Words
 
 	public static string Account => ResourceManager.GetString("Account", resourceCulture);
 
-	public static string ActivateVPNClient => ResourceManager.GetString("ActivateVPNClient", resourceCulture);
 
-	public static string ActivateVPNClientConnected => ResourceManager.GetString("ActivateVPNClientConnected", resourceCulture);
 
 	public static string Added => ResourceManager.GetString("Added", resourceCulture);
 
@@ -422,7 +420,6 @@ public class Words
 
 	public static string GenerateDummyNzb => ResourceManager.GetString("GenerateDummyNzb", resourceCulture);
 
-	public static string GetOne => ResourceManager.GetString("GetOne", resourceCulture);
 
 	public static string GroupNotFound => ResourceManager.GetString("GroupNotFound", resourceCulture);
 
@@ -454,7 +451,6 @@ public class Words
 
 	public static string InProgress => ResourceManager.GetString("InProgress", resourceCulture);
 
-	public static string InstallVPNClient => ResourceManager.GetString("InstallVPNClient", resourceCulture);
 
 	public static string isComplete => ResourceManager.GetString("isComplete", resourceCulture);
 
@@ -494,7 +490,6 @@ public class Words
 
 	public static string MenuAdvTabs => ResourceManager.GetString("MenuAdvTabs", resourceCulture);
 
-	public static string MenuAdvVPNProvider => ResourceManager.GetString("MenuAdvVPNProvider", resourceCulture);
 
 	public static string MenuAutoGetComments => ResourceManager.GetString("MenuAutoGetComments", resourceCulture);
 
@@ -706,9 +701,7 @@ public class Words
 
 	public static string NoSpotsInTheDbWaitForUpdate => ResourceManager.GetString("NoSpotsInTheDbWaitForUpdate", resourceCulture);
 
-	public static string NotInstalledVPNWarning => ResourceManager.GetString("NotInstalledVPNWarning", resourceCulture);
 
-	public static string NotInstalledVPNWarningConnected => ResourceManager.GetString("NotInstalledVPNWarningConnected", resourceCulture);
 
 	public static string NoWord => ResourceManager.GetString("NoWord", resourceCulture);
 
@@ -766,7 +759,6 @@ public class Words
 
 	public static string OptionDisabledBecauseOfDownloadAction => ResourceManager.GetString("OptionDisabledBecauseOfDownloadAction", resourceCulture);
 
-	public static string OrWord => ResourceManager.GetString("OrWord", resourceCulture);
 
 	public static string Other => ResourceManager.GetString("Other", resourceCulture);
 
@@ -918,9 +910,7 @@ public class Words
 
 	public static string SearchTagToolTip => ResourceManager.GetString("SearchTagToolTip", resourceCulture);
 
-	public static string SecurityWarningTitle => ResourceManager.GetString("SecurityWarningTitle", resourceCulture);
 
-	public static string SecurityWarningTitleConnected => ResourceManager.GetString("SecurityWarningTitleConnected", resourceCulture);
 
 	public static string SelectDownloadsFolder => ResourceManager.GetString("SelectDownloadsFolder", resourceCulture);
 
@@ -932,7 +922,6 @@ public class Words
 
 	public static string SelectTheme => ResourceManager.GetString("SelectTheme", resourceCulture);
 
-	public static string SelectVPNProvider => ResourceManager.GetString("SelectVPNProvider", resourceCulture);
 
 	public static string Send => ResourceManager.GetString("Send", resourceCulture);
 
@@ -1174,23 +1163,16 @@ public class Words
 
 	public static string Video => ResourceManager.GetString("Video", resourceCulture);
 
-	public static string VPNAppNotInstalled => ResourceManager.GetString("VPNAppNotInstalled", resourceCulture);
+	public static string VPNAdvice => ResourceManager.GetString("VPNAdvice", resourceCulture);
 
-	public static string VPNInstallerCompleted => ResourceManager.GetString("VPNInstallerCompleted", resourceCulture);
 
-	public static string VPNInstallerDownloading => ResourceManager.GetString("VPNInstallerDownloading", resourceCulture);
 
-	public static string VPNInstallerNotDownloading => ResourceManager.GetString("VPNInstallerNotDownloading", resourceCulture);
 
-	public static string VPNMoreInfoText => ResourceManager.GetString("VPNMoreInfoText", resourceCulture);
 
-	public static string VPNNederlandConnected => ResourceManager.GetString("VPNNederlandConnected", resourceCulture);
 
-	public static string VPNNederlandDisconnected => ResourceManager.GetString("VPNNederlandDisconnected", resourceCulture);
 
-	public static string VPNNederlandNotRunning => ResourceManager.GetString("VPNNederlandNotRunning", resourceCulture);
 
-	public static string VPNProvider => ResourceManager.GetString("VPNProvider", resourceCulture);
+
 
 	public static string WantToSendLogToDevelopers => ResourceManager.GetString("WantToSendLogToDevelopers", resourceCulture);
 

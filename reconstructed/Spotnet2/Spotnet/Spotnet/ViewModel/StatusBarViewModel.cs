@@ -20,8 +20,6 @@ public class StatusBarViewModel : ViewModelBase
 
 	private bool _dbUpdateImageEnabled;
 
-	private bool _isVPNConnected;
-
 	private bool _dbUpdateImageStarted;
 
 	private string _dbUpdateStatusMessage = string.Empty;
@@ -134,98 +132,6 @@ public class StatusBarViewModel : ViewModelBase
 		}
 	}
 
-	public string VPNIcon
-	{
-		get
-		{
-			if (!IsVPNConnected)
-			{
-				return "\uf09c";
-			}
-			return "\uf023";
-		}
-	}
-
-	public Visibility VPNIconVisibility => Visibility.Visible;
-
-	public string VPNIconToolTip
-	{
-		get
-		{
-			if (VPNStatusChecker.IsVPNNederlandInstalled())
-			{
-				if (!IsVPNConnected)
-				{
-					return Words.VPNNederlandDisconnected;
-				}
-				return Words.VPNNederlandConnected;
-			}
-			return Words.VPNAppNotInstalled;
-		}
-	}
-
-	public SolidColorBrush VPNIconForeground => (SolidColorBrush)(IsVPNConnected ? (new BrushConverter().ConvertFromString("#39A633") as SolidColorBrush) : Application.Current.FindResource("BrightColorBrush2"));
-
-	public string VPNWarningPopupTitle
-	{
-		get
-		{
-			if (!IsVPNConnected)
-			{
-				return Words.SecurityWarningTitle;
-			}
-			return Words.SecurityWarningTitleConnected;
-		}
-	}
-
-	public string VPNWarningPopupContent
-	{
-		get
-		{
-			if (!IsVPNConnected)
-			{
-				return Words.NotInstalledVPNWarning;
-			}
-			return Words.NotInstalledVPNWarningConnected;
-		}
-	}
-
-	public string VPNWarningPopupIcon
-	{
-		get
-		{
-			if (!IsVPNConnected)
-			{
-				return "\uf071";
-			}
-			return "\uf058";
-		}
-	}
-
-	public string VPNWarningPopupButtonText
-	{
-		get
-		{
-			if (!IsVPNConnected)
-			{
-				return Words.ActivateVPNClient;
-			}
-			return Words.ActivateVPNClientConnected;
-		}
-	}
-
-	public SolidColorBrush VPNWarningPopupIconForeground
-	{
-		get
-		{
-			if (!IsVPNConnected)
-			{
-				return new BrushConverter().ConvertFromString("#F4C906") as SolidColorBrush;
-			}
-			return new BrushConverter().ConvertFromString("#39A633") as SolidColorBrush;
-		}
-	}
-
 	public string ProxyIcon
 	{
 		get
@@ -303,30 +209,6 @@ public class StatusBarViewModel : ViewModelBase
 				return Words.DbUpdateStart;
 			}
 			return Words.DbUpdatePause;
-		}
-	}
-
-	public bool IsVPNConnected
-	{
-		get
-		{
-			return _isVPNConnected;
-		}
-		set
-		{
-			if (!value.Equals(_isVPNConnected))
-			{
-				_isVPNConnected = value;
-				RaisePropertyChanged("VPNIcon");
-				RaisePropertyChanged("VPNIconVisibility");
-				RaisePropertyChanged("VPNIconForeground");
-				RaisePropertyChanged("VPNIconToolTip");
-				RaisePropertyChanged("VPNWarningPopupTitle");
-				RaisePropertyChanged("VPNWarningPopupContent");
-				RaisePropertyChanged("VPNWarningPopupIcon");
-				RaisePropertyChanged("VPNWarningPopupButtonText");
-				RaisePropertyChanged("VPNWarningPopupIconForeground");
-			}
 		}
 	}
 
@@ -413,7 +295,6 @@ public class StatusBarViewModel : ViewModelBase
 
 	public StatusBarViewModel()
 	{
-		IsVPNConnected = false;
 		if (Settings.Default.DbAutoUpdateIntervalMin > 0 && Settings.Default.DbAutoUpdateEnabled)
 		{
 			DbUpdateImageStarted = true;
@@ -436,14 +317,6 @@ public class StatusBarViewModel : ViewModelBase
 			RaisePropertyChanged("ProxyIcon");
 			RaisePropertyChanged("ProxyIconVisibility");
 			RaisePropertyChanged("ProxyIconForeground");
-		};
-		VPNStatusChecker.StateChanged += delegate(bool s)
-		{
-			IsVPNConnected = s;
-		};
-		VPNStatusChecker.OnVPNInstalled += delegate
-		{
-			RaisePropertyChanged("VPNIconToolTip");
 		};
 	}
 

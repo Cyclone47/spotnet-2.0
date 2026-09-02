@@ -78,7 +78,6 @@
   <data name="MenuBadWordsFilterForComments" xml:space="preserve"><value>Gebruik scheldwoorden filter voor de reacties</value></data>
   <data name="Filter" xml:space="preserve"><value>Filter</value></data>
   <data name="Finish" xml:space="preserve"><value>Voltooid</value></data>
-  <data name="GetOne" xml:space="preserve"><value> om er een te krijgen.</value></data>
   <data name="MenuOpenNZB" xml:space="preserve"><value>_Open NZB...</value></data>
   <data name="BlackListYouWillReceiveFromSender" xml:space="preserve"><value>Je zult weer spots/reacties van deze afzender gaan ontvangen.</value></data>
   <data name="CannotStartNzbGet" xml:space="preserve"><value>Kan NzbGet niet starten?</value></data>
@@ -122,8 +121,6 @@
   <data name="CannotChangeDirActiveDownloads" xml:space="preserve"><value>Je kunt deze map niet wijzigen terwijl er nog downloads actief zijn. Zorg eerst dat de wachtrij leeg is, en probeer het dan nog eens.</value></data>
   <data name="FilterNameAlreadyExists" xml:space="preserve"><value>Filter "{0}" bestaat al. Wilt u de filter-query overschrijven?</value></data>
   <data name="MenuShowSpotsOnDemand" xml:space="preserve"><value>Op aanvraag</value></data>
-  <data name="OrWord" xml:space="preserve"><value> of </value></data>
-  <data name="VPNInstallerCompleted" xml:space="preserve"><value>VPN Nederland Setup download voltooid, Installeren…</value></data>
   <data name="Canceled" xml:space="preserve"><value>Geannuleerd</value></data>
   <data name="MenuReleaseNotes" xml:space="preserve"><value>Release Notes</value></data>
   <data name="EncryptedNZB" xml:space="preserve"><value>Encrypted NZB (backup)</value></data>
@@ -155,7 +152,6 @@
   <data name="Tracks" xml:space="preserve"><value>Nummers</value></data>
   <data name="LookingFor" xml:space="preserve"><value>Zoeken naar</value></data>
   <data name="Thanks" xml:space="preserve"><value>Bedankt</value></data>
-  <data name="NotInstalledVPNWarning" xml:space="preserve"><value>Je bent mogelijk onbeschermd. Spotnet wil voor iedereen de beste online beveiliging en anonimiteit en is daarom een partnership aangegaan met VPN Nederland. Gebruik de VPN Nederland-app GRATIS via Spotnet.</value></data>
   <data name="ShowTrustedOnlyEnableButtonTooltip" xml:space="preserve"><value>Toon alleen spots van vertrouwde afzenders</value></data>
   <data name="AreYouSureYouWantToRecreateDb" xml:space="preserve"><value>Alle databasebestanden worden opnieuw gecreëerd. Een Spotnet herstart is vereist. Selecteer OK om te door te gaan met het opnieuw creëren en Spotnet opnieuw te starten.</value></data>
   <data name="ShowLog" xml:space="preserve"><value>Open log</value></data>
@@ -163,12 +159,10 @@
   <data name="NZBNotFound" xml:space="preserve"><value>NZB niet gevonden</value></data>
   <data name="MenuLangDutch" xml:space="preserve"><value>Nederlands</value></data>
   <data name="SelectProvider" xml:space="preserve"><value>Selecteer een provider</value></data>
-  <data name="VPNNederlandConnected" xml:space="preserve"><value>VPN Nederland actief</value></data>
   <data name="PictureNotFoundCheckURL" xml:space="preserve"><value>Kan afbeelding niet vinden? Controleer of de URL correct is.</value></data>
   <data name="Connecting" xml:space="preserve"><value>Verbinding maken...</value></data>
   <data name="SelectNumberOfConnections" xml:space="preserve"><value>Selecteer het aantal toegestane verbindingen. Dit kun je navragen bi je provider.</value></data>
   <data name="SpotGiveDescription" xml:space="preserve"><value>Geef een beschrijving van de spot</value></data>
-  <data name="VPNAppNotInstalled" xml:space="preserve"><value>VPN Nederland is niet geïnstalleerd</value></data>
   <data name="LanguageRestartForSettingTakesEffect" xml:space="preserve"><value>Please restart the application for new language setting takes effect.</value></data>
   <data name="MenuUseExternalBrowser" xml:space="preserve"><value>Links openen in externe browser</value></data>
   <data name="NewSpot" xml:space="preserve"><value>Toevoegen</value></data>
@@ -176,7 +170,6 @@
   <data name="SpotRemoved" xml:space="preserve"><value>"{0}" spot wordt van de database verwijderd</value></data>
   <data name="Search" xml:space="preserve"><value>Zoeken</value></data>
   <data name="Sender" xml:space="preserve"><value>Afzender</value></data>
-  <data name="NotInstalledVPNWarningConnected" xml:space="preserve"><value>Uw verbinding is nu volledig beveiligd door VPN Nederland.</value></data>
   <data name="Pieces" xml:space="preserve"><value>stuks</value></data>
   <data name="DownloaderScheduleText" xml:space="preserve"><value>Stel tijdsinterval voor het downloaden</value></data>
   <data name="FiltersDeleteDialogHeader" xml:space="preserve"><value>Verwijder filters lijst: {0}</value></data>
@@ -190,7 +183,6 @@
   <data name="wednesday" xml:space="preserve"><value>woensdag</value></data>
   <data name="MenuDnlModeSaveNZB" xml:space="preserve"><value>NZB Opslaan</value></data>
   <data name="MenuVisibleControlsLeftPanel" xml:space="preserve"><value>Linkerpaneel</value></data>
-  <data name="ActivateVPNClient" xml:space="preserve"><value>Activeren</value></data>
   <data name="WantToSendLogToDevelopers" xml:space="preserve"><value>Wilt u het foutenlogboek doorsturen naar de ontwikkelaars?</value></data>
   <data name="CommentCannotPost" xml:space="preserve"><value>Kan reactie niet plaatsen?</value></data>
   <data name="ImdbAlbumNotFound" xml:space="preserve"><value>Album is onbekend, of album/artiest gegevens niet kunnen detecteren.</value></data>
@@ -228,7 +220,6 @@
   <data name="isComplete" xml:space="preserve"><value>download compleet</value></data>
   <data name="NewVersionInstalled" xml:space="preserve"><value>Nieuwe versie van Spotnet {0} is geïnstalleerd.</value></data>
   <data name="Password" xml:space="preserve"><value>Wachtwoord</value></data>
-  <data name="VPNNederlandNotRunning" xml:space="preserve"><value>VPN Nederland is niet actief</value></data>
   <data name="SelectTheme" xml:space="preserve"><value>Selecteer een thema</value></data>
   <data name="SystemStateProblemsWithNzbGet" xml:space="preserve"><value>Er zijn problemen met de downloader.</value></data>
   <data name="DbUpdateInProgress" xml:space="preserve"><value>Database update in progressie</value></data>
@@ -248,7 +239,6 @@
   <data name="EnterUsername" xml:space="preserve"><value>Vul hier de gebruikersnaam in die je van je provider hebt gekregen.</value></data>
   <data name="StatPar2Downloading" xml:space="preserve"><value>Par2 downloaden</value></data>
   <data name="MenuHideBlacklistedSpots" xml:space="preserve"><value>Spots van zwarte lijst gebruikers niet tonen</value></data>
-  <data name="SelectVPNProvider" xml:space="preserve"><value>Selecteer VPN provider</value></data>
   <data name="Pausing" xml:space="preserve"><value>Pauzeren</value></data>
   <data name="ColumnMessageID" xml:space="preserve"><value>Message ID</value></data>
   <data name="ConnectionsLimitHowToSolve" xml:space="preserve"><value>Verlaag het aantal verbindingen in de provider instellingen van Spotnet of controleer of u mogelijk in andere software gebruik maakt van hetzelfde account?</value></data>
@@ -258,7 +248,6 @@
   <data name="TabDownloads" xml:space="preserve"><value>Downloads</value></data>
   <data name="NoSpotsInTheDbPleaseStartDbUpdate" xml:space="preserve"><value>Geen spots in de database. Gelieve de database te update via de knop rechtsonder van het scherm.</value></data>
   <data name="DbIsNotUpToDateWarning" xml:space="preserve"><value>Zoekresultaten kunnen onvolledig zijn, omdat de database nog niet up-to-date is.</value></data>
-  <data name="VPNNederlandDisconnected" xml:space="preserve"><value>VPN Nederland inactief</value></data>
   <data name="FiltersDeleteDialogQuestion" xml:space="preserve"><value>Weet u zeker dat u '{0}' filters lijst wilt verwijderen?</value></data>
   <data name="RemoveFilesDialogQuestion" xml:space="preserve"><value>Wilt u de bestanden van de schijf verwijderen?</value></data>
   <data name="EncryptedNZBFileInvalid" xml:space="preserve"><value>Ongeldig backup NZB bestand.</value></data>
@@ -289,7 +278,6 @@
   <data name="NZBCannotPost" xml:space="preserve"><value>Kan NZB niet posten?</value></data>
   <data name="Picture" xml:space="preserve"><value>Afbeelding</value></data>
   <data name="NZBDownloadError" xml:space="preserve"><value>Error on file downloading.</value></data>
-  <data name="VPNProvider" xml:space="preserve"><value>VPN provider</value></data>
   <data name="EnterServerAddress" xml:space="preserve"><value>Vul hier het adres van de server in.</value></data>
   <data name="ContactYourProvider" xml:space="preserve"><value>Neem contact op met uw provider.</value></data>
   <data name="Download" xml:space="preserve"><value>Downloaden</value></data>
@@ -326,7 +314,7 @@
   <data name="AboutChangeBrowser" xml:space="preserve"><value>Spotpagina's en reacties worden weergegeven in Edge WebView2; het oude Windows-browseronderdeel is verdwenen.</value></data>
   <data name="AboutChangeSearch" xml:space="preserve"><value>Zoeken gebruikt SQLite FTS5; de index wordt eenmalig opgebouwd bij de eerste start.</value></data>
   <data name="AboutChangeStyles" xml:space="preserve"><value>Drie stijlen: Klassiek, Modern licht en Modern donker, met de filterpictogrammen als glyphs in beide Moderne stijlen.</value></data>
-  <data name="AboutChangeVpn" xml:space="preserve"><value>Ingebouwde VPN-ondersteuning, uitgevoerd met VPN Nederland.</value></data>
+  <data name="AboutChangeVpn" xml:space="preserve"><value>De VPN Nederland-promotie en de bijbehorende integratie zijn verwijderd.</value></data>
   <data name="AboutChangeSetup" xml:space="preserve"><value>Een nieuwe Setup die oudere installaties herkent en uw profiel overzet zonder het origineel aan te raken.</value></data>
   <data name="AboutProjectHeader" xml:space="preserve"><value>Spotnet 3.0 door Cyclone47</value></data>
   <data name="Close" xml:space="preserve"><value>Afsluiten</value></data>
@@ -402,7 +390,6 @@
   <data name="ColumnAge" xml:space="preserve"><value>Leeftijd</value></data>
   <data name="ColumnETA" xml:space="preserve"><value>Tijd</value></data>
   <data name="SpotOpening" xml:space="preserve"><value>Spot aan het openen...</value></data>
-  <data name="ActivateVPNClientConnected" xml:space="preserve"><value>Open</value></data>
   <data name="MenuShowSpotsUnlimited" xml:space="preserve"><value>Alles in één keer</value></data>
   <data name="FailedToCreate" xml:space="preserve"><value>Kan niet aanmaken</value></data>
   <data name="MenuAdvancedDownloaderSettings" xml:space="preserve"><value>Geavanceerde download instellingen...</value></data>
@@ -481,7 +468,6 @@ Schrijf de reden waarom u deze wilt verwijderen:</value></data>
   <data name="FilterToAvatar" xml:space="preserve"><value>Afbeeldingen|*.gif;*.png;|GIF Bestand (*.gif)|*.gif|PNG Bestand (*.png)|*.png</value></data>
   <data name="FiltersCannotCreateDir" xml:space="preserve"><value>Kan filters map niet aanmaken</value></data>
   <data name="SystemStateIsNotGreen" xml:space="preserve"><value>Systeemstatus is niet groen - mogelijk zijn er problemen met het netwerk of de systeemconfiguratie.</value></data>
-  <data name="SecurityWarningTitleConnected" xml:space="preserve"><value>Beveiliging: U bent beveiligd!</value></data>
   <data name="UnpackFailedPostMessage" xml:space="preserve"><value>Verplaatst naar de voltooide map, zodat u de download wel kunt gebruiken. Controleer de Download logboek voor details.</value></data>
   <data name="MenuFiltersListChange" xml:space="preserve"><value>Filters lijst ...</value></data>
   <data name="MenuAdvCommon" xml:space="preserve"><value>Algemeen</value></data>
@@ -504,7 +490,6 @@ Schrijf de reden waarom u deze wilt verwijderen:</value></data>
   <data name="PictureNotAdded" xml:space="preserve"><value>Geen plaatje toegevoegd.</value></data>
   <data name="AddFilterGridCaption" xml:space="preserve"><value>Filter toevoegen</value></data>
   <data name="SystemStateIsGreen" xml:space="preserve"><value>Systeemstatus is groen.</value></data>
-  <data name="InstallVPNClient" xml:space="preserve"><value>Installeren</value></data>
   <data name="CannotLoad" xml:space="preserve"><value>Kan niet laden</value></data>
   <data name="CommentIsTooShort" xml:space="preserve"><value>Reactie is te kort.</value></data>
   <data name="CommentsNotRetrieved" xml:space="preserve"><value>Druk op "Vernieuwen" om reacties te zien.</value></data>
@@ -512,12 +497,10 @@ Schrijf de reden waarom u deze wilt verwijderen:</value></data>
   <data name="AddFilterErrorNoCategory" xml:space="preserve"><value>Selecteer minimaal 1 categorie.</value></data>
   <data name="monday" xml:space="preserve"><value>maandag</value></data>
   <data name="PictureSizeMoreThan1MB" xml:space="preserve"><value>Plaatje is groter dan 1 MB.</value></data>
-  <data name="VPNInstallerNotDownloading" xml:space="preserve"><value>VPN Nederland Setup kan niet worden gedownload.</value></data>
   <data name="SpotThemePreviewShow" xml:space="preserve"><value>Voorbeeldweergave tonen</value></data>
   <data name="Retention" xml:space="preserve"><value>Retention (days)</value></data>
   <data name="MenuAdvDownloads" xml:space="preserve"><value>Downloads</value></data>
   <data name="MenuEnableLogs" xml:space="preserve"><value>Enable Logging</value></data>
-  <data name="SecurityWarningTitle" xml:space="preserve"><value>Beveiliging: VPN via Spotnet</value></data>
   <data name="UnpackFailed" xml:space="preserve"><value>Mislukt om uit te pakken</value></data>
   <data name="MenuRemoveFilesOnDownloadRemove" xml:space="preserve"><value>Bestanden verwijderen van de schijf bij download verwijdering</value></data>
   <data name="LinkToASpot" xml:space="preserve"><value>Link naar een spot</value></data>
@@ -539,13 +522,11 @@ Schrijf de reden waarom u deze wilt verwijderen:</value></data>
   <data name="ImdbFilmNotFound" xml:space="preserve"><value>Film gegevens zijn niet bekend, of film naam niet goed kunnen detecteren.</value></data>
   <data name="Description" xml:space="preserve"><value>Beschrijving</value></data>
   <data name="SelectDownloadsFolder" xml:space="preserve"><value>Selecteer de map waar je downloads wilt opslaan</value></data>
-  <data name="MenuAdvVPNProvider" xml:space="preserve"><value>VPN provider</value></data>
   <data name="DbLockTimeout" xml:space="preserve"><value>Mislukt om de database te lezen, deze wordt geblokkeerd door een lange database update. Even geduld a.u.b.</value></data>
   <data name="NzbFilesAssociated" xml:space="preserve"><value>.nzb bestanden geassocieerd met Spotnet.</value></data>
   <data name="StatFetching" xml:space="preserve"><value>Blokken ophalen</value></data>
   <data name="MenuLangEnglish" xml:space="preserve"><value>English</value></data>
   <data name="SpotsUpdating" xml:space="preserve"><value>Spots updaten...</value></data>
-  <data name="VPNMoreInfoText" xml:space="preserve"><value>Meer informatie</value></data>
   <data name="EncryptedNZBLikeMainNZBError" xml:space="preserve"><value>NZB en Encrypted NZB zijn hetzelfde, het heeft geen zin om dezelfde NZB te encrypten...</value></data>
   <data name="DbUpdateFailed" xml:space="preserve"><value>Database bijwerken is mislukt</value></data>
   <data name="StatCompleted" xml:space="preserve"><value>Compleet</value></data>
@@ -554,7 +535,6 @@ Schrijf de reden waarom u deze wilt verwijderen:</value></data>
   <data name="ColumnFormat" xml:space="preserve"><value>Formaat</value></data>
   <data name="FavoritesRemoved" xml:space="preserve"><value>Verwijderd uit Favorieten</value></data>
   <data name="StatDownloading" xml:space="preserve"><value>Downloaden</value></data>
-  <data name="VPNInstallerDownloading" xml:space="preserve"><value>Download VPN Nederland Setup bestand {0}%</value></data>
   <data name="NZBFileInvalid" xml:space="preserve"><value>Ongeldig NZB bestand.</value></data>
   <data name="BlackListAddTo" xml:space="preserve"><value>Toevoegen aan zwarte lijst</value></data>
   <data name="SenderIsInBlackList" xml:space="preserve"><value>Waarschuwing: De afzender van de spot staat op de zwarte lijst!</value></data>
@@ -638,4 +618,5 @@ Schrijf de reden waarom u deze wilt verwijderen:</value></data>
   <data name="UseInternalDownloader" xml:space="preserve"><value>Gebruik interne downloader</value></data>
   <data name="RestartNow" xml:space="preserve"><value>Nu opnieuw starten</value></data>
   <data name="RestartLater" xml:space="preserve"><value>Later opnieuw starten</value></data>
-  </root>
+  <data name="VPNAdvice" xml:space="preserve"><value>Het is aan te raden een veilige en betrouwbare VPN te gebruiken bij het gebruik van Spotnet.</value></data>
+</root>

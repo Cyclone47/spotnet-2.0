@@ -2138,36 +2138,6 @@ internal sealed class Settings : ApplicationSettingsBase
 
 	[UserScopedSetting]
 	[DebuggerNonUserCode]
-	[DefaultSettingValue("VPNNederland")]
-	public string VPNProvider
-	{
-		get
-		{
-			return (string)this["VPNProvider"];
-		}
-		set
-		{
-			this["VPNProvider"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("2017-01-01")]
-	public DateTime VPNWarningLastsDate
-	{
-		get
-		{
-			return (DateTime)this["VPNWarningLastsDate"];
-		}
-		set
-		{
-			this["VPNWarningLastsDate"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
 	[DefaultSettingValue("ClassicLight")]
 	public string AppTheme
 	{

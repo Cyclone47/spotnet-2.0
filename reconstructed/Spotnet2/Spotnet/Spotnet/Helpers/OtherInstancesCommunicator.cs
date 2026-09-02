@@ -94,16 +94,6 @@ internal static class OtherInstancesCommunicator
 			select p;
 	}
 
-	public static bool IsVPNNederlandRunning()
-	{
-		bool result = false;
-		if (Process.GetProcessesByName("VPNNederland").Length > 1)
-		{
-			result = true;
-		}
-		return result;
-	}
-
 	public static void SendParamsToPipe(List<string> agrs)
 	{
 		try

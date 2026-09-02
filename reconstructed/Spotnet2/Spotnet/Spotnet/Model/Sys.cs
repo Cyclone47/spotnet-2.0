@@ -25,8 +25,6 @@ internal static class Sys
 
 	internal static MainWindow MainWindow { get; set; }
 
-	internal static VPNStatusChecker VPNStatusChecker { get; set; }
-
 	public static PlayerViewModel DownloadsPlayer { get; set; }
 
 	static Sys()
