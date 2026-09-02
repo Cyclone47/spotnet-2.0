@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
@@ -671,21 +671,10 @@ public partial class MainWindow : MetroWindow
 
     internal void OpenAbout()
     {
-        foreach (object item in (IEnumerable)TabControl1.Items)
-        {
-            if ((item as CloseableTabItem)?.Content is AboutControl)
-            {
-                TabControl1.SelectedItem = item;
-                return;
-            }
-        }
-
-        CloseableTabItem closeableTabItem = new CloseableTabItem
-        {
-            Content = new AboutControl()
-        };
-        UpdateTabItemHeader(Words.About, PageTypeEnum.About, closeableTabItem);
-        TabControl1.Items.Add(closeableTabItem);
+        // About is a dialog now, not a tab: it is read once and dismissed, so it has no
+        // business holding a slot in the tab strip next to Spots and Downloads.
+        var about = new AboutWindow { Owner = this };
+        about.ShowDialog();
     }
 
     private TabItem FindTabByMessageId(string sMes)

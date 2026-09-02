@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -318,6 +318,17 @@
   <data name="Error" xml:space="preserve"><value>Fout</value></data>
   <data name="Added" xml:space="preserve"><value>Toegevoegd</value></data>
   <data name="About" xml:space="preserve"><value>Over</value></data>
+  <data name="AboutVersion" xml:space="preserve"><value>Versie {0}</value></data>
+  <data name="AboutOriginHeader" xml:space="preserve"><value>Waar dit vandaan komt</value></data>
+  <data name="AboutOriginBody" xml:space="preserve"><value>Spotnet 3.0 is gebouwd op de broncode van Spotnet 1.8 en 2.0. De oorspronkelijke client is geschreven door de Spotnet-gemeenschap; deze versie zet dat werk voort en houdt hetzelfde spotformaat, dezelfde filters en dezelfde profielen aan.</value></data>
+  <data name="AboutChangesHeader" xml:space="preserve"><value>De belangrijkste wijzigingen in 3.0</value></data>
+  <data name="AboutChangeRuntime" xml:space="preserve"><value>Draait op .NET 8. Setup installeert de runtime als deze ontbreekt.</value></data>
+  <data name="AboutChangeBrowser" xml:space="preserve"><value>Spotpagina's en reacties worden weergegeven in Edge WebView2; het oude Windows-browseronderdeel is verdwenen.</value></data>
+  <data name="AboutChangeSearch" xml:space="preserve"><value>Zoeken gebruikt SQLite FTS5; de index wordt eenmalig opgebouwd bij de eerste start.</value></data>
+  <data name="AboutChangeStyles" xml:space="preserve"><value>Drie stijlen: Klassiek, Modern licht en Modern donker, met de filterpictogrammen als glyphs in beide Moderne stijlen.</value></data>
+  <data name="AboutChangeVpn" xml:space="preserve"><value>Ingebouwde VPN-ondersteuning, uitgevoerd met VPN Nederland.</value></data>
+  <data name="AboutChangeSetup" xml:space="preserve"><value>Een nieuwe Setup die oudere installaties herkent en uw profiel overzet zonder het origineel aan te raken.</value></data>
+  <data name="AboutProjectHeader" xml:space="preserve"><value>Spotnet 3.0 door Cyclone47</value></data>
   <data name="Close" xml:space="preserve"><value>Afsluiten</value></data>
   <data name="LinkToSpotPicture" xml:space="preserve"><value>Link naar een afbeelding van de spot</value></data>
   <data name="Never" xml:space="preserve"><value>Nooit</value></data>

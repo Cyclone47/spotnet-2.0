@@ -44,6 +44,28 @@ public class Words
 
 	public static string About => ResourceManager.GetString("About", resourceCulture);
 
+	public static string AboutVersion => ResourceManager.GetString("AboutVersion", resourceCulture);
+
+	public static string AboutOriginHeader => ResourceManager.GetString("AboutOriginHeader", resourceCulture);
+
+	public static string AboutOriginBody => ResourceManager.GetString("AboutOriginBody", resourceCulture);
+
+	public static string AboutChangesHeader => ResourceManager.GetString("AboutChangesHeader", resourceCulture);
+
+	public static string AboutChangeRuntime => ResourceManager.GetString("AboutChangeRuntime", resourceCulture);
+
+	public static string AboutChangeBrowser => ResourceManager.GetString("AboutChangeBrowser", resourceCulture);
+
+	public static string AboutChangeSearch => ResourceManager.GetString("AboutChangeSearch", resourceCulture);
+
+	public static string AboutChangeStyles => ResourceManager.GetString("AboutChangeStyles", resourceCulture);
+
+	public static string AboutChangeVpn => ResourceManager.GetString("AboutChangeVpn", resourceCulture);
+
+	public static string AboutChangeSetup => ResourceManager.GetString("AboutChangeSetup", resourceCulture);
+
+	public static string AboutProjectHeader => ResourceManager.GetString("AboutProjectHeader", resourceCulture);
+
 	public static string Account => ResourceManager.GetString("Account", resourceCulture);
 
 	public static string ActivateVPNClient => ResourceManager.GetString("ActivateVPNClient", resourceCulture);

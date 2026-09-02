@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -314,6 +314,17 @@
   <data name="Error" xml:space="preserve"><value>Error</value></data>
   <data name="Added" xml:space="preserve"><value>Added</value></data>
   <data name="About" xml:space="preserve"><value>About</value></data>
+  <data name="AboutVersion" xml:space="preserve"><value>Version {0}</value></data>
+  <data name="AboutOriginHeader" xml:space="preserve"><value>Where this comes from</value></data>
+  <data name="AboutOriginBody" xml:space="preserve"><value>Spotnet 3.0 is built on the source of Spotnet 1.8 and 2.0. The original client was written by the Spotnet community; this release continues that work and keeps the same spot format, filters and profiles.</value></data>
+  <data name="AboutChangesHeader" xml:space="preserve"><value>The main changes in 3.0</value></data>
+  <data name="AboutChangeRuntime" xml:space="preserve"><value>Runs on .NET 8. Setup installs the runtime when it is missing.</value></data>
+  <data name="AboutChangeBrowser" xml:space="preserve"><value>Spot pages and comments render in Edge WebView2; the old Windows browser control is gone.</value></data>
+  <data name="AboutChangeSearch" xml:space="preserve"><value>Search uses SQLite FTS5, with the index rebuilt once on first start.</value></data>
+  <data name="AboutChangeStyles" xml:space="preserve"><value>Three styles: Classic, Modern Light and Modern Dark, with the filter icons drawn as glyphs in both Modern styles.</value></data>
+  <data name="AboutChangeVpn" xml:space="preserve"><value>Built-in VPN support, implemented with VPN Nederland.</value></data>
+  <data name="AboutChangeSetup" xml:space="preserve"><value>A new Setup that detects older installations and copies your profile across without touching the original.</value></data>
+  <data name="AboutProjectHeader" xml:space="preserve"><value>Spotnet 3.0 by Cyclone47</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
   <data name="LinkToSpotPicture" xml:space="preserve"><value>Link to Spot picture</value></data>
   <data name="Never" xml:space="preserve"><value>Never</value></data>
