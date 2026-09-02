@@ -1,4 +1,4 @@
-$f = Get-Item 'D:\sourcecode\newbranding\spotnet.ico'
+﻿$f = Get-Item (Join-Path $PSScriptRoot 'spotnet.ico')
 Write-Host "File: $($f.FullName)"
 Write-Host "Size: $($f.Length) bytes"
 
@@ -16,3 +16,5 @@ for ($i = 0; $i -lt $count; $i++) {
     $sz   = [BitConverter]::ToUInt32($bytes, $base + 8)
     Write-Host "  Image $($i+1): ${w}x${h}, $bpp bpp, $sz bytes"
 }
+
+

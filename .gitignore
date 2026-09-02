@@ -1,4 +1,4 @@
-# Build artifacts
+# Build output
 /artifacts/
 **/bin/
 **/obj/
@@ -7,12 +7,18 @@
 *.userosscache
 *.sln.docstates
 
-# Diagnostic and temporary files
+# Diagnostics and scratch
 build.log
 build_diag.txt
 *.tmp
 
-# Raw scratch / baseline working copies
+# Reference material, kept locally but not committed.
+# These are the original Spotnet 1.8/2.0 artefacts the reconstruction was read
+# against. None of them is a build input: lib/Spotnet.exe is explicitly excluded
+# in Spotnet.csproj, and the 2.0 release package is 27 MB of decompilation source.
+# Anyone reproducing the reconstruction fetches them from the 2.0 release instead.
 /spotnet-git/
 /spotnet-2.0.0.284-binary/
+/spotnet-2.0.0.284-packages/
 /decompiled_200/
+/reconstructed/Spotnet2/lib/Spotnet.exe

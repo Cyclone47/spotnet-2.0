@@ -1,8 +1,8 @@
-Add-Type -AssemblyName System.Drawing
+﻿Add-Type -AssemblyName System.Drawing
 
 $sizes   = @(256, 128, 64, 48, 32, 16)
-$srcPath = 'D:\sourcecode\newbranding\new_icon.png'
-$dstPath = 'D:\sourcecode\newbranding\spotnet.ico'
+$srcPath = Join-Path $PSScriptRoot 'new_icon.png'
+$dstPath = Join-Path $PSScriptRoot 'spotnet.ico'
 
 $src = [System.Drawing.Image]::FromFile($srcPath)
 
@@ -63,3 +63,5 @@ if (Test-Path 'C:\Users\Tobias\AppData\Local\Spotnet\') {
 }
 
 Write-Host 'New icon converted and copied successfully'
+
+

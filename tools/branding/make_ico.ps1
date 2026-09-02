@@ -1,8 +1,8 @@
-Add-Type -AssemblyName System.Drawing
+﻿Add-Type -AssemblyName System.Drawing
 
 $sizes   = @(256, 128, 64, 48, 32, 16)
-$srcPath = 'D:\sourcecode\newbranding\spotnet_icon.png'
-$dstPath = 'D:\sourcecode\newbranding\spotnet.ico'
+$srcPath = Join-Path $PSScriptRoot 'spotnet_icon.png'
+$dstPath = Join-Path $PSScriptRoot 'spotnet.ico'
 
 $src = [System.Drawing.Image]::FromFile($srcPath)
 
@@ -64,3 +64,5 @@ $src.Dispose()
 
 $info = Get-Item $dstPath
 Write-Host "SUCCESS: $dstPath ($($info.Length) bytes)"
+
+
