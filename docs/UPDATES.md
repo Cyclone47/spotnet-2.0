@@ -55,9 +55,13 @@ has not taken it yet.
 
 - Only an **installed** copy updates itself. A build running out of a development output
   has no Setup that could replace it, and is left alone.
-- The first check runs a minute after start, then every four hours, and Help ▸ *Check for
-  updates* runs one on demand. The manifest is requested with cache-busting, so a fresh
-  commit is seen on the next check rather than whenever a CDN expires.
+- The first check runs on the splash screen, under a "Checking for updates" message,
+  bounded at three seconds so a slow server never holds up a start. After that it runs
+  every four hours, and Help ▸ *Check for updates* runs one on demand.
+- `raw.githubusercontent.com` serves the manifest with a five minute CDN lifetime, and no
+  request header or query parameter shortens it. A freshly pushed release can therefore
+  take up to five minutes to become visible to clients. Nothing is wrong when that
+  happens; wait for the next check.
 - The prompt shows the new version, the download size and a link to the release notes.
   *Update now* downloads, *Later* asks again next time, *Skip this version* suppresses that
   exact version until a newer one appears. A `forced` release has no Skip.

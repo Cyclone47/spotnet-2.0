@@ -78,8 +78,11 @@ internal sealed class UpdateClient : IDisposable
         deadline.CancelAfter(timeout ?? TimeSpan.FromSeconds(30.0));
         try
         {
-            // A cache-busting parameter, because the raw file is served through a CDN that
-            // would otherwise answer from a copy minutes old.
+            // raw.githubusercontent.com serves the manifest through a CDN with a five
+            // minute lifetime, and neither this parameter nor the no-cache headers above
+            // shorten it: a release can take that long to become visible. Harmless for a
+            // check that runs at startup and every four hours, and worth knowing before
+            // anyone concludes a published update was missed.
             var url = new UriBuilder(_manifestUrl);
             string stamp = "t=" + DateTime.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture);
             url.Query = string.IsNullOrEmpty(url.Query) ? stamp : url.Query.TrimStart('?') + "&" + stamp;
