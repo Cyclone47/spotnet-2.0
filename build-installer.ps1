@@ -20,6 +20,26 @@ $artifactRoot = Join-Path $repoRoot 'artifacts\installer'
 $toolRoot = Join-Path $repoRoot 'artifacts\installer-tools'
 New-Item -ItemType Directory -Force -Path $artifactRoot, $toolRoot | Out-Null
 
+# Reads a PE file's target architecture: 'amd64', 'anycpu' for a managed assembly that
+# reports I386 but carries a CLI header, 'x86' for a real 32-bit binary, or the raw
+# machine value for anything else.
+function Get-BinaryArchitecture([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path)) { throw "Missing payload binary: $Path" }
+    $bytes = [IO.File]::ReadAllBytes($Path)
+    $peOffset = [BitConverter]::ToInt32($bytes, 60)
+    $machine = [BitConverter]::ToUInt16($bytes, $peOffset + 4)
+    if ($machine -eq 0x8664) { return 'amd64' }
+    if ($machine -ne 0x14C) { return ('0x{0:X4}' -f $machine) }
+    # Data directory 14 is the CLR header. PE32+ puts the directories 112 bytes into the
+    # optional header, PE32 96 bytes in.
+    $optional = $peOffset + 24
+    $magic = [BitConverter]::ToUInt16($bytes, $optional)
+    $directories = $optional + $(if ($magic -eq 0x20B) { 112 } else { 96 })
+    $cliRva = [BitConverter]::ToInt32($bytes, $directories + (14 * 8))
+    if ($cliRva -ne 0) { return 'anycpu' }
+    return 'x86'
+}
+
 function Resolve-SignTool {
     if ($SignToolPath) {
         if (-not (Test-Path -LiteralPath $SignToolPath)) { throw "signtool.exe not found at $SignToolPath." }
@@ -104,11 +124,18 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Migration helper build failed.' }
     $appOutput = Join-Path $repoRoot 'reconstructed\Spotnet2\Spotnet\bin\Release\net8.0-windows'
     $helperOutput = Join-Path $repoRoot 'tools\Spotnet.SetupHelper\bin\Release\net472'
-    foreach ($binary in @('Spotnet.exe', 'Spotnet.dll', 'Spotnet.Enc.dll', 'runtimes\win-x64\native\WebView2Loader.dll', 'runtimes\win-x64\native\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll')) {
-        $binaryPath = Join-Path $appOutput $binary
-        $bytes = [IO.File]::ReadAllBytes($binaryPath)
-        $peOffset = [BitConverter]::ToInt32($bytes, 60)
-        if ([BitConverter]::ToUInt16($bytes, $peOffset + 4) -ne 0x8664) { throw "Not an AMD64 binary: $binary" }
+    # Nothing 32-bit or ARM may reach an x64 package. Native payloads have to be AMD64
+    # outright; a managed assembly may also be AnyCPU, which is what the platform-neutral
+    # libraries are built as so the future macOS client can share them. AnyCPU and a
+    # 32-bit native DLL both report I386, so the CLI header is what tells them apart.
+    foreach ($binary in @('Spotnet.exe', 'runtimes\win-x64
+ative\WebView2Loader.dll', 'runtimes\win-x64
+ative\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll')) {
+        if ((Get-BinaryArchitecture (Join-Path $appOutput $binary)) -ne 'amd64') { throw "Not an AMD64 binary: $binary" }
+    }
+    foreach ($binary in @('Spotnet.dll', 'Spotnet.Enc.dll')) {
+        $architecture = Get-BinaryArchitecture (Join-Path $appOutput $binary)
+        if ($architecture -notin @('amd64', 'anycpu')) { throw "Not an AMD64 or AnyCPU assembly: $binary ($architecture)" }
     }
     # A fresh staging directory prevents stale DLLs or personal runtime data entering the package.
     $payload = Join-Path $artifactRoot ('payload-' + [Guid]::NewGuid().ToString('N'))
