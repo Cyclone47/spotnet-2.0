@@ -136,11 +136,6 @@
             <TextBlock Text="" Style="{StaticResource FontAwesomeMenuPics}" />
           </MenuItem.Icon>
         </MenuItem>
-        <MenuItem Name="SendResponse" Header="{x:Static p:Words.MenuSendResponse}" Click="SendResponse_Click">
-          <MenuItem.Icon>
-            <TextBlock Text="" Style="{StaticResource FontAwesomeMenuPics}" />
-          </MenuItem.Icon>
-        </MenuItem>
         <MenuItem Name="About" Header="{x:Static p:Words.MenuAbout}" Click="About_Click">
           <MenuItem.Icon>
             <TextBlock Text="" Style="{StaticResource FontAwesomeMenuPics}" />

@@ -337,7 +337,6 @@
   <data name="NZBGroupPleaseSpecify" xml:space="preserve"><value>Specificeer de groep waar de NZB geplaats moet worden.</value></data>
   <data name="SearchSubjectToolTip" xml:space="preserve"><value>Zoeken op titel</value></data>
   <data name="MenuVisibleControlsAddFilter" xml:space="preserve"><value>Filter toevoegen</value></data>
-  <data name="MenuSendResponse" xml:space="preserve"><value>Stuur bericht aan ontwikkelaars</value></data>
   <data name="EnterTag" xml:space="preserve"><value>Vul hier eventueel een tag in</value></data>
   <data name="PictureCannotPost" xml:space="preserve"><value>Kan plaatje niet posten?</value></data>
   <data name="Username" xml:space="preserve"><value>Gebruikersnaam</value></data>

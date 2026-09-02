@@ -587,8 +587,6 @@ public class Words
 
 	public static string MenuSearchSuggestions => ResourceManager.GetString("MenuSearchSuggestions", resourceCulture);
 
-	public static string MenuSendResponse => ResourceManager.GetString("MenuSendResponse", resourceCulture);
-
 	public static string MenuSettings => ResourceManager.GetString("MenuSettings", resourceCulture);
 
 	public static string MenuShowEroticaInSearchResults => ResourceManager.GetString("MenuShowEroticaInSearchResults", resourceCulture);

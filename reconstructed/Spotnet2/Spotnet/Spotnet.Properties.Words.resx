@@ -333,7 +333,6 @@
   <data name="NZBGroupPleaseSpecify" xml:space="preserve"><value>Please specify the group where NZB should be placed.</value></data>
   <data name="SearchSubjectToolTip" xml:space="preserve"><value>Search by title</value></data>
   <data name="MenuVisibleControlsAddFilter" xml:space="preserve"><value>Add Filter</value></data>
-  <data name="MenuSendResponse" xml:space="preserve"><value>Send response to developers</value></data>
   <data name="EnterTag" xml:space="preserve"><value>Enter an appropriate tag</value></data>
   <data name="PictureCannotPost" xml:space="preserve"><value>Cannot post picture.</value></data>
   <data name="Username" xml:space="preserve"><value>Username</value></data>

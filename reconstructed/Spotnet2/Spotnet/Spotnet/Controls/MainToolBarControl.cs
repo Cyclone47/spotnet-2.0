@@ -414,11 +414,6 @@ public partial class MainToolBarControl : UserControl
         Sys.MainWindow.OpenPage(PageTypeEnum.ReleaseNotes);
     }
 
-    private void SendResponse_Click(object sender, RoutedEventArgs e)
-    {
-        Sys.MainWindow.OpenPage(PageTypeEnum.ResponseSite);
-    }
-
     private void AssociateNzbFiles_Click(object sender, RoutedEventArgs e)
     {
         try
