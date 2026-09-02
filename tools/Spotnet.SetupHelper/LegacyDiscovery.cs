@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security;
@@ -16,10 +17,47 @@ public sealed class LegacyDiscovery
     public List<string> Installations { get; } = new List<string>();
     public List<string> Warnings { get; } = new List<string>();
 
+    public bool ClassicAvailable => Installations.Count != 0;
+
+    public string PreferredDataPath => DataPaths.Count == 1 ? DataPaths[0] : "";
+
+    public string PreferredSettingsPath => SettingsFor(PreferredDataPath);
+
+    public string SettingsFor(string data)
+    {
+        if (string.IsNullOrEmpty(data)) return "";
+        var colocated = SettingsPaths.Where(path => Path.GetDirectoryName(path).Equals(data, StringComparison.OrdinalIgnoreCase)).ToArray();
+        if (colocated.Length == 1) return colocated[0];
+        // Never pair an unrelated .NET settings file with another provider's data.
+        return DataPaths.Count == 1 && SettingsPaths.Count == 1 ? SettingsPaths[0] : "";
+    }
+
+    public static bool IsClassicInstallation(string displayName, string version)
+    {
+        if (string.IsNullOrWhiteSpace(displayName) ||
+            !(displayName.Equals("Spotnet", StringComparison.OrdinalIgnoreCase) ||
+              displayName.StartsWith("Spotnet ", StringComparison.OrdinalIgnoreCase))) return false;
+        // This installer registers as "Spotnet 3.0 (64-bit)". Never mistake an
+        // existing 3.x installation for the 1.8/2.x product the migration page means.
+        if (displayName.StartsWith("Spotnet 3", StringComparison.OrdinalIgnoreCase)) return false;
+        if (Version.TryParse(version, out Version parsed)) return (parsed.Major == 1 && parsed.Minor == 8) || parsed.Major == 2;
+        return displayName.Equals("Spotnet", StringComparison.OrdinalIgnoreCase) ||
+               displayName.StartsWith("Spotnet 1.8", StringComparison.OrdinalIgnoreCase) ||
+               displayName.StartsWith("Spotnet 2", StringComparison.OrdinalIgnoreCase);
+    }
+
     public static LegacyDiscovery Detect(string local, string roaming, string common, bool registry = true)
     {
         var result = new LegacyDiscovery();
         var data = new List<string> { Path.Combine(common, "Spotnet"), Path.Combine(local, "Spotnet", "Data") };
+        // Squirrel installations may have no usable uninstall entry. Require the
+        // actual versioned executable, never just an abandoned data directory.
+        string localClassic = Path.Combine(local, "Spotnet");
+        if (HasClassicExecutable(localClassic))
+        {
+            result.Installations.Add("Spotnet Classic");
+            data.Add(localClassic);
+        }
         if (registry)
         {
             foreach (var hive in new[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
@@ -35,9 +73,14 @@ public sealed class LegacyDiscovery
                         using (var key = uninstall.OpenSubKey(name))
                         {
                             string display = key?.GetValue("DisplayName") as string;
-                            if (display == null || !(display.Equals("Spotnet", StringComparison.OrdinalIgnoreCase) || display.StartsWith("Spotnet ", StringComparison.OrdinalIgnoreCase))) continue;
+                            if (!IsClassicInstallation(display, key?.GetValue("DisplayVersion") as string)) continue;
                             string version = key.GetValue("DisplayVersion") as string ?? "unknown";
                             string location = key.GetValue("InstallLocation") as string;
+                            // Ignore stale uninstall registry entries whose application is gone.
+                            var locations = new[] { location, Path.Combine(local, "Spotnet"),
+                                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Spotnet"),
+                                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Spotnet") };
+                            if (!locations.Any(HasClassicExecutable)) continue;
                             result.Installations.Add(display + " " + version);
                             if (!string.IsNullOrWhiteSpace(location) && Directory.Exists(location))
                             {
@@ -70,6 +113,27 @@ public sealed class LegacyDiscovery
         // ClickOnce data roots are bounded; no general profile-wide recursive scan.
         result.FindSettings(Path.Combine(local, "Apps", "2.0", "Data"), 5);
         return result;
+    }
+
+    public static bool HasClassicExecutable(string directory)
+    {
+        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory)) return false;
+        try
+        {
+            ProfileMigration.SafeDirectory(directory);
+            var candidates = new[] { Path.Combine(directory, "Spotnet.exe") }
+                .Concat(Directory.GetDirectories(directory, "app-*").Select(path => Path.Combine(path, "Spotnet.exe")));
+            foreach (string candidate in candidates)
+            {
+                if (!File.Exists(candidate)) continue;
+                ProfileMigration.SafeDirectory(Path.GetDirectoryName(candidate));
+                var version = FileVersionInfo.GetVersionInfo(candidate);
+                if (version.FileMajorPart == 2 || (version.FileMajorPart == 1 && version.FileMinorPart == 8)) return true;
+            }
+        }
+        catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+        { }
+        return false;
     }
 
     private int _visited;
@@ -116,6 +180,12 @@ public sealed class LegacyDiscovery
         WriteList(text, "Settings", SettingsPaths);
         WriteList(text, "Install", Installations.Distinct().ToList());
         WriteList(text, "Warning", Warnings.Distinct().ToList());
+        text.AppendLine("ClassicAvailable=" + (ClassicAvailable ? "1" : "0"));
+        text.AppendLine("ClassicName=" + (Installations.FirstOrDefault() ?? "").Replace("\r", " ").Replace("\n", " "));
+        text.AppendLine("ClassicData=" + PreferredDataPath.Replace("\r", " ").Replace("\n", " "));
+        text.AppendLine("ClassicSettings=" + PreferredSettingsPath.Replace("\r", " ").Replace("\n", " "));
+        for (int index = 0; index < DataPaths.Count; index++)
+            text.AppendLine("DataSettings" + index + "=" + SettingsFor(DataPaths[index]).Replace("\r", " ").Replace("\n", " "));
         text.AppendLine("CurrentTheme=" + CurrentTheme);
         text.AppendLine("CurrentLanguage=" + CurrentLanguage);
         File.WriteAllText(path, text.ToString(), Encoding.Unicode);

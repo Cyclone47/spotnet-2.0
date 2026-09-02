@@ -8,11 +8,11 @@ The installer is built with Inno Setup 7 and installs **for the current Windows 
 
 1. Run Setup under the Windows account that owns the old Spotnet profile; do not switch to a different administrator account.
 2. Confirm the installation folder, normally `%LOCALAPPDATA%\Programs\Spotnet3`.
-3. For migration, select the detected legacy **data folder** and the matching **preferences file**. If there are several candidates, inspect the paths and select one. Setup does not merge profiles or arbitrarily choose the newest settings file.
+3. On a clean machine, Setup skips migration questions. If Classic 1.8/2.x is detected, choose **migrate and replace (move)**, **migrate alongside (copy)**, **clean alongside**, or **clean and replace**. Copy/alongside is the non-destructive default. A source-profile question appears only when several data folders were found; Setup never merges profiles or guesses the newest preferences. Normal 3.0 upgrades retain their profile and previous shortcut mode.
 4. Review the summary. Setup requests a graceful Spotnet exit and waits up to 30 seconds. It uses the existing tray-safe exit command, with a normal close-window fallback. If Spotnet does not exit, or belongs to another Windows session, Setup stops; it never force-kills Spotnet.
    During shutdown, prerequisite handling, and profile copying/verification, Setup shows a dedicated progress page and the current operation. A large profile can still take several minutes, but the wizard no longer leaves the generic Preparing page blank.
 5. Missing WebView2 is installed using Microsoft's signed Evergreen bootstrapper. Internet access is needed for that step. Missing .NET Framework is reported before installation; install it from Microsoft and rerun Setup.
-6. Setup copies/verifies the profile, installs the application, updates your existing Spotnet launch shortcuts, and offers an optional launch. A fresh install creates both Desktop and Start Menu shortcuts automatically.
+6. Setup prepares/verifies the profile, installs the application, creates or updates the selected shortcuts, then completes any requested move. Desktop and Start Menu shortcuts are checked by default. Moving requires an explicit confirmation and deletes the verified migrated source files; it does not rename them.
 
 A fresh installation gets defaults and the application's provider-selection flow on first launch. Old application files remain available until you have verified the new client. Setup does not change NZB associations or the `spotnet://` handler.
 
@@ -20,11 +20,13 @@ The startup language applies to Inno Setup's standard controls and Spotnet's cus
 
 ### Existing shortcuts
 
-Setup scans this Windows user's Desktop and Start Menu Programs folders (including subfolders, up to six levels) for `.lnk` launchers that target `Spotnet.exe` or the legacy Spotnet Squirrel `Update.exe --processStart Spotnet.exe` command. Both old 2.x and existing 3.0 launchers are updated **in place**, retaining their names and locations. Their target, working directory, and icon point to the installed x64 application; old launch arguments are removed. Renamed Spotnet launchers are recognized by their target, not their displayed name.
+Setup scans this Windows user's Desktop and Start Menu Programs folders (including subfolders, up to six levels) for `.lnk` launchers that target `Spotnet.exe` or the legacy Spotnet Squirrel `Update.exe --processStart Spotnet.exe` command. **Alongside** leaves Classic's existing `Spotnet` launchers unchanged and creates selected new launchers named `Spotnet 3.0`. **Replace** updates Classic launchers in place, so `Spotnet` opens 3.0. A clean machine also gets `Spotnet`, without a version suffix. The Classic application itself is not uninstalled by either choice. Renamed launchers are recognized by their target, not their displayed name.
 
-If a folder has no matching launcher, Setup creates `Spotnet.lnk` there. It uses a different Spotnet name if that name belongs to an unrelated application, never overwriting that unrelated link. It does not add another launcher where an existing one was updated.
+If a selected location has no matching launcher, Setup creates one using the name for that mode. Replace also consolidates the standard `Spotnet 3.0.lnk` name into `Spotnet.lnk`, journaling the old link for uninstall recovery. User-customized names are otherwise retained. It uses a `(64-bit)` suffix if the chosen name belongs to an unrelated application, never overwriting that unrelated link. An existing launcher inside a Desktop subfolder does not suppress creation of a checked root Desktop icon. Upgrades remember alongside mode instead of taking over Classic's links.
 
 Original links are backed up under `%LOCALAPPDATA%\Spotnet3\ShortcutBackups`, with a hash-checked journal. Repeat upgrades retain the original backup. Uninstall restores replaced links and removes newly created links **only if they still match Setup's last version**; user-edited or deleted links are respected. Backup files are retained for recovery. A shortcut failure is reported visibly and causes Setup exit code `10`; the application remains installed and Setup can be rerun after correcting access/path problems.
+
+After creating, updating, restoring or removing a managed shortcut, Setup sends a synchronous targeted change notification asking Windows Explorer to refresh it.
 
 Scope is deliberately per-user: Public Desktop/all-users Start Menu entries, other users' shortcuts, taskbar/Start pins, and ClickOnce `.appref-ms` launchers are not changed. Network/junction/symlink folders are not followed. Those launchers need to be updated manually; do not point a shared all-users shortcut to one user's private installation.
 
@@ -37,7 +39,7 @@ Detection reads the current-user and machine uninstall registry entries in both 
 - Registered Spotnet installation locations and their `Data` subfolders
 - Bounded Spotnet settings folders under Local/Roaming AppData and the ClickOnce data cache
 
-Custom/portable locations can be selected manually. A registered old application is not required if the data folder still exists. Read/access errors stop a selected migration instead of reporting success after a partial copy.
+Migration questions require an actual 1.8/2.x executable, discovered through an uninstall entry or the known per-user Squirrel location. Stale registry entries and abandoned data folders alone do not trigger the page. Read/access errors stop a selected migration instead of reporting success after a partial copy. Preferences are selected only when uniquely associated with the chosen data folder; ambiguous preferences use defaults.
 
 The automatic profile format is **Spotnet 2.x / this reconstructed C# client**. It imports standard `Spotnet.Properties.Settings` user.config files and compatible portable `<Settings>` XML. Arbitrary Spotnet 1.x/VB settings or server schemas are not automatically converted; use a fresh profile and configure that provider manually. The historical executable is never run to extract settings.
 
@@ -57,18 +59,19 @@ The installed application uses a new, stable profile location:
     staging-<timestamp-id>\  Incomplete copy, if a migration failed
 ```
 
-- Legacy source files are opened read-only and never edited or deleted. They remain the pre-migration recovery copy.
+- Copy/alongside and both clean choices never modify Classic profile files. Move/replace first prepares a verified copy without deleting sources. Only after application installation and shortcut creation succeed does a second pass recheck every source and destination hash under file locks, then permanently delete the migrated originals. Excluded files are retained. A failure before that point retains the sources; an interrupted removal can leave some originals behind and produces warning/exit code `11`. The pending operation is recorded in `classic-move.xml` under the new profile.
 - All selected source file handles are held exclusively for the snapshot, including SQLite WAL/SHM files. Any sharing conflict aborts preparation. Do not reopen the old client during Setup.
 - Copies are checked using SHA-256. Setup estimates required free space for the copy plus a 256 MiB margin; the application payload needs additional space.
 - Files are written to a separate staging directory. Only a completed profile is renamed into `Data`. Failures retain staging for diagnosis; they never activate an incomplete profile.
 - Existing marked 3.0 profiles are preserved, not overwritten by another import. Every repeat install/upgrade makes a verified backup before replacing application files. Backups exclude cache/log folders and require extra disk space.
 - The installer refuses an unrecognized non-empty destination profile, overlapping source/destination paths, network sources, and junction/symlink paths.
 - Setup refuses to overwrite an unmarked legacy application directory or downgrade a newer executable in the selected installation folder.
-- Uninstall requests a safe application exit, restores eligible original shortcuts, and removes installed application files and unchanged newly created shortcuts. It **retains profiles, backups, downloads and the old application files**.
+- Uninstall requests a safe application exit, restores eligible original shortcuts, and removes installed application files and unchanged newly created shortcuts. It retains the Spotnet 3 profile by default. An attended uninstall offers an unchecked **Permanently remove my Spotnet profile and all personal data** option, showing the exact profile path before anything is deleted. Selecting it permanently deletes `%LOCALAPPDATA%\Spotnet3` after shortcut restoration, including provider credentials, settings, databases, logs, incomplete migrations and backups. Download folders and older Spotnet profiles stored elsewhere are never removed.
+- Silent uninstall also retains the profile by default. Administrators can explicitly request the same permanent deletion with `/REMOVEPERSONALDATA=1`; for example, `unins000.exe /VERYSILENT /REMOVEPERSONALDATA=1`. This switch is intentionally opt-in.
 
 After migration, check provider access, spot/comment counts, filters, preferences, and download paths before retiring the old version. The old and new databases are separate copies; changes are not synchronized between them.
 
-For rollback to the old client, exit 3.0 and launch the untouched old installation. For a 3.0 data restore, exit Spotnet, preserve the current `Data` folder, then restore a selected complete backup as `Data`. Never restore only the main database file from a snapshot containing WAL/SHM companions. Profile backups may contain credentials and signing keys: keep them private.
+For rollback after copy/alongside, exit 3.0 and launch the untouched old installation. Move/replace removes the migrated originals, so it does not offer this immediate data rollback; make your own backup before choosing move if you need it. For a 3.0 data restore, exit Spotnet, preserve the current `Data` folder, then restore a selected complete backup as `Data`. Never restore only the main database file from a snapshot containing WAL/SHM companions. Profile backups may contain credentials and signing keys: keep them private.
 
 Installed builds are marked by `Spotnet.install`. They use stable per-user preferences and do not initialize or use the old Squirrel update feed. Updates to this installation are delivered by running a newer Setup package. Unmarked developer builds retain their previous data-location behavior.
 
@@ -94,7 +97,7 @@ The Spotnet package is **unsigned** until a publisher code-signing certificate i
 
 ## Verification
 
-The 111-test x64 regression suite includes installer tests for fresh profiles, data/sidecar preservation, readable SQLite copies, preferences conversion, safe defaults, upgrade backups, unknown destinations, locked files, malformed XML, overlapping paths, excluded queues/caches, discovery, stable settings, graceful-shutdown timeouts, translation completeness, and preparation progress. Eighteen shortcut cases cover legacy/current/Squirrel matching, in-place replacement, fresh launchers, repeat upgrades, unrelated/uninstall links, locked files, backup-path bounds, and uninstall recovery/user edits. The 3.0.1 patch adds WPF menu rendering and live theme-switch coverage.
+The x64 regression suite covers fresh profiles, data/sidecar preservation, readable SQLite copies, preferences conversion, safe defaults, upgrade backups, unknown destinations, locked files, malformed XML, overlapping paths, excluded queues/caches, discovery, stable settings, graceful-shutdown timeouts, translation completeness, and preparation progress. Move tests verify deferred deletion, changed source/destination rejection and path bounds. Shortcut tests cover alongside preservation, mode retention, checked root Desktop creation, legacy/current/Squirrel matching, repeat upgrades, unrelated/uninstall links, locked files, backup-path bounds, and uninstall recovery/user edits.
 
 First-launch testing also caught and fixed a second SQLite PRAGMA return-value issue in fresh spots-database creation. That path now accepts successful no-row results, verifies the resulting settings/schema version, and applies the page size only to a verified-empty database. A regression test refuses initialization when user tables already exist.
 
@@ -104,9 +107,11 @@ An isolated Inno smoke-test build can be compiled by supplying `/DSmokeTestRoot=
 .\installer\Test-InstallerSmoke.ps1
 ```
 
-The compiler define must match the script's `-TestRoot` argument (default: `<repo>\artifacts\installer-smoke`); choose a new directory for repeat runs. This checks actual extraction, fresh installation and both launchers, replacement of old/current/Squirrel links without duplicates, unrelated-link preservation, repeat upgrade, backup integrity, and uninstall restoring shortcuts while preserving a synthetic profile. It retains logs and test data. Never distribute the `*-smoke.exe` artifact: it is configured for that test directory, not real use.
+The compiler define must match the script's `-TestRoot` argument (default: `<repo>\artifacts\installer-smoke`); choose a new directory for repeat runs. This checks actual extraction, fresh installation and both launchers, replacement of old/current/Squirrel links without duplicates, unrelated-link preservation, repeat upgrade, backup integrity, uninstall restoring shortcuts while preserving a synthetic profile by default, and a second uninstall permanently deleting that profile only when `/REMOVEPERSONALDATA=1` is supplied. It retains the smoke-test logs but not the deliberately deleted synthetic profile. Never distribute the `*-smoke.exe` artifact: it is configured for that test directory, not real use.
 
 Real-provider operation, graphics/video behavior, non-admin account variations, and migrations from arbitrary historical profiles still require desktop acceptance testing. Passing tests do not certify every legacy profile as compatible.
+
+For four-choice coverage, run the smoke script with `-ClassicMode 0`, `1`, `2`, or `3` (the order listed above), each against a fresh matching compiled smoke root. It seeds an isolated Classic executable/version resource and synthetic profile, then checks detection, copy/move/clean behavior, shortcut names, upgrade mode retention and explicit uninstall deletion. `-Language english` and `-Language dutch` select the installer language. `/SMOKECLASSICMODE` exists only in smoke builds. Production silent first installs require `/FRESH=1` and always preserve Classic, with no unattended move option.
 
 ## Implementation references
 

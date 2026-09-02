@@ -83,6 +83,79 @@ public sealed class ShortcutMigrationTests : IDisposable
     }
 
     [Fact]
+    public void AlongsideModePreservesClassicAndCreatesDistinctThreeLaunchers()
+    {
+        string classicDesktop = Path.Combine(Desktop, "Spotnet.lnk");
+        string classicPrograms = Path.Combine(Programs, "Spotnet.lnk");
+        SeedLink(classicDesktop, Path.Combine(_root, "Classic", "Spotnet.exe"));
+        SeedLink(classicPrograms, Path.Combine(_root, "Classic", "Spotnet.exe"));
+        byte[] desktopBytes = File.ReadAllBytes(classicDesktop);
+        byte[] programsBytes = File.ReadAllBytes(classicPrograms);
+
+        string result = Manager.Install(Exe, replaceClassic: false);
+
+        Assert.Contains("Classic shortcuts preserved: 2", result);
+        Assert.Equal(desktopBytes, File.ReadAllBytes(classicDesktop));
+        Assert.Equal(programsBytes, File.ReadAllBytes(classicPrograms));
+        Assert.Equal(Exe, ShortcutManager.Read(Path.Combine(Desktop, "Spotnet 3.0.lnk")).Target, ignoreCase: true);
+        Assert.Equal(Exe, ShortcutManager.Read(Path.Combine(Programs, "Spotnet 3.0.lnk")).Target, ignoreCase: true);
+        Manager.Restore();
+        Assert.Equal(desktopBytes, File.ReadAllBytes(classicDesktop));
+        Assert.Equal(programsBytes, File.ReadAllBytes(classicPrograms));
+        Assert.False(File.Exists(Path.Combine(Desktop, "Spotnet 3.0.lnk")));
+        Assert.False(File.Exists(Path.Combine(Programs, "Spotnet 3.0.lnk")));
+    }
+
+    [Fact]
+    public void CheckedDesktopTaskCreatesRootIconEvenWithLauncherInSubfolder()
+    {
+        string nested = Path.Combine(Desktop, "Old apps", "Spotnet.lnk");
+        SeedLink(nested, Path.Combine(_root, "Classic", "Spotnet.exe"));
+        Manager.Install(Exe, addPrograms: false);
+        Assert.Equal(Exe, ShortcutManager.Read(Path.Combine(Desktop, "Spotnet.lnk")).Target, ignoreCase: true);
+        Assert.Equal(Exe, ShortcutManager.Read(nested).Target, ignoreCase: true);
+    }
+
+    [Fact]
+    public void AlongsideUsesVersionedNamesEvenWhenClassicHasNoShortcuts()
+    {
+        Manager.Install(Exe, replaceClassic: false);
+        foreach (string root in new[] { Desktop, Programs })
+            Assert.Equal("Spotnet 3.0.lnk", Path.GetFileName(Assert.Single(Directory.GetFiles(root, "*.lnk"))));
+    }
+
+    [Fact]
+    public void ReplaceConsolidatesInstallerCreatedVersionedLinksWithoutResurrectingThem()
+    {
+        Manager.Install(Exe, replaceClassic: false);
+        Manager.Install(Exe, replaceClassic: true);
+        Manager.Install(Exe, replaceClassic: null);
+        foreach (string root in new[] { Desktop, Programs })
+        {
+            Assert.False(File.Exists(Path.Combine(root, "Spotnet 3.0.lnk")));
+            Assert.Equal(Exe, ShortcutManager.Read(Path.Combine(root, "Spotnet.lnk")).Target, ignoreCase: true);
+            Assert.Single(Directory.GetFiles(root, "*.lnk"));
+        }
+        Manager.Restore();
+        Assert.Empty(Directory.GetFiles(Desktop, "*.lnk"));
+        Assert.Empty(Directory.GetFiles(Programs, "*.lnk"));
+    }
+
+    [Fact]
+    public void UpgradeRemembersAlongsideMode()
+    {
+        string classic = Path.Combine(Desktop, "Spotnet.lnk");
+        SeedLink(classic, Path.Combine(_root, "Classic", "Spotnet.exe"));
+        byte[] original = File.ReadAllBytes(classic);
+        Manager.Install(Exe, addPrograms: false, replaceClassic: false);
+
+        Manager.Install(Exe, addPrograms: false, replaceClassic: null);
+
+        Assert.Equal(original, File.ReadAllBytes(classic));
+        Assert.Equal(Exe, ShortcutManager.Read(Path.Combine(Desktop, "Spotnet 3.0.lnk")).Target, ignoreCase: true);
+    }
+
+    [Fact]
     public void FreshInstallCreatesBothLinksAndUninstallRemovesThem()
     {
         Manager.Install(Exe);
@@ -114,7 +187,8 @@ public sealed class ShortcutMigrationTests : IDisposable
         Manager.Install(Exe); // Must not replace the original backups with 3.0 links.
         Assert.Equal(2, Directory.GetFiles(Desktop, "*.lnk", SearchOption.AllDirectories).Length);
         Assert.Single(Directory.GetFiles(Programs, "*.lnk", SearchOption.AllDirectories));
-        foreach (string path in paths)
+        Assert.False(File.Exists(paths[1]));
+        foreach (string path in new[] { paths[0], Path.Combine(Desktop, "Spotnet.lnk"), paths[2] })
         {
             Assert.Equal(Exe, ShortcutManager.Read(path).Target, ignoreCase: true);
             Assert.Equal("", ShortcutManager.Read(path).Arguments);
@@ -134,7 +208,7 @@ public sealed class ShortcutMigrationTests : IDisposable
         Manager.Install(Exe);
         Assert.Equal(unrelatedBytes, File.ReadAllBytes(unrelated));
         Assert.Equal(uninstallBytes, File.ReadAllBytes(uninstall));
-        Assert.Equal(Exe, ShortcutManager.Read(Path.Combine(Desktop, "Spotnet 3.0.lnk")).Target, ignoreCase: true);
+        Assert.Equal(Exe, ShortcutManager.Read(Path.Combine(Desktop, "Spotnet (64-bit).lnk")).Target, ignoreCase: true);
         Manager.Restore();
         Assert.Equal(unrelatedBytes, File.ReadAllBytes(unrelated));
         Assert.Equal(uninstallBytes, File.ReadAllBytes(uninstall));

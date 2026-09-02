@@ -88,4 +88,29 @@ public sealed class InstallerLocalizationTests
         Assert.Contains("' --create '", source);
         Assert.Contains("ShortcutParameters + ShortcutCreation", source);
     }
+
+    [Fact]
+    public void ClassicChoicesReplaceTechnicalPagesAndAreSkippedWithoutClassic()
+    {
+        string source = InstallerScript();
+        Assert.DoesNotContain("CreateInputFilePage", source);
+        Assert.DoesNotContain("CreateInputDirPage", source);
+        Assert.Contains("(PageID = MigrationPage.ID) and (ExistingProfile or not ClassicAvailable)", source);
+        foreach (string choice in new[] { "MigrateReplace", "MigrateAlongside", "CleanAlongside", "CleanReplace" })
+            Assert.Contains("MigrationPage.Add(CM('" + choice + "'))", source);
+        Assert.Contains("' --classic-mode ' + ClassicShortcutMode", source);
+        Assert.Matches(@"(?s)if CurStep = ssPostInstall.*if not ShortcutFailure then begin.*'complete-move --profile '", source);
+        Assert.Contains("CM('MoveConfirmation')", source);
+    }
+
+    [Fact]
+    public void UninstallRetainsTheProfileUnlessRemovalIsExplicitlySelected()
+    {
+        string source = InstallerScript();
+        Assert.Contains("RemoveDataCheck.Checked := False", source);
+        Assert.Contains("{param:REMOVEPERSONALDATA|0}", source);
+        Assert.Contains("(CurUninstallStep = usPostUninstall) and RemovePersonalData", source);
+        Assert.Contains("DelTree(ProfileRoot, True, True, True)", source);
+        Assert.Contains("Shortcut backups live inside the profile, so removal must be the final step", source);
+    }
 }

@@ -22,6 +22,16 @@ public sealed class ShortcutInfo
 /// <summary>Only current-user Desktop/Start Menu launch links; never uninstall links or global pins.</summary>
 public sealed class ShortcutManager
 {
+    private const int ShellCreate = 0x00000002;
+    private const int ShellDelete = 0x00000004;
+    private const int ShellUpdateItem = 0x00002000;
+    private const uint ShellPathUnicode = 0x0005;
+    private const uint ShellFlush = 0x1000;
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+    private static extern void SHChangeNotify(int eventId, uint flags,
+        [MarshalAs(UnmanagedType.LPWStr)] string item1, IntPtr item2);
+
     private readonly string _desktop;
     private readonly string _programs;
     private readonly string _state;
@@ -94,6 +104,17 @@ public sealed class ShortcutManager
             Regex.IsMatch(arguments, "^--processStart(?:AndWait)?\\s+(?:\"Spotnet\\.exe\"|Spotnet\\.exe)(?:\\s+--process-start-args(?:\\s|=).*)?$", RegexOptions.IgnoreCase);
     }
 
+    private static bool TargetsExecutable(ShortcutInfo link, string executable)
+    {
+        try
+        {
+            string target = Environment.ExpandEnvironmentVariables((link?.Target ?? "").Trim('"'));
+            return Path.GetFullPath(target).Equals(executable, StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException)
+        { return false; }
+    }
+
     private bool WithinRoots(string path)
     {
         string full = Path.GetFullPath(path);
@@ -142,6 +163,14 @@ public sealed class ShortcutManager
         using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
     }
 
+    private static void NotifyShell(int eventId, string path)
+    {
+        // The helper exits immediately after writing links. Explicit, flushed shell
+        // notifications keep Explorer from showing a stale Desktop/Start Menu until
+        // the user refreshes it or signs in again.
+        SHChangeNotify(eventId, ShellPathUnicode | ShellFlush, path, IntPtr.Zero);
+    }
+
     private void InstallLink(XmlDocument manifest, string path, string executable)
     {
         ValidateLinkPath(path);
@@ -167,9 +196,12 @@ public sealed class ShortcutManager
         Write(temporary, executable);
         record.SetAttribute("installedHash", Hash(temporary));
         record.SetAttribute("executable", executable);
+        record.RemoveAttribute("removedForNaming");
         ProfileSettingsFile.SaveAtomic(manifest, _manifest);
-        if (File.Exists(path)) File.Replace(temporary, path, null);
+        bool replacing = File.Exists(path);
+        if (replacing) File.Replace(temporary, path, null);
         else File.Move(temporary, path);
+        NotifyShell(replacing ? ShellUpdateItem : ShellCreate, path);
     }
 
     /// <summary>
@@ -177,7 +209,7 @@ public sealed class ShortcutManager
     /// where Setup was asked to. Declining a shortcut never touches an existing link: an
     /// upgrade must not leave a Desktop icon pointing at the old installation.
     /// </summary>
-    public string Install(string executable, bool addDesktop = true, bool addPrograms = true)
+    public string Install(string executable, bool addDesktop = true, bool addPrograms = true, bool? replaceClassic = true)
     {
         executable = Path.GetFullPath(executable);
         if (!File.Exists(executable) || !Path.GetFileName(executable).Equals("Spotnet.exe", StringComparison.OrdinalIgnoreCase))
@@ -186,7 +218,11 @@ public sealed class ShortcutManager
         using (var guard = new FileStream(Path.Combine(_state, "shortcuts.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
         {
             var manifest = LoadManifest();
-            int replaced = 0, created = 0, declined = 0;
+            string storedMode = manifest.DocumentElement.GetAttribute("classicMode");
+            bool replace = replaceClassic ?? !storedMode.Equals("alongside", StringComparison.OrdinalIgnoreCase);
+            manifest.DocumentElement.SetAttribute("classicMode", replace ? "replace" : "alongside");
+            ProfileSettingsFile.SaveAtomic(manifest, _manifest);
+            int replaced = 0, created = 0, declined = 0, preserved = 0;
             var warnings = new List<string>();
             foreach (var location in new[] { Tuple.Create(_desktop, addDesktop), Tuple.Create(_programs, addPrograms) })
             {
@@ -197,24 +233,48 @@ public sealed class ShortcutManager
                     try
                     {
                         ValidateLinkPath(path);
-                        if (!IsSpotnetLauncher(Read(path))) continue;
+                        ShortcutInfo link = Read(path);
+                        if (!IsSpotnetLauncher(link)) continue;
+                        if (!replace && !TargetsExecutable(link, executable)) { preserved++; continue; }
                         InstallLink(manifest, path, executable);
+                        if (replace && Path.GetFileName(path).Equals("Spotnet 3.0.lnk", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string canonical = Path.Combine(Path.GetDirectoryName(path), "Spotnet.lnk");
+                            ValidateLinkPath(canonical);
+                            if (File.Exists(canonical) && !IsSpotnetLauncher(Read(canonical)))
+                                canonical = Path.Combine(Path.GetDirectoryName(path), "Spotnet (64-bit).lnk");
+                            ValidateLinkPath(canonical);
+                            if (File.Exists(canonical) && !IsSpotnetLauncher(Read(canonical)))
+                                throw new IOException("Unversioned shortcut names are occupied by unrelated links.");
+                            InstallLink(manifest, canonical, executable);
+                            var old = manifest.DocumentElement.ChildNodes.OfType<XmlElement>()
+                                .Single(e => e.GetAttribute("path").Equals(path, StringComparison.OrdinalIgnoreCase));
+                            // Preserve the original for uninstall, but remove the obsolete
+                            // versioned name only after its replacement has been written.
+                            old.SetAttribute("removedForNaming", bool.TrueString);
+                            ProfileSettingsFile.SaveAtomic(manifest, _manifest);
+                            File.Delete(path);
+                            NotifyShell(ShellDelete, path);
+                        }
                         replaced++;
-                        found = true;
+                        // A launcher inside a Desktop subfolder is not a Desktop
+                        // icon. Honour the checked task by adding one at its root.
+                        if (root != _desktop || Path.GetDirectoryName(path).Equals(root, StringComparison.OrdinalIgnoreCase))
+                            found = true;
                     }
                     catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is COMException)
                     { warnings.Add("Could not inspect/update shortcut: " + path); }
                 }
                 if (found) continue; // Keep names/locations and do not add a duplicate launcher.
                 if (!location.Item2) { declined++; continue; }
-                string target = Path.Combine(root, "Spotnet.lnk");
-                if (File.Exists(target)) target = Path.Combine(root, "Spotnet 3.0.lnk");
-                if (File.Exists(target)) target = Path.Combine(root, "Spotnet 3.0 (64-bit).lnk");
+                string target = Path.Combine(root, replace ? "Spotnet.lnk" : "Spotnet 3.0.lnk");
+                if (File.Exists(target)) target = Path.Combine(root, replace ? "Spotnet (64-bit).lnk" : "Spotnet 3.0 (64-bit).lnk");
                 if (File.Exists(target)) throw new IOException("Shortcut names are occupied by unrelated or unreadable links; they will not be overwritten.");
                 InstallLink(manifest, target, executable);
                 created++;
             }
             string summary = "Spotnet shortcuts updated: " + replaced + "; created: " + created + ".";
+            if (preserved != 0) summary += " Classic shortcuts preserved: " + preserved + ".";
             if (declined != 0) summary += " Shortcuts you did not ask for were not added: " + declined + ".";
             if (warnings.Count != 0) throw new IOException(summary + "\r\n" + string.Join("\r\n", warnings));
             return summary;
@@ -231,9 +291,15 @@ public sealed class ShortcutManager
             string path = record.GetAttribute("path");
             ValidateLinkPath(path);
             // Respect shortcuts that the user changed after Setup.
-            if (!File.Exists(path) || Hash(path) != record.GetAttribute("installedHash")) continue;
+            bool exists = File.Exists(path);
+            if (exists && Hash(path) != record.GetAttribute("installedHash")) continue;
+            if (!exists && record.GetAttribute("removedForNaming") != bool.TrueString) continue;
             if (record.GetAttribute("created") == bool.TrueString)
+            {
+                if (!exists) continue;
                 File.Delete(path); // Only the exact .lnk created and still owned by this installer.
+                NotifyShell(ShellDelete, path);
+            }
             else
             {
                 string backupName = record.GetAttribute("backup");
@@ -242,8 +308,11 @@ public sealed class ShortcutManager
                 string backup = Path.Combine(_state, backupName);
                 if (Hash(backup) != record.GetAttribute("originalHash")) throw new IOException("Shortcut backup verification failed.");
                 string temporary = Path.Combine(Path.GetDirectoryName(path), ".spotnet-restore-" + Guid.NewGuid().ToString("N") + ".lnk");
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
                 File.Copy(backup, temporary, false);
-                File.Replace(temporary, path, null);
+                if (exists) File.Replace(temporary, path, null);
+                else File.Move(temporary, path);
+                NotifyShell(exists ? ShellUpdateItem : ShellCreate, path);
             }
             restored++;
         }

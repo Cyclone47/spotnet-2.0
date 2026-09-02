@@ -93,6 +93,66 @@ public sealed class InstallerMigrationTests : IDisposable
     }
 
     [Fact]
+    public void MoveDeletesOnlyFilesThatWereCopiedAndVerified()
+    {
+        Seed();
+        File.WriteAllBytes(Path.Combine(Source, "spots.dbs"), new byte[] { 1, 2, 3 });
+        Directory.CreateDirectory(Path.Combine(Source, "cache"));
+        File.WriteAllText(Path.Combine(Source, "cache", "thumbnail.bin"), "keep-classic-cache");
+        Directory.CreateDirectory(Path.Combine(Source, "Downloader"));
+        File.WriteAllText(Path.Combine(Source, "Downloader", "queue"), "keep-active-queue");
+
+        new ProfileMigration().Prepare(Target, Source, null, moveSource: true);
+        // A cancelled/failed payload install must still leave Classic intact.
+        Assert.True(File.Exists(Path.Combine(Source, "servers.xml")));
+        ProfileMigration.CompleteMove(Target, Source, null);
+        Assert.True(File.Exists(Path.Combine(Target, "Data", "servers.xml")));
+        Assert.True(File.Exists(Path.Combine(Target, "Data", "spots.dbs")));
+        Assert.False(File.Exists(Path.Combine(Source, "servers.xml")));
+        Assert.False(File.Exists(Path.Combine(Source, "spots.dbs")));
+        Assert.True(File.Exists(Path.Combine(Source, "cache", "thumbnail.bin")));
+        Assert.True(File.Exists(Path.Combine(Source, "Downloader", "queue")));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MoveRefusesToDeleteAnySourceIfEitherProfileChanged(bool changeTarget)
+    {
+        Seed();
+        new ProfileMigration().Prepare(Target, Source, null, moveSource: true);
+        File.AppendAllText(Path.Combine(changeTarget ? Path.Combine(Target, "Data") : Source, "keys.xml"), "changed");
+        Assert.Throws<IOException>(() => ProfileMigration.CompleteMove(Target, Source, null));
+        Assert.True(File.Exists(Path.Combine(Source, "servers.xml")));
+        Assert.True(File.Exists(Path.Combine(Source, "keys.xml")));
+    }
+
+    [Fact]
+    public void MoveRefusesPathsOutsideSelectedProfile()
+    {
+        Seed();
+        new ProfileMigration().Prepare(Target, Source, null, moveSource: true);
+        string planPath = Path.Combine(Target, "classic-move.xml");
+        var plan = ProfileSettingsFile.Load(planPath);
+        ((XmlElement)plan.DocumentElement.FirstChild).SetAttribute("target", "..\\..\\outside.xml");
+        plan.Save(planPath);
+        Assert.Throws<IOException>(() => ProfileMigration.CompleteMove(Target, Source, null));
+        Assert.True(File.Exists(Path.Combine(Source, "servers.xml")));
+    }
+
+    [Fact]
+    public void AmbiguousProfilesAreNeverChosenByLastWriteTime()
+    {
+        var discovery = new LegacyDiscovery();
+        discovery.DataPaths.Add(Source);
+        discovery.DataPaths.Add(Path.Combine(_root, "AnotherProfile"));
+        discovery.SettingsPaths.Add(Path.Combine(_root, "Unrelated", "user.config"));
+        Assert.Equal("", discovery.PreferredDataPath);
+        Assert.Equal("", discovery.PreferredSettingsPath);
+        Assert.Equal("", discovery.SettingsFor(Source));
+    }
+
+    [Fact]
     public void RealSqliteDatabaseRemainsReadableAfterCopy()
     {
         Seed();
@@ -287,10 +347,39 @@ public sealed class InstallerMigrationTests : IDisposable
         ProfileSettingsFile.Empty().Save(Path.Combine(config, "user.config"));
         var discovery = LegacyDiscovery.Detect(local, Path.Combine(_root, "Roaming"), common, false);
         Assert.Equal(2, discovery.DataPaths.Count);
+        Assert.False(discovery.ClassicAvailable); // Orphaned data/configuration is not an installed application.
         Assert.Single(discovery.SettingsPaths);
         string report = Path.Combine(_root, "detection.ini");
         discovery.SaveIni(report);
         Assert.DoesNotContain("must-not-appear", File.ReadAllText(report));
+    }
+
+    [Theory]
+    [InlineData("Spotnet", "2.0.0.284", true)]
+    [InlineData("Spotnet 1.8", "1.8.6", true)]
+    [InlineData("Spotnet 2.0", "2.0.0.284", true)]
+    [InlineData("Spotnet 3.0 (64-bit)", "3.0.6", false)]
+    [InlineData("Spotnet", "3.0.6", false)]
+    [InlineData("Another program", "2.0", false)]
+    public void DistinguishesClassicFromThree(string displayName, string version, bool expected)
+    {
+        Assert.Equal(expected, LegacyDiscovery.IsClassicInstallation(displayName, version));
+    }
+
+    [Fact]
+    public void LeftoverDataAloneDoesNotEnableClassicMigrationChoices()
+    {
+        Seed();
+        var discovery = new LegacyDiscovery();
+        discovery.DataPaths.Add(Source);
+        Assert.False(discovery.ClassicAvailable);
+        discovery.Installations.Add("Spotnet 2.0 2.0.0.284");
+        Assert.True(discovery.ClassicAvailable);
+        string report = Path.Combine(_root, "classic-detection.ini");
+        discovery.SaveIni(report);
+        string text = File.ReadAllText(report);
+        Assert.Contains("ClassicAvailable=1", text);
+        Assert.Contains("ClassicData=" + Source, text);
     }
 
     [Fact]

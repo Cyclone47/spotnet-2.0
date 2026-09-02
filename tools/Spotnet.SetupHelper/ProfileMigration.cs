@@ -104,7 +104,7 @@ public sealed class ProfileMigration
     }
 
     /// <summary>Read handles stay exclusively held for the whole snapshot, including WAL/SHM.</summary>
-    private static void Snapshot(string source, string destination, string settingsFile, Action<string> progress, bool wholeProfile, string language, string theme)
+    private static void Snapshot(string source, string destination, string settingsFile, Action<string> progress, bool wholeProfile, string language, string theme, XmlDocument movePlan = null)
     {
         var files = new List<Tuple<string, FileStream>>();
         FileStream settings = null;
@@ -176,12 +176,99 @@ public sealed class ProfileMigration
                 ProfileSettingsFile.SetIfAbsent(config, "AppTheme", theme);
                 ProfileSettingsFile.SaveAtomic(config, Path.Combine(destination, "user.config"));
             }
+            if (movePlan != null)
+            {
+                foreach (var file in files)
+                {
+                    string relative = file.Item1.Substring(source.Length + 1);
+                    // user.config and migration.txt may be transformed/replaced by Setup.
+                    // Only move settings that were explicitly selected and imported.
+                    if (relative.Equals("migration.txt", StringComparison.OrdinalIgnoreCase) ||
+                        relative.Equals(ProfileMarker, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (relative.Equals("user.config", StringComparison.OrdinalIgnoreCase) && !ReferenceEquals(file.Item2, settings)) continue;
+                    RecordMove(movePlan, file.Item1, relative, file.Item2, destination);
+                }
+                if (settings != null && !files.Any(f => ReferenceEquals(f.Item2, settings)))
+                    RecordMove(movePlan, settingsFile, "user.config", settings, destination);
+            }
         }
         finally
         {
             if (settings != null && !files.Any(f => ReferenceEquals(f.Item2, settings))) settings.Dispose();
             foreach (var file in files) file.Item2.Dispose();
         }
+    }
+
+    /// <summary>
+    /// Captures hashes while the original snapshot handles are still exclusively held.
+    /// </summary>
+    private static void RecordMove(XmlDocument plan, string source, string relative, Stream original, string destination)
+    {
+        var record = plan.CreateElement("file");
+        record.SetAttribute("source", Path.GetFullPath(source));
+        record.SetAttribute("target", relative);
+        record.SetAttribute("sourceHash", Hash(original));
+        using (var copy = File.OpenRead(Path.Combine(destination, relative))) record.SetAttribute("targetHash", Hash(copy));
+        plan.DocumentElement.AppendChild(record);
+    }
+
+    private static string Hash(Stream stream)
+    {
+        stream.Position = 0;
+        using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
+    }
+
+    /// <summary>Called only after payload and shortcuts succeed. Recheck every copy before deleting any source.</summary>
+    public static void CompleteMove(string profileRoot, string sourceData, string sourceSettings)
+    {
+        profileRoot = SafeDirectory(profileRoot);
+        string sourceRoot = SafeDirectory(sourceData);
+        if (Overlaps(profileRoot, sourceRoot)) throw new IOException("Source and destination must be separate.");
+        string settings = string.IsNullOrWhiteSpace(sourceSettings) ? "" : Path.GetFullPath(sourceSettings);
+        string data = SafeDirectory(Path.Combine(profileRoot, "Data"));
+        string planPath = Path.Combine(profileRoot, "classic-move.xml");
+        using var guard = new FileStream(Path.Combine(profileRoot, "setup.lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+        var plan = ProfileSettingsFile.Load(planPath);
+        if (plan.DocumentElement?.Name != "move" || plan.DocumentElement.GetAttribute("source") != sourceRoot ||
+            plan.DocumentElement.GetAttribute("settings") != settings || !File.Exists(Path.Combine(data, ProfileMarker)))
+            throw new IOException("Invalid pending move.");
+        var allowed = new HashSet<string>(Walk(sourceRoot, false), StringComparer.OrdinalIgnoreCase);
+        if (settings != "") allowed.Add(settings);
+        var sources = new Dictionary<string, FileStream>(StringComparer.OrdinalIgnoreCase);
+        var copies = new List<FileStream>();
+        try
+        {
+            foreach (XmlElement record in plan.DocumentElement.ChildNodes.OfType<XmlElement>())
+            {
+                string file = Path.GetFullPath(record.GetAttribute("source"));
+                string target = Path.GetFullPath(Path.Combine(data, record.GetAttribute("target")));
+                if (!allowed.Contains(file) || !target.StartsWith(data + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    throw new IOException("Pending move contains a path outside the selected profile.");
+                if (sources.ContainsKey(file)) throw new IOException("Pending move contains a duplicate source.");
+                SafeDirectory(Path.GetDirectoryName(file));
+                SafeDirectory(Path.GetDirectoryName(target));
+                if (((File.GetAttributes(file) | File.GetAttributes(target)) & FileAttributes.ReparsePoint) != 0)
+                    throw new IOException("Pending move cannot follow linked files.");
+                // Deny writes while allowing our subsequent deletion. Keep all copies locked too.
+                var original = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Delete);
+                sources.Add(file, original);
+                var copy = new FileStream(target, FileMode.Open, FileAccess.Read, FileShare.Read);
+                copies.Add(copy);
+                if (Hash(original) != record.GetAttribute("sourceHash") || Hash(copy) != record.GetAttribute("targetHash"))
+                    throw new IOException("A profile changed after migration; source files will not be removed.");
+            }
+            foreach (string file in sources.Keys)
+            {
+                SafeDirectory(Path.GetDirectoryName(file));
+                File.Delete(file);
+            }
+        }
+        finally
+        {
+            foreach (var stream in sources.Values) stream.Dispose();
+            foreach (var stream in copies) stream.Dispose();
+        }
+        File.Delete(planPath);
     }
 
     /// <summary>
@@ -247,7 +334,7 @@ public sealed class ProfileMigration
         return estimate;
     }
 
-    public string Prepare(string profileRoot, string sourceData, string sourceSettings, Action<string> progress = null, string language = null, string theme = null)
+    public string Prepare(string profileRoot, string sourceData, string sourceSettings, Action<string> progress = null, string language = null, string theme = null, bool moveSource = false)
     {
         profileRoot = SafeDirectory(profileRoot);
         string data = Path.Combine(profileRoot, "Data");
@@ -260,6 +347,7 @@ public sealed class ProfileMigration
             ValidateServers(sourceData);
         }
         else sourceData = null;
+        if (moveSource && sourceData == null) throw new IOException("Moving a profile requires a recognized source data folder.");
 
         bool existing = Directory.Exists(data) && Directory.EnumerateFileSystemEntries(data).Any();
         if (existing && !File.Exists(Path.Combine(data, ProfileMarker)))
@@ -287,16 +375,30 @@ public sealed class ProfileMigration
                 ApplyPreferences(Path.Combine(data, "user.config"), language, theme);
                 return "Existing profile preserved. Verified pre-upgrade backup: " + backup;
             }
-            Snapshot(sourceData, stage, sourceSettings, progress, false, language, theme);
+            XmlDocument movePlan = null;
+            if (moveSource)
+            {
+                movePlan = new XmlDocument { XmlResolver = null };
+                var root = movePlan.CreateElement("move");
+                root.SetAttribute("source", sourceData);
+                root.SetAttribute("settings", string.IsNullOrEmpty(sourceSettings) ? "" : Path.GetFullPath(sourceSettings));
+                movePlan.AppendChild(root);
+            }
+            Snapshot(sourceData, stage, sourceSettings, progress, false, language, theme, movePlan);
             File.WriteAllText(Path.Combine(stage, ProfileMarker), "Spotnet3 profile format 1\r\n", Encoding.UTF8);
             File.WriteAllText(Path.Combine(stage, "migration.txt"),
                 "Created UTC: " + DateTime.UtcNow.ToString("O") + "\r\nSource data: " + (sourceData ?? "Fresh install") +
                 "\r\nSource settings: " + (sourceSettings ?? "Defaults") +
-                "\r\nThe source was not modified. Download queues/caches are not imported.\r\n", Encoding.UTF8);
+                (moveSource
+                    ? "\r\nMove pending: source files are retained until installation succeeds. Download queues/caches are not imported or removed.\r\n"
+                    : "\r\nThe source was not modified. Download queues/caches are not imported.\r\n"), Encoding.UTF8);
             // Only remove an empty destination, never user data.
             if (Directory.Exists(data)) Directory.Delete(data, false);
             Directory.Move(stage, data);
-            return sourceData == null && string.IsNullOrEmpty(sourceSettings) ? "Fresh Spotnet 3.0 profile created." : "Verified legacy profile copy completed; original files are unchanged.";
+            if (sourceData == null && string.IsNullOrEmpty(sourceSettings)) return "Fresh Spotnet 3.0 profile created.";
+            if (!moveSource) return "Verified legacy profile copy completed; original files are unchanged.";
+            ProfileSettingsFile.SaveAtomic(movePlan, Path.Combine(profileRoot, "classic-move.xml"));
+            return "Verified legacy profile copy prepared. Source removal is pending successful installation.";
         }
     }
 
@@ -311,6 +413,6 @@ public sealed class ProfileMigration
         if (types.Count > 0 && (!types.Any(t => t == "DOWNLOAD" || t == "DOWNLOADS") ||
                               !types.Any(t => t == "HEADER" || t == "HEADERS") ||
                               !types.Any(t => t == "UPLOAD" || t == "UPLOADS")))
-            throw new InvalidDataException("This server profile is not compatible with Spotnet 2.x/3.x. Use a fresh install and configure the provider manually.");
+            throw new InvalidDataException("[UNSUPPORTED-PROFILE] This server profile is not compatible with Spotnet 2.x/3.x. Use a fresh install and configure the provider manually.");
     }
 }

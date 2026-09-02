@@ -151,16 +151,56 @@ english.SettingsFile=Settings file:
 dutch.SettingsFile=Instellingenbestand:
 english.SettingsFilter=Settings files|*.config;*.xml|All files|*.*
 dutch.SettingsFilter=Instellingenbestanden|*.config;*.xml|Alle bestanden|*.*
+english.ClassicChoiceTitle=Choose how to install Spotnet 3.0
+dutch.ClassicChoiceTitle=Kies hoe u Spotnet 3.0 wilt installeren
+english.ClassicChoiceSubtitle=Spotnet Classic is already installed
+dutch.ClassicChoiceSubtitle=Spotnet Classic is al geïnstalleerd
+english.ClassicSourceTitle=Choose your Classic profile
+dutch.ClassicSourceTitle=Kies uw Classic-profiel
+english.ClassicSourceDescription=More than one Classic profile was found. Select the one you use. Matching preferences are imported when identifiable; otherwise Spotnet uses default preferences.
+dutch.ClassicSourceDescription=Er zijn meerdere Classic-profielen gevonden. Selecteer het profiel dat u gebruikt. Bijbehorende voorkeuren worden overgenomen als ze herkenbaar zijn; anders gebruikt Spotnet standaardvoorkeuren.
+english.ClassicSourceMissing=No usable Classic data folder was found. Choose a clean installation to continue. Classic remains unchanged.
+dutch.ClassicSourceMissing=Er is geen bruikbare Classic-gegevensmap gevonden. Kies een schone installatie om door te gaan. Classic blijft ongewijzigd.
+english.ClassicUnsupported=This Classic profile format cannot be migrated automatically. Choose a clean installation and enter your provider in Spotnet. No Classic files were changed.
+dutch.ClassicUnsupported=Dit Classic-profielformaat kan niet automatisch worden gemigreerd. Kies een schone installatie en voer uw provider in Spotnet in. Er zijn geen Classic-bestanden gewijzigd.
+english.ClassicCompatibility=Some older profiles require a clean installation. Setup checks this before changing any data. Replace changes the shortcuts; the Classic application itself is not uninstalled.
+dutch.ClassicCompatibility=Sommige oudere profielen vereisen een schone installatie. Setup controleert dit voordat gegevens worden gewijzigd. Vervangen past de snelkoppelingen aan; Classic zelf wordt niet verwijderd.
+english.ClassicChoiceDescription=Setup found %1. Alongside keeps the existing Spotnet shortcut for Classic and creates Spotnet 3.0. Replace makes the existing Spotnet shortcut open 3.0.
+dutch.ClassicChoiceDescription=Setup heeft %1 gevonden. Naast elkaar behoudt de bestaande Spotnet-snelkoppeling voor Classic en maakt Spotnet 3.0. Vervangen laat de bestaande Spotnet-snelkoppeling voortaan 3.0 openen.
+english.MigrateReplace=Migrate and replace Spotnet Classic (move data)
+dutch.MigrateReplace=Gegevens migreren en Spotnet Classic vervangen (gegevens verplaatsen)
+english.MigrateAlongside=Migrate and use alongside Spotnet Classic (copy data)
+dutch.MigrateAlongside=Gegevens migreren en naast Spotnet Classic gebruiken (gegevens kopiëren)
+english.CleanAlongside=Clean install and use alongside Spotnet Classic
+dutch.CleanAlongside=Schone installatie naast Spotnet Classic gebruiken
+english.CleanReplace=Clean install and replace Spotnet Classic
+dutch.CleanReplace=Schone installatie en Spotnet Classic vervangen
+english.MoveConfirmation=After the copy is verified, migrated profile files will be permanently removed from %1. Spotnet Classic program files, download queues and caches will not be removed. Continue?
+dutch.MoveConfirmation=Nadat de kopie is gecontroleerd, worden gemigreerde profielbestanden permanent verwijderd uit %1. Programmabestanden, downloadwachtrijen en caches van Spotnet Classic worden niet verwijderd. Doorgaan?
+english.CleanInstallSummary=Create a clean Spotnet 3.0 profile with default settings.
+dutch.CleanInstallSummary=Een schoon Spotnet 3.0-profiel met standaardinstellingen maken.
+english.MigrateCopySummary=Copy and verify the active Spotnet Classic profile; keep the original data.
+dutch.MigrateCopySummary=Het actieve Spotnet Classic-profiel kopiëren en controleren; de oorspronkelijke gegevens behouden.
+english.MigrateMoveSummary=Copy and verify the active Spotnet Classic profile; then permanently remove the migrated source files.
+dutch.MigrateMoveSummary=Het actieve Spotnet Classic-profiel kopiëren en controleren; daarna de gemigreerde bronbestanden permanent verwijderen.
+english.MoveIncomplete=Migration succeeded, but some migrated files could not be removed from the Spotnet Classic profile. Check Spotnet 3.0, then remove the remaining Classic profile manually.
+dutch.MoveIncomplete=De migratie is geslaagd, maar sommige gemigreerde bestanden konden niet uit het Spotnet Classic-profiel worden verwijderd. Controleer Spotnet 3.0 en verwijder daarna het resterende Classic-profiel handmatig.
+english.ShortcutReplaceNotice=Existing Spotnet shortcuts will open 3.0. New shortcuts are named Spotnet (or Spotnet (64-bit) if the name is occupied by an unrelated shortcut).
+dutch.ShortcutReplaceNotice=Bestaande Spotnet-snelkoppelingen openen voortaan 3.0. Nieuwe snelkoppelingen heten Spotnet (of Spotnet (64-bit) als de naam door een andere snelkoppeling wordt gebruikt).
+english.ShortcutAlongsideNotice=Existing Spotnet shortcuts keep opening Classic. Selected new shortcuts are named Spotnet 3.0.
+dutch.ShortcutAlongsideNotice=Bestaande Spotnet-snelkoppelingen blijven Classic openen. Geselecteerde nieuwe snelkoppelingen heten Spotnet 3.0.
+english.ShortcutUpgradeNotice=Setup keeps the shortcut mode selected during the original Spotnet 3.0 installation.
+dutch.ShortcutUpgradeNotice=Setup behoudt de snelkoppelingsmodus die tijdens de oorspronkelijke installatie van Spotnet 3.0 is gekozen.
 english.Welcome1=Install Spotnet 3.0 for this Windows user.
 dutch.Welcome1=Spotnet 3.0 voor deze Windows-gebruiker installeren.
-english.Welcome2=Setup detects older Spotnet installations and offers a verified, non-destructive profile copy. Existing 3.0 profiles are backed up before an upgrade.
-dutch.Welcome2=Setup zoekt oudere Spotnet-installaties en biedt een gecontroleerde, niet-destructieve kopie van het profiel aan. Van bestaande 3.0-profielen wordt vóór een upgrade een back-up gemaakt.
+english.Welcome2=If an installed Spotnet Classic 1.8/2.x profile is found, Setup offers four simple migrate/clean and replace/alongside choices. A new system starts clean without migration questions. Existing 3.0 profiles are backed up before an upgrade.
+dutch.Welcome2=Als een geïnstalleerd Spotnet Classic 1.8/2.x-profiel wordt gevonden, biedt Setup vier eenvoudige keuzes voor migreren/schoon en vervangen/naast elkaar. Een nieuw systeem start schoon zonder migratievragen. Van bestaande 3.0-profielen wordt vóór een upgrade een back-up gemaakt.
 english.Welcome3=Setup will ask Spotnet to exit safely and wait for it to close. Large databases require extra disk space and copying time.
 dutch.Welcome3=Setup vraagt Spotnet veilig af te sluiten en wacht tot het programma is gestopt. Grote databases vereisen extra schijfruimte en kopieertijd.
-english.Welcome4=Your existing Spotnet Desktop and Start Menu shortcuts will be updated to 3.0. You choose whether Setup adds a new one.
-dutch.Welcome4=Bestaande Spotnet-snelkoppelingen op het bureaublad en in het Startmenu worden bijgewerkt naar 3.0. U kiest zelf of Setup er een nieuwe toevoegt.
-english.Welcome5=The .NET 8 Desktop Runtime ships with Setup and is installed if missing; Microsoft Edge WebView2 is fetched from Microsoft if missing (internet access required). Personal data is retained on uninstall.
-dutch.Welcome5=De .NET 8 Desktop Runtime zit in Setup en wordt geïnstalleerd als deze ontbreekt; Microsoft Edge WebView2 wordt bij Microsoft opgehaald als het ontbreekt (internettoegang vereist). Persoonlijke gegevens blijven behouden bij verwijderen.
+english.Welcome4=Replace reuses the Spotnet shortcuts for 3.0. Alongside keeps Classic as Spotnet and creates selected 3.0 shortcuts as Spotnet 3.0.
+dutch.Welcome4=Vervangen gebruikt de Spotnet-snelkoppelingen voortaan voor 3.0. Naast elkaar behoudt Classic als Spotnet en maakt geselecteerde 3.0-snelkoppelingen als Spotnet 3.0.
+english.Welcome5=The .NET 8 Desktop Runtime ships with Setup and is installed if missing; Microsoft Edge WebView2 is fetched from Microsoft if missing (internet access required). Uninstall keeps personal data unless you choose to delete it.
+dutch.Welcome5=De .NET 8 Desktop Runtime zit in Setup en wordt geïnstalleerd als deze ontbreekt; Microsoft Edge WebView2 wordt bij Microsoft opgehaald als het ontbreekt (internettoegang vereist). Bij verwijderen blijven persoonlijke gegevens behouden, tenzij u kiest om ze te wissen.
 english.SeparateFolder=Choose a separate installation folder. Setup will not overwrite a legacy or portable Spotnet installation.
 dutch.SeparateFolder=Kies een afzonderlijke installatiemap. Setup overschrijft geen oudere of draagbare Spotnet-installatie.
 english.NoDowngrade=A newer Spotnet version is installed here. Downgrades are not supported.
@@ -181,8 +221,8 @@ english.ShortcutNotice=Update your existing Spotnet shortcuts in place, and add 
 dutch.ShortcutNotice=Bestaande Spotnet-snelkoppelingen worden bijgewerkt en de hierboven gekozen snelkoppelingen worden toegevoegd. Van originelen wordt een back-up gemaakt.
 english.WebViewNotice=The .NET 8 Desktop Runtime ships with Setup; WebView2 is downloaded from Microsoft if it is missing.
 dutch.WebViewNotice=De .NET 8 Desktop Runtime zit in Setup; WebView2 wordt bij Microsoft gedownload als het ontbreekt.
-english.UninstallNotice=Uninstall removes application files, not your profile or backups.
-dutch.UninstallNotice=Verwijderen wist programmabestanden, maar niet uw profiel of back-ups.
+english.UninstallNotice=Uninstall keeps your profile and backups by default. You can optionally delete all personal data.
+dutch.UninstallNotice=Verwijderen behoudt standaard uw profiel en back-ups. U kunt ervoor kiezen alle persoonlijke gegevens te wissen.
 english.StatusClosing=Asking Spotnet to exit safely; waiting for database writes to finish...
 dutch.StatusClosing=Spotnet wordt veilig afgesloten; wachten tot databasebewerkingen gereed zijn...
 english.ProgressTitle=Preparing Spotnet 3.0
@@ -207,6 +247,22 @@ english.RestoreShortcutFailed=Some shortcuts could not be restored. Their backup
 dutch.RestoreShortcutFailed=Sommige snelkoppelingen konden niet worden hersteld. De back-ups blijven staan in
 english.DataRetained=Your personal data is retained.
 dutch.DataRetained=Uw persoonlijke gegevens blijven behouden.
+english.UninstallOptionsTitle=Uninstall Spotnet 3.0
+dutch.UninstallOptionsTitle=Spotnet 3.0 verwijderen
+english.UninstallOptionsIntro=By default, Spotnet keeps your profile so a later reinstall can use your provider settings and databases.
+dutch.UninstallOptionsIntro=Spotnet bewaart standaard uw profiel, zodat een latere installatie uw providerinstellingen en databases kan gebruiken.
+english.RemovePersonalData=Permanently remove my Spotnet profile and all personal data
+dutch.RemovePersonalData=Mijn Spotnet-profiel en alle persoonlijke gegevens permanent verwijderen
+english.RemovePersonalDataDetails=This deletes provider credentials, settings, databases, logs, incomplete migrations and backups from:
+dutch.RemovePersonalDataDetails=Dit verwijdert providergegevens, instellingen, databases, logboeken, onvoltooide migraties en back-ups uit:
+english.RemovePersonalDataScope=Download folders and older Spotnet profiles stored elsewhere are not removed.
+dutch.RemovePersonalDataScope=Downloadmappen en oudere Spotnet-profielen die elders staan, worden niet verwijderd.
+english.ContinueUninstall=&Continue
+dutch.ContinueUninstall=&Doorgaan
+english.CancelUninstall=Cancel
+dutch.CancelUninstall=Annuleren
+english.RemovePersonalDataFailed=Spotnet was removed, but some personal data could not be deleted. You can remove the remaining files manually from:
+dutch.RemovePersonalDataFailed=Spotnet is verwijderd, maar sommige persoonlijke gegevens konden niet worden gewist. U kunt de resterende bestanden handmatig verwijderen uit:
 english.StatusShortcuts=Updating your Spotnet Desktop and Start Menu shortcuts...
 dutch.StatusShortcuts=Spotnet-snelkoppelingen op het bureaublad en in het Startmenu bijwerken...
 english.ShortcutReportMissing=Shortcut update did not produce a report.
@@ -246,23 +302,25 @@ Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:Sho
 Filename: "{app}\Spotnet.exe"; Description: "{cm:LaunchSpotnet}"; Flags: nowait postinstall skipifsilent unchecked; Check: ShortcutsSucceeded
 #endif
 
-; No UninstallDelete section: user profiles, backups and legacy installations are not removed.
+; No UninstallDelete section: the profile is retained by default. An explicit uninstall-time
+; choice removes the complete Spotnet 3 profile only after shortcut restoration has finished.
+; Legacy installations and download folders outside that profile are never removed.
 ; No extension/protocol hijacking: the user can keep their old installation while validating 3.0.
 
 [Code]
 var
-  DataPage, SettingsPage, LanguagePage: TInputOptionWizardPage;
+  MigrationPage, SourcePage, LanguagePage: TInputOptionWizardPage;
+  ClassicSources, ClassicSourceSettings: TArrayOfString;
   StylePage: TWizardPage;
   StyleButtons: array[0..2] of TRadioButton;
   StyleCaption: TLabel;
-  CustomDataPage: TInputDirWizardPage;
-  CustomSettingsPage: TInputFileWizardPage;
   ProgressPage: TOutputProgressWizardPage;
-  DataSources, SettingsSources: TArrayOfString;
-  ExistingProfile: Boolean;
+  ExistingProfile, ClassicAvailable, MoveIncomplete: Boolean;
   Prepared: Boolean;
   ShortcutFailure: Boolean;
+  RemovePersonalData: Boolean;
   Helper, DetectionFile, ReportFile, SpaceFile, Summary: String;
+  ClassicName, ClassicData, ClassicSettings: String;
   CurrentTheme, CurrentLanguage: String;
   { The pre-flight disk-space measurement of the selected profile, in megabytes. }
   SpaceMeasured, SpaceFits: Boolean;
@@ -317,7 +375,7 @@ end;
 
 function ShortcutsSucceeded: Boolean;
 begin
-  Result := not ShortcutFailure;
+  Result := not ShortcutFailure and not MoveIncomplete;
 end;
 
 function ReadReport(var Text: String): Boolean;
@@ -423,7 +481,7 @@ end;
 procedure InitializeWizard;
 var
   ExitCode, Count, Index: Integer;
-  Description, Installs: String;
+  Description, DetectionParameters: String;
 begin
   ExtractTemporaryFile('Spotnet.SetupHelper.exe');
   Helper := ExpandConstant('{tmp}\Spotnet.SetupHelper.exe');
@@ -432,14 +490,18 @@ begin
   SpaceFile := ExpandConstant('{tmp}\spotnet-space.ini');
   { Name the profile this run targets. Without it detection reads whatever profile sits
     in the user's own AppData, which is the wrong one under a smoke-test root. }
-  if not Exec(Helper, 'detect --profile ' + Quote(ProfileRoot) + ' --output ' + Quote(DetectionFile), '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
+  DetectionParameters := 'detect --profile ' + Quote(ProfileRoot) + ' --output ' + Quote(DetectionFile);
+#ifdef SmokeTestRoot
+  DetectionParameters := DetectionParameters + ' --test-root ' + Quote('{#SmokeTestRoot}');
+#endif
+  if not Exec(Helper, DetectionParameters, '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
     RaiseException(CM('DetectionFailed'));
   ExistingProfile := FileExists(ProfileRoot + '\Data\profile.ready');
-  Count := GetIniInt('Detection', 'InstallCount', 0, 0, 1000, DetectionFile);
-  for Index := 0 to Count - 1 do
-    Installs := Installs + GetIniString('Detection', 'Install' + IntToStr(Index), '', DetectionFile) + #13#10;
-  if Installs = '' then Installs := CM('NoOldInstall');
-  Description := CM('DetectedInstalls') + #13#10 + Installs + #13#10 + CM('SourceDescription');
+  ClassicAvailable := GetIniInt('Detection', 'ClassicAvailable', 0, 0, 1, DetectionFile) = 1;
+  ClassicName := GetIniString('Detection', 'ClassicName', '', DetectionFile);
+  ClassicData := GetIniString('Detection', 'ClassicData', '', DetectionFile);
+  ClassicSettings := GetIniString('Detection', 'ClassicSettings', '', DetectionFile);
+  Description := FmtMessage(CM('ClassicChoiceDescription'), [ClassicName]) + #13#10#13#10 + CM('ClassicCompatibility');
   { Onboarding: language, then style. Both sit between Welcome and the folder
     page so the choices are made before anything is written. }
   LanguagePage := CreateInputOptionPage(wpWelcome, CM('LanguageTitle'), CM('LanguageSubtitle'),
@@ -470,36 +532,31 @@ begin
   else if CurrentTheme = 'ClassicLight' then StyleButtons[2].Checked := True
   else StyleButtons[0].Checked := True;
 
-  DataPage := CreateInputOptionPage(wpSelectDir, CM('DataTitle'), CM('DataSubtitle'), Description, True, False);
-  DataPage.Add(CM('FreshProfile'));
+  MigrationPage := CreateInputOptionPage(wpSelectDir, CM('ClassicChoiceTitle'), CM('ClassicChoiceSubtitle'),
+    Description, True, False);
+  MigrationPage.Add(CM('MigrateReplace'));
+  MigrationPage.Add(CM('MigrateAlongside'));
+  MigrationPage.Add(CM('CleanAlongside'));
+  MigrationPage.Add(CM('CleanReplace'));
+  { Copy/alongside is the safe default: nothing in Classic is changed. }
+  MigrationPage.SelectedValueIndex := 1;
+  { Unattended fresh installs preserve Classic. Set this before measuring space. }
+  if WizardSilent and (ExpandConstant('{param:FRESH|0}') = '1') then
+    MigrationPage.SelectedValueIndex := 2;
+#ifdef SmokeTestRoot
+  { Test builds only: exercise all four choices without changing a real profile. }
+  MigrationPage.SelectedValueIndex := StrToIntDef(ExpandConstant('{param:SMOKECLASSICMODE|}'), MigrationPage.SelectedValueIndex);
+#endif
+  SourcePage := CreateInputOptionPage(MigrationPage.ID, CM('ClassicSourceTitle'), '', CM('ClassicSourceDescription'), True, False);
   Count := GetIniInt('Detection', 'DataCount', 0, 0, 1000, DetectionFile);
-  SetArrayLength(DataSources, Count);
+  SetArrayLength(ClassicSources, Count);
+  SetArrayLength(ClassicSourceSettings, Count);
   for Index := 0 to Count - 1 do begin
-    DataSources[Index] := GetIniString('Detection', 'Data' + IntToStr(Index), '', DetectionFile);
-    DataPage.Add(CM('CopyPrefix') + ' ' + DataSources[Index]);
+    ClassicSources[Index] := GetIniString('Detection', 'Data' + IntToStr(Index), '', DetectionFile);
+    ClassicSourceSettings[Index] := GetIniString('Detection', 'DataSettings' + IntToStr(Index), '', DetectionFile);
+    SourcePage.Add(ClassicSources[Index]);
   end;
-  DataPage.Add(CM('ChooseData'));
-  DataPage.SelectedValueIndex := 0;
-  if (Count = 1) and not ExistingProfile then DataPage.SelectedValueIndex := 1;
-
-  CustomDataPage := CreateInputDirPage(DataPage.ID, CM('LegacyDataTitle'), CM('LegacyDataSubtitle'),
-    CM('LegacyDataDescription'), False, '');
-  CustomDataPage.Add(CM('DataFolder'));
-  SettingsPage := CreateInputOptionPage(CustomDataPage.ID, CM('SettingsTitle'), CM('SettingsSubtitle'),
-    CM('SettingsDescription'), True, False);
-  SettingsPage.Add(CM('DefaultSettings'));
-  Count := GetIniInt('Detection', 'SettingsCount', 0, 0, 1000, DetectionFile);
-  SetArrayLength(SettingsSources, Count);
-  for Index := 0 to Count - 1 do begin
-    SettingsSources[Index] := GetIniString('Detection', 'Settings' + IntToStr(Index), '', DetectionFile);
-    SettingsPage.Add(SettingsSources[Index]);
-  end;
-  SettingsPage.Add(CM('ChooseSettings'));
-  SettingsPage.SelectedValueIndex := 0;
-  if (Count = 1) and not ExistingProfile then SettingsPage.SelectedValueIndex := 1;
-  CustomSettingsPage := CreateInputFilePage(SettingsPage.ID, CM('LegacySettingsTitle'), CM('LegacySettingsSubtitle'),
-    CM('LegacySettingsDescription'));
-  CustomSettingsPage.Add(CM('SettingsFile'), CM('SettingsFilter'), '.config');
+  SourcePage.SelectedValueIndex := -1;
   WizardForm.WelcomeLabel2.Caption := CM('Welcome1') + #13#10#13#10 +
     CM('Welcome2') + #13#10#13#10 + CM('Welcome3') + #13#10#13#10 +
     CM('Welcome4') + #13#10#13#10 + CM('Welcome5');
@@ -508,30 +565,58 @@ end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
-  Result := False;
-  if ExistingProfile then
-    Result := (PageID = DataPage.ID) or (PageID = CustomDataPage.ID) or
-      (PageID = SettingsPage.ID) or (PageID = CustomSettingsPage.ID)
-  else if PageID = CustomDataPage.ID then
-    Result := DataPage.SelectedValueIndex <> GetArrayLength(DataSources) + 1
-  else if PageID = CustomSettingsPage.ID then
-    Result := SettingsPage.SelectedValueIndex <> GetArrayLength(SettingsSources) + 1;
+  { A fresh machine and a normal 3.0 upgrade never see migration source UI. }
+  Result := (PageID = MigrationPage.ID) and (ExistingProfile or not ClassicAvailable);
+  if PageID = SourcePage.ID then
+    Result := ExistingProfile or not ClassicAvailable or (MigrationPage.SelectedValueIndex > 1) or (GetArrayLength(ClassicSources) <= 1);
 end;
 
 function SelectedData: String;
 begin
   Result := '';
-  if ExistingProfile then exit;
-  if DataPage.SelectedValueIndex = GetArrayLength(DataSources) + 1 then Result := CustomDataPage.Values[0]
-  else if DataPage.SelectedValueIndex > 0 then Result := DataSources[DataPage.SelectedValueIndex - 1];
+  if ExistingProfile or not ClassicAvailable then exit;
+  if MigrationPage.SelectedValueIndex <= 1 then begin
+    if (GetArrayLength(ClassicSources) > 1) and (SourcePage.SelectedValueIndex >= 0) then
+      Result := ClassicSources[SourcePage.SelectedValueIndex]
+    else Result := ClassicData;
+  end;
 end;
 
 function SelectedSettings: String;
 begin
   Result := '';
-  if ExistingProfile then exit;
-  if SettingsPage.SelectedValueIndex = GetArrayLength(SettingsSources) + 1 then Result := CustomSettingsPage.Values[0]
-  else if SettingsPage.SelectedValueIndex > 0 then Result := SettingsSources[SettingsPage.SelectedValueIndex - 1];
+  if ExistingProfile or not ClassicAvailable then exit;
+  if MigrationPage.SelectedValueIndex <= 1 then begin
+    if (GetArrayLength(ClassicSources) > 1) and (SourcePage.SelectedValueIndex >= 0) then
+      Result := ClassicSourceSettings[SourcePage.SelectedValueIndex]
+    else Result := ClassicSettings;
+  end;
+end;
+
+function MoveClassicData: Boolean;
+begin
+  Result := ClassicAvailable and not ExistingProfile and (MigrationPage.SelectedValueIndex = 0);
+end;
+
+function UseAlongsideShortcuts: Boolean;
+begin
+  Result := ClassicAvailable and not ExistingProfile and
+    ((MigrationPage.SelectedValueIndex = 1) or (MigrationPage.SelectedValueIndex = 2));
+end;
+
+function ClassicShortcutMode: String;
+begin
+  if ExistingProfile then Result := 'auto'
+  else if UseAlongsideShortcuts then Result := 'alongside'
+  else Result := 'replace';
+end;
+
+function SelectedModeSummary: String;
+begin
+  if ExistingProfile then Result := CM('KeepProfile')
+  else if SelectedData = '' then Result := CM('CleanInstallSummary')
+  else if MoveClassicData then Result := CM('MigrateMoveSummary')
+  else Result := CM('MigrateCopySummary');
 end;
 
 { Megabytes as a person reads them; Dutch gets its own decimal comma. }
@@ -595,16 +680,19 @@ begin
       Result := False;
     end;
   end;
-  if (CurPageID = CustomDataPage.ID) and (Trim(CustomDataPage.Values[0]) = '') then Result := False;
-  if (CurPageID = CustomSettingsPage.ID) and not FileExists(CustomSettingsPage.Values[0]) then Result := False;
+  if (CurPageID = MigrationPage.ID) and (MigrationPage.SelectedValueIndex <= 1) and (GetArrayLength(ClassicSources) = 0) then begin
+    SuppressibleMsgBox(CM('ClassicSourceMissing'), mbError, MB_OK, IDOK);
+    Result := False;
+  end;
+  if (CurPageID = SourcePage.ID) and (SourcePage.SelectedValueIndex < 0) then Result := False;
+  if (CurPageID = wpReady) and MoveClassicData and not WizardSilent then
+    Result := SuppressibleMsgBox(FmtMessage(CM('MoveConfirmation'), [SelectedData]),
+      mbConfirmation, MB_YESNO, IDNO) = IDYES;
   { Unattended first installs must opt out of migration explicitly; never guess a profile. }
   if (CurPageID = wpReady) and WizardSilent and not ExistingProfile then begin
     if ExpandConstant('{param:FRESH|0}') <> '1' then begin
       Log('Silent first installation requires /FRESH=1. Use the interactive wizard for migration.');
       Result := False;
-    end else begin
-      DataPage.SelectedValueIndex := 0;
-      SettingsPage.SelectedValueIndex := 0;
     end;
   end;
   { Refuse a copy the drive cannot hold while nothing has been touched yet. }
@@ -622,9 +710,8 @@ end;
 function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;
 begin
   Result := MemoDirInfo + NewLine + NewLine + CM('ProfileLabel') + ' ' + ProfileRoot + '\Data' + NewLine;
-  if ExistingProfile then Result := Result + CM('KeepProfile') + NewLine
-  else Result := Result + CM('DataSource') + ' ' + SelectedData + NewLine + CM('Preferences') + ' ' + SelectedSettings + NewLine +
-    CM('EmptySource') + NewLine;
+  Result := Result + SelectedModeSummary + NewLine;
+  if SelectedData <> '' then Result := Result + CM('DataSource') + ' ' + SelectedData + NewLine;
   { Measured here, where the source and destination are both final, so the memo can
     state the real cost of the copy before the user commits to it. }
   MeasureSpace;
@@ -634,7 +721,11 @@ begin
     else
       Result := Result + FmtMessage(CM('SpaceMemo'), [FormatMB(SpaceBytesMB), FormatMB(SpaceFreeMB), SpaceDrive]) + NewLine;
   end;
-  Result := Result + NewLine + CM('QueueNotice') + NewLine + CM('ShortcutNotice') + NewLine +
+  Result := Result + NewLine + CM('QueueNotice') + NewLine;
+  if ExistingProfile then Result := Result + CM('ShortcutUpgradeNotice') + NewLine
+  else if UseAlongsideShortcuts then Result := Result + CM('ShortcutAlongsideNotice') + NewLine
+  else Result := Result + CM('ShortcutReplaceNotice') + NewLine;
+  Result := Result +
     CM('WebViewNotice') + NewLine + CM('UninstallNotice') + NewLine + MemoTasksInfo;
 end;
 
@@ -726,15 +817,15 @@ begin
   Parameters := Parameters + ' --app-theme ' + SelectedTheme;
   if SelectedData <> '' then Parameters := Parameters + ' --source-data ' + Quote(SelectedData);
   if SelectedSettings <> '' then Parameters := Parameters + ' --source-settings ' + Quote(SelectedSettings);
+  if MoveClassicData then Parameters := Parameters + ' --move-source 1';
   if not Exec(Helper, Parameters, '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then begin
-    if IsDutch or not ReadReport(Result) then Result := CM('ProfileFailed');
+    ReadReport(Result);
+    if Pos('[UNSUPPORTED-PROFILE]', Result) > 0 then Result := CM('ClassicUnsupported')
+    else if IsDutch or (Result = '') then Result := CM('ProfileFailed');
     exit;
   end;
   ReadReport(Summary);
-  if IsDutch then begin
-    if ExistingProfile then Summary := CM('KeepProfile')
-    else Summary := CM('EmptySource');
-  end;
+  Summary := SelectedModeSummary;
   if ShowProgress then begin
     ProgressPage.SetProgress(4, 4);
     ProgressPage.SetText(CM('StatusProfile'), CM('ShortcutDone'));
@@ -748,10 +839,118 @@ begin
   end;
 end;
 
+function AskUninstallOptions: Boolean;
+var
+  Form: TSetupForm;
+  Heading, Intro, Details, Scope: TNewStaticText;
+  RemoveDataCheck: TNewCheckBox;
+  ProfilePath: TNewEdit;
+  ContinueButton, CancelButton: TNewButton;
+  ButtonWidth: Integer;
+begin
+  { Unattended removal keeps data unless the caller explicitly opts in. }
+  RemovePersonalData := CompareText(ExpandConstant('{param:REMOVEPERSONALDATA|0}'), '1') = 0;
+  Result := True;
+  if UninstallSilent or not DirExists(ProfileRoot) then exit;
+
+  RemovePersonalData := False;
+  Form := CreateCustomForm(ScaleX(560), ScaleY(285), False, False);
+  try
+    Form.Caption := CM('UninstallOptionsTitle');
+
+    Heading := TNewStaticText.Create(Form);
+    Heading.Parent := Form;
+    Heading.Left := ScaleX(16);
+    Heading.Top := ScaleY(16);
+    Heading.AutoSize := False;
+    Heading.Width := Form.ClientWidth - ScaleX(32);
+    Heading.Caption := CM('UninstallOptionsTitle');
+    Heading.Font.Style := [fsBold];
+    Heading.AdjustHeight;
+
+    Intro := TNewStaticText.Create(Form);
+    Intro.Parent := Form;
+    Intro.Left := Heading.Left;
+    Intro.Top := Heading.Top + Heading.Height + ScaleY(10);
+    Intro.AutoSize := False;
+    Intro.WordWrap := True;
+    Intro.Width := Heading.Width;
+    Intro.Caption := CM('UninstallOptionsIntro');
+    Intro.AdjustHeight;
+
+    RemoveDataCheck := TNewCheckBox.Create(Form);
+    RemoveDataCheck.Parent := Form;
+    RemoveDataCheck.Left := Heading.Left;
+    RemoveDataCheck.Top := Intro.Top + Intro.Height + ScaleY(14);
+    RemoveDataCheck.Width := Heading.Width;
+    RemoveDataCheck.Height := ScaleY(20);
+    RemoveDataCheck.Caption := CM('RemovePersonalData');
+    RemoveDataCheck.Checked := False;
+
+    Details := TNewStaticText.Create(Form);
+    Details.Parent := Form;
+    Details.Left := Heading.Left;
+    Details.Top := RemoveDataCheck.Top + RemoveDataCheck.Height + ScaleY(8);
+    Details.AutoSize := False;
+    Details.WordWrap := True;
+    Details.Width := Heading.Width;
+    Details.Caption := CM('RemovePersonalDataDetails');
+    Details.AdjustHeight;
+
+    ProfilePath := TNewEdit.Create(Form);
+    ProfilePath.Parent := Form;
+    ProfilePath.Left := Heading.Left;
+    ProfilePath.Top := Details.Top + Details.Height + ScaleY(5);
+    ProfilePath.Width := Heading.Width;
+    ProfilePath.Text := ProfileRoot;
+    ProfilePath.ReadOnly := True;
+
+    Scope := TNewStaticText.Create(Form);
+    Scope.Parent := Form;
+    Scope.Left := Heading.Left;
+    Scope.Top := ProfilePath.Top + ProfilePath.Height + ScaleY(8);
+    Scope.AutoSize := False;
+    Scope.WordWrap := True;
+    Scope.Width := Heading.Width;
+    Scope.Caption := CM('RemovePersonalDataScope');
+    Scope.AdjustHeight;
+
+    ContinueButton := TNewButton.Create(Form);
+    ContinueButton.Parent := Form;
+    ContinueButton.Caption := CM('ContinueUninstall');
+    ContinueButton.Top := Form.ClientHeight - ScaleY(39);
+    ContinueButton.Height := ScaleY(23);
+    ContinueButton.ModalResult := mrOk;
+    ContinueButton.Default := True;
+
+    CancelButton := TNewButton.Create(Form);
+    CancelButton.Parent := Form;
+    CancelButton.Caption := CM('CancelUninstall');
+    CancelButton.Top := ContinueButton.Top;
+    CancelButton.Height := ContinueButton.Height;
+    CancelButton.ModalResult := mrCancel;
+    CancelButton.Cancel := True;
+
+    ButtonWidth := Form.CalculateButtonWidth([ContinueButton.Caption, CancelButton.Caption]);
+    ContinueButton.Width := ButtonWidth;
+    CancelButton.Width := ButtonWidth;
+    CancelButton.Left := Form.ClientWidth - ScaleX(16) - ButtonWidth;
+    ContinueButton.Left := CancelButton.Left - ScaleX(8) - ButtonWidth;
+    Form.ActiveControl := RemoveDataCheck;
+
+    Result := Form.ShowModal() = mrOk;
+    if Result then RemovePersonalData := RemoveDataCheck.Checked;
+  finally
+    Form.Free();
+  end;
+end;
+
 function InitializeUninstall: Boolean;
 var
   ExitCode: Integer;
 begin
+  Result := AskUninstallOptions;
+  if not Result then exit;
 #ifdef SmokeTestRoot
   Result := True;
 #else
@@ -789,7 +988,13 @@ begin
     { After confirmation, before application/helper files are removed. }
     if not Exec(ExpandConstant('{app}\Spotnet.SetupHelper.exe'), 'restore-shortcuts' + ShortcutParameters,
         '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
-      SuppressibleMsgBox(CM('RestoreShortcutFailed') + ' ' + ProfileRoot + '\ShortcutBackups. ' + CM('DataRetained'), mbError, MB_OK, IDOK);
+      SuppressibleMsgBox(CM('RestoreShortcutFailed') + ' ' + ProfileRoot + '\ShortcutBackups.', mbError, MB_OK, IDOK);
+  end;
+  if (CurUninstallStep = usPostUninstall) and RemovePersonalData then begin
+    { Shortcut backups live inside the profile, so removal must be the final step. }
+    Log('Removing the Spotnet 3 profile selected by the user: ' + ProfileRoot);
+    if DirExists(ProfileRoot) and not DelTree(ProfileRoot, True, True, True) then
+      SuppressibleMsgBox(CM('RemovePersonalDataFailed') + ' ' + ProfileRoot, mbError, MB_OK, IDOK);
   end;
 end;
 
@@ -797,6 +1002,7 @@ function GetCustomSetupExitCode: Integer;
 begin
   Result := 0;
   if ShortcutFailure then Result := 10;
+  if MoveIncomplete then Result := 11;
 end;
 
 // Removes everything a previous version put in the application directory, keeping the
@@ -834,14 +1040,14 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   ExitCode: Integer;
-  ShortcutReport, Heading: String;
+  ShortcutReport, Heading, MoveParameters: String;
 begin
   if CurStep = ssInstall then CleanApplicationDirectory;
   if CurStep = ssPostInstall then begin
     WizardForm.StatusLabel.Caption := CM('StatusShortcuts');
     DeleteFile(ReportFile);
     ShortcutFailure := not Exec(ExpandConstant('{app}\Spotnet.SetupHelper.exe'),
-      'shortcuts' + ShortcutParameters + ShortcutCreation + ' --executable ' + Quote(ExpandConstant('{app}\Spotnet.exe')) + ' --report ' + Quote(ReportFile),
+      'shortcuts' + ShortcutParameters + ShortcutCreation + ' --classic-mode ' + ClassicShortcutMode + ' --executable ' + Quote(ExpandConstant('{app}\Spotnet.exe')) + ' --report ' + Quote(ReportFile),
       '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
     if ExitCode <> 0 then ShortcutFailure := True;
     if not ReadReport(ShortcutReport) then ShortcutReport := CM('ShortcutReportMissing');
@@ -850,9 +1056,23 @@ begin
     Summary := Summary + #13#10 + ShortcutReport;
     if ShortcutFailure then
       SuppressibleMsgBox(CM('ShortcutAttention') + #13#10#13#10 + ShortcutReport, mbError, MB_OK, IDOK);
+    if MoveClassicData then begin
+      MoveIncomplete := True;
+      if not ShortcutFailure then begin
+        MoveParameters := 'complete-move --profile ' + Quote(ProfileRoot) + ' --source-data ' + Quote(SelectedData);
+        if SelectedSettings <> '' then MoveParameters := MoveParameters + ' --source-settings ' + Quote(SelectedSettings);
+        MoveIncomplete := not Exec(ExpandConstant('{app}\Spotnet.SetupHelper.exe'), MoveParameters,
+          '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+        if ExitCode <> 0 then MoveIncomplete := True;
+      end;
+      if MoveIncomplete then begin
+        Summary := CM('MoveIncomplete');
+        SuppressibleMsgBox(Summary, mbError, MB_OK, IDOK);
+      end;
+    end;
     Heading := CM('Installed');
-    if ShortcutFailure then Heading := CM('InstalledAttention');
+    if ShortcutFailure or MoveIncomplete then Heading := CM('InstalledAttention');
     WizardForm.FinishedLabel.Caption := Heading + #13#10#13#10 + Summary + #13#10#13#10 +
-      CM('ProfileLabel') + ' ' + ProfileRoot + '\Data' + #13#10 + CM('CheckOld');
+      CM('ProfileLabel') + ' ' + ProfileRoot + '\Data';
   end;
 end;

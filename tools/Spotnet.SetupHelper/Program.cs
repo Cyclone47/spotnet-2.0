@@ -25,11 +25,21 @@ internal static class Program
             options.TryGetValue("--report", out report);
             if (args[0] == "detect")
             {
-                var discovery = LegacyDiscovery.Detect(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                options.TryGetValue("--test-root", out string testRoot);
+                var discovery = testRoot != null
+                    ? LegacyDiscovery.Detect(Path.Combine(testRoot, "Local"), Path.Combine(testRoot, "Roaming"), Path.Combine(testRoot, "Common"), false)
+                    : LegacyDiscovery.Detect(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                     Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
                 ReadCurrentPreferences(discovery, options);
                 discovery.SaveIni(options["--output"]);
+            }
+            else if (args[0] == "complete-move")
+            {
+                ProfileMigration.EnsureSpotnetClosed();
+                options.TryGetValue("--source-settings", out string settings);
+                ProfileMigration.CompleteMove(options["--profile"], options["--source-data"], settings);
+                if (report != null) File.WriteAllText(report, "Verified source profile files permanently deleted.", Encoding.UTF8);
             }
             else if (args[0] == "shortcuts" || args[0] == "restore-shortcuts")
             {
@@ -41,16 +51,21 @@ internal static class Program
                     .Select(entry => entry.Trim()).ToList();
                 foreach (string entry in wanted)
                     if (entry != "desktop" && entry != "programs" && entry != "none") throw new ArgumentException("Unsupported shortcut location.");
+                options.TryGetValue("--classic-mode", out string classicMode);
+                bool? replaceClassic = true;
+                if (classicMode == "alongside") replaceClassic = false;
+                else if (classicMode == "auto") replaceClassic = null;
+                else if (classicMode != null && classicMode != "replace") throw new ArgumentException("Unsupported Classic shortcut mode.");
                 string result = args[0] == "shortcuts"
-                    ? manager.Install(options["--executable"], wanted.Contains("desktop"), wanted.Contains("programs"))
+                    ? manager.Install(options["--executable"], wanted.Contains("desktop"), wanted.Contains("programs"), replaceClassic)
                     : manager.Restore();
-                if (report != null) File.WriteAllText(report, result, Encoding.Unicode);
+                if (report != null) File.WriteAllText(report, result, Encoding.UTF8);
                 Console.WriteLine(result);
             }
             else if (args[0] == "close")
             {
                 GracefulShutdown.CloseSpotnet();
-                if (report != null) File.WriteAllText(report, "Spotnet is closed.", Encoding.Unicode);
+                if (report != null) File.WriteAllText(report, "Spotnet is closed.", Encoding.UTF8);
             }
             else if (args[0] == "measure")
             {
@@ -80,8 +95,10 @@ internal static class Program
                 options.TryGetValue("--app-theme", out string theme);
                 if (theme != null && theme != "ClassicLight" && theme != "ModernLight" && theme != "ModernDark")
                     throw new ArgumentException("Unsupported style.");
-                string result = new ProfileMigration().Prepare(options["--profile"], source, settings, Console.WriteLine, language, theme);
-                if (report != null) File.WriteAllText(report, result, Encoding.Unicode);
+                options.TryGetValue("--move-source", out string move);
+                if (move != null && move != "0" && move != "1") throw new ArgumentException("Unsupported move option.");
+                string result = new ProfileMigration().Prepare(options["--profile"], source, settings, Console.WriteLine, language, theme, move == "1");
+                if (report != null) File.WriteAllText(report, result, Encoding.UTF8);
                 Console.WriteLine(result);
             }
             else throw new ArgumentException("Unknown command.");
@@ -90,9 +107,12 @@ internal static class Program
         catch (Exception ex)
         {
             // Only operational messages; no configuration values or credentials are logged.
-            string error = "Setup operation failed: " + ex.Message + "\r\nProfile and shortcut backups are retained. Review the error and retry; original legacy databases are unchanged.";
+            string recovery = args.Length > 0 && args[0] == "complete-move"
+                ? "The verified destination profile is retained. Source removal may be incomplete; review both locations before retrying."
+                : "Profile and shortcut backups are retained. Review the error and retry; original legacy databases are unchanged.";
+            string error = "Setup operation failed: " + ex.Message + "\r\n" + recovery;
             Console.Error.WriteLine(error);
-            if (report != null) File.WriteAllText(report, error, Encoding.Unicode);
+            if (report != null) File.WriteAllText(report, error, Encoding.UTF8);
             return 1;
         }
     }

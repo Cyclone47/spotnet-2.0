@@ -1,0 +1,36 @@
+# Catches a provider list going stale. Clients fetch providers.json on launch, so a dead entry
+# reaches users without anyone rebuilding the app - which is exactly how KPN sat in the list for
+# months after it stopped serving Usenet.
+name: Verify providers
+
+on:
+  push:
+    paths:
+      - providers.json
+      - tools/Test-Providers.ps1
+      - .github/workflows/verify-providers.yml
+  pull_request:
+    paths:
+      - providers.json
+      - tools/Test-Providers.ps1
+  schedule:
+    # Mondays 06:00 UTC, so a provider that disappears is caught within the week.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      # Validates the structure against the same rules the client enforces, then reads each
+      # server's NNTP greeting. A plain port check would pass hosts that accept the connection
+      # and never answer, which is the failure mode that hangs the connect dialog.
+      - name: Validate and probe every provider
+        shell: pwsh
+        run: ./tools/Test-Providers.ps1
