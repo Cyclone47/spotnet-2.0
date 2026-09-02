@@ -613,4 +613,21 @@ Please write the reason why you want to remove it:</value></data>
   <data name="ConnectionSecuredWithSsl" xml:space="preserve"><value>The connection is secured with SSL where the provider supports it.</value></data>
   <data name="Testing" xml:space="preserve"><value>Testing connection...</value></data>
   <data name="VPNAdvice" xml:space="preserve"><value>Using a safe and reliable VPN with Spotnet is recommended.</value></data>
+  <data name="UpdateTitle" xml:space="preserve"><value>Update</value></data>
+  <data name="UpdateAvailableHeadline" xml:space="preserve"><value>A new version is available</value></data>
+  <data name="UpdateRequiredHeadline" xml:space="preserve"><value>A required update is available</value></data>
+  <data name="UpdateVersionLine" xml:space="preserve"><value>Spotnet {0} can be installed. You are running {1}.</value></data>
+  <data name="UpdateDownloadSize" xml:space="preserve"><value>Download size: {0}</value></data>
+  <data name="UpdateReleaseNotes" xml:space="preserve"><value>What's new in this version</value></data>
+  <data name="UpdateInstallNow" xml:space="preserve"><value>Update now</value></data>
+  <data name="UpdateLater" xml:space="preserve"><value>Later</value></data>
+  <data name="UpdateSkipVersion" xml:space="preserve"><value>Skip this version</value></data>
+  <data name="UpdateStarting" xml:space="preserve"><value>Starting the download...</value></data>
+  <data name="UpdateDownloading" xml:space="preserve"><value>Downloaded {0} of {1} {2}</value></data>
+  <data name="UpdateHandingOver" xml:space="preserve"><value>Starting the installer. Spotnet closes and opens again when it is done.</value></data>
+  <data name="UpdateDownloadCorrupt" xml:space="preserve"><value>The download did not match the published checksum and was discarded. Please try again.</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>The update could not be completed: {0}</value></data>
+  <data name="UpdateUpToDate" xml:space="preserve"><value>Spotnet is up to date.</value></data>
+  <data name="UpdateCheckFailed" xml:space="preserve"><value>Could not check for updates: {0}</value></data>
+  <data name="MenuCheckForUpdates" xml:space="preserve"><value>Check for updates</value></data>
 </root>

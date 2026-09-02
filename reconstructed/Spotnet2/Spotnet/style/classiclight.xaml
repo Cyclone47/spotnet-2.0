@@ -109,4 +109,5 @@
   <SolidColorBrush x:Key="SpotRowTrustedBrush" Color="#166534" />
   <SolidColorBrush x:Key="SpotRowMutedBrush" Color="#595959" />
   <SolidColorBrush x:Key="SpotRowFavoriteBrush" Color="#1D4ED8" />
+  <SolidColorBrush x:Key="ErrorForegroundBrush" Color="#B91C1C" />
 </ResourceDictionary>

@@ -618,4 +618,21 @@ Schrijf de reden waarom u deze wilt verwijderen:</value></data>
   <data name="RestartNow" xml:space="preserve"><value>Nu opnieuw starten</value></data>
   <data name="RestartLater" xml:space="preserve"><value>Later opnieuw starten</value></data>
   <data name="VPNAdvice" xml:space="preserve"><value>Het is aan te raden een veilige en betrouwbare VPN te gebruiken bij het gebruik van Spotnet.</value></data>
+  <data name="UpdateTitle" xml:space="preserve"><value>Update</value></data>
+  <data name="UpdateAvailableHeadline" xml:space="preserve"><value>Er is een nieuwe versie beschikbaar</value></data>
+  <data name="UpdateRequiredHeadline" xml:space="preserve"><value>Er is een verplichte update beschikbaar</value></data>
+  <data name="UpdateVersionLine" xml:space="preserve"><value>Spotnet {0} kan worden geïnstalleerd. U gebruikt nu {1}.</value></data>
+  <data name="UpdateDownloadSize" xml:space="preserve"><value>Downloadgrootte: {0}</value></data>
+  <data name="UpdateReleaseNotes" xml:space="preserve"><value>Wat is er nieuw in deze versie</value></data>
+  <data name="UpdateInstallNow" xml:space="preserve"><value>Nu bijwerken</value></data>
+  <data name="UpdateLater" xml:space="preserve"><value>Later</value></data>
+  <data name="UpdateSkipVersion" xml:space="preserve"><value>Deze versie overslaan</value></data>
+  <data name="UpdateStarting" xml:space="preserve"><value>Bezig met starten van de download...</value></data>
+  <data name="UpdateDownloading" xml:space="preserve"><value>{0} van {1} gedownload {2}</value></data>
+  <data name="UpdateHandingOver" xml:space="preserve"><value>Het installatieprogramma wordt gestart. Spotnet sluit en start daarna opnieuw op.</value></data>
+  <data name="UpdateDownloadCorrupt" xml:space="preserve"><value>De download kwam niet overeen met de gepubliceerde controlesom en is verwijderd. Probeer het opnieuw.</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>De update kon niet worden voltooid: {0}</value></data>
+  <data name="UpdateUpToDate" xml:space="preserve"><value>Spotnet is up-to-date.</value></data>
+  <data name="UpdateCheckFailed" xml:space="preserve"><value>Kan niet controleren op updates: {0}</value></data>
+  <data name="MenuCheckForUpdates" xml:space="preserve"><value>Controleren op updates</value></data>
 </root>

@@ -128,9 +128,7 @@ try {
     # outright; a managed assembly may also be AnyCPU, which is what the platform-neutral
     # libraries are built as so the future macOS client can share them. AnyCPU and a
     # 32-bit native DLL both report I386, so the CLI header is what tells them apart.
-    foreach ($binary in @('Spotnet.exe', 'runtimes\win-x64
-ative\WebView2Loader.dll', 'runtimes\win-x64
-ative\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll')) {
+    foreach ($binary in @('Spotnet.exe', 'runtimes\win-x64\native\WebView2Loader.dll', 'runtimes\win-x64\native\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll')) {
         if ((Get-BinaryArchitecture (Join-Path $appOutput $binary)) -ne 'amd64') { throw "Not an AMD64 binary: $binary" }
     }
     foreach ($binary in @('Spotnet.dll', 'Spotnet.Enc.dll')) {
@@ -252,6 +250,27 @@ ative\SQLite.Interop.dll', 'libvlc\win-x64\libvlc.dll')) {
     "$hash  Spotnet-3.0-x64-Setup.exe" | Set-Content -LiteralPath ($setupFile + '.sha256') -Encoding ASCII
     Write-Host "Built: $setupFile"
     Write-Host "SHA256: $hash"
+
+    # The update manifest for this build, ready to be copied over updates/latest.json.
+    # clientUpdate stays 0: releasing to clients is a separate, deliberate edit, so a build
+    # can be uploaded and tried out before anyone is offered it. See docs/updates.md.
+    $version = (Get-Item -LiteralPath (Join-Path $payload 'Spotnet.exe')).VersionInfo.FileVersion
+    $manifest = [ordered]@{
+        schema          = 1
+        clientUpdate    = 0
+        version         = $version
+        minimumVersion  = '3.0.0.0'
+        forced          = 0
+        url             = "https://github.com/Cyclone47/spotnet-3.0/releases/download/v$version/Spotnet-3.0-x64-Setup.exe"
+        size            = (Get-Item -LiteralPath $setupFile).Length
+        sha256          = $hash.ToLowerInvariant()
+        releaseNotesUrl = "https://github.com/Cyclone47/spotnet-3.0/releases/tag/v$version"
+    }
+    $manifestFile = Join-Path $artifactRoot 'latest.json'
+    # No byte-order mark: this file is copied into the repository as-is and read back by a
+    # JSON parser, and Set-Content -Encoding utf8 writes a BOM on Windows PowerShell.
+    [IO.File]::WriteAllText($manifestFile, ($manifest | ConvertTo-Json), (New-Object Text.UTF8Encoding $false))
+    Write-Host "Update manifest: $manifestFile (clientUpdate 0; set it to 1 to release)"
     if ($signTemplate) {
         $signature = Get-AuthenticodeSignature -LiteralPath $setupFile
         if ($signature.Status -eq 'NotSigned') { throw 'The installer was built but carries no signature.' }

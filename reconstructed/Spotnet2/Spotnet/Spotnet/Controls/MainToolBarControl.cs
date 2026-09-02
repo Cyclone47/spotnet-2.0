@@ -414,6 +414,18 @@ public partial class MainToolBarControl : UserControl
         Sys.MainWindow.OpenPage(PageTypeEnum.ReleaseNotes);
     }
 
+    private async void CheckForUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await Sys.MainWindow.CheckForUpdatesInteractivelyAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Exception(ex, showToClient: true);
+        }
+    }
+
     private void AssociateNzbFiles_Click(object sender, RoutedEventArgs e)
     {
         try

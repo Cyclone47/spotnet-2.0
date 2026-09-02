@@ -300,6 +300,8 @@ Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:Sho
 [Run]
 #ifndef SmokeTestRoot
 Filename: "{app}\Spotnet.exe"; Description: "{cm:LaunchSpotnet}"; Flags: nowait postinstall skipifsilent unchecked; Check: ShortcutsSucceeded
+; The automatic update closed Spotnet to replace it; this opens it again.
+Filename: "{app}\Spotnet.exe"; Flags: nowait postinstall; Check: RelaunchRequested and ShortcutsSucceeded
 #endif
 
 ; No UninstallDelete section: the profile is retained by default. An explicit uninstall-time
@@ -376,6 +378,21 @@ end;
 function ShortcutsSucceeded: Boolean;
 begin
   Result := not ShortcutFailure and not MoveIncomplete;
+end;
+
+{ Spotnet's updater installs silently and needs the application back afterwards.
+  /RELAUNCH is its own switch, so a hand-run silent install stays quiet. }
+function RelaunchRequested: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+    if CompareText(ParamStr(I), '/RELAUNCH') = 0 then
+    begin
+      Result := True;
+      Exit;
+    end;
 end;
 
 function ReadReport(var Text: String): Boolean;

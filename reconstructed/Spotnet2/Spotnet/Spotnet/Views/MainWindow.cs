@@ -69,6 +69,8 @@ public partial class MainWindow : MetroWindow
     private SaveSpotsRow _newSpotsCount;
     private NamedPipeServerStream _pipe;
     private bool _stateChangedDidOnce;
+
+    private bool _updatePromptOpen;
     internal System.Windows.Controls.ContextMenu HeaderMenu;
     internal Action OnWindowPrepared;
     internal SpotProvider SpotProvider;
@@ -623,6 +625,10 @@ public partial class MainWindow : MetroWindow
             // Step 6: Interface ready â€” animate to 100% then fade splash
             Views.SplashWindow.SetProgress(6);
             System.Threading.Thread.Sleep(200); // brief pause so user sees the step
+            // Ask about a new version while the splash is still up, so an update is
+            // offered as Spotnet opens instead of a minute into using it. Bounded, so an
+            // unreachable server delays the start by a moment and nothing more.
+            AppUpdater.CheckOnStartup(Views.SplashWindow.SetMessage);
             Views.SplashWindow.SetProgress(7); // "Ready!"
             System.Threading.Thread.Sleep(300); // let the bar fill animate
             App.CloseSplash();
@@ -2056,12 +2062,90 @@ public partial class MainWindow : MetroWindow
             }
 
             SquirrelStuff.StartNewVersionCheckTimer();
+            StartAutoUpdates();
             Sys.StatsReporter.ReportOnStartAsync();
             CheckFreeSpaceOnTheDisk();
         }
         catch (Exception ex)
         {
             Log.Exception(ex);
+        }
+    }
+
+    /// <summary>
+    /// Starts watching the project's repository for a released build. Installed copies
+    /// only: a development build has no setup that could replace it.
+    /// </summary>
+    private void StartAutoUpdates()
+    {
+        if (!AppUpdater.IsSupported) return;
+        AppUpdater.CleanupOldDownloads();
+        AppUpdater.UpdateOffered += OnUpdateOffered;
+        AppUpdater.StartPeriodicCheck();
+        // What the splash-screen check found, now that there is a window to own the dialog.
+        if (AppUpdater.TryTakePendingOffer(out UpdateManifest pending, out UpdateDecision decision))
+        {
+            base.Dispatcher.BeginInvoke(new Action(() => ShowUpdateWindow(pending, decision)));
+        }
+    }
+
+    private void OnUpdateOffered(UpdateManifest manifest, UpdateDecision decision)
+    {
+        // The check runs on the pool; the window has to be built on the dispatcher.
+        base.Dispatcher.BeginInvoke(new Action(() => ShowUpdateWindow(manifest, decision)));
+    }
+
+    /// <summary>
+    /// Shows the update prompt. One at a time, never during shutdown, and never on top of
+    /// itself when a later check finds the same release again.
+    /// </summary>
+    internal void ShowUpdateWindow(UpdateManifest manifest, UpdateDecision decision)
+    {
+        if (manifest == null || Sys.IsShutdownRequested || _updatePromptOpen) return;
+        try
+        {
+            _updatePromptOpen = true;
+            new UpdateWindow(manifest, decision) { Owner = this }.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            Log.Exception(ex);
+        }
+        finally
+        {
+            _updatePromptOpen = false;
+        }
+    }
+
+    /// <summary>Help &gt; Check for updates. Says something either way, unlike the timer.</summary>
+    internal async Task CheckForUpdatesInteractivelyAsync()
+    {
+        if (!AppUpdater.IsSupported)
+        {
+            AppHelper.ShowPopupMessage(Words.UpdateUpToDate);
+            return;
+        }
+        try
+        {
+            (UpdateManifest manifest, UpdateDecision decision, string error) =
+                await AppUpdater.CheckAsync(CancellationToken.None).ConfigureAwait(true);
+            if (error != null)
+            {
+                AppHelper.ShowPopupMessage(string.Format(Words.UpdateCheckFailed, error));
+                return;
+            }
+            Log.Info("Manual update check: {0}", decision.Reason);
+            if (decision.ShouldPrompt)
+            {
+                ShowUpdateWindow(manifest, decision);
+                return;
+            }
+            AppHelper.ShowPopupMessage(Words.UpdateUpToDate);
+        }
+        catch (Exception ex)
+        {
+            Log.Exception(ex);
+            AppHelper.ShowPopupMessage(string.Format(Words.UpdateCheckFailed, ex.Message));
         }
     }
 

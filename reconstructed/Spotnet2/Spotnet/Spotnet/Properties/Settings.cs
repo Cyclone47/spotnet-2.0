@@ -2138,6 +2138,51 @@ internal sealed class Settings : ApplicationSettingsBase
 
 	[UserScopedSetting]
 	[DebuggerNonUserCode]
+	[DefaultSettingValue("True")]
+	public bool AutoUpdateEnabled
+	{
+		get
+		{
+			return (bool)this["AutoUpdateEnabled"];
+		}
+		set
+		{
+			this["AutoUpdateEnabled"] = value;
+		}
+	}
+
+	[UserScopedSetting]
+	[DebuggerNonUserCode]
+	[DefaultSettingValue("")]
+	public string UpdateSkippedVersion
+	{
+		get
+		{
+			return (string)this["UpdateSkippedVersion"];
+		}
+		set
+		{
+			this["UpdateSkippedVersion"] = value;
+		}
+	}
+
+	[UserScopedSetting]
+	[DebuggerNonUserCode]
+	[DefaultSettingValue("")]
+	public string UpdateManifestUrl
+	{
+		get
+		{
+			return (string)this["UpdateManifestUrl"];
+		}
+		set
+		{
+			this["UpdateManifestUrl"] = value;
+		}
+	}
+
+	[UserScopedSetting]
+	[DebuggerNonUserCode]
 	[DefaultSettingValue("ClassicLight")]
 	public string AppTheme
 	{

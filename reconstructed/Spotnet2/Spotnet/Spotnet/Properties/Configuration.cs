@@ -31,6 +31,14 @@ internal static class Configuration
 
 	internal static string[] UpdateUrls = new string[1] { "https://spotcloud.spotnet.wf/spotnet/" };
 
+	/// <summary>
+	/// Where an installed copy looks for its next release. The file lives on the default
+	/// branch, so publishing an update is a commit; until its clientUpdate flag is set,
+	/// clients read the entry and ignore it.
+	/// </summary>
+	internal const string UpdateManifestUrl =
+		"https://raw.githubusercontent.com/Cyclone47/spotnet-3.0/main/updates/latest.json";
+
 	internal static string[] UpdateGroupsBeta = new string[1] { "free.beer" };
 
 	internal static string[] UpdateGroupsRelease = new string[1] { "free.c" };

@@ -1231,6 +1231,40 @@ public class Words
 
 	public static string Testing => ResourceManager.GetString("Testing", resourceCulture);
 
+	public static string UpdateTitle => ResourceManager.GetString("UpdateTitle", resourceCulture);
+
+	public static string UpdateAvailableHeadline => ResourceManager.GetString("UpdateAvailableHeadline", resourceCulture);
+
+	public static string UpdateRequiredHeadline => ResourceManager.GetString("UpdateRequiredHeadline", resourceCulture);
+
+	public static string UpdateVersionLine => ResourceManager.GetString("UpdateVersionLine", resourceCulture);
+
+	public static string UpdateDownloadSize => ResourceManager.GetString("UpdateDownloadSize", resourceCulture);
+
+	public static string UpdateReleaseNotes => ResourceManager.GetString("UpdateReleaseNotes", resourceCulture);
+
+	public static string UpdateInstallNow => ResourceManager.GetString("UpdateInstallNow", resourceCulture);
+
+	public static string UpdateLater => ResourceManager.GetString("UpdateLater", resourceCulture);
+
+	public static string UpdateSkipVersion => ResourceManager.GetString("UpdateSkipVersion", resourceCulture);
+
+	public static string UpdateStarting => ResourceManager.GetString("UpdateStarting", resourceCulture);
+
+	public static string UpdateDownloading => ResourceManager.GetString("UpdateDownloading", resourceCulture);
+
+	public static string UpdateHandingOver => ResourceManager.GetString("UpdateHandingOver", resourceCulture);
+
+	public static string UpdateDownloadCorrupt => ResourceManager.GetString("UpdateDownloadCorrupt", resourceCulture);
+
+	public static string UpdateFailed => ResourceManager.GetString("UpdateFailed", resourceCulture);
+
+	public static string UpdateUpToDate => ResourceManager.GetString("UpdateUpToDate", resourceCulture);
+
+	public static string UpdateCheckFailed => ResourceManager.GetString("UpdateCheckFailed", resourceCulture);
+
+	public static string MenuCheckForUpdates => ResourceManager.GetString("MenuCheckForUpdates", resourceCulture);
+
 	internal Words()
 	{
 	}
