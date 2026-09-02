@@ -1,4 +1,4 @@
-﻿; Compile using build-installer.ps1 with Inno Setup 7.1 or newer.
+; Compile using build-installer.ps1 with Inno Setup 7.1 or newer.
 #ifndef PayloadDir
   #error PayloadDir must be supplied by build-installer.ps1
 #endif
@@ -755,10 +755,10 @@ var
 begin
   Result := '';
   if Prepared then exit;
-  ShowProgress := not WizardSilent;
+  ShowProgress := WizardForm.Visible;
   { An attended run lets Microsoft's runtime installer show its own progress window;
     an unattended one keeps it silent. }
-  if ShowProgress then begin
+  if not WizardSilent then begin
     RuntimeArguments := '/install /passive /norestart';
     RuntimeWindow := SW_SHOWNORMAL;
   end else begin
