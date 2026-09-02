@@ -48,6 +48,13 @@ internal static class AppUpdater
     /// <summary>What the startup check found, waiting for the main window to be up.</summary>
     internal static (UpdateManifest Manifest, UpdateDecision Decision)? PendingOffer { get; private set; }
 
+    /// <summary>
+    /// Set once Setup has been started and is waiting for this process to let go of its
+    /// files. Shutdown ends the process outright in that case rather than leaving threads
+    /// to wind down in their own time, which Setup can only sit and wait for.
+    /// </summary>
+    internal static bool HandoverInProgress { get; private set; }
+
     /// <summary>Raised on the pool thread when a check found something to offer.</summary>
     internal static event Action<UpdateManifest, UpdateDecision> UpdateOffered;
 
@@ -233,7 +240,10 @@ internal static class AppUpdater
         Process.Start(new ProcessStartInfo(setupPath, arguments) { UseShellExecute = true });
 
         // Leave at once. Setup waits on this process before it touches the files, and a
-        // clean shutdown is what closes the spot database properly.
+        // clean shutdown is what closes the spot database properly. The flag lets the
+        // window's teardown finish the job by ending the process, instead of leaving
+        // Setup to wait out the threads that outlive the window.
+        HandoverInProgress = true;
         Sys.Shutdown();
     }
 

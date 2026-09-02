@@ -195,6 +195,18 @@ public partial class MainWindow : MetroWindow
         task2?.Wait(TimeSpan.FromSeconds(3.0));
         System.Windows.Application.Current.Shutdown();
         Log.Debug("Shutdown complete");
+
+        // Handing over to Setup: end the process now. Everything that must be finished is
+        // finished above - downloads stopped, the database closed, statistics reported -
+        // but download and browser threads outlive the window by around half a minute,
+        // and Setup can do nothing but wait for them behind a window with no progress on
+        // it. Only on this path; an ordinary exit is left exactly as it was.
+        if (AppUpdater.HandoverInProgress)
+        {
+            LogManager.Flush();
+            LogManager.Shutdown();
+            Environment.Exit(0);
+        }
     }
 
     public void InitializeDownloader()
