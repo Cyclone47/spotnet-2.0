@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Spotnet.Model;
 using Xunit;
+using Spotnet.Network;
 
 namespace Spotnet.Tests
 {

@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using Spotnet.Model;
 using Spotnet.Properties;
+using Spotnet.Network;
 
 namespace Spotnet.Phuse.NNTP.Net;
 

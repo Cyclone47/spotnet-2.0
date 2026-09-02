@@ -9,6 +9,23 @@
     machine-checkable backlog rather than to block the build on it. Escalate categories
     to errors as they get cleaned up, so they cannot regress.
   -->
+  <!--
+    Target frameworks, in one place.
+
+    WindowsTargetFramework is for the WPF client and anything that binds Windows APIs.
+    PortableTargetFramework is for the platform-neutral libraries that the macOS client
+    will share with it: no -windows suffix, so the compiler rejects WPF, WinForms,
+    Registry and System.Management outright instead of failing later on a Mac.
+
+    Both are net8.0 today because that is what the installed SDKs (8.0.4xx, 9.0.2xx)
+    can build. Moving to net10.0 LTS is a two-value edit here plus an SDK install; the
+    .NET 8 support window closes 2026-11-10, so that move is scheduled, not optional.
+  -->
+  <PropertyGroup>
+    <WindowsTargetFramework>net8.0-windows</WindowsTargetFramework>
+    <PortableTargetFramework>net8.0</PortableTargetFramework>
+  </PropertyGroup>
+
   <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest-recommended</AnalysisLevel>

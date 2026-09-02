@@ -6,6 +6,7 @@ using System.IO;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Properties;
+using Spotnet.Network;
 
 namespace Spotnet.Model;
 

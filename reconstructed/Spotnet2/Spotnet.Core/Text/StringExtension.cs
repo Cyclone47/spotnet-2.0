@@ -2,19 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security;
-using System.Security.Cryptography;
-using Spotnet.Helpers;
 using System.Text;
 using Microsoft.VisualBasic;
 
 namespace Spotnet.Extensions;
 
+// The platform-neutral half of the old StringExtension. The namespace is deliberately
+// unchanged from when this lived in Spotnet.dll, so every existing `using
+// Spotnet.Extensions;` call site resolves exactly as before. The DPAPI and ANSI-codepage
+// members stayed behind in WindowsStringExtension.
 public static class StringExtension
 {
-	private static readonly byte[] Entropy = Encoding.Unicode.GetBytes("just a salt, it is not a password");
-
 	public static bool IsNullOrEmpty(this string str)
 	{
 		return string.IsNullOrEmpty(str);
@@ -117,25 +115,6 @@ public static class StringExtension
 		return Strings.Replace(s, oldValue, newValue, 1, -1, CompareMethod.Text);
 	}
 
-	public static string DecodeFromUtf8(this string utf8String)
-	{
-		if (utf8String.IsNullOrWhiteSpace())
-		{
-			return utf8String;
-		}
-		byte[] array = new byte[utf8String.Length];
-		for (int i = 0; i < utf8String.Length; i++)
-		{
-			if ('\0' <= utf8String[i] && utf8String[i] <= 'ÿ')
-			{
-				array[i] = (byte)utf8String[i];
-				continue;
-			}
-			throw new Exception("The char must be in byte's range");
-		}
-		return AppHelper.AnsiEnc().GetString(array, 0, array.Length);
-	}
-
 	public static string ReadLine(this string text, int lineNumber)
 	{
 		StringReader stringReader = new StringReader(text);
@@ -171,47 +150,5 @@ public static class StringExtension
 			num2++;
 		}
 		return num2 + 1;
-	}
-
-	public static string EncryptString(SecureString input)
-	{
-		return Convert.ToBase64String(ProtectedData.Protect(Encoding.Unicode.GetBytes(input.ToInsecureString()), Entropy, DataProtectionScope.CurrentUser));
-	}
-
-	public static SecureString DecryptString(string encryptedData)
-	{
-		try
-		{
-			byte[] bytes = ProtectedData.Unprotect(Convert.FromBase64String(encryptedData), Entropy, DataProtectionScope.CurrentUser);
-			return Encoding.Unicode.GetString(bytes).ToSecureString();
-		}
-		catch
-		{
-			return new SecureString();
-		}
-	}
-
-	public static SecureString ToSecureString(this string input)
-	{
-		SecureString secureString = new SecureString();
-		foreach (char c in input)
-		{
-			secureString.AppendChar(c);
-		}
-		secureString.MakeReadOnly();
-		return secureString;
-	}
-
-	public static string ToInsecureString(this SecureString input)
-	{
-		IntPtr intPtr = Marshal.SecureStringToBSTR(input);
-		try
-		{
-			return Marshal.PtrToStringBSTR(intPtr);
-		}
-		finally
-		{
-			Marshal.ZeroFreeBSTR(intPtr);
-		}
 	}
 }

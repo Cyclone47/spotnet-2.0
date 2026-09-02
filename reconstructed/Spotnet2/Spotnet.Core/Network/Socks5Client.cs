@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Spotnet.Extensions;
 
-namespace Spotnet.Model;
+namespace Spotnet.Network;
 
 /// <summary>Result of a proxied connection attempt.</summary>
 public sealed class CreateConnectionAsyncCompletedEventArgs : EventArgs

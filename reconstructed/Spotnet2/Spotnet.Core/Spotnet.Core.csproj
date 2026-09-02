@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The platform-neutral half of Spotnet: everything the macOS client will share with
+    the WPF client. Targeting PortableTargetFramework (no -windows suffix) is the whole
+    point - it makes the compiler, not a Mac build six months from now, reject WPF,
+    WinForms, Registry and System.Management. AnyCPU so the same IL runs on Apple
+    Silicon; the x64 pin stays on the Windows client that actually needs it.
+
+    Code moves in here a slice at a time, each slice arriving green against the existing
+    test suite. Nothing in here may reference Spotnet.dll.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(PortableTargetFramework)</TargetFramework>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Spotnet.Core</AssemblyName>
+    <RootNamespace>Spotnet</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+</Project>
