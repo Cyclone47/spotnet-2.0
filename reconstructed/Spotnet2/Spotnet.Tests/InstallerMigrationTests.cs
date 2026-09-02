@@ -50,13 +50,14 @@ public sealed class InstallerMigrationTests : IDisposable
     }
 
     [Fact]
-    public void MeasureSizesThePreUpgradeBackupOfAnExistingProfile()
+    public void MeasurePreservesExistingProfileWithoutCopy()
     {
         new ProfileMigration().Prepare(Target, null, null);
         File.WriteAllBytes(Path.Combine(Target, "Data", "spots.dbs"), new byte[2 * 1024 * 1024]);
         var estimate = ProfileMigration.Measure(Target, null, null);
         Assert.Equal("upgrade", estimate.Kind);
-        Assert.True(estimate.Bytes >= 2L * 1024 * 1024, "The whole profile is backed up, so all of it is measured.");
+        Assert.Equal(0, estimate.Bytes);
+        Assert.Equal(0, estimate.Required);
     }
 
     [Fact]
@@ -194,15 +195,14 @@ public sealed class InstallerMigrationTests : IDisposable
     }
 
     [Fact]
-    public void ExistingThreeProfileIsBackedUpNotReimported()
+    public void ExistingThreeProfileIsPreservedNotReimported()
     {
         new ProfileMigration().Prepare(Target, null, null);
         string file = Path.Combine(Target, "Data", "keys.xml");
         File.WriteAllText(file, "personal-key-fixture");
         new ProfileMigration().Prepare(Target, null, null);
         Assert.Equal("personal-key-fixture", File.ReadAllText(file));
-        string backup = Assert.Single(Directory.GetDirectories(Path.Combine(Target, "Backups")));
-        Assert.Equal("personal-key-fixture", File.ReadAllText(Path.Combine(backup, "keys.xml")));
+        Assert.False(Directory.Exists(Path.Combine(Target, "Backups")));
         Seed();
         Assert.Throws<IOException>(() => new ProfileMigration().Prepare(Target, Source, null));
         Assert.Equal("personal-key-fixture", File.ReadAllText(file));

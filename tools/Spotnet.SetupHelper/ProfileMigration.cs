@@ -306,7 +306,7 @@ public sealed class ProfileMigration
         profileRoot = SafeDirectory(profileRoot);
         string data = Path.Combine(profileRoot, "Data");
         bool existing = Directory.Exists(data) && Directory.EnumerateFileSystemEntries(data).Any();
-        string source = existing ? data : (string.IsNullOrWhiteSpace(sourceData) ? null : SafeDirectory(sourceData));
+        string source = existing ? null : (string.IsNullOrWhiteSpace(sourceData) ? null : SafeDirectory(sourceData));
         estimate.Kind = existing ? "upgrade" : (source == null ? "fresh" : "import");
         var counted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (source != null)
@@ -327,7 +327,7 @@ public sealed class ProfileMigration
                 estimate.Files++;
             }
         }
-        estimate.Required = estimate.Bytes + SafetyMargin;
+        estimate.Required = existing ? 0 : (estimate.Bytes + SafetyMargin);
         estimate.Drive = Path.GetPathRoot(data);
         estimate.Free = new DriveInfo(estimate.Drive).AvailableFreeSpace;
         estimate.Measured = true;
@@ -357,23 +357,13 @@ public sealed class ProfileMigration
         {
             string id = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + "-" + Guid.NewGuid().ToString("N");
             string stage = Path.Combine(profileRoot, "staging-" + id);
-            // A failed copy stays in staging for diagnosis; never publish an incomplete profile.
+            // An existing Spotnet 3.0 profile is preserved in place without duplicating gigabytes of data.
             if (existing)
             {
                 if (sourceData != null || !string.IsNullOrEmpty(sourceSettings))
                     throw new IOException("A Spotnet 3.0 profile already exists. Upgrade preserves it; importing over it is not allowed.");
-                Snapshot(data, stage, null, progress, true, null, null);
-                string backups = Path.Combine(profileRoot, "Backups");
-                SafeDirectory(backups);
-                Directory.CreateDirectory(backups);
-                string backup = Path.Combine(backups, id);
-                Directory.Move(stage, backup);
-                // The style and language pages are answered on every run of Setup, so an
-                // upgrade has to honour them too. Setup preselects the profile's current
-                // values, which is what keeps "click straight through" from repainting an
-                // existing install.
                 ApplyPreferences(Path.Combine(data, "user.config"), language, theme);
-                return "Existing profile preserved. Verified pre-upgrade backup: " + backup;
+                return "Existing profile preserved.";
             }
             XmlDocument movePlan = null;
             if (moveSource)

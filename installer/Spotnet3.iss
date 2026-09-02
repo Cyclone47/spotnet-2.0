@@ -207,8 +207,8 @@ english.NoDowngrade=A newer Spotnet version is installed here. Downgrades are no
 dutch.NoDowngrade=Hier is een nieuwere Spotnet-versie geïnstalleerd. Downgraden wordt niet ondersteund.
 english.ProfileLabel=Profile:
 dutch.ProfileLabel=Profiel:
-english.KeepProfile=Keep current profile and create a verified pre-upgrade backup.
-dutch.KeepProfile=Huidig profiel behouden en vóór de upgrade een gecontroleerde back-up maken.
+english.KeepProfile=Keep current Spotnet 3.0 profile unchanged.
+dutch.KeepProfile=Huidig Spotnet 3.0-profiel ongewijzigd behouden.
 english.DataSource=Data source:
 dutch.DataSource=Gegevensbron:
 english.Preferences=Preferences:
@@ -822,7 +822,7 @@ begin
     if ShowProgress then SetBusy(False);
 #endif
   end;
-  if ShowProgress then begin
+  if ShowProgress and not ExistingProfile then begin
     SetBusy(False);
     ProgressPage.SetProgress(3, 4);
     ProgressPage.SetText(CM('StatusProfile'), CM('ProgressDetail'));
