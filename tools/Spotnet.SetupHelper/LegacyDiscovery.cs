@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -101,6 +101,14 @@ public sealed class LegacyDiscovery
         { Warnings.Add("A settings directory could not be inspected."); }
     }
 
+    /// <summary>
+    /// The style and language the installed profile already uses, so Setup can preselect
+    /// them. Leaving the wizard alone then means "keep what I have" rather than silently
+    /// repainting an upgraded install.
+    /// </summary>
+    public string CurrentTheme { get; set; } = "";
+    public string CurrentLanguage { get; set; } = "";
+
     public void SaveIni(string path)
     {
         var text = new StringBuilder("[Detection]\r\n");
@@ -108,6 +116,8 @@ public sealed class LegacyDiscovery
         WriteList(text, "Settings", SettingsPaths);
         WriteList(text, "Install", Installations.Distinct().ToList());
         WriteList(text, "Warning", Warnings.Distinct().ToList());
+        text.AppendLine("CurrentTheme=" + CurrentTheme);
+        text.AppendLine("CurrentLanguage=" + CurrentLanguage);
         File.WriteAllText(path, text.ToString(), Encoding.Unicode);
     }
 

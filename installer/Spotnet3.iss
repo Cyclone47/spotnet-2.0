@@ -1,4 +1,4 @@
-; Compile using build-installer.ps1 with Inno Setup 7.1 or newer.
+﻿; Compile using build-installer.ps1 with Inno Setup 7.1 or newer.
 #ifndef PayloadDir
   #error PayloadDir must be supplied by build-installer.ps1
 #endif
@@ -95,6 +95,28 @@ english.LegacyDataDescription=Select only the Spotnet data folder, not a drive r
 dutch.LegacyDataDescription=Selecteer alleen de Spotnet-gegevensmap, niet de hoofdmap van een schijf of de installatiemap van het programma.
 english.DataFolder=Data folder:
 dutch.DataFolder=Gegevensmap:
+english.LanguageTitle=Language
+dutch.LanguageTitle=Taal
+english.LanguageSubtitle=Choose the language Spotnet starts in
+dutch.LanguageSubtitle=Kies de taal waarin Spotnet start
+english.LanguageDescription=This sets the language of the application itself. You can change it later from Edit, Language.
+dutch.LanguageDescription=Dit stelt de taal van het programma zelf in. U kunt dit later wijzigen via Bewerken, Taal.
+english.LanguageDutch=Nederlands
+dutch.LanguageDutch=Nederlands
+english.LanguageEnglish=English
+dutch.LanguageEnglish=Engels
+english.StyleTitle=Style
+dutch.StyleTitle=Stijl
+english.StyleSubtitle=Choose how Spotnet looks
+dutch.StyleSubtitle=Kies hoe Spotnet eruitziet
+english.StyleDescription=Each preview shows the filter list and its icons. You can change the style later from Edit, Style.
+dutch.StyleDescription=Elke voorbeeldweergave toont de filterlijst en de bijbehorende pictogrammen. U kunt de stijl later wijzigen via Bewerken, Stijl.
+english.StyleModernLight=Modern (light)
+dutch.StyleModernLight=Modern (licht)
+english.StyleModernDark=Modern (dark)
+dutch.StyleModernDark=Modern (donker)
+english.StyleClassic=Classic
+dutch.StyleClassic=Klassiek
 english.SettingsTitle=Your preferences
 dutch.SettingsTitle=Uw voorkeuren
 english.SettingsSubtitle=Select the settings belonging to that profile
@@ -189,6 +211,9 @@ dutch.CheckOld=Behoud uw oude installatie totdat u uw provider, databases en dow
 [Files]
 Source: "{#HelperDir}\Spotnet.SetupHelper.exe"; Flags: dontcopy
 Source: "{#HelperDir}\Spotnet.SetupHelper.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PreviewDir}\style-modern-light.bmp"; Flags: dontcopy
+Source: "{#PreviewDir}\style-modern-dark.bmp"; Flags: dontcopy
+Source: "{#PreviewDir}\style-classic.bmp"; Flags: dontcopy
 Source: "{#WebViewBootstrapper}"; DestName: "MicrosoftEdgeWebview2Setup.exe"; Flags: dontcopy
 Source: "{#DotNetBootstrapper}"; DestName: "windowsdesktop-runtime.exe"; Flags: dontcopy
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -204,7 +229,10 @@ Filename: "{app}\Spotnet.exe"; Description: "{cm:LaunchSpotnet}"; Flags: nowait 
 
 [Code]
 var
-  DataPage, SettingsPage: TInputOptionWizardPage;
+  DataPage, SettingsPage, LanguagePage: TInputOptionWizardPage;
+  StylePage: TWizardPage;
+  StyleButtons: array[0..2] of TRadioButton;
+  StyleCaption: TLabel;
   CustomDataPage: TInputDirWizardPage;
   CustomSettingsPage: TInputFileWizardPage;
   ProgressPage: TOutputProgressWizardPage;
@@ -213,6 +241,7 @@ var
   Prepared: Boolean;
   ShortcutFailure: Boolean;
   Helper, DetectionFile, ReportFile, Summary: String;
+  CurrentTheme, CurrentLanguage: String;
 
 function CM(const Key: String): String;
 begin
@@ -317,6 +346,45 @@ begin
     Result := (RegQueryStringValue(HKCU, 'Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) and (Version <> '') and (Version <> '0.0.0.0'));
 end;
 
+
+{ One preview tile: the bitmap rendered from the application's own theme
+  dictionaries by Spotnet.ThemePreview, with its radio button underneath. }
+procedure AddStyleTile(Page: TWizardPage; Index: Integer; const FileName, Caption: String; Left: Integer);
+var
+  Image: TBitmapImage;
+begin
+  ExtractTemporaryFile(FileName);
+  Image := TBitmapImage.Create(Page);
+  Image.Parent := Page.Surface;
+  Image.Bitmap.LoadFromFile(ExpandConstant('{tmp}\') + FileName);
+  Image.Left := ScaleX(Left);
+  Image.Top := ScaleY(34);
+  Image.Width := ScaleX(128);
+  Image.Height := ScaleY(132);
+  Image.Stretch := True;
+
+  StyleButtons[Index] := TRadioButton.Create(Page);
+  StyleButtons[Index].Parent := Page.Surface;
+  StyleButtons[Index].Left := ScaleX(Left);
+  StyleButtons[Index].Top := ScaleY(172);
+  StyleButtons[Index].Width := ScaleX(128);
+  StyleButtons[Index].Caption := Caption;
+end;
+
+{ The style written into the fresh profile's user.config. Must match the values
+  ThemeHelper accepts. }
+function SelectedTheme: String;
+begin
+  if StyleButtons[1].Checked then Result := 'ModernDark'
+  else if StyleButtons[2].Checked then Result := 'ClassicLight'
+  else Result := 'ModernLight';
+end;
+
+function SelectedLanguage: String;
+begin
+  if LanguagePage.SelectedValueIndex = 1 then Result := 'en' else Result := 'nl';
+end;
+
 procedure InitializeWizard;
 var
   ExitCode, Count, Index: Integer;
@@ -334,6 +402,36 @@ begin
     Installs := Installs + GetIniString('Detection', 'Install' + IntToStr(Index), '', DetectionFile) + #13#10;
   if Installs = '' then Installs := CM('NoOldInstall');
   Description := CM('DetectedInstalls') + #13#10 + Installs + #13#10 + CM('SourceDescription');
+  { Onboarding: language, then style. Both sit between Welcome and the folder
+    page so the choices are made before anything is written. }
+  LanguagePage := CreateInputOptionPage(wpWelcome, CM('LanguageTitle'), CM('LanguageSubtitle'),
+    CM('LanguageDescription'), True, False);
+  LanguagePage.Add(CM('LanguageDutch'));
+  LanguagePage.Add(CM('LanguageEnglish'));
+  CurrentLanguage := GetIniString('Detection', 'CurrentLanguage', '', DetectionFile);
+  if CurrentLanguage = 'nl' then LanguagePage.SelectedValueIndex := 0
+  else if CurrentLanguage = 'en' then LanguagePage.SelectedValueIndex := 1
+  else if IsDutch then LanguagePage.SelectedValueIndex := 0
+  else LanguagePage.SelectedValueIndex := 1;
+
+  StylePage := CreateCustomPage(LanguagePage.ID, CM('StyleTitle'), CM('StyleSubtitle'));
+  StyleCaption := TLabel.Create(StylePage);
+  StyleCaption.Parent := StylePage.Surface;
+  StyleCaption.Left := 0;
+  StyleCaption.Top := 0;
+  StyleCaption.Width := StylePage.SurfaceWidth;
+  StyleCaption.WordWrap := True;
+  StyleCaption.Caption := CM('StyleDescription');
+  AddStyleTile(StylePage, 0, 'style-modern-light.bmp', CM('StyleModernLight'), 0);
+  AddStyleTile(StylePage, 1, 'style-modern-dark.bmp', CM('StyleModernDark'), 140);
+  AddStyleTile(StylePage, 2, 'style-classic.bmp', CM('StyleClassic'), 280);
+  { An upgrade opens on the style it already uses, so clicking straight through Setup
+    never repaints an existing install. A fresh install opens on Modern (light). }
+  CurrentTheme := GetIniString('Detection', 'CurrentTheme', '', DetectionFile);
+  if CurrentTheme = 'ModernDark' then StyleButtons[1].Checked := True
+  else if CurrentTheme = 'ClassicLight' then StyleButtons[2].Checked := True
+  else StyleButtons[0].Checked := True;
+
   DataPage := CreateInputOptionPage(wpSelectDir, CM('DataTitle'), CM('DataSubtitle'), Description, True, False);
   DataPage.Add(CM('FreshProfile'));
   Count := GetIniInt('Detection', 'DataCount', 0, 0, 1000, DetectionFile);
@@ -502,9 +600,10 @@ begin
     ProgressPage.SetText(CM('StatusProfile'), CM('ProgressDetail'));
   end;
   Parameters := 'prepare --profile ' + Quote(ProfileRoot) + ' --report ' + Quote(ReportFile);
-  { A new profile starts in the language Setup ran in; an imported profile keeps its own choice. }
-  if IsDutch then Parameters := Parameters + ' --language nl'
-  else Parameters := Parameters + ' --language en';
+  { A new profile starts in the language and style picked on the wizard's first two
+    pages; an imported profile keeps whatever it already states. }
+  Parameters := Parameters + ' --language ' + SelectedLanguage;
+  Parameters := Parameters + ' --app-theme ' + SelectedTheme;
   if SelectedData <> '' then Parameters := Parameters + ' --source-data ' + Quote(SelectedData);
   if SelectedSettings <> '' then Parameters := Parameters + ' --source-settings ' + Quote(SelectedSettings);
   if not Exec(Helper, Parameters, '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then begin

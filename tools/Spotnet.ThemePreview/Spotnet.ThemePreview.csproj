@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>disable</Nullable>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AssemblyName>Spotnet.ThemePreview</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.11" />
+    <ProjectReference Include="../../reconstructed/Spotnet2/Spotnet/Spotnet.csproj" />
+  </ItemGroup>
+</Project>

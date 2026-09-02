@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$CompilerPath,
     [switch]$BootstrapCompiler,
@@ -184,10 +184,25 @@ try {
     $dotnet = Join-Path $toolRoot 'windowsdesktop-runtime-8-win-x64.exe'
     Get-SignedDownload 'https://aka.ms/dotnet/8.0/windowsdesktop-runtime-win-x64.exe' $dotnet 'O=Microsoft Corporation'
 
+    # Render the wizard's style previews from the application's own theme dictionaries,
+    # so a palette change shows up in Setup instead of leaving a stale picture behind.
+    $previewProject = Join-Path $repoRoot 'tools\Spotnet.ThemePreview\Spotnet.ThemePreview.csproj'
+    $previewDir = Join-Path $artifactRoot 'previews'
+    New-Item -ItemType Directory -Force -Path $previewDir | Out-Null
+    & dotnet build $previewProject -c Release -v quiet --nologo
+    if ($LASTEXITCODE -ne 0) { throw 'Building the style preview renderer failed.' }
+    $previewExe = Join-Path $repoRoot 'tools\Spotnet.ThemePreview\bin\Release\net8.0-windows\Spotnet.ThemePreview.exe'
+    $filterIcons = Join-Path $repoRoot 'reconstructed\Spotnet2\Spotnet\Data\Filters.v2\Images'
+    & $previewExe --output $previewDir --icons $filterIcons
+    if ($LASTEXITCODE -ne 0) { throw 'Rendering the style previews failed.' }
+    foreach ($tile in @('style-modern-light.bmp', 'style-modern-dark.bmp', 'style-classic.bmp')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $previewDir $tile))) { throw "The style preview $tile was not produced." }
+    }
+
     # Sign what this repository produces. The third-party assemblies arrive signed by
     # their own publishers and are left alone.
     $signTemplate = Get-SignTemplate
-    $compilerArguments = @('/Q', ('/DPayloadDir=' + $payload), ('/DHelperDir=' + $helperOutput), ('/DWebViewBootstrapper=' + $webview), ('/DDotNetBootstrapper=' + $dotnet), ('/DOutputDir=' + $artifactRoot))
+    $compilerArguments = @('/Q', ('/DPayloadDir=' + $payload), ('/DHelperDir=' + $helperOutput), ('/DWebViewBootstrapper=' + $webview), ('/DDotNetBootstrapper=' + $dotnet), ('/DOutputDir=' + $artifactRoot), ('/DPreviewDir=' + $previewDir))
     if ($signTemplate) {
         $ourBinaries = @('Spotnet.exe', 'Spotnet.Enc.dll') |
             ForEach-Object { Join-Path $payload $_ }

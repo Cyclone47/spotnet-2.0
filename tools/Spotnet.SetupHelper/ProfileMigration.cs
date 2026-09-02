@@ -66,7 +66,7 @@ public sealed class ProfileMigration
     }
 
     /// <summary>Read handles stay exclusively held for the whole snapshot, including WAL/SHM.</summary>
-    private static void Snapshot(string source, string destination, string settingsFile, Action<string> progress, bool wholeProfile, string language)
+    private static void Snapshot(string source, string destination, string settingsFile, Action<string> progress, bool wholeProfile, string language, string theme)
     {
         var files = new List<Tuple<string, FileStream>>();
         FileStream settings = null;
@@ -127,6 +127,9 @@ public sealed class ProfileMigration
                 // Start the app in the language Setup ran in, unless the imported profile already
                 // states one. Without this a Dutch install still opened an English app.
                 ProfileSettingsFile.SetIfAbsent(config, "UserLanguage", language);
+                // Likewise the style picked in Setup, unless the imported profile
+                // already carries one - a migrated look is the user's own choice.
+                ProfileSettingsFile.SetIfAbsent(config, "AppTheme", theme);
                 ProfileSettingsFile.SaveAtomic(config, Path.Combine(destination, "user.config"));
             }
         }
@@ -137,7 +140,23 @@ public sealed class ProfileMigration
         }
     }
 
-    public string Prepare(string profileRoot, string sourceData, string sourceSettings, Action<string> progress = null, string language = null)
+    /// <summary>
+    /// Writes the preferences Setup collected onto an existing profile. Unlike the import
+    /// path this overwrites: the user answered the question during this run, so their
+    /// answer wins over what the profile happened to hold.
+    /// </summary>
+    private static void ApplyPreferences(string config, string language, string theme)
+    {
+        if (language == null && theme == null) return;
+        var document = File.Exists(config)
+            ? ProfileSettingsFile.Normalize(ProfileSettingsFile.Load(config))
+            : ProfileSettingsFile.Empty();
+        if (language != null) ProfileSettingsFile.Set(document, "UserLanguage", language);
+        if (theme != null) ProfileSettingsFile.Set(document, "AppTheme", theme);
+        ProfileSettingsFile.SaveAtomic(document, config);
+    }
+
+    public string Prepare(string profileRoot, string sourceData, string sourceSettings, Action<string> progress = null, string language = null, string theme = null)
     {
         profileRoot = SafeDirectory(profileRoot);
         string data = Path.Combine(profileRoot, "Data");
@@ -164,15 +183,20 @@ public sealed class ProfileMigration
             {
                 if (sourceData != null || !string.IsNullOrEmpty(sourceSettings))
                     throw new IOException("A Spotnet 3.0 profile already exists. Upgrade preserves it; importing over it is not allowed.");
-                Snapshot(data, stage, null, progress, true, null);
+                Snapshot(data, stage, null, progress, true, null, null);
                 string backups = Path.Combine(profileRoot, "Backups");
                 SafeDirectory(backups);
                 Directory.CreateDirectory(backups);
                 string backup = Path.Combine(backups, id);
                 Directory.Move(stage, backup);
+                // The style and language pages are answered on every run of Setup, so an
+                // upgrade has to honour them too. Setup preselects the profile's current
+                // values, which is what keeps "click straight through" from repainting an
+                // existing install.
+                ApplyPreferences(Path.Combine(data, "user.config"), language, theme);
                 return "Existing profile preserved. Verified pre-upgrade backup: " + backup;
             }
-            Snapshot(sourceData, stage, sourceSettings, progress, false, language);
+            Snapshot(sourceData, stage, sourceSettings, progress, false, language, theme);
             File.WriteAllText(Path.Combine(stage, ProfileMarker), "Spotnet3 profile format 1\r\n", Encoding.UTF8);
             File.WriteAllText(Path.Combine(stage, "migration.txt"),
                 "Created UTC: " + DateTime.UtcNow.ToString("O") + "\r\nSource data: " + (sourceData ?? "Fresh install") +
