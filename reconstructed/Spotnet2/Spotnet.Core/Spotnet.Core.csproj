@@ -19,4 +19,12 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Spotnet.Enc\Spotnet.Enc.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="5.5.1" />
+  </ItemGroup>
+
 </Project>
