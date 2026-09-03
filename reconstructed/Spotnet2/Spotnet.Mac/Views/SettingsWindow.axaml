@@ -1,0 +1,97 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Spotnet.Mac.ViewModels"
+        x:Class="Spotnet.Mac.Views.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="Spotnet - Instellingen"
+        Width="520" Height="580"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="24">
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,16">
+            <TextBlock Text="Instellingen" FontSize="18" FontWeight="SemiBold"/>
+            <TextBlock Text="Wachtwoorden worden veilig versleuteld in de macOS Sleutelhanger (Keychain)."
+                       FontSize="12" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+        </StackPanel>
+
+        <!-- Form fields -->
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Weergavestijl &amp; Thema:" FontWeight="Medium"/>
+                <ComboBox ItemsSource="{Binding ThemeList}"
+                          SelectedItem="{Binding SelectedTheme}"
+                          HorizontalAlignment="Stretch"/>
+                <Separator Margin="0,4"/>
+
+                <TextBlock Text="Snelle Provider Keuze:" FontWeight="Medium"/>
+                <ComboBox ItemsSource="{Binding ProviderList}"
+                          SelectedItem="{Binding SelectedProvider}"
+                          HorizontalAlignment="Stretch"/>
+
+                <TextBlock Text="Serveradres:" FontWeight="Medium"/>
+                <TextBox Text="{Binding Server}" Watermark="bijv. news.eweka.nl"/>
+
+                <Grid ColumnDefinitions="*,16,*">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                        <TextBlock Text="Poort:" FontWeight="Medium"/>
+                        <NumericUpDown Value="{Binding Port}" Minimum="1" Maximum="65535" FormatString="0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="4">
+                        <TextBlock Text="Verbindingen:" FontWeight="Medium"/>
+                        <NumericUpDown Value="{Binding Connections}" Minimum="1" Maximum="100" FormatString="0"/>
+                    </StackPanel>
+                </Grid>
+
+                <CheckBox IsChecked="{Binding Ssl}" Content="SSL / TLS versleuteling gebruiken (Aanbevolen, poort 563)"/>
+
+                <TextBlock Text="Gebruikersnaam:" FontWeight="Medium"/>
+                <TextBox Text="{Binding Username}" Watermark="Usenet gebruikersnaam"/>
+
+                <TextBlock Text="Wachtwoord (Apple Keychain):" FontWeight="Medium"/>
+                <TextBox Text="{Binding Password}" PasswordChar="•" Watermark="Usenet wachtwoord"/>
+
+                <Separator Margin="0,4"/>
+                <TextBlock Text="Download Instellingen" FontSize="14" FontWeight="SemiBold"/>
+
+                <TextBlock Text="Downloadknop actie:" FontWeight="Medium"/>
+                <ComboBox ItemsSource="{Binding DownloadModeList}"
+                          SelectedItem="{Binding SelectedDownloadMode}"
+                          HorizontalAlignment="Stretch"/>
+
+                <TextBlock Text="Downloadmap:" FontWeight="Medium"/>
+                <Grid ColumnDefinitions="*,8,Auto">
+                    <TextBox Grid.Column="0" Text="{Binding DownloadFolder}" Watermark="Pad naar downloadmap"/>
+                    <Button Grid.Column="2" Content="Bladeren..." Command="{Binding PickDownloadFolderCommand}"/>
+                </Grid>
+
+                <TextBlock Text="Aantal downloadverbindingen:" FontWeight="Medium"/>
+                <NumericUpDown Value="{Binding MaxDownloadConnections}" Minimum="1" Maximum="32" FormatString="0"/>
+
+                <!-- Status message -->
+                <TextBlock Text="{Binding StatusMessage}"
+                           TextWrapping="Wrap"
+                           FontWeight="Medium"
+                           Margin="0,8,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Buttons -->
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,8,Auto" Margin="0,16,0,0">
+            <Button Grid.Column="0"
+                    Command="{Binding TestConnectionCommand}"
+                    IsEnabled="{Binding !IsTesting}"
+                    Content="Test Verbinding"/>
+
+            <Button Grid.Column="2"
+                    Click="OnCancelClick"
+                    Content="Annuleren"/>
+
+            <Button Grid.Column="4"
+                    Classes="accent"
+                    Command="{Binding SaveCommand}"
+                    Content="Opslaan"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,7 +1,7 @@
-﻿# Spotnet 3.0 macOS Client Development Guide
+# Spotnet 3.0 macOS Client Development Guide
 
 > **For AI Agents (Antigravity, Claude Code, Codex) & Developers on macOS**  
-> This guide outlines how to pick up development of the macOS client on Apple Silicon / macOS Sonoma/Sequoia.
+> This guide outlines how to pick up development of the macOS client on Apple Silicon (ARM64) and Intel (x86_64) / macOS Sonoma/Sequoia.
 
 ---
 
@@ -96,6 +96,69 @@ Use `Spotnet.Platform.StandardAppPaths` (or implement `IAppPaths`):
 - Implement `ISecretStore` (`Spotnet.Platform.ISecretStore`) using macOS Keychain Services (`SecItemAdd`, `SecItemCopyMatching`, `SecItemDelete` from `Security.framework`).
 - Provider passwords, API keys, and private spot signing identities must never be stored in plaintext configuration files.
 
+### 3.6. Post-Download Processing (built in, no external tools)
+
+`Spotnet.Mac/PostProcessing/` ports the Windows client's
+`Spotnet.Downloader.PostProcessing` pipeline. `PostProcessCoordinator.RunAsync`
+walks the same stages, in the same order, and reports each one into the Downloads
+row (labels taken verbatim from `Spotnet.Properties.Words.nl.resx`):
+
+| Stage | Label | What runs |
+|---|---|---|
+| `Verifying` | Verifiëren | `SplitFileJoiner` joins `name.ext.001/.002/…` sets |
+| `Checking` | Controleren | `Par2Verifier` checks every slice's CRC32 then MD5 |
+| `Repairing` | Repareren | `Par2Repairer` rebuilds damaged slices via Reed-Solomon |
+| `Par2PieceDownloading` | Par2 downloaden | callback to fetch extra recovery blocks when short |
+| `Unpacking` | Uitpakken | `ManagedArchiveExtractor` — rar, zip, 7z, tar |
+| `Moving` | Verplaatsen | lifts the `__unpack` staging directory, drops the par2 files |
+| `WrongPassword` | Wachtwoord? | encrypted archive, no usable password — the row waits |
+
+**Nothing has to be installed.** The Windows client ships UnRAR.exe, 7za.exe and
+phpar2.exe next to the binary and cannot work without them. Those cannot be
+redistributed the same way on macOS, and making a user run `brew install` before
+the app functions is not acceptable, so both jobs are part of the app:
+
+* **Unpacking** is `SharpCompress` (MIT), a NuGet reference compiled into the
+  build. It handles rar4/rar5 including multi-volume sets, zip, 7z and tar, with
+  passwords, and travels with the bundle on both Apple Silicon and Intel.
+* **par2 verification and repair** are implemented directly, in
+  `Par2RecoverySet` (format), `Par2Verifier` (slice checking), `Galois16`
+  (GF(2^16) arithmetic) and `Par2Repairer` (the Reed-Solomon solve). There is no
+  managed par2 library on NuGet, so this is written against the Par2 v2 spec.
+
+`PostProcessToolset` still looks for an `unrar` or `7zz` on the machine, but only
+as a fallback for archives the built-in extractor cannot read. Its absence is
+normal and is never reported to the user.
+
+#### Safety properties worth preserving
+
+* **Repair is gated on re-verification.** `Par2Repairer` re-checks the whole set
+  after writing and returns `RepairDidNotVerify` rather than claiming success, so a
+  mistake in the Reed-Solomon layer can never quietly produce corrupt files.
+* **Only already-damaged slices are written.** A bad repair cannot destroy data
+  that verified.
+* **Archive entries cannot escape the download directory.** `../` paths are
+  rejected — Usenet archives are untrusted input.
+* **Password detection is proactive.** `ArchivePasswordProbe` reads RAR4/RAR5/ZIP
+  headers before extraction, so an encrypted set is flagged without a doomed
+  multi-minute unpack. Windows only ever reacts to UnRAR's exit code 11.
+
+#### Tests
+
+* `Par2Tests.cs` — field arithmetic, format parsing, verification and repair. The
+  fixtures in `Par2Fixture.cs` generate real par2 files using a Reed-Solomon
+  encoder written independently of the production code, so a passing repair means
+  two separate implementations agree on the spec.
+* `PostProcessPipelineTests.cs` — unpacking and the full coordinator against real
+  zip archives and real par2 data.
+* `PostProcessingTests.cs` — naming rules, split joining, archive header probes.
+
+The parser and verifier were additionally validated against real Usenet downloads:
+slice geometry, Main-packet file ordering and IFSC counts all matched, and files
+that were intact verified clean against genuine par2 hashes.
+
+---
+
 ### 3.6. macOS User Experience & HIG
 - **Menu Bar**: Native menu items (App Menu, File, Edit, View, Help).
 - **Keyboard Shortcuts**:
@@ -122,12 +185,29 @@ The first task to execute on macOS is a self-contained spike verifying four crit
 ## 5. Build & Packaging on macOS
 
 ### Standalone Self-Contained App:
+For Intel (x86_64):
+```bash
+dotnet publish reconstructed/Spotnet2/Spotnet.Mac/Spotnet.Mac.csproj \
+  -c Release \
+  -r osx-x64 \
+  --self-contained true \
+  -p:PublishTrimmed=false
+```
+
+For Apple Silicon (ARM64):
 ```bash
 dotnet publish reconstructed/Spotnet2/Spotnet.Mac/Spotnet.Mac.csproj \
   -c Release \
   -r osx-arm64 \
   --self-contained true \
   -p:PublishTrimmed=false
+```
+
+### Full .app Bundle Creation:
+```bash
+./tools/make_app_bundle.sh         # Auto-detects Intel or ARM64
+./tools/make_app_bundle.sh x64     # Explicit Intel
+./tools/make_app_bundle.sh arm64   # Explicit Apple Silicon
 ```
 
 ### Apple Developer ID Signing & Notarization:

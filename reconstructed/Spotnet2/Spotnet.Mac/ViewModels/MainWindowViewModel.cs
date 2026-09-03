@@ -1,0 +1,638 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using NLog;
+using Spotnet.Mac.DAL;
+using Spotnet.Mac.Models;
+using Spotnet.Mac.Network;
+using Spotnet.Mac.Platform;
+using Spotnet.Mac.Services;
+using Spotnet.Platform;
+
+namespace Spotnet.Mac.ViewModels;
+
+public sealed class MainWindowViewModel : ViewModelBase
+{
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+    private readonly IAppPaths _appPaths;
+    private readonly ISecretStore _secretStore;
+    private readonly SpotDatabaseService _dbService;
+    private readonly UserPreferencesService _prefsService;
+    private readonly SpotSyncService _syncService;
+    private readonly NzbService _nzbService;
+    private readonly CustomFilterService _customFilterService;
+    private readonly CommentService _commentService;
+    private readonly SpotBodyService _bodyService;
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    private FilterItem? _selectedFilter;
+    private SpotItem? _selectedSpot;
+    private string _searchText = "";
+    private bool _isLoading;
+    private string _statusText = "Gereed";
+    private int _totalSpotsCount;
+    private bool _isSyncing;
+    private int _syncProgress;
+
+    // ── Collections ───────────────────────────────────────────────────────────
+    public ObservableCollection<SpotItem> Spots { get; } = new();
+
+    /// <summary>The tab strip: the overview, plus one tab per opened spot.</summary>
+    public ObservableCollection<WorkspaceTabViewModel> Tabs { get; } = new();
+
+    private WorkspaceTabViewModel? _selectedTab;
+    public WorkspaceTabViewModel? SelectedTab
+    {
+        get => _selectedTab;
+        set => SetProperty(ref _selectedTab, value);
+    }
+
+    /// <summary>Tab or separate window, as chosen in Weergave › Spots openen in.</summary>
+    public SpotOpenMode SpotOpenMode
+    {
+        get => _prefsService.Current.SpotOpenMode;
+        set
+        {
+            if (_prefsService.Current.SpotOpenMode == value) return;
+            var prefs = _prefsService.Current;
+            prefs.SpotOpenMode = value;
+            _prefsService.Save(prefs);
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(OpensInTabs));
+        }
+    }
+
+    public bool OpensInTabs => SpotOpenMode == SpotOpenMode.Tab;
+
+    /// <summary>Downloadknop mode, as chosen in Bewerken › Downloadknop.</summary>
+    public DownloadMode DownloadMode
+    {
+        get => _prefsService.Current.DownloadMode;
+        set
+        {
+            if (_prefsService.Current.DownloadMode == value) return;
+            var prefs = _prefsService.Current;
+            prefs.DownloadMode = value;
+            _prefsService.Save(prefs);
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsDownloadModeIntegrated));
+            OnPropertyChanged(nameof(IsDownloadModeOpenNzb));
+            OnPropertyChanged(nameof(IsDownloadModeSaveNzb));
+        }
+    }
+
+    public bool IsDownloadModeIntegrated => DownloadMode == DownloadMode.Integrated;
+    public bool IsDownloadModeOpenNzb => DownloadMode == DownloadMode.OpenNzb;
+    public bool IsDownloadModeSaveNzb => DownloadMode == DownloadMode.SaveNzb;
+
+    public string DownloadFolder
+    {
+        get => string.IsNullOrWhiteSpace(_prefsService.Current.DownloadFolder)
+            ? _appPaths.DownloadsFolder
+            : _prefsService.Current.DownloadFolder;
+        set
+        {
+            var prefs = _prefsService.Current;
+            prefs.DownloadFolder = value ?? "";
+            _prefsService.Save(prefs);
+            OnPropertyChanged();
+        }
+    }
+
+    public ObservableCollection<FilterItem> FilterTree { get; } = new();
+
+    // Flat list of custom filter items for easy save/load
+    private readonly ObservableCollection<FilterItem> _customFilters = new();
+
+    // ── Sub-view-models ───────────────────────────────────────────────────────
+    public SpotDetailViewModel SpotDetail { get; }
+
+    /// <summary>The Downloads tab, kept as a field so spot tabs can report into it.</summary>
+    public DownloadsTabViewModel DownloadsTab { get; }
+
+    // ── Properties ────────────────────────────────────────────────────────────
+    public FilterItem? SelectedFilter
+    {
+        get => _selectedFilter;
+        set
+        {
+            var previous = _selectedFilter;
+            if (SetProperty(ref _selectedFilter, value))
+            {
+                // IsSelected drives the highlight in the sidebar, the way the Windows
+                // tree marks the active filter.
+                if (previous != null) previous.IsSelected = false;
+                if (value != null) value.IsSelected = true;
+
+                _ = RefreshSpotsAsync();
+            }
+        }
+    }
+
+    public SpotItem? SelectedSpot
+    {
+        get => _selectedSpot;
+        set
+        {
+            if (SetProperty(ref _selectedSpot, value))
+            {
+                SpotDetail.Spot = value;
+                OnPropertyChanged(nameof(IsDetailOpen));
+            }
+        }
+    }
+
+    public bool IsDetailOpen => SelectedSpot != null;
+
+    public string ArchitectureInfo => $"Spotnet 3.0 • macOS ({System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture})";
+
+    public string SearchText
+    {
+        get => _searchText;
+        set => SetProperty(ref _searchText, value);
+    }
+
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set => SetProperty(ref _isLoading, value);
+    }
+
+    public string StatusText
+    {
+        get => _statusText;
+        set => SetProperty(ref _statusText, value);
+    }
+
+    public int TotalSpotsCount
+    {
+        get => _totalSpotsCount;
+        set => SetProperty(ref _totalSpotsCount, value);
+    }
+
+    public bool IsSyncing
+    {
+        get => _isSyncing;
+        set => SetProperty(ref _isSyncing, value);
+    }
+
+    public int SyncProgress
+    {
+        get => _syncProgress;
+        set => SetProperty(ref _syncProgress, value);
+    }
+
+    // ── Commands ──────────────────────────────────────────────────────────────
+    public ICommand SearchCommand { get; }
+    public ICommand ClearSearchCommand { get; }
+    public ICommand RefreshCommand { get; }
+    public ICommand CloseDetailCommand { get; }
+    public ICommand OpenSettingsCommand { get; }
+    public ICommand OpenOnboardingCommand { get; }
+    public ICommand SetThemeCommand { get; }
+    public ICommand AddCustomFilterCommand { get; }
+    public ICommand DeleteFilterCommand { get; }
+    public ICommand ToggleFilterExpandCommand { get; }
+    public ICommand SelectFilterCommand { get; }
+    public ICommand OpenSpotCommand { get; }
+    public ICommand CloseTabCommand { get; }
+    public ICommand SetSpotOpenModeCommand { get; }
+    public ICommand SetDownloadModeCommand { get; }
+    public ICommand PickDownloadFolderCommand { get; }
+    public ICommand DeleteSelectedCommand { get; }
+
+    /// <summary>Raised when a spot should open in its own window rather than a tab.</summary>
+    public event Action<SpotDetailViewModel>? RequestOpenSpotWindow;
+
+    public event Action? RequestOpenSettings;
+    public event Action? RequestOpenOnboarding;
+    public event Action? RequestAddCustomFilter;
+    public event Action? RequestPickDownloadFolder;
+    public event Action<DownloadItem>? RequestSetDownloadPassword;
+    public Func<DownloadItem, Task<(bool confirmed, bool deleteFiles)>>? RequestConfirmRemoveDownload;
+    public Func<int, long, Task<(bool confirmed, bool deleteFiles)>>? RequestConfirmClearDownloads;
+
+    // ── Constructor ───────────────────────────────────────────────────────────
+    public MainWindowViewModel(IAppPaths appPaths, ISecretStore secretStore, SpotDatabaseService dbService, UserPreferencesService? prefsService = null)
+    {
+        _appPaths = appPaths;
+        _secretStore = secretStore;
+        _dbService = dbService;
+        _prefsService = prefsService ?? new UserPreferencesService(_appPaths);
+        _customFilterService = new CustomFilterService(_appPaths);
+
+        _nzbService = new NzbService(_appPaths, _secretStore, _prefsService);
+        _syncService = new SpotSyncService(_appPaths, _secretStore, _dbService);
+        _commentService = new CommentService(_appPaths, _secretStore, _dbService);
+        _bodyService = new SpotBodyService(_appPaths, _secretStore);
+
+        _syncService.ProgressChanged += (current, total, msg) =>
+        {
+            StatusText = msg;
+            SyncProgress = current;
+            IsSyncing = _syncService.IsSyncing;
+        };
+
+        SpotDetail = new SpotDetailViewModel(_dbService, _nzbService, _commentService, _bodyService);
+
+        DownloadsTab = new DownloadsTabViewModel(new DownloadHistoryService(_appPaths));
+        SpotDetail.NzbFetched += OnNzbFetched;
+        SpotDetail.RequestClose += () => SelectedSpot = null;
+
+        // Commands
+        SearchCommand = new RelayCommand(async () => await RefreshSpotsAsync());
+        ClearSearchCommand = new RelayCommand(async () =>
+        {
+            SearchText = "";
+            await RefreshSpotsAsync();
+        });
+
+        RefreshCommand = new RelayCommand(async () =>
+        {
+            IsSyncing = true;
+            // Everything already in the table is "seen"; whatever the sync adds above
+            // this watermark is what the Nieuw filter ([SN:NEW]) shows.
+            await _dbService.MarkSpotsSeenAsync();
+            await _syncService.SyncSpotsAsync();
+            IsSyncing = false;
+            await RefreshSpotsAsync();
+            await UpdateFilterCountsAsync();
+        });
+
+        CloseDetailCommand = new RelayCommand(() => SelectedSpot = null);
+        OpenSettingsCommand = new RelayCommand(() => RequestOpenSettings?.Invoke());
+        OpenOnboardingCommand = new RelayCommand(() => RequestOpenOnboarding?.Invoke());
+
+        SetThemeCommand = new RelayCommand(param =>
+        {
+            if (param is AppThemeStyle style)
+            {
+                ThemeService.Instance.ApplyTheme(style);
+                var prefs = _prefsService.Current;
+                prefs.ThemeStyle = style;
+                _prefsService.Save(prefs);
+            }
+        });
+
+        AddCustomFilterCommand = new RelayCommand(() => RequestAddCustomFilter?.Invoke());
+
+        DeleteFilterCommand = new RelayCommand(param =>
+        {
+            if (param is FilterItem item && item.IsCustom)
+                RemoveCustomFilter(item);
+        });
+
+        ToggleFilterExpandCommand = new RelayCommand(param =>
+        {
+            if (param is FilterItem item && item.HasChildren)
+                item.IsExpanded = !item.IsExpanded;
+        });
+
+        SelectFilterCommand = new RelayCommand(param =>
+        {
+            if (param is FilterItem item)
+                SelectedFilter = item;
+        });
+
+        OpenSpotCommand = new RelayCommand(param => OpenSpot(param as SpotItem ?? SelectedSpot));
+
+        CloseTabCommand = new RelayCommand(param =>
+        {
+            if (param is WorkspaceTabViewModel tab && tab.CanClose)
+            {
+                int index = Tabs.IndexOf(tab);
+                Tabs.Remove(tab);
+                SelectedTab = Tabs.Count == 0 ? null : Tabs[Math.Max(0, Math.Min(index - 1, Tabs.Count - 1))];
+            }
+        });
+
+        SetSpotOpenModeCommand = new RelayCommand(param =>
+        {
+            if (param is SpotOpenMode mode) SpotOpenMode = mode;
+        });
+
+        SetDownloadModeCommand = new RelayCommand(param =>
+        {
+            if (param is DownloadMode mode) DownloadMode = mode;
+        });
+
+        PickDownloadFolderCommand = new RelayCommand(() => RequestPickDownloadFolder?.Invoke());
+
+        DeleteSelectedCommand = new RelayCommand(() =>
+        {
+            if (SelectedTab == DownloadsTab && DownloadsTab.Selected != null)
+            {
+                DownloadsTab.RemoveCommand.Execute(DownloadsTab.Selected);
+            }
+            else if (SelectedTab is OverviewTabViewModel && SelectedSpot != null)
+            {
+                Spots.Remove(SelectedSpot);
+                SelectedSpot = null;
+            }
+        });
+
+        DownloadsTab.RequestOpenSpotInfo += async msgId =>
+        {
+            var spot = await _dbService.GetSpotByMsgIdAsync(msgId);
+            if (spot != null)
+            {
+                OpenSpot(spot);
+            }
+        };
+
+        DownloadsTab.RequestSetPassword += item =>
+        {
+            RequestSetDownloadPassword?.Invoke(item);
+        };
+
+        DownloadsTab.RequestConfirmRemove = item =>
+            RequestConfirmRemoveDownload != null
+                ? RequestConfirmRemoveDownload(item)
+                : Task.FromResult((true, false));
+
+        DownloadsTab.RequestConfirmClear = (count, bytes) =>
+            RequestConfirmClearDownloads != null
+                ? RequestConfirmClearDownloads(count, bytes)
+                : Task.FromResult((true, false));
+
+        // Overzicht and Downloads are permanent, in that order, as on Windows.
+        Tabs.Add(new OverviewTabViewModel());
+        Tabs.Add(DownloadsTab);
+        SelectedTab = Tabs[0];
+
+        // Build the filter tree
+        BuildFilterTree();
+    }
+
+    /// <summary>
+    /// Opens a spot the way the preference says: a new tab next to the overview, like
+    /// Windows, or a separate window. Re-opening a spot that already has a tab just
+    /// selects it instead of adding a second one.
+    /// </summary>
+    public void OpenSpot(SpotItem? spot)
+    {
+        if (spot == null) return;
+
+        if (SpotOpenMode == SpotOpenMode.Window)
+        {
+            SpotDetail.Spot = spot;
+            RequestOpenSpotWindow?.Invoke(SpotDetail);
+            return;
+        }
+
+        var existing = Tabs.OfType<SpotTabViewModel>().FirstOrDefault(t => t.Spot.MsgId == spot.MsgId);
+        if (existing != null)
+        {
+            SelectedTab = existing;
+            return;
+        }
+
+        var detail = new SpotDetailViewModel(_dbService, _nzbService, _commentService, _bodyService);
+        var tab = new SpotTabViewModel(spot, detail);
+        detail.RequestClose += () => CloseTabCommand.Execute(tab);
+        detail.NzbFetched += OnNzbFetched;
+
+        Tabs.Add(tab);
+        SelectedTab = tab;
+    }
+
+    /// <summary>Records an NZB fetch in the Downloads tab and brings that tab forward.</summary>
+    private void OnNzbFetched(SpotItem spot, bool success, string? path, string message, Network.NzbDownloadJob? job)
+    {
+        DownloadsTab.Add(spot, success, path, message, job);
+        SelectedTab = DownloadsTab;
+    }
+
+    // ── Filter Tree ───────────────────────────────────────────────────────────
+
+    private FilterItem _customGroup = null!;
+    private FilterItem _defaultFilter = null!;
+
+    private void BuildFilterTree()
+    {
+        FilterTree.Clear();
+
+        // ── Bundled advanced filters ──────────────────────────────────────────
+        // Same tree the Windows client ships (Nieuw, Overzicht, Laatste 24 uur,
+        // Beeld, Beeld - Genres, Beeld - TV Series, Boeken, Muziek, Muziek - Genres,
+        // Spellen, Spellen - Console, Spellen - Mobile, Applicaties,
+        // Applicaties - Mobile, Erotiek), loaded from the shared XML.
+        foreach (var item in DefaultFilterProvider.Load())
+        {
+            FilterTree.Add(item);
+        }
+
+        // ── Custom filters group ──────────────────────────────────────────────
+        _customGroup = new FilterItem
+        {
+            Id = "custom",
+            Kind = FilterKind.Custom,
+            Name = "Eigen filters",
+            Icon = "🔖",
+            IsExpanded = true
+        };
+
+        // Load persisted custom filters
+        var saved = _customFilterService.Load();
+        foreach (var def in saved)
+        {
+            var customItem = new FilterItem
+            {
+                Id = def.Id,
+                Kind = FilterKind.Custom,
+                Name = def.Name,
+                Icon = def.Icon,
+                CategoryId = def.CategoryId,
+                SubcatTag = def.SubcatTag,
+                MaxAgeHours = def.MaxAgeHours,
+                KeywordFilter = def.KeywordFilter,
+                Query = ComposeQuery(def.CategoryId, def.SubcatTag, def.MaxAgeHours)
+            };
+            _customGroup.Children.Add(customItem);
+            _customFilters.Add(customItem);
+        }
+
+        FilterTree.Add(_customGroup);
+
+        // Default selection: "Overzicht", as on Windows.
+        _defaultFilter = FilterTree.FirstOrDefault(f => f.Id == "def_Overzicht") ?? FilterTree.First();
+        _selectedFilter = _defaultFilter;
+        _defaultFilter.IsSelected = true;
+    }
+
+    /// <summary>
+    /// Builds a filter expression for a user-created filter out of the fields the
+    /// "filter toevoegen" dialog collects. Keyword matching stays out of the
+    /// expression: it is applied as a free-text search alongside it.
+    /// </summary>
+    private static string ComposeQuery(int? categoryId, string? subcatTag, int? maxAgeHours)
+    {
+        var parts = new List<string>();
+        if (categoryId is > 0)
+        {
+            parts.Add($"cat = {categoryId.Value}");
+        }
+        if (!string.IsNullOrWhiteSpace(subcatTag))
+        {
+            // LIKE rather than MATCH: a MATCH term would send the whole expression to
+            // the FTS table, which has no cat or date column to combine it with.
+            parts.Add($"cats LIKE '%{subcatTag.Replace("'", "''")}%'");
+        }
+        if (maxAgeHours is > 0)
+        {
+            parts.Add($"date > ( [SN:DATE] - {maxAgeHours.Value * 3600} )");
+        }
+        return string.Join(" AND ", parts);
+    }
+
+    /// <summary>
+    /// Adds a new user-created filter to the custom group and persists it.
+    /// </summary>
+    public void AddCustomFilter(string name, string icon, int? categoryId, string? subcatTag, int? maxAgeHours, string? keyword)
+    {
+        var item = new FilterItem
+        {
+            Kind = FilterKind.Custom,
+            Name = name,
+            Icon = icon,
+            CategoryId = categoryId,
+            SubcatTag = subcatTag,
+            MaxAgeHours = maxAgeHours,
+            KeywordFilter = keyword,
+            Query = ComposeQuery(categoryId, subcatTag, maxAgeHours)
+        };
+
+        _customGroup.Children.Add(item);
+        _customFilters.Add(item);
+        PersistCustomFilters();
+    }
+
+    private void RemoveCustomFilter(FilterItem item)
+    {
+        _customGroup.Children.Remove(item);
+        _customFilters.Remove(item);
+        PersistCustomFilters();
+
+        if (SelectedFilter == item)
+            SelectedFilter = _defaultFilter;
+    }
+
+    private void PersistCustomFilters()
+    {
+        var defs = _customFilters.Select(f => new CustomFilterDefinition
+        {
+            Id = f.Id,
+            Name = f.Name,
+            Icon = f.Icon,
+            CategoryId = f.CategoryId,
+            SubcatTag = f.SubcatTag,
+            MaxAgeHours = f.MaxAgeHours,
+            KeywordFilter = f.KeywordFilter
+        }).ToList();
+
+        _customFilterService.Save(defs);
+    }
+
+    // ── Initialise ────────────────────────────────────────────────────────────
+
+    public async Task InitializeAsync()
+    {
+        IsLoading = true;
+        StatusText = "Database initialiseren...";
+        try
+        {
+            await _dbService.EnsureCreatedAsync();
+            await _dbService.LoadRowNewAsync();
+
+            await RefreshSpotsAsync();
+            await UpdateFilterCountsAsync();
+            StatusText = $"Gereed - {TotalSpotsCount} spots geladen";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to initialize database: {0}", ex.Message);
+            StatusText = $"Databasefout: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    // ── Spots Query ───────────────────────────────────────────────────────────
+
+    public async Task RefreshSpotsAsync()
+    {
+        IsLoading = true;
+        StatusText = "Spots ophalen...";
+        try
+        {
+            var filter = _selectedFilter;
+
+            // A filter's own keyword is only used when the search box is empty, so
+            // typing in the box narrows the filter rather than replacing it.
+            string? keyword = string.IsNullOrWhiteSpace(SearchText) ? filter?.KeywordFilter : SearchText;
+
+            var items = await _dbService.QueryByFilterAsync(
+                filterQuery: filter?.Query,
+                searchText: keyword,
+                take: 100);
+
+            TotalSpotsCount = await _dbService.CountByFilterAsync(filter?.Query, keyword);
+
+            Spots.Clear();
+            foreach (var item in items)
+                Spots.Add(item);
+
+            string filterName = filter?.Name ?? "Alle spots";
+            StatusText = $"{TotalSpotsCount} spots gevonden in {filterName}";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to query spots: {0}", ex.Message);
+            StatusText = $"Zoekfout: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    // ── Filter Counts ─────────────────────────────────────────────────────────
+
+    private async Task UpdateFilterCountsAsync()
+    {
+        try
+        {
+            // Update counts on all leaf filter nodes
+            foreach (var group in FilterTree)
+            {
+                await UpdateCountsForGroupAsync(group);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(ex, "Failed to update filter counts: {0}", ex.Message);
+        }
+    }
+
+    private async Task UpdateCountsForGroupAsync(FilterItem group)
+    {
+        if (!string.IsNullOrWhiteSpace(group.Query))
+        {
+            // The badge is a "new since the last sync" count, as on Windows — not the
+            // total the filter holds.
+            group.Count = await _dbService.CountNewByFilterAsync(group.Query);
+        }
+
+        foreach (var child in group.Children)
+        {
+            await UpdateCountsForGroupAsync(child);
+        }
+    }
+}

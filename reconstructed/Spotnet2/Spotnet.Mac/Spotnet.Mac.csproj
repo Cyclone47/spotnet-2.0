@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.5" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.5" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NLog" Version="5.5.1" />
+    <PackageReference Include="SharpCompress" Version="0.50.4" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The bundled advanced-filter tree, taken verbatim from the Windows client's
+         FiltersAdvanced resource so both clients show the same sidebar. -->
+    <!-- LogicalName is explicit because "*.nl.*"-style names would otherwise be
+         mistaken for a Dutch satellite resource and moved out of the assembly. -->
+    <EmbeddedResource Include="Resources\FiltersAdvanced.xml" LogicalName="Spotnet.Mac.Resources.FiltersAdvanced.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Spotnet.Core\Spotnet.Core.csproj" />
+    <ProjectReference Include="..\Spotnet.Enc\Spotnet.Enc.csproj" />
+  </ItemGroup>
+</Project>

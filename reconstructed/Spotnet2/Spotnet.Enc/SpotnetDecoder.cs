@@ -27,22 +27,42 @@ namespace SpotnetEnc
                 byte* dst = pDst;
                 byte* dstEnd = pDst + maxOut;
 
+                // Decoding starts immediately after the =ypart / =ybegin header line (which is a line start)
+                bool atLineStart = true;
+
                 while (src < srcEnd && dst < dstEnd)
                 {
                     byte b = *src++;
-                    if (b == (byte)'\r' || b == (byte)'\n')
+                    if (b == (byte)'\r')
                     {
                         continue;
+                    }
+                    if (b == (byte)'\n')
+                    {
+                        atLineStart = true;
+                        continue;
+                    }
+
+                    if (atLineStart)
+                    {
+                        atLineStart = false;
+                        // If the line starts with "..", drop the first dot (NNTP stuffing)
+                        if (b == (byte)'.' && src < srcEnd && *src == (byte)'.')
+                        {
+                            src++;
+                        }
                     }
 
                     if (b == (byte)'=') // Escape character in yEnc
                     {
                         if (src >= srcEnd) break;
                         byte next = *src++;
+                        // Handle yEnc soft line breaks: '=\r\n'
                         if (next == (byte)'\r' || next == (byte)'\n')
                         {
                             if (src < srcEnd && (*src == (byte)'\r' || *src == (byte)'\n'))
                                 src++;
+                            atLineStart = true;
                             continue;
                         }
                         *dst++ = (byte)((next - 64 - 42) & 0xFF);

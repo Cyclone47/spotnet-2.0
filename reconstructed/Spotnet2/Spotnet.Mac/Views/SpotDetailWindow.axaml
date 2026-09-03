@@ -1,0 +1,179 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Spotnet.Mac.ViewModels"
+        x:Class="Spotnet.Mac.Views.SpotDetailWindow"
+        x:DataType="vm:SpotDetailViewModel"
+        Title="{Binding Title}"
+        Width="860" Height="740"
+        MinWidth="650" MinHeight="500"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+        <!-- Top Header & Actions Bar -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SystemRegionBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="0,0,0,16"
+                Margin="0,0,0,16">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding CategoryIcon}" FontSize="32" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                    <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <TextBlock Text="{Binding CategoryName}" FontSize="12" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                        <TextBlock Text="•" FontSize="12" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                        <TextBlock Text="{Binding FormattedDate}" FontSize="12" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                        <TextBlock Text="•" FontSize="12" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                        <TextBlock Text="{Binding FormattedSize}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SystemAccentColor}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Actions -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Command="{Binding CopyMsgIdCommand}" Content="📋 Kopieer ID" ToolTip.Tip="Kopieer Usenet Message-ID"/>
+                    <Button Command="{Binding DownloadNzbCommand}" Classes="accent" FontWeight="Bold" Content="⬇ Download NZB" ToolTip.Tip="NZB opslaan in Downloads en openen"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Body (Poster, Meta, Description & Comments) -->
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="18">
+                <!-- Top Summary: Poster Image + Metadata -->
+                <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,8">
+                    <!-- Left: Poster Image -->
+                    <Border Grid.Column="0"
+                            Width="200" MinHeight="200" MaxHeight="280"
+                            CornerRadius="8"
+                            ClipToBounds="True"
+                            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                            BorderThickness="1"
+                            Margin="0,0,20,0">
+                        <Grid>
+                            <TextBlock Text="{Binding CategoryIcon}" FontSize="64" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       IsVisible="{Binding !HasPoster}" Opacity="0.4"/>
+                            <Image Source="{Binding PosterImage}" Stretch="Uniform" IsVisible="{Binding HasPoster}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Right: Metadata Cards -->
+                    <Border Grid.Column="1"
+                            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Spot Informatie" FontSize="14" FontWeight="Bold"/>
+                            <Separator Margin="0,2"/>
+
+                            <Grid ColumnDefinitions="120,*">
+                                <TextBlock Grid.Column="0" Text="Afzender:" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Poster}" FontWeight="Medium"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="120,*">
+                                <TextBlock Grid.Column="0" Text="Datum &amp; Tijd:" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding FormattedDate}"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="120,*">
+                                <TextBlock Grid.Column="0" Text="Bestandsgrootte:" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding FormattedSize}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="120,*">
+                                <TextBlock Grid.Column="0" Text="Categorie:" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding CategoryName}"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="120,*">
+                                <TextBlock Grid.Column="0" Text="Message-ID:" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                <SelectableTextBlock Grid.Column="1" Text="{Binding MsgId}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Description Card -->
+                <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                        BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Beschrijving" FontSize="14" FontWeight="Bold"/>
+                        <Separator Margin="0,2"/>
+                        <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" LineHeight="22"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Comments Feed & Comment Posting Card -->
+                <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                        BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Reacties van gebruikers" FontSize="14" FontWeight="Bold"/>
+                        <Separator Margin="0,2"/>
+
+                        <!-- Existing Comments List -->
+                        <ItemsControl ItemsSource="{Binding Comments}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,4" Padding="10" Background="{DynamicResource SystemRegionBrush}" CornerRadius="6">
+                                        <StackPanel Spacing="4">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Grid.Column="0" Text="{Binding Sender}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource SystemAccentColor}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding FormattedDate}" FontSize="11" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                            </Grid>
+                                            <SelectableTextBlock Text="{Binding Body}" TextWrapping="Wrap" FontSize="13"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Post a Comment Form -->
+                        <Border BorderThickness="1"
+                                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                CornerRadius="6"
+                                Padding="12"
+                                Margin="0,8,0,0">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Plaats zelf een reactie (Usenet):" FontWeight="SemiBold"/>
+
+                                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
+                                    <TextBlock Grid.Column="0" Text="Uw Naam:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBox Grid.Column="1" Text="{Binding SenderNickname}" MaxLength="30" Watermark="Uw naam of alias"/>
+                                </Grid>
+
+                                <TextBox Text="{Binding NewCommentText}"
+                                         AcceptsReturn="True"
+                                         Height="65"
+                                         TextWrapping="Wrap"
+                                         MaxLength="900"
+                                         Watermark="Typ hier uw reactie (3 - 900 tekens)..."/>
+
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding CommentPostStatus}"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextControlPlaceholderForeground}"
+                                               TextWrapping="Wrap"/>
+                                    <Button Grid.Column="1"
+                                            Command="{Binding PostCommentCommand}"
+                                            IsEnabled="{Binding !IsPostingComment}"
+                                            Classes="accent"
+                                            Content="💬 Plaats reactie"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Status Message Bar -->
+        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Margin="0,10,0,0" FontSize="11" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+    </Grid>
+</Window>

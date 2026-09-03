@@ -1,0 +1,281 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Spotnet.Mac.ViewModels"
+             xmlns:models="using:Spotnet.Mac.Models"
+             x:Class="Spotnet.Mac.Views.SpotDetailView"
+             x:DataType="vm:SpotDetailViewModel">
+
+  <UserControl.Styles>
+    <Style Selector="Button.UbbButton">
+      <Setter Property="MinWidth" Value="34"/>
+      <Setter Property="Padding" Value="8,4"/>
+      <Setter Property="Background" Value="{DynamicResource AppRowAlternateBackground}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.IconButton">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="6,2"/>
+      <Setter Property="FontSize" Value="19"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}"/>
+    </Style>
+    <Style Selector="Button.IconButton:pointerover /template/ ContentPresenter">
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource AppAccentBrush}"/>
+    </Style>
+    <Style Selector="Button.LinkButton">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}"/>
+    </Style>
+    <Style Selector="Button.LinkButton /template/ ContentPresenter">
+      <Setter Property="TextBlock.TextDecorations" Value="Underline"/>
+    </Style>
+  </UserControl.Styles>
+
+  <!-- Laid out like the Windows spot tab: a left column with the download button,
+       the cover image and the field list, and a right column with the poster's
+       description and the comments. -->
+  <Grid ColumnDefinitions="320,*" Background="{DynamicResource AppWindowBackground}">
+
+    <ScrollViewer Grid.Column="0" Padding="16" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="14">
+
+        <Button Command="{Binding DownloadNzbCommand}"
+                Classes="accent"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                Padding="0,14"
+                FontSize="15" FontWeight="SemiBold"
+                Content="Download"/>
+
+        <!-- Cover image, fetched from the spot's own article -->
+        <Border Background="{DynamicResource AppGridBackground}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="1"
+                Padding="10"
+                IsVisible="{Binding HasPoster}">
+          <Image Source="{Binding PosterImage}" Stretch="Uniform" MaxHeight="420"/>
+        </Border>
+
+        <!-- Categorie / Formaat / Bron / Bitrate / Genre / Omvang / Afzender / Meldingen -->
+        <Border Background="{DynamicResource AppGridBackground}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="1"
+                Padding="12">
+          <StackPanel Spacing="8">
+            <ItemsControl ItemsSource="{Binding Fields}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="models:SpotDetailField">
+                  <Grid ColumnDefinitions="90,*" Margin="0,0,0,5">
+                    <TextBlock Grid.Column="0" Text="{Binding Label}"
+                               HorizontalAlignment="Right" Margin="0,0,10,0"
+                               Foreground="{DynamicResource AppMutedTextBrush}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Value}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource AppTextBrush}"/>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Grid ColumnDefinitions="90,*">
+              <TextBlock Grid.Column="0" Text="Website"
+                         HorizontalAlignment="Right" Margin="0,0,10,0"
+                         Foreground="{DynamicResource AppMutedTextBrush}"/>
+              <TextBlock Grid.Column="1" Text="{Binding WebsiteUrl}"
+                         TextWrapping="Wrap"
+                         Foreground="{DynamicResource AppAccentBrush}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <Button Command="{Binding CopyMsgIdCommand}"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                Content="Kopieer ID"/>
+
+        <TextBlock Text="{Binding StatusMessage}" FontSize="11"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource AppMutedTextBrush}"
+                   IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+      </StackPanel>
+    </ScrollViewer>
+
+    <ScrollViewer Grid.Column="1" Padding="18" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="16">
+
+        <TextBlock Text="{Binding Title}" FontSize="21" FontWeight="Bold"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource AppTextBrush}"/>
+
+        <!-- A long description gets its own scrollbar rather than pushing the comments
+             and the reply form off the bottom of the column. -->
+        <Border Background="{DynamicResource AppGridBackground}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="1"
+                Padding="16">
+          <ScrollViewer MaxHeight="280" VerticalScrollBarVisibility="Auto">
+            <SelectableTextBlock Text="{Binding Description}"
+                                 TextWrapping="Wrap"
+                                 FontSize="13"
+                                 Foreground="{DynamicResource AppTextBrush}"/>
+          </ScrollViewer>
+        </Border>
+
+        <!-- Comments, fetched from the reply group -->
+        <ItemsControl ItemsSource="{Binding Comments}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="models:CommentItem">
+              <Border Background="{DynamicResource AppGridBackground}"
+                      BorderBrush="{DynamicResource AppBorderBrush}"
+                      BorderThickness="0,0,0,1"
+                      Padding="14,12">
+                <StackPanel Spacing="6">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding SenderWithId}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource AppAccentBrush}"/>
+                    <TextBlock Text="|" Foreground="{DynamicResource AppMutedTextBrush}"/>
+                    <TextBlock Text="{Binding FormattedDate}"
+                               Foreground="{DynamicResource AppMutedTextBrush}"/>
+                  </StackPanel>
+                  <SelectableTextBlock Text="{Binding DisplayBody}" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource AppTextBrush}"/>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Button Classes="IconButton"
+                HorizontalAlignment="Center"
+                Command="{Binding ReloadCommentsCommand}"
+                IsEnabled="{Binding !IsLoading}"
+                ToolTip.Tip="Reacties opnieuw ophalen"
+                Content="&#x21BB;"/>
+
+        <!-- Reply form, laid out like the Windows one: Voorbeeld / Afzender /
+             Reactie with a B I U link colour toolbar / Smileys / Reageer. -->
+        <Border Background="{DynamicResource AppGridBackground}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="1"
+                Padding="16">
+          <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+
+            <!-- Voorbeeld -->
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Voorbeeld:" FontWeight="SemiBold"
+                       Margin="0,0,12,10" VerticalAlignment="Center"
+                       Foreground="{DynamicResource AppTextBrush}"/>
+            <Button Grid.Row="0" Grid.Column="1"
+                    Classes="LinkButton"
+                    Margin="0,0,0,10"
+                    Command="{Binding ToggleCommentPreviewCommand}"
+                    Content="Voorbeeldweergave tonen"/>
+
+            <Border Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
+                    IsVisible="{Binding ShowPreview}"
+                    Background="{DynamicResource AppRowAlternateBackground}"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
+                    BorderThickness="1" Padding="10">
+              <SelectableTextBlock Text="{Binding CommentPreview}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource AppTextBrush}"/>
+            </Border>
+
+            <!-- Afzender -->
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Afzender:" FontWeight="SemiBold"
+                       Margin="0,0,12,10" VerticalAlignment="Center"
+                       Foreground="{DynamicResource AppTextBrush}"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"
+                     Text="{Binding SenderNickname, Mode=TwoWay}"/>
+
+            <!-- Reactie, with the formatting toolbar above it -->
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Reactie:" FontWeight="SemiBold"
+                       Margin="0,0,12,10" VerticalAlignment="Top"
+                       Foreground="{DynamicResource AppTextBrush}"/>
+            <StackPanel Grid.Row="3" Grid.Column="1" Spacing="6" Margin="0,0,0,10">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <Button Classes="UbbButton" Content="B" FontWeight="Bold"
+                        Command="{Binding WrapCommentCommand}" CommandParameter="b"
+                        ToolTip.Tip="Vet"/>
+                <Button Classes="UbbButton" Content="I" FontStyle="Italic"
+                        Command="{Binding WrapCommentCommand}" CommandParameter="i"
+                        ToolTip.Tip="Schuin"/>
+                <Button Classes="UbbButton" Content="U"
+                        Command="{Binding WrapCommentCommand}" CommandParameter="u"
+                        ToolTip.Tip="Onderstreept">
+                  <Button.Styles>
+                    <Style Selector="Button.UbbButton /template/ ContentPresenter">
+                      <Setter Property="TextBlock.TextDecorations" Value="Underline"/>
+                    </Style>
+                  </Button.Styles>
+                </Button>
+                <Button Classes="UbbButton" Content="&#x1F517;"
+                        Command="{Binding WrapCommentCommand}" CommandParameter="url"
+                        ToolTip.Tip="Link"/>
+                <TextBox Text="{Binding CommentColor, Mode=TwoWay}" Width="76"
+                         FontFamily="Menlo,Consolas,monospace" FontSize="11"
+                         VerticalContentAlignment="Center"
+                         ToolTip.Tip="Kleurcode"/>
+                <Button Classes="UbbButton" Content="&#x1F3A8;"
+                        Command="{Binding WrapCommentCommand}" CommandParameter="color"
+                        ToolTip.Tip="Kleur toepassen"/>
+                <Button Classes="UbbButton" Content="&#x1F642;"
+                        Command="{Binding ToggleSmileysCommand}"
+                        ToolTip.Tip="Smileys"/>
+              </StackPanel>
+
+              <TextBox Text="{Binding NewCommentText, Mode=TwoWay}"
+                       SelectionStart="{Binding CommentSelectionStart, Mode=TwoWay}"
+                       SelectionEnd="{Binding CommentSelectionEnd, Mode=TwoWay}"
+                       Watermark="Typ hier uw reactie (3 - 900 tekens)..."
+                       AcceptsReturn="True" MinHeight="90" TextWrapping="Wrap"/>
+
+              <Button Command="{Binding PostCommentCommand}"
+                      IsEnabled="{Binding !IsPostingComment}"
+                      Classes="accent"
+                      HorizontalAlignment="Left"
+                      Padding="26,8"
+                      Content="Reageer"/>
+            </StackPanel>
+
+            <!-- Smileys -->
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Smileys:" FontWeight="SemiBold"
+                       Margin="0,0,12,10" VerticalAlignment="Center"
+                       Foreground="{DynamicResource AppTextBrush}"/>
+            <StackPanel Grid.Row="4" Grid.Column="1" Spacing="8" Margin="0,0,0,10">
+              <Button Classes="LinkButton" Command="{Binding ToggleSmileysCommand}" Content="Tonen"/>
+              <ItemsControl ItemsSource="{Binding Smileys}" IsVisible="{Binding ShowSmileys}"
+                            MaxWidth="420" HorizontalAlignment="Left">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel/>
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Button Classes="UbbButton" Margin="2" FontSize="17"
+                            Content="{Binding Value}"
+                            ToolTip.Tip="{Binding Key}"
+                            Command="{Binding $parent[UserControl].DataContext.InsertSmileyCommand}"
+                            CommandParameter="{Binding Key}"/>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+
+            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding CommentPostStatus}"
+                       FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"
+                       Foreground="{DynamicResource AppMutedTextBrush}"
+                       IsVisible="{Binding CommentPostStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          </Grid>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

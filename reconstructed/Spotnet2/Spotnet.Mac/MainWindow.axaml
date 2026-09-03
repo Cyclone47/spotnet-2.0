@@ -1,0 +1,618 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Spotnet.Mac.ViewModels"
+        xmlns:models="using:Spotnet.Mac.Models"
+        xmlns:views="using:Spotnet.Mac.Views"
+        xmlns:services="using:Spotnet.Mac.Services"
+        x:Class="Spotnet.Mac.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Spotnet 3.0"
+        Width="1200" Height="720"
+        MinWidth="900" MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource AppWindowBackground}">
+
+  <Window.Styles>
+    <!-- Sidebar section header -->
+    <Style Selector="TextBlock.SidebarHeader">
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}"/>
+      <Setter Property="LetterSpacing" Value="1"/>
+    </Style>
+    <!-- Filter tree expander chevron -->
+    <Style Selector="Button.FilterChevron">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="8,4,2,4"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}"/>
+    </Style>
+    <Style Selector="Button.FilterChevron:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource AppTreeHoverBackground}"/>
+    </Style>
+    <!-- Filter leaf button -->
+    <Style Selector="Button.FilterLeaf">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0,4"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}"/>
+    </Style>
+    <Style Selector="Button.FilterLeaf:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource AppTreeHoverBackground}"/>
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource AppTreeHoverForeground}"/>
+    </Style>
+    <!-- The active filter, marked the way the Windows tree marks it -->
+    <Style Selector="Button.FilterLeaf.selected /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource AppTreeSelectedBackground}"/>
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource AppTreeSelectedForeground}"/>
+    </Style>
+    <!-- Accent buttons follow the palette rather than the Fluent system accent -->
+    <Style Selector="Button.accent">
+      <Setter Property="Background" Value="{DynamicResource AppAccentBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppAccentForeground}"/>
+    </Style>
+    <Style Selector="Button.accent /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource AppAccentBrush}"/>
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource AppAccentForeground}"/>
+    </Style>
+    <!-- Quiet status-bar icon button -->
+    <Style Selector="Button.StatusIcon">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="4,0"/>
+      <Setter Property="FontSize" Value="15"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}"/>
+    </Style>
+    <Style Selector="Button.StatusIcon:pointerover /template/ ContentPresenter">
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource AppAccentBrush}"/>
+    </Style>
+    <!-- Count pill badge -->
+    <Style Selector="Border.CountBadge">
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="5,1"/>
+      <Setter Property="Background" Value="{DynamicResource AppCountBadgeBackground}"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- Tab strip: compact, like the Windows client's -->
+    <Style Selector="TabItem">
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="MinHeight" Value="34"/>
+      <Setter Property="Padding" Value="14,4"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}"/>
+    </Style>
+    <Style Selector="TabItem:selected">
+      <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <!-- Formaat badge -->
+    <Style Selector="Border.FmtBadge">
+      <Setter Property="CornerRadius" Value="3"/>
+      <Setter Property="Padding" Value="4,1"/>
+      <Setter Property="Background" Value="{DynamicResource AppFormatBadgeBackground}"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- Spot list -->
+    <Style Selector="DataGridColumnHeader">
+      <Setter Property="Background" Value="{DynamicResource AppHeaderBackground}"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppHeaderForeground}"/>
+      <Setter Property="SeparatorBrush" Value="{DynamicResource AppGridLineBrush}"/>
+    </Style>
+    <Style Selector="DataGridCell">
+      <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}"/>
+    </Style>
+    <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill" Value="{DynamicResource AppRowSelectedBackground}"/>
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill" Value="{DynamicResource AppRowHoverBackground}"/>
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <!-- Menu -->
+    <Style Selector="Menu">
+      <Setter Property="Background" Value="{DynamicResource AppMenuBackground}"/>
+      <Setter Property="Foreground" Value="{DynamicResource AppMenuForeground}"/>
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+    <!-- ── Menu ────────────────────────────────────────────────────────────── -->
+    <Menu Grid.Row="0">
+      <MenuItem Header="_Spotnet">
+        <MenuItem Header="_Voorkeuren..." InputGesture="Cmd+," Command="{Binding OpenSettingsCommand}"/>
+        <Separator/>
+        <MenuItem Header="_Sluiten" InputGesture="Cmd+W" Click="OnCloseClick"/>
+      </MenuItem>
+      <MenuItem Header="_Bewerken">
+        <MenuItem Header="_Zoeken" InputGesture="Cmd+F" Click="OnFocusSearchClick"/>
+        <MenuItem Header="_Zoekopdracht wissen" Command="{Binding ClearSearchCommand}"/>
+        <Separator/>
+        <MenuItem Header="_Downloadmap..." InputGesture="Cmd+D" Command="{Binding PickDownloadFolderCommand}"/>
+        <MenuItem Header="Download_knop">
+          <MenuItem Header="✓ Downloaden (ingebouwd)" IsVisible="{Binding IsDownloadModeIntegrated}" Command="{Binding SetDownloadModeCommand}" CommandParameter="{x:Static services:DownloadMode.Integrated}"/>
+          <MenuItem Header="  Downloaden (ingebouwd)" IsVisible="{Binding !IsDownloadModeIntegrated}" Command="{Binding SetDownloadModeCommand}" CommandParameter="{x:Static services:DownloadMode.Integrated}"/>
+          <MenuItem Header="✓ NZB Openen met app" IsVisible="{Binding IsDownloadModeOpenNzb}" Command="{Binding SetDownloadModeCommand}" CommandParameter="{x:Static services:DownloadMode.OpenNzb}"/>
+          <MenuItem Header="  NZB Openen met app" IsVisible="{Binding !IsDownloadModeOpenNzb}" Command="{Binding SetDownloadModeCommand}" CommandParameter="{x:Static services:DownloadMode.OpenNzb}"/>
+          <MenuItem Header="✓ NZB Opslaan" IsVisible="{Binding IsDownloadModeSaveNzb}" Command="{Binding SetDownloadModeCommand}" CommandParameter="{x:Static services:DownloadMode.SaveNzb}"/>
+          <MenuItem Header="  NZB Opslaan" IsVisible="{Binding !IsDownloadModeSaveNzb}" Command="{Binding SetDownloadModeCommand}" CommandParameter="{x:Static services:DownloadMode.SaveNzb}"/>
+        </MenuItem>
+        <Separator/>
+        <MenuItem Header="_Provider Instellingen..." InputGesture="Cmd+P" Command="{Binding OpenSettingsCommand}"/>
+      </MenuItem>
+      <MenuItem Header="_Weergave">
+        <MenuItem Header="_Vernieuwen (Spots ophalen)" InputGesture="Cmd+R" Command="{Binding RefreshCommand}"/>
+        <Separator/>
+        <MenuItem Header="_Stijl &amp; Thema">
+          <MenuItem Header="☀️ Modern Licht"  Command="{Binding SetThemeCommand}" CommandParameter="{x:Static services:AppThemeStyle.ModernLight}"/>
+          <MenuItem Header="🌙 Modern Donker" Command="{Binding SetThemeCommand}" CommandParameter="{x:Static services:AppThemeStyle.ModernDark}"/>
+          <MenuItem Header="🏛️ Klassiek"      Command="{Binding SetThemeCommand}" CommandParameter="{x:Static services:AppThemeStyle.Classic}"/>
+        </MenuItem>
+        <Separator/>
+        <MenuItem Header="Spots _openen in">
+          <MenuItem Header="Tabbladen (zoals Windows)" Command="{Binding SetSpotOpenModeCommand}" CommandParameter="{x:Static services:SpotOpenMode.Tab}"/>
+          <MenuItem Header="Nieuw venster"             Command="{Binding SetSpotOpenModeCommand}" CommandParameter="{x:Static services:SpotOpenMode.Window}"/>
+        </MenuItem>
+        <Separator/>
+        <MenuItem Header="_Instellingen..."                       Command="{Binding OpenSettingsCommand}"/>
+        <MenuItem Header="_Installatie Wizard opnieuw openen..." Command="{Binding OpenOnboardingCommand}"/>
+      </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Header="_Over Spotnet 3.0" Click="OnAboutClick"/>
+      </MenuItem>
+    </Menu>
+
+    <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
+    <Border Grid.Row="1"
+            Background="{DynamicResource AppMenuBackground}"
+            BorderBrush="{DynamicResource AppBorderBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="12,8">
+      <Grid ColumnDefinitions="Auto,8,Auto,*,Auto,8,Auto">
+        <Button Grid.Column="0"
+                Command="{Binding RefreshCommand}"
+                IsEnabled="{Binding !IsLoading}"
+                Padding="10,4"
+                ToolTip.Tip="Nieuwe spots ophalen (Cmd+R)">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="&#x21BB;" FontSize="15" VerticalAlignment="Center"/>
+            <TextBlock Text="Spots Ophalen" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
+        <ProgressBar Grid.Column="2"
+                     IsIndeterminate="True"
+                     IsVisible="{Binding IsLoading}"
+                     Width="80" Height="4"
+                     VerticalAlignment="Center"/>
+        <Grid Grid.Column="4" Width="360" ColumnDefinitions="*,Auto,Auto">
+          <TextBox x:Name="SearchBox"
+                   Grid.Column="0"
+                   Text="{Binding SearchText, Mode=TwoWay}"
+                   Watermark="Zoek spots (titel, afzender, tags)..."
+                   VerticalContentAlignment="Center"
+                   KeyDown="OnSearchKeyDown"/>
+          <Button Grid.Column="1"
+                  Command="{Binding ClearSearchCommand}"
+                  Content="✕"
+                  ToolTip.Tip="Zoekopdracht wissen"
+                  IsVisible="{Binding SearchText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                  Margin="2,0"/>
+          <Button Grid.Column="2"
+                  Command="{Binding SearchCommand}"
+                  Content="🔍"
+                  ToolTip.Tip="Zoeken in database"/>
+        </Grid>
+        <Button Grid.Column="6"
+                Command="{Binding OpenSettingsCommand}"
+                Content="⚙️"
+                ToolTip.Tip="Instellingen (Cmd+,)"/>
+      </Grid>
+    </Border>
+
+    <!-- ── Main Content ─────────────────────────────────────────────────────── -->
+    <Grid Grid.Row="2" ColumnDefinitions="235,Auto,*,Auto">
+
+      <!-- ── LEFT SIDEBAR ───────────────────────────────────────────────────── -->
+      <Border Grid.Column="0"
+              Background="{DynamicResource AppSidebarBackground}"
+              BorderBrush="{DynamicResource AppBorderBrush}"
+              BorderThickness="0,0,1,0">
+        <Grid RowDefinitions="Auto,*,Auto">
+
+          <!-- ZOEKEN section -->
+          <StackPanel Grid.Row="0" Margin="12,10,12,6" Spacing="4">
+            <TextBlock Classes="SidebarHeader" Text="⬛ ZOEKEN"/>
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Grid.Column="0"
+                       Text="{Binding SearchText, Mode=TwoWay}"
+                       Watermark="Zoeken..."
+                       FontSize="12"
+                       Height="26"
+                       VerticalContentAlignment="Center"
+                       KeyDown="OnSearchKeyDown"/>
+              <Button Grid.Column="1"
+                      Command="{Binding SearchCommand}"
+                      Content="🔍"
+                      FontSize="11"
+                      Padding="4,2"
+                      Margin="2,0,0,0"
+                      Height="26"
+                      VerticalAlignment="Center"/>
+            </Grid>
+          </StackPanel>
+
+          <!-- FILTERS tree -->
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="0">
+              <TextBlock Classes="SidebarHeader" Margin="12,8,12,4" Text="⬛ FILTERS"/>
+
+              <!-- Level 0: the bundled advanced filters, plus "Eigen filters".
+                   Same list the Windows client shows; a node's chevron expands it,
+                   the label runs it. -->
+              <ItemsControl ItemsSource="{Binding FilterTree}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate DataType="models:FilterItem">
+                    <StackPanel>
+
+                      <Grid ColumnDefinitions="Auto,*">
+                        <!-- ▾ / ▸ expander -->
+                        <Button Grid.Column="0"
+                                Classes="FilterChevron"
+                                IsVisible="{Binding HasChildren}"
+                                Command="{Binding $parent[Window].DataContext.ToggleFilterExpandCommand}"
+                                CommandParameter="{Binding}">
+                          <Panel Width="12" VerticalAlignment="Center">
+                            <TextBlock Text="▾" FontSize="10" IsVisible="{Binding IsExpanded}"  VerticalAlignment="Center"/>
+                            <TextBlock Text="▸" FontSize="10" IsVisible="{Binding !IsExpanded}" VerticalAlignment="Center"/>
+                          </Panel>
+                        </Button>
+
+                        <!-- Icon + name + count, selects the filter -->
+                        <Button Grid.Column="1"
+                                Classes="FilterLeaf"
+                                Classes.selected="{Binding IsSelected}"
+                                Command="{Binding $parent[Window].DataContext.SelectFilterCommand}"
+                                CommandParameter="{Binding}"
+                                Padding="0,4">
+                          <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,10,0">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                              <TextBlock Text="{Binding Icon}" FontSize="13" VerticalAlignment="Center"/>
+                              <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold"
+                                         VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Classes="CountBadge" IsVisible="{Binding HasCount}" Margin="4,0,0,0">
+                              <TextBlock Text="{Binding Count}" FontSize="10" VerticalAlignment="Center"
+                                         Foreground="{DynamicResource AppTextBrush}"/>
+                            </Border>
+                            <Button Grid.Column="2"
+                                    Content="✕" FontSize="9" Padding="3,1" Margin="2,0,0,0"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding CanDelete}"
+                                    Command="{Binding $parent[Window].DataContext.DeleteFilterCommand}"
+                                    CommandParameter="{Binding}"
+                                    ToolTip.Tip="Filter verwijderen"/>
+                          </Grid>
+                        </Button>
+                      </Grid>
+
+                      <!-- Level 1: sub-filters (e.g. Beeld › Bluray NL) -->
+                      <ItemsControl ItemsSource="{Binding Children}" IsVisible="{Binding IsExpanded}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate DataType="models:FilterItem">
+                            <Button Classes="FilterLeaf"
+                                    Classes.selected="{Binding IsSelected}"
+                                    Command="{Binding $parent[Window].DataContext.SelectFilterCommand}"
+                                    CommandParameter="{Binding}"
+                                    Padding="0,3">
+                              <Grid ColumnDefinitions="*,Auto,Auto" Margin="30,0,10,0">
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                  <TextBlock Text="{Binding Icon}" FontSize="12" VerticalAlignment="Center"/>
+                                  <TextBlock Text="{Binding Name}" FontSize="11"
+                                             VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                                <Border Grid.Column="1" Classes="CountBadge" IsVisible="{Binding HasCount}" Margin="4,0,0,0">
+                                  <TextBlock Text="{Binding Count}" FontSize="10" VerticalAlignment="Center"
+                                         Foreground="{DynamicResource AppTextBrush}"/>
+                                </Border>
+                                <Button Grid.Column="2"
+                                        Content="✕" FontSize="9" Padding="3,1" Margin="2,0,0,0"
+                                        VerticalAlignment="Center"
+                                        IsVisible="{Binding CanDelete}"
+                                        Command="{Binding $parent[Window].DataContext.DeleteFilterCommand}"
+                                        CommandParameter="{Binding}"
+                                        ToolTip.Tip="Filter verwijderen"/>
+                              </Grid>
+                            </Button>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+            </StackPanel>
+          </ScrollViewer>
+
+          <!-- FILTER TOEVOEGEN -->
+          <Border Grid.Row="2"
+                  BorderBrush="{DynamicResource AppBorderBrush}"
+                  BorderThickness="0,1,0,0"
+                  Padding="10,8">
+            <Button Command="{Binding AddCustomFilterCommand}"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Classes="accent"
+                    ToolTip.Tip="Maak een nieuw eigen filter aan">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="+" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="FILTER TOEVOEGEN" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+          </Border>
+
+        </Grid>
+      </Border>
+
+      <!-- Grid Splitter -->
+      <GridSplitter Grid.Column="1" Width="1" ResizeDirection="Columns"
+                    Background="{DynamicResource AppBorderBrush}"/>
+
+      <!-- ── Workspace: overview + one tab per opened spot, like Windows ────── -->
+      <TabControl Grid.Column="2" Grid.ColumnSpan="2"
+                  ItemsSource="{Binding Tabs}"
+                  SelectedItem="{Binding SelectedTab, Mode=TwoWay}"
+                  Padding="0">
+        <TabControl.ItemTemplate>
+          <DataTemplate DataType="vm:WorkspaceTabViewModel">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Text="{Binding Header}" MaxWidth="240"
+                         TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+              <Button Content="&#x2715;" FontSize="10" Padding="3,0"
+                      Background="Transparent" BorderThickness="0"
+                      VerticalAlignment="Center"
+                      IsVisible="{Binding CanClose}"
+                      Command="{Binding $parent[Window].DataContext.CloseTabCommand}"
+                      CommandParameter="{Binding}"
+                      ToolTip.Tip="Tabblad sluiten"/>
+            </StackPanel>
+          </DataTemplate>
+        </TabControl.ItemTemplate>
+
+        <TabControl.DataTemplates>
+          <!-- The spot list -->
+          <DataTemplate DataType="vm:OverviewTabViewModel">
+            <DataGrid ItemsSource="{Binding $parent[Window].DataContext.Spots}"
+                      SelectedItem="{Binding $parent[Window].DataContext.SelectedSpot}"
+                      DoubleTapped="OnSpotDoubleTapped"
+                      KeyDown="OnSpotsKeyDown"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="True"
+                      Background="{DynamicResource AppGridBackground}"
+                      Foreground="{DynamicResource AppTextBrush}"
+                      RowBackground="{DynamicResource AppRowBackground}"
+                      HorizontalGridLinesBrush="{DynamicResource AppGridLineBrush}">
+              <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Formaat" Width="72" CanUserSort="False">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate DataType="models:SpotItem">
+                      <Border Classes="FmtBadge" Margin="4,2" HorizontalAlignment="Left"
+                              IsVisible="{Binding FormatLabel, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <TextBlock Text="{Binding FormatLabel}"
+                                   FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AppFormatBadgeForeground}" VerticalAlignment="Center"/>
+                      </Border>
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Titel"    Binding="{Binding Subject}"       Width="*" MinWidth="200"/>
+                <DataGridTextColumn Header="Genre"    Binding="{Binding GenreLabel}"    Width="90"/>
+                <DataGridTextColumn Header="Afzender" Binding="{Binding SenderName}"    Width="150"/>
+                <DataGridTextColumn Header="Leeftijd" Binding="{Binding Age}"           Width="150"/>
+                <DataGridTextColumn Header="Omvang"   Binding="{Binding FormattedSize}" Width="100"/>
+              </DataGrid.Columns>
+            </DataGrid>
+          </DataTemplate>
+
+          <!-- The download list -->
+          <DataTemplate DataType="vm:DownloadsTabViewModel">
+            <Grid RowDefinitions="Auto,*">
+              <!-- Toolbar, mirroring the actions Windows offers on a download row -->
+              <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8"
+                          Margin="10,8" VerticalAlignment="Center">
+                <Button Content="Openen"
+                        Command="{Binding OpenCommand}"
+                        CommandParameter="{Binding Selected}"
+                        IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        ToolTip.Tip="Open de NZB met de standaard-app"/>
+                <Button Content="Toon in Finder"
+                        Command="{Binding RevealCommand}"
+                        CommandParameter="{Binding Selected}"
+                        IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                <Button Content="Annuleren"
+                        Command="{Binding CancelDownloadCommand}"
+                        CommandParameter="{Binding Selected}"
+                        IsEnabled="{Binding Selected.IsDownloading, FallbackValue=False}"
+                        ToolTip.Tip="Lopende download annuleren"/>
+                <Button Content="Verwijder uit lijst"
+                        Command="{Binding RemoveCommand}"
+                        CommandParameter="{Binding Selected}"
+                        IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        ToolTip.Tip="Verwijder download uit de lijst (optioneel met bestanden)"/>
+                <Button Content="Lijst leegmaken" Command="{Binding ClearCommand}"/>
+                <Button Content="🔑 Wachtwoord..."
+                        Command="{Binding SetPasswordCommand}"
+                        CommandParameter="{Binding Selected}"
+                        IsVisible="{Binding Selected.NeedsPassword, FallbackValue=False}"
+                        ToolTip.Tip="Voer het uitpakwachtwoord in en pak opnieuw uit"/>
+              </StackPanel>
+
+              <TextBlock Grid.Row="1" Text="Nog geen downloads. Open een spot en klik op Download."
+                         IsVisible="{Binding IsEmpty}"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"
+                         Opacity="0.6" Foreground="{DynamicResource AppTextBrush}"/>
+
+              <DataGrid Grid.Row="1"
+                        ItemsSource="{Binding Downloads}"
+                        SelectedItem="{Binding Selected}"
+                        AutoGenerateColumns="False"
+                        IsReadOnly="True"
+                        GridLinesVisibility="Horizontal"
+                        CanUserResizeColumns="True"
+                        CanUserSortColumns="True"
+                        KeyDown="OnDownloadsKeyDown"
+                        DoubleTapped="OnDownloadDoubleTapped"
+                        Background="{DynamicResource AppGridBackground}"
+                        Foreground="{DynamicResource AppTextBrush}"
+                        RowBackground="{DynamicResource AppRowBackground}"
+                        HorizontalGridLinesBrush="{DynamicResource AppGridLineBrush}">
+                <DataGrid.ContextMenu>
+                  <ContextMenu>
+                    <!-- Shown when completed -->
+                    <MenuItem Header="Openen"
+                              FontWeight="Bold"
+                              Command="{Binding OpenCommand}"
+                              CommandParameter="{Binding Selected}"
+                              IsVisible="{Binding Selected.IsCompleted, FallbackValue=False}"/>
+                    <MenuItem Header="Open Spot info"
+                              FontWeight="Bold"
+                              Command="{Binding OpenSpotInfoCommand}"
+                              CommandParameter="{Binding Selected}"
+                              IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <MenuItem Header="Open log"
+                              Command="{Binding OpenLogCommand}"/>
+                    <Separator IsVisible="{Binding !Selected.IsCompleted, FallbackValue=True}"/>
+                    <MenuItem Header="⬆  Omhoog"
+                              Command="{Binding MoveUpCommand}"
+                              CommandParameter="{Binding Selected}"
+                              IsVisible="{Binding !Selected.IsCompleted, FallbackValue=True}"
+                              IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <MenuItem Header="⬇  Omlaag"
+                              Command="{Binding MoveDownCommand}"
+                              CommandParameter="{Binding Selected}"
+                              IsVisible="{Binding !Selected.IsCompleted, FallbackValue=True}"
+                              IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <Separator IsVisible="{Binding Selected.IsDownloading, FallbackValue=False}"/>
+                    <MenuItem Header="{Binding Selected.PauseMenuHeader, FallbackValue='⏸  Pauzeren'}"
+                              Command="{Binding TogglePauseCommand}"
+                              CommandParameter="{Binding Selected}"
+                              IsVisible="{Binding Selected.IsDownloading, FallbackValue=False}"/>
+                    <Separator IsVisible="{Binding !Selected.IsCompleted, FallbackValue=True}"/>
+                    <MenuItem Header="Verwijderen"
+                              Command="{Binding RemoveCommand}"
+                              CommandParameter="{Binding Selected}"
+                              IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <Separator/>
+                    <MenuItem Header="🔑  Wachtwoord voor uitpakken..."
+                              Command="{Binding SetPasswordCommand}"
+                              CommandParameter="{Binding Selected}"
+                              IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <MenuItem Header="🔧  Opnieuw repareren en uitpakken"
+                              Command="{Binding RetryPostProcessCommand}"
+                              CommandParameter="{Binding Selected}"
+                              IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
+                              ToolTip.Tip="Voert par2-controle, reparatie en uitpakken opnieuw uit"/>
+                  </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="#"           Binding="{Binding Index}"         Width="40"/>
+                  <DataGridTextColumn Header="Titel"       Binding="{Binding Title}"         Width="*" MinWidth="180"/>
+                  <DataGridTemplateColumn Header="Voortgang" Width="140">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate DataType="models:DownloadItem">
+                        <Grid Margin="4,2" VerticalAlignment="Center">
+                          <!-- Repareren/uitpakken reports its own percentage; joining
+                               split files and moving cannot, so the bar goes marquee. -->
+                          <ProgressBar Value="{Binding ProgressPercent}" Minimum="0" Maximum="100" Height="14"
+                                       IsIndeterminate="{Binding IsProgressIndeterminate}"/>
+                          <TextBlock Text="{Binding ProgressPercent, StringFormat='{}{0}%'}"
+                                     IsVisible="{Binding !IsProgressIndeterminate}"
+                                     FontSize="10" FontWeight="SemiBold"
+                                     HorizontalAlignment="Center" VerticalAlignment="Center"
+                                     Foreground="{DynamicResource AppTextBrush}"/>
+                        </Grid>
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="Status" Width="260">
+                    <DataGridTemplateColumn.CellTemplate>
+                      <DataTemplate DataType="models:DownloadItem">
+                        <Panel VerticalAlignment="Center" Margin="4,0">
+                          <!-- Windows renders "Wachtwoord?" as a hyperlink that opens
+                               the password dialog and resumes; a button is the macOS
+                               equivalent. -->
+                          <Button Content="🔑 Wachtwoord vereist"
+                                  IsVisible="{Binding NeedsPassword}"
+                                  Padding="6,2" FontSize="11"
+                                  HorizontalAlignment="Left"
+                                  Command="{Binding $parent[DataGrid].DataContext.SetPasswordCommand}"
+                                  CommandParameter="{Binding}"
+                                  ToolTip.Tip="{Binding Status}"/>
+                          <TextBlock Text="{Binding Status}"
+                                     IsVisible="{Binding !NeedsPassword}"
+                                     VerticalAlignment="Center"
+                                     TextTrimming="CharacterEllipsis"
+                                     ToolTip.Tip="{Binding Status}"
+                                     Foreground="{DynamicResource AppTextBrush}"/>
+                        </Panel>
+                      </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTextColumn Header="Omvang"      Binding="{Binding FormattedSize}" Width="90"/>
+                  <DataGridTextColumn Header="Toegevoegd"  Binding="{Binding Added}"         Width="130"/>
+                </DataGrid.Columns>
+              </DataGrid>
+            </Grid>
+          </DataTemplate>
+
+          <!-- One opened spot -->
+          <DataTemplate DataType="vm:SpotTabViewModel">
+            <views:SpotDetailView DataContext="{Binding Detail}"/>
+          </DataTemplate>
+        </TabControl.DataTemplates>
+      </TabControl>
+    </Grid>
+
+    <!-- ── Status Bar ───────────────────────────────────────────────────────── -->
+    <Border Grid.Row="3"
+            Background="{DynamicResource AppMenuBackground}"
+            BorderBrush="{DynamicResource AppBorderBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="12,4">
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <TextBlock Text="{Binding StatusText}" FontSize="11" VerticalAlignment="Center"/>
+          <ProgressBar IsVisible="{Binding IsSyncing}"
+                       Value="{Binding SyncProgress}"
+                       Minimum="0" Maximum="100"
+                       Width="120" Height="8"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button Grid.Column="1"
+                Classes="StatusIcon"
+                Command="{Binding RefreshCommand}"
+                IsEnabled="{Binding !IsLoading}"
+                Margin="0,0,10,0"
+                ToolTip.Tip="Nieuwe spots ophalen (Cmd+R)"
+                Content="&#x21BB;"/>
+        <TextBlock Grid.Column="2" Text="{Binding ArchitectureInfo}"
+                   FontSize="11"
+                   Foreground="{DynamicResource AppMutedTextBrush}"
+                   VerticalAlignment="Center"/>
+      </Grid>
+    </Border>
+
+  </Grid>
+</Window>

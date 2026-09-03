@@ -307,7 +307,9 @@ public static class DownloaderDataDecoder
 						}
 						else if (num2 != 46)
 						{
+							// Fix: put the byte back AND keep num2 = 46 as data
 							streamToDecode.Position--;
+							num2 = 46;
 						}
 					}
 					break;
@@ -323,7 +325,9 @@ public static class DownloaderDataDecoder
 						}
 						else if (num2 != 46)
 						{
+							// Fix: put the byte back AND keep num2 = 46 as data
 							streamToDecode.Position--;
+							num2 = 46;
 						}
 						break;
 					case 61:

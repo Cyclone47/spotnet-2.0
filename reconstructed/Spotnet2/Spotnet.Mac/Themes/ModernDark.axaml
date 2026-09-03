@@ -1,0 +1,47 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Modern Dark. Values are taken from the Windows client's style/moderndark.xaml
+       (navy-slate surfaces, light-blue text) so the two clients render the same
+       palette; the comments name the Windows key each brush comes from. -->
+
+  <!-- Window & chrome -->
+  <LinearGradientBrush x:Key="AppWindowBackground" StartPoint="0%,50%" EndPoint="100%,50%">
+    <GradientStop Offset="0"   Color="#FF0B121A"/>
+    <GradientStop Offset="0.5" Color="#FF0E1722"/>
+    <GradientStop Offset="1"   Color="#FF0E1724"/>
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="AppMenuBackground"     Color="#FF131D28"/> <!-- SpotnetMenuBackground -->
+  <SolidColorBrush x:Key="AppMenuForeground"     Color="#FFF1F5F9"/> <!-- SpotnetMenuForeground -->
+  <SolidColorBrush x:Key="AppBorderBrush"        Color="#FF526681"/> <!-- SpotnetMenuBorder -->
+  <SolidColorBrush x:Key="AppSidebarBackground"  Color="#FF111B27"/> <!-- NotSelectedBackground -->
+
+  <!-- Accent: the deep blue against the theme's light blue text -->
+  <SolidColorBrush x:Key="AppAccentBrush"      Color="#FF075985"/> <!-- AccentColor3 -->
+  <SolidColorBrush x:Key="AppAccentForeground" Color="#FFFFFFFF"/> <!-- IdealForegroundColor -->
+  <SolidColorBrush x:Key="AppAccentSoftBrush"  Color="#FF244866"/> <!-- SpotnetMenuHighlightBackground -->
+
+  <!-- Text -->
+  <SolidColorBrush x:Key="AppTextBrush"      Color="#FFF1F5F9"/> <!-- SpotRowForegroundBrush -->
+  <SolidColorBrush x:Key="AppMutedTextBrush" Color="#FF94A3B8"/> <!-- SpotRowMutedBrush -->
+
+  <!-- Filter tree -->
+  <SolidColorBrush x:Key="AppTreeSelectedBackground" Color="#FF253040"/>
+  <SolidColorBrush x:Key="AppTreeSelectedForeground" Color="#FFF1F5F9"/>
+  <SolidColorBrush x:Key="AppTreeHoverBackground"    Color="#FF1B2634"/>
+  <SolidColorBrush x:Key="AppTreeHoverForeground"    Color="#FFD6DCE5"/>
+  <SolidColorBrush x:Key="AppCountBadgeBackground"   Color="#FF24374C"/> <!-- AccentColor3Background -->
+
+  <!-- Spot list -->
+  <SolidColorBrush x:Key="AppGridBackground"          Color="#FF131D28"/> <!-- WhiteColorBrush -->
+  <SolidColorBrush x:Key="AppRowBackground"           Color="#FF131D28"/>
+  <SolidColorBrush x:Key="AppRowAlternateBackground"  Color="#FF111B27"/> <!-- AccentColor4BackgroundBrush -->
+  <SolidColorBrush x:Key="AppRowSelectedBackground"   Color="#FF253040"/> <!-- AccentColorBrush3 -->
+  <SolidColorBrush x:Key="AppRowHoverBackground"      Color="#FF1E293B"/> <!-- AccentColorBrush4 -->
+  <SolidColorBrush x:Key="AppHeaderBackground"        Color="#FF1E293B"/> <!-- GrayBrush8 -->
+  <SolidColorBrush x:Key="AppHeaderForeground"        Color="#FFF1F5F9"/> <!-- BlackBrush -->
+  <SolidColorBrush x:Key="AppGridLineBrush"           Color="#FF334155"/> <!-- GrayBrush7 -->
+
+  <!-- "Formaat" pill -->
+  <SolidColorBrush x:Key="AppFormatBadgeBackground" Color="#FF17334D"/> <!-- NoticeBackgroundBrush -->
+  <SolidColorBrush x:Key="AppFormatBadgeForeground" Color="#FFE0F2FE"/> <!-- NoticeForegroundBrush -->
+</ResourceDictionary>

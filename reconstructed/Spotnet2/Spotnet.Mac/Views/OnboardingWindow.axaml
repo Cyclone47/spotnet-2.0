@@ -1,0 +1,212 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Spotnet.Mac.ViewModels"
+        x:Class="Spotnet.Mac.Views.OnboardingWindow"
+        x:DataType="vm:OnboardingViewModel"
+        Title="Spotnet 3.0 - Welkom &amp; Installatie"
+        Width="640" Height="540"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="28">
+        <!-- Header / Stepper -->
+        <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,20">
+            <TextBlock Text="Welkom bij Spotnet 3.0" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <TextBlock Text="Stel uw weergave en Usenet server in om te beginnen."
+                       FontSize="13" Foreground="{DynamicResource TextControlPlaceholderForeground}" HorizontalAlignment="Center"/>
+
+            <!-- Steps bar -->
+            <Grid ColumnDefinitions="*,*,*" Margin="0,12,0,0">
+                <Border Grid.Column="0" Margin="4,0" Padding="8,4" CornerRadius="4"
+                        Background="{Binding IsStep1, Converter={x:Static ObjectConverters.IsNull}}">
+                    <TextBlock Text="1. Stijl &amp; Uiterlijk" HorizontalAlignment="Center" FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemAccentColor}"/>
+                </Border>
+                <Border Grid.Column="1" Margin="4,0" Padding="8,4" CornerRadius="4">
+                    <TextBlock Text="2. Usenet Server" HorizontalAlignment="Center" FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemAccentColor}"/>
+                </Border>
+                <Border Grid.Column="2" Margin="4,0" Padding="8,4" CornerRadius="4">
+                    <TextBlock Text="3. Afronden" HorizontalAlignment="Center" FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemAccentColor}"/>
+                </Border>
+            </Grid>
+            <Separator Margin="0,8"/>
+        </StackPanel>
+
+        <!-- Main Step Content -->
+        <Grid Grid.Row="1">
+            <!-- STEP 1: STYLE SELECTION -->
+            <ScrollViewer IsVisible="{Binding IsStep1}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Kies uw gewenste weergavestijl:" FontSize="15" FontWeight="SemiBold"/>
+                    <TextBlock Text="De gekozen stijl wordt direct toegepast als voorbeeld en kan altijd worden gewijzigd."
+                               FontSize="12" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+
+                    <Grid ColumnDefinitions="*,12,*,12,*">
+                        <!-- Modern Light Card -->
+                        <RadioButton Grid.Column="0"
+                                     IsChecked="{Binding IsModernLightSelected}"
+                                     GroupName="StyleGroup"
+                                     HorizontalAlignment="Stretch">
+                            <Border BorderThickness="1.5"
+                                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                    CornerRadius="8"
+                                    Padding="14"
+                                    Background="{DynamicResource SystemRegionBrush}">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="☀️" FontSize="28" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Modern Licht" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Helder, fris en strak modern thema."
+                                               FontSize="11" TextWrapping="Wrap" TextAlignment="Center"
+                                               Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                </StackPanel>
+                            </Border>
+                        </RadioButton>
+
+                        <!-- Modern Dark Card -->
+                        <RadioButton Grid.Column="2"
+                                     IsChecked="{Binding IsModernDarkSelected}"
+                                     GroupName="StyleGroup"
+                                     HorizontalAlignment="Stretch">
+                            <Border BorderThickness="1.5"
+                                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                    CornerRadius="8"
+                                    Padding="14"
+                                    Background="{DynamicResource SystemRegionBrush}">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="🌙" FontSize="28" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Modern Donker" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Rustig donker thema geoptimaliseerd voor macOS."
+                                               FontSize="11" TextWrapping="Wrap" TextAlignment="Center"
+                                               Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                </StackPanel>
+                            </Border>
+                        </RadioButton>
+
+                        <!-- Classic Card -->
+                        <RadioButton Grid.Column="4"
+                                     IsChecked="{Binding IsClassicSelected}"
+                                     GroupName="StyleGroup"
+                                     HorizontalAlignment="Stretch">
+                            <Border BorderThickness="1.5"
+                                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                    CornerRadius="8"
+                                    Padding="14"
+                                    Background="{DynamicResource SystemRegionBrush}">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="🏛️" FontSize="28" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Klassiek" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="De vertrouwde Spotnet 1.8 / 2.0 klassieke vormgeving."
+                                               FontSize="11" TextWrapping="Wrap" TextAlignment="Center"
+                                               Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+                                </StackPanel>
+                            </Border>
+                        </RadioButton>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- STEP 2: USENET SERVER CONFIGURATION -->
+            <ScrollViewer IsVisible="{Binding IsStep2}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Usenet Provider Keuze:" FontSize="14" FontWeight="SemiBold"/>
+                    <ComboBox ItemsSource="{Binding ProviderList}"
+                              SelectedItem="{Binding SelectedProvider}"
+                              HorizontalAlignment="Stretch"/>
+
+                    <TextBlock Text="Serveradres:" FontWeight="Medium"/>
+                    <TextBox Text="{Binding Server}" Watermark="bijv. news.eweka.nl"/>
+
+                    <Grid ColumnDefinitions="*,16,*">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Poort:" FontWeight="Medium"/>
+                            <NumericUpDown Value="{Binding Port}" Minimum="1" Maximum="65535" FormatString="0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="Verbindingen:" FontWeight="Medium"/>
+                            <NumericUpDown Value="{Binding Connections}" Minimum="1" Maximum="100" FormatString="0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <CheckBox IsChecked="{Binding Ssl}" Content="SSL / TLS versleuteling gebruiken (Aanbevolen, poort 563)"/>
+
+                    <TextBlock Text="Gebruikersnaam:" FontWeight="Medium"/>
+                    <TextBox Text="{Binding Username}" Watermark="Usenet gebruikersnaam"/>
+
+                    <TextBlock Text="Wachtwoord (Apple Keychain):" FontWeight="Medium"/>
+                    <TextBox Text="{Binding Password}" PasswordChar="•" Watermark="Usenet wachtwoord"/>
+
+                    <!-- Test connection & Status -->
+                    <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
+                        <Button Grid.Column="0"
+                                Command="{Binding TestConnectionCommand}"
+                                IsEnabled="{Binding !IsTesting}"
+                                Content="Test Verbinding"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding StatusMessage}"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0"
+                                   TextWrapping="Wrap"
+                                   FontWeight="Medium"/>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- STEP 3: SUMMARY & FINISH -->
+            <ScrollViewer IsVisible="{Binding IsStep3}">
+                <StackPanel Spacing="16" Margin="0,10">
+                    <TextBlock Text="Klaar om Spotnet 3.0 te starten!" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Uw configuratie is compleet. Spotnet is klaar om de nieuwste spots op te halen."
+                               FontSize="13" TextAlignment="Center" Foreground="{DynamicResource TextControlPlaceholderForeground}"/>
+
+                    <Border BorderThickness="1"
+                            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                            CornerRadius="8"
+                            Padding="16"
+                            Margin="20,8">
+                        <StackPanel Spacing="10">
+                            <Grid ColumnDefinitions="140,*">
+                                <TextBlock Grid.Column="0" Text="Gekozen Stijl:" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="1" Text="{Binding SelectedStyle}"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="140,*">
+                                <TextBlock Grid.Column="0" Text="Usenet Server:" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Server}"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="140,*">
+                                <TextBlock Grid.Column="0" Text="Beveiliging:" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="1" Text="SSL/TLS versleuteld"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="140,*">
+                                <TextBlock Grid.Column="0" Text="Wachtwoordopslag:" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="1" Text="macOS Sleutelhanger (Keychain)"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Footer Navigation Buttons -->
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,8,Auto" Margin="0,16,0,0">
+            <Button Grid.Column="0"
+                    Command="{Binding BackCommand}"
+                    IsEnabled="{Binding CanGoBack}"
+                    Content="◀ Vorige"/>
+
+            <Button Grid.Column="2"
+                    Command="{Binding NextCommand}"
+                    IsVisible="{Binding CanGoNext}"
+                    Classes="accent"
+                    Content="Volgende ▶"/>
+
+            <Button Grid.Column="4"
+                    Command="{Binding FinishCommand}"
+                    IsVisible="{Binding IsStep3}"
+                    Classes="accent"
+                    FontWeight="Bold"
+                    Content="🚀 Start Spotnet"/>
+        </Grid>
+    </Grid>
+</Window>
