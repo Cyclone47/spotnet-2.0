@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -307,7 +307,9 @@ public static class DownloaderDataDecoder
 						}
 						else if (num2 != 46)
 						{
+							// Not dot-stuffed: put the byte back and keep the single '.' as data.
 							streamToDecode.Position--;
+							num2 = 46;
 						}
 					}
 					break;
@@ -323,7 +325,9 @@ public static class DownloaderDataDecoder
 						}
 						else if (num2 != 46)
 						{
+							// Not dot-stuffed: put the byte back and keep the single '.' as data.
 							streamToDecode.Position--;
+							num2 = 46;
 						}
 						break;
 					case 61:

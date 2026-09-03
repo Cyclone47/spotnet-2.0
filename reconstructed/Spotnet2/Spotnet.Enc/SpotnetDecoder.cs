@@ -27,12 +27,33 @@ namespace SpotnetEnc
                 byte* dst = pDst;
                 byte* dstEnd = pDst + maxOut;
 
+                // The body arrives straight off the wire, so it is still dot-stuffed:
+                // the server doubles a leading '.' on every line (RFC 3977 3.1.1).
+                // Decoding starts at the first byte after the =ypart/=ybegin line,
+                // which is a line boundary.
+                bool atLineStart = true;
+
                 while (src < srcEnd && dst < dstEnd)
                 {
                     byte b = *src++;
-                    if (b == (byte)'\r' || b == (byte)'\n')
+                    if (b == (byte)'\r')
                     {
                         continue;
+                    }
+                    if (b == (byte)'\n')
+                    {
+                        atLineStart = true;
+                        continue;
+                    }
+
+                    if (atLineStart)
+                    {
+                        atLineStart = false;
+                        if (b == (byte)'.' && src < srcEnd && *src == (byte)'.')
+                        {
+                            // Drop the stuffing dot; the second one is payload.
+                            src++;
+                        }
                     }
 
                     if (b == (byte)'=') // Escape character in yEnc
@@ -43,6 +64,7 @@ namespace SpotnetEnc
                         {
                             if (src < srcEnd && (*src == (byte)'\r' || *src == (byte)'\n'))
                                 src++;
+                            atLineStart = true;
                             continue;
                         }
                         *dst++ = (byte)((next - 64 - 42) & 0xFF);
