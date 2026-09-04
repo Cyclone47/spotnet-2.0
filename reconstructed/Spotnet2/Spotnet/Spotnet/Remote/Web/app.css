@@ -37,6 +37,7 @@ body {
   min-height: 100vh;
   padding-bottom: calc(75px + var(--safe-bottom));
   overflow-x: hidden;
+  overscroll-behavior-y: contain;
 }
 
 /* Header */
@@ -1709,4 +1710,84 @@ body {
 .switch-toggle input:checked + .switch-slider:before {
   transform: translateX(20px);
   background-color: #ffffff;
+}
+
+/* Pull to Refresh Indicator (Mobile Web / PWA) */
+.pull-to-refresh {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translate(-50%, -85px);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-focus);
+  border-radius: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 14px var(--accent-glow);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pull-to-refresh.ptr-pulling {
+  transition: none;
+}
+
+.pull-to-refresh.ptr-visible {
+  opacity: 1;
+}
+
+.pull-to-refresh.ptr-loading {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.ptr-icon-box {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.ptr-arrow {
+  transition: transform 0.2s ease;
+}
+
+.pull-to-refresh.ptr-ready .ptr-arrow {
+  transform: rotate(180deg);
+}
+
+.ptr-spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(56, 189, 248, 0.2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: ptrSpin 0.7s linear infinite;
+}
+
+.pull-to-refresh.ptr-loading .ptr-arrow {
+  display: none;
+}
+
+.pull-to-refresh.ptr-loading .ptr-spinner {
+  display: block;
+}
+
+.ptr-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+@keyframes ptrSpin {
+  to { transform: rotate(360deg); }
 }

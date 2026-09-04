@@ -10,9 +10,21 @@
   <meta name="apple-mobile-web-app-title" content="Spotnet Remote">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
-  <link rel="stylesheet" href="/app.css?v=3.0.7.4">
+  <link rel="stylesheet" href="/app.css?v=3.0.7.5">
 </head>
 <body>
+  <!-- Pull to Refresh Indicator (Mobile Web / PWA) -->
+  <div id="pullToRefresh" class="pull-to-refresh">
+    <div class="ptr-icon-box">
+      <svg class="ptr-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="19 12 12 19 5 12"></polyline>
+      </svg>
+      <div class="ptr-spinner"></div>
+    </div>
+    <span class="ptr-text">Trek omlaag om te synchroniseren</span>
+  </div>
+
   <!-- Header -->
   <header class="app-header">
     <div class="header-left">
@@ -469,6 +481,6 @@
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <script src="/app.js?v=3.0.7.4"></script>
+  <script src="/app.js?v=3.0.7.5"></script>
 </body>
 </html>

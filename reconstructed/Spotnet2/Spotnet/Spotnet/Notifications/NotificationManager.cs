@@ -268,6 +268,39 @@ public class NotificationManager
         NotificationsUpdated?.Invoke();
     }
 
+    public void NotifyDownloadComplete(string spotTitle, bool success = true)
+    {
+        try
+        {
+            var item = new SpotNotificationItem
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                RuleId = "download",
+                RuleName = "Downloads",
+                RuleType = NotificationRuleType.Download,
+                Title = success ? (Words.NotificationDownloadFinished ?? "Download voltooid") : (Words.NotificationDownloadProblem ?? "Download mislukt"),
+                Body = spotTitle ?? "",
+                SpotCount = 1,
+                CreatedAtUtc = DateTime.UtcNow,
+                IsRead = false,
+                Spots = new List<SpotSummaryItem>
+                {
+                    new SpotSummaryItem
+                    {
+                        Title = spotTitle ?? "",
+                        FormattedDate = "Zojuist"
+                    }
+                }
+            };
+            AddNotification(item);
+            Log.Info("Recorded download notification in NotificationManager: {0} ({1})", item.Title, spotTitle);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Failed to record download notification: {0}", ex.Message);
+        }
+    }
+
     public long GetMaxSpotRowId()
     {
         try

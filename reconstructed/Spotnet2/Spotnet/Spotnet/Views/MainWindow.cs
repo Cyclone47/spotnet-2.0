@@ -44,6 +44,7 @@ using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;
 using Spotnet.Model.Newznab;
+using Spotnet.Notifications;
 using Spotnet.Phuse;
 using Spotnet.Properties;
 using Spotnet.TaskSchedulers;
@@ -2407,6 +2408,15 @@ public partial class MainWindow : MetroWindow
     /// </remarks>
     internal void DisplayTooltip(string sTooltip, bool success = true)
     {
+        try
+        {
+            NotificationManager.Instance.NotifyDownloadComplete(sTooltip, success);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Failed to record download notification: {0}", ex.Message);
+        }
+
         if (!WindowActivatedHelper.ApplicationIsActivated())
         {
             if (Settings.Default.NotifyAboutDownloadComplete)

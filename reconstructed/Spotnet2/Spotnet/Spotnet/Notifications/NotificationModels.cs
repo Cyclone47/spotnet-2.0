@@ -7,7 +7,8 @@ namespace Spotnet.Notifications;
 public enum NotificationRuleType
 {
     Filter = 0,
-    Keyword = 1
+    Keyword = 1,
+    Download = 2
 }
 
 public class SpotSummaryItem

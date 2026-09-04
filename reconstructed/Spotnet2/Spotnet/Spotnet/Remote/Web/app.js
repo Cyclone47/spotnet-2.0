@@ -449,6 +449,9 @@
     document.getElementById('detailDescription').innerHTML = '<em>Omschrijving ophalen van Usenet...</em>';
     detailModal.classList.add('active');
     detailModal.style.display = 'flex';
+    if (window.SpotnetNative && typeof window.SpotnetNative.setSwipeRefreshEnabled === 'function') {
+      window.SpotnetNative.setSwipeRefreshEnabled(false);
+    }
 
     // Load Comments for this spot
     loadComments(spot.id, spot.messageId);
@@ -650,6 +653,140 @@
     }
   }
 
+  // Pull-to-refresh & Sync functionality
+  async function triggerPullToRefresh() {
+    // Disable refresh/sync when a spot is open or another modal is active
+    if (detailModal && detailModal.classList.contains('active')) return;
+    if (notifModal && notifModal.classList.contains('active')) return;
+
+    const activeView = document.querySelector('.view.active')?.id || 'view-discover';
+    try {
+      if (activeView === 'view-queue') {
+        await updateQueue();
+        showToast('Downloads bijgewerkt');
+      } else if (activeView === 'view-favorites') {
+        await loadFavorites();
+        showToast('Favorieten bijgewerkt');
+      } else if (activeView === 'view-settings') {
+        await loadStatus();
+        showToast('Status bijgewerkt');
+      } else {
+        // Spots view: trigger sync on PC from Usenet and refresh current spots list
+        triggerSyncSpots();
+        await loadSpots(false);
+      }
+    } catch (err) {
+      console.error('Pull to refresh failed:', err);
+    } finally {
+      if (window.SpotnetNative && typeof window.SpotnetNative.setRefreshing === 'function') {
+        window.SpotnetNative.setRefreshing(false);
+      }
+    }
+  }
+  window.triggerPullToRefresh = triggerPullToRefresh;
+
+  function setupPullToRefresh() {
+    // If running inside Android native companion app, Android's SwipeRefreshLayout handles native touch gestures
+    if (window.SpotnetNative && typeof window.SpotnetNative.isNativeApp === 'function' && window.SpotnetNative.isNativeApp()) {
+      return;
+    }
+
+    const ptr = document.getElementById('pullToRefresh');
+    if (!ptr) return;
+    const ptrText = ptr.querySelector('.ptr-text');
+
+    let startY = 0;
+    let isPulling = false;
+    let isRefreshing = false;
+    const threshold = 55;
+    const maxPull = 100;
+
+    window.addEventListener('touchstart', (e) => {
+      if (isRefreshing) return;
+      // Disable pull-to-refresh when any spot is open or modal is active
+      if (detailModal && detailModal.classList.contains('active')) return;
+      if (notifModal && notifModal.classList.contains('active')) return;
+
+      if (window.scrollY <= 0 && e.touches.length === 1) {
+        startY = e.touches[0].clientY;
+        isPulling = false;
+      } else {
+        startY = 0;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!startY || isRefreshing) return;
+      if (detailModal && detailModal.classList.contains('active')) {
+        startY = 0;
+        return;
+      }
+      if (window.scrollY > 0) {
+        startY = 0;
+        if (isPulling) {
+          isPulling = false;
+          ptr.style.transform = '';
+          ptr.style.opacity = '0';
+          ptr.classList.remove('ptr-pulling', 'ptr-ready');
+        }
+        return;
+      }
+
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - startY;
+
+      if (diff > 12) {
+        isPulling = true;
+        ptr.classList.add('ptr-pulling');
+        const pullDist = Math.min(diff * 0.4, maxPull);
+        const translateY = -85 + pullDist;
+        const opacity = Math.min(1, pullDist / 35);
+        ptr.style.transform = `translate(-50%, ${translateY}px)`;
+        ptr.style.opacity = `${opacity}`;
+
+        if (pullDist >= threshold) {
+          ptr.classList.add('ptr-ready');
+          if (ptrText) ptrText.textContent = 'Laat los om te synchroniseren';
+        } else {
+          ptr.classList.remove('ptr-ready');
+          if (ptrText) ptrText.textContent = 'Trek omlaag om te vernieuwen';
+        }
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', async () => {
+      if (!isPulling || isRefreshing) return;
+      isPulling = false;
+      startY = 0;
+      ptr.classList.remove('ptr-pulling');
+
+      const isReady = ptr.classList.contains('ptr-ready');
+      ptr.classList.remove('ptr-ready');
+
+      if (isReady) {
+        isRefreshing = true;
+        ptr.classList.add('ptr-loading');
+        ptr.style.transform = 'translate(-50%, 0px)';
+        ptr.style.opacity = '1';
+        if (ptrText) ptrText.textContent = 'Spots bijwerken...';
+
+        try {
+          await triggerPullToRefresh();
+        } finally {
+          setTimeout(() => {
+            ptr.classList.remove('ptr-loading');
+            ptr.style.transform = '';
+            ptr.style.opacity = '0';
+            isRefreshing = false;
+          }, 450);
+        }
+      } else {
+        ptr.style.transform = '';
+        ptr.style.opacity = '0';
+      }
+    }, { passive: true });
+  }
+
   // Trigger Download
   async function triggerDownload(spotId, messageId, title, triggerBtn = null) {
     try {
@@ -709,6 +846,7 @@
   }
 
   // Queue Management
+  let lastActiveQueueCount = null;
   async function updateQueue() {
     try {
       const res = await apiFetch('/api/v1/queue');
@@ -720,6 +858,12 @@
       overallProgressFill.style.width = `${Math.min(100, Math.max(0, q.overallProgress))}%`;
       queuePercent.textContent = `${Math.round(q.overallProgress)}%`;
       queueActiveCount.textContent = `${q.activeCount} actieve download${q.activeCount === 1 ? '' : 's'}`;
+
+      // Check if a download just finished to immediately pop notification
+      if (lastActiveQueueCount !== null && q.activeCount < lastActiveQueueCount) {
+        fetchNotifications(true);
+      }
+      lastActiveQueueCount = q.activeCount;
 
       if (q.activeCount > 0) {
         navQueueBadge.textContent = q.activeCount;
@@ -1111,6 +1255,9 @@
     detailModal.classList.remove('active');
     detailModal.style.display = 'none';
     activeDetailSpot = null;
+    if (window.SpotnetNative && typeof window.SpotnetNative.setSwipeRefreshEnabled === 'function') {
+      window.SpotnetNative.setSwipeRefreshEnabled(true);
+    }
   }
 
   document.getElementById('closeDetailBtn').addEventListener('click', closeDetailModal);
@@ -1194,17 +1341,26 @@
       const data = await res.json();
       updateNotificationUi(data.unreadCount, data.notifications);
 
-      if (notifyUser && data.unreadCount > lastKnownUnreadCount && 'Notification' in window && Notification.permission === 'granted') {
+      if (notifyUser && data.unreadCount > lastKnownUnreadCount) {
         const newItems = (data.notifications || []).filter(n => !n.isRead);
         if (newItems.length > 0) {
           const latest = newItems[0];
-          try {
-            new Notification(latest.title || 'Nieuwe Spotnet Melding', {
-              body: latest.body || `${latest.spotCount} nieuwe spot(s)`,
-              icon: '/icon.svg',
-              badge: '/icon.svg'
-            });
-          } catch (e) {}
+          // Android Native Companion App Push Notification
+          if (window.SpotnetNative && typeof window.SpotnetNative.showNativeNotification === 'function') {
+            window.SpotnetNative.showNativeNotification(
+              latest.title || 'Spotnet Melding',
+              latest.body || (latest.spotCount ? `${latest.spotCount} nieuwe spot(s)` : 'Download gereed'),
+              (latest.spots && latest.spots[0]) ? latest.spots[0].id : 0
+            );
+          } else if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+              new Notification(latest.title || 'Nieuwe Spotnet Melding', {
+                body: latest.body || `${latest.spotCount} nieuwe spot(s)`,
+                icon: '/icon.svg',
+                badge: '/icon.svg'
+              });
+            } catch (e) {}
+          }
         }
       }
       lastKnownUnreadCount = data.unreadCount || 0;
@@ -1302,6 +1458,9 @@
       notifModal.style.display = 'flex';
       notifModal.classList.add('active');
     }
+    if (window.SpotnetNative && typeof window.SpotnetNative.setSwipeRefreshEnabled === 'function') {
+      window.SpotnetNative.setSwipeRefreshEnabled(false);
+    }
     fetchNotifications(false);
   }
 
@@ -1309,6 +1468,9 @@
     if (notifModal) {
       notifModal.classList.remove('active');
       notifModal.style.display = 'none';
+    }
+    if (window.SpotnetNative && typeof window.SpotnetNative.setSwipeRefreshEnabled === 'function') {
+      window.SpotnetNative.setSwipeRefreshEnabled(true);
     }
   }
 
@@ -1405,6 +1567,7 @@
     loadStatus();
     fetchNotifications(false);
     setupNativeIntegration();
+    setupPullToRefresh();
 
     if (pollTimer) clearInterval(pollTimer);
     pollTimer = setInterval(() => {

@@ -26,7 +26,7 @@ import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    internal lateinit var binding: ActivityMainBinding
     internal lateinit var prefs: PreferencesManager
     private var pendingNotificationOpen = false
 
@@ -188,13 +188,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.swipeRefreshSpots.setOnRefreshListener {
-            webView.reload()
+        // Smart pull-to-refresh: only intercept when WebView is at the very top
+        binding.swipeRefreshSpots.setOnChildScrollUpCallback { _, _ ->
+            webView.canScrollVertically(-1)
         }
 
-        // Only allow swipe-refresh when scrolled to top
-        webView.viewTreeObserver.addOnScrollChangedListener {
-            binding.swipeRefreshSpots.isEnabled = (webView.scrollY == 0)
+        binding.swipeRefreshSpots.setOnRefreshListener {
+            webView.evaluateJavascript(
+                "if (typeof window.triggerPullToRefresh === 'function') { window.triggerPullToRefresh(); } else { location.reload(); }",
+                null
+            )
+            // Safety timeout to dismiss refreshing spinner after 8 seconds
+            webView.postDelayed({
+                if (binding.swipeRefreshSpots.isRefreshing) {
+                    binding.swipeRefreshSpots.isRefreshing = false
+                }
+            }, 8000)
         }
 
         loadWebCompanion()
@@ -290,6 +299,41 @@ class SpotnetNativeInterface(private val activity: MainActivity) {
     fun triggerTestNotification() {
         activity.runOnUiThread {
             activity.sendTestNotification()
+        }
+    }
+
+    @JavascriptInterface
+    fun setRefreshing(refreshing: Boolean) {
+        activity.runOnUiThread {
+            activity.binding.swipeRefreshSpots.isRefreshing = refreshing
+        }
+    }
+
+    @JavascriptInterface
+    fun setSwipeRefreshEnabled(enabled: Boolean) {
+        activity.runOnUiThread {
+            activity.binding.swipeRefreshSpots.isEnabled = enabled
+        }
+    }
+
+    @JavascriptInterface
+    fun showNativeNotification(title: String, body: String, spotId: Long) {
+        activity.runOnUiThread {
+            if (!activity.prefs.notificationsEnabled) return@runOnUiThread
+            val notif = NotificationItem(
+                id = "download_${System.currentTimeMillis()}",
+                ruleId = "download",
+                ruleName = "Download",
+                ruleType = "Download",
+                title = title,
+                body = body,
+                spotCount = 1,
+                timeAgo = "Zojuist",
+                createdAtUtc = "",
+                isRead = false,
+                spots = emptyList()
+            )
+            NotificationHelper.showNotification(activity, notif)
         }
     }
 
