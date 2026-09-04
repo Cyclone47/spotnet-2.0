@@ -939,6 +939,10 @@
       if (confirm('Weet je zeker dat je wilt uitloggen en dit toestel wilt ontkoppelen?')) {
         setToken('');
         showToast('Je bent uitgelogd.');
+        if (window.SpotnetNative && typeof window.SpotnetNative.disconnect === 'function') {
+          window.SpotnetNative.disconnect();
+          return;
+        }
         showPairingModal();
       }
     });
@@ -1259,6 +1263,55 @@
     btnMarkAllRead.addEventListener('click', markAllNotificationsRead);
   }
 
+  // Expose global methods for native Android companion app
+  window.openNotifModal = openNotifModal;
+  window.closeNotifModal = closeNotifModal;
+
+  function setupNativeIntegration() {
+    if (!window.SpotnetNative) return;
+    const nativeGroup = document.getElementById('nativeSettingsGroup');
+    if (nativeGroup) nativeGroup.style.display = 'block';
+
+    try {
+      if (typeof window.SpotnetNative.getNotificationSettings === 'function') {
+        const settings = JSON.parse(window.SpotnetNative.getNotificationSettings());
+        const switchNotifs = document.getElementById('nativeSwitchNotifs');
+        const switchSound = document.getElementById('nativeSwitchSound');
+        const switchVibrate = document.getElementById('nativeSwitchVibrate');
+
+        if (switchNotifs) {
+          switchNotifs.checked = !!settings.notificationsEnabled;
+          switchNotifs.onchange = () => {
+            window.SpotnetNative.setNotificationSetting('notificationsEnabled', switchNotifs.checked);
+          };
+        }
+        if (switchSound) {
+          switchSound.checked = !!settings.soundEnabled;
+          switchSound.onchange = () => {
+            window.SpotnetNative.setNotificationSetting('soundEnabled', switchSound.checked);
+          };
+        }
+        if (switchVibrate) {
+          switchVibrate.checked = !!settings.vibrationEnabled;
+          switchVibrate.onchange = () => {
+            window.SpotnetNative.setNotificationSetting('vibrationEnabled', switchVibrate.checked);
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('Native settings setup failed:', e);
+    }
+
+    const btnTest = document.getElementById('btnNativeTestNotif');
+    if (btnTest) {
+      btnTest.onclick = () => {
+        if (typeof window.SpotnetNative.triggerTestNotification === 'function') {
+          window.SpotnetNative.triggerTestNotification();
+        }
+      };
+    }
+  }
+
   // App Initialization
   let pollCounter = 0;
   function initApp() {
@@ -1267,6 +1320,7 @@
     updateQueue();
     loadStatus();
     fetchNotifications(false);
+    setupNativeIntegration();
 
     if (pollTimer) clearInterval(pollTimer);
     pollTimer = setInterval(() => {

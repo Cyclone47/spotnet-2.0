@@ -17,11 +17,7 @@
   <header class="app-header">
     <div class="header-left">
       <div class="logo-badge">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
-          <path d="M2 12h20"></path>
-        </svg>
+        <img src="/icon.png" class="header-logo-img" alt="Spotnet">
       </div>
       <div class="header-titles">
         <h1 class="brand-title">Spotnet <span class="badge-accent">Remote</span></h1>
@@ -192,6 +188,35 @@
         <h3>Dit Apparaat</h3>
         <p class="setting-desc">Dit toestel is gekoppeld met Spotnet op je computer.</p>
         <button class="btn-danger" id="logoutBtn">Toestel ontkoppelen</button>
+      </div>
+
+      <div class="settings-group" id="nativeSettingsGroup" style="display: none;">
+        <h3>Android Companion Notificaties</h3>
+        <p class="setting-desc">Beheer achtergrondmeldingen op dit mobiele toestel.</p>
+        <div class="setting-item">
+          <span class="setting-label">Achtergrondnotificaties</span>
+          <label class="switch-toggle">
+            <input type="checkbox" id="nativeSwitchNotifs" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Geluid bij melding</span>
+          <label class="switch-toggle">
+            <input type="checkbox" id="nativeSwitchSound" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Trillen bij melding</span>
+          <label class="switch-toggle">
+            <input type="checkbox" id="nativeSwitchVibrate" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div style="margin-top: 14px;">
+          <button class="btn-text-action" id="btnNativeTestNotif" type="button" style="padding: 8px 14px; border-radius: 8px;">Testnotificatie verzenden</button>
+        </div>
       </div>
 
       <div class="settings-group">

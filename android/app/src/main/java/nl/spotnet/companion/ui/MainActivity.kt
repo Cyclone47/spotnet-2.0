@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.webkit.*
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -16,22 +15,19 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.launch
-import nl.spotnet.companion.R
-import nl.spotnet.companion.data.*
+import nl.spotnet.companion.data.NotificationItem
+import nl.spotnet.companion.data.NotificationSpot
+import nl.spotnet.companion.data.PreferencesManager
 import nl.spotnet.companion.databinding.ActivityMainBinding
 import nl.spotnet.companion.notifications.NotificationHelper
 import nl.spotnet.companion.notifications.SpotnetNotificationWorker
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var prefs: PreferencesManager
-    private lateinit var apiClient: SpotnetApiClient
-    private lateinit var notifAdapter: NotificationsAdapter
+    internal lateinit var prefs: PreferencesManager
+    private var pendingNotificationOpen = false
 
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -45,20 +41,18 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Apply window insets for status bar (notch / cutout) and bottom navigation
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
+        // Apply window insets so content avoids the Android status bar and navigation bar
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            v.updatePadding(top = statusBars.top)
-            insets
-        }
-        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation) { v, insets ->
             val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            v.updatePadding(bottom = navBars.bottom)
+            v.updatePadding(
+                top = statusBars.top,
+                bottom = navBars.bottom
+            )
             insets
         }
 
         prefs = PreferencesManager(this)
-        apiClient = SpotnetApiClient(this)
 
         if (!prefs.isConnected) {
             startActivity(Intent(this, ConnectActivity::class.java))
@@ -67,28 +61,44 @@ class MainActivity : AppCompatActivity() {
         }
 
         checkNotificationPermission()
-        setupToolbar()
-        setupBottomNav()
         setupWebView()
-        setupNotificationsView()
-        setupSettingsView()
 
-        // Handle intent extras (e.g. opened from notification)
         if (intent.getStringExtra("EXTRA_NAV_TAB") == "notifications") {
-            binding.bottomNavigation.selectedItemId = R.id.nav_notifications
+            pendingNotificationOpen = true
         }
 
+        // Schedule periodic background checks if enabled
+        if (prefs.notificationsEnabled) {
+            SpotnetNotificationWorker.schedule(this, prefs.notificationIntervalMinutes)
+        }
+
+        // Handle hardware back button
         onBackPressedDispatcher.addCallback(this) {
-            if (binding.tabViewSpots.visibility == View.VISIBLE && binding.webViewSpots.canGoBack()) {
-                binding.webViewSpots.goBack()
-            } else {
-                finish()
+            binding.webViewSpots.evaluateJavascript(
+                "(function() { " +
+                "  const m = document.getElementById('notifModal'); if (m && m.style.display !== 'none') { closeNotifModal(); return 'modal_closed'; } " +
+                "  const d = document.getElementById('detailModal'); if (d && d.style.display !== 'none') { closeDetail(); return 'detail_closed'; } " +
+                "  return 'none'; " +
+                "})()"
+            ) { result ->
+                val res = result?.replace("\"", "") ?: "none"
+                if (res == "modal_closed" || res == "detail_closed") {
+                    // Modal was closed by javascript
+                } else if (binding.webViewSpots.canGoBack()) {
+                    binding.webViewSpots.goBack()
+                } else {
+                    finish()
+                }
             }
         }
+    }
 
-        // Fetch initial status & notifications
-        fetchStatus()
-        fetchNotifications()
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent?.getStringExtra("EXTRA_NAV_TAB") == "notifications") {
+            openNotificationsInWeb()
+        }
     }
 
     private fun checkNotificationPermission() {
@@ -103,49 +113,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupToolbar() {
-        binding.toolbar.subtitle = "${prefs.serverHost}:${prefs.serverPort}"
-
-        binding.btnSyncSpots.setOnClickListener {
-            binding.btnSyncSpots.animate().rotationBy(360f).setDuration(800).start()
-            Toast.makeText(this, "Nieuwe spots ophalen gestart op pc…", Toast.LENGTH_SHORT).show()
-            lifecycleScope.launch {
-                val res = apiClient.triggerSpotsSync()
-                if (res.isSuccess) {
-                    Toast.makeText(this@MainActivity, "✓ Usenet update gestart op pc!", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    private fun setupBottomNav() {
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_spots -> {
-                    binding.tabViewSpots.visibility = View.VISIBLE
-                    binding.tabViewNotifications.visibility = View.GONE
-                    binding.tabViewSettings.visibility = View.GONE
-                    true
-                }
-                R.id.nav_notifications -> {
-                    binding.tabViewSpots.visibility = View.GONE
-                    binding.tabViewNotifications.visibility = View.VISIBLE
-                    binding.tabViewSettings.visibility = View.GONE
-                    fetchNotifications()
-                    true
-                }
-                R.id.nav_settings -> {
-                    binding.tabViewSpots.visibility = View.GONE
-                    binding.tabViewNotifications.visibility = View.GONE
-                    binding.tabViewSettings.visibility = View.VISIBLE
-                    fetchStatus()
-                    true
-                }
-                else -> false
-            }
-        }
-    }
-
     private fun setupWebView() {
         val webView = binding.webViewSpots
         val settings = webView.settings
@@ -155,19 +122,26 @@ class MainActivity : AppCompatActivity() {
         settings.loadWithOverviewMode = true
         settings.cacheMode = WebSettings.LOAD_DEFAULT
 
+        webView.addJavascriptInterface(SpotnetNativeInterface(this), "SpotnetNative")
+
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                binding.progressWebLoading.visibility = View.VISIBLE
+                binding.progressWebLoading.visibility = android.view.View.VISIBLE
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
-                binding.progressWebLoading.visibility = View.GONE
+                binding.progressWebLoading.visibility = android.view.View.GONE
                 binding.swipeRefreshSpots.isRefreshing = false
 
                 // Inject auth token into web localStorage if paired
                 if (prefs.deviceToken.isNotBlank()) {
                     val js = "try { localStorage.setItem('spotnet_device_token', '${prefs.deviceToken}'); } catch(e){}"
                     view?.evaluateJavascript(js, null)
+                }
+
+                if (pendingNotificationOpen) {
+                    pendingNotificationOpen = false
+                    openNotificationsInWeb()
                 }
             }
 
@@ -184,6 +158,11 @@ class MainActivity : AppCompatActivity() {
             webView.reload()
         }
 
+        // Only allow swipe-refresh when scrolled to top
+        webView.viewTreeObserver.addOnScrollChangedListener {
+            binding.swipeRefreshSpots.isEnabled = (webView.scrollY == 0)
+        }
+
         loadWebCompanion()
     }
 
@@ -196,167 +175,94 @@ class MainActivity : AppCompatActivity() {
         binding.webViewSpots.loadUrl(url)
     }
 
-    private fun setupNotificationsView() {
-        notifAdapter = NotificationsAdapter(
-            onNotificationClick = { notif ->
-                // Switch to spots tab
-                binding.bottomNavigation.selectedItemId = R.id.nav_spots
-                if (notif.spots.isNotEmpty()) {
-                    val spotId = notif.spots[0].id
-                    binding.webViewSpots.loadUrl("${prefs.baseUrl}/#spot-$spotId")
-                }
-            },
-            onMarkReadClick = { notif ->
-                lifecycleScope.launch {
-                    apiClient.markNotificationRead(notif.id)
-                    notif.isRead = true
-                    notifAdapter.notifyDataSetChanged()
-                    updateNotificationBadge()
-                }
-            },
-            onDeleteClick = { notif ->
-                lifecycleScope.launch {
-                    apiClient.deleteNotification(notif.id)
-                    fetchNotifications()
-                }
-            }
+    fun openNotificationsInWeb() {
+        binding.webViewSpots.evaluateJavascript(
+            "if (typeof openNotifModal === 'function') openNotifModal();",
+            null
         )
-
-        binding.rvNotifications.layoutManager = LinearLayoutManager(this)
-        binding.rvNotifications.adapter = notifAdapter
-
-        binding.swipeRefreshNotifications.setOnRefreshListener {
-            fetchNotifications()
-        }
-
-        binding.btnMarkAllRead.setOnClickListener {
-            lifecycleScope.launch {
-                apiClient.markAllNotificationsRead()
-                fetchNotifications()
-            }
-        }
-
-        binding.btnClearAll.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Meldingen wissen")
-                .setMessage("Weet u zeker dat u alle meldingen wilt verwijderen?")
-                .setPositiveButton("Wissen") { _, _ ->
-                    lifecycleScope.launch {
-                        apiClient.deleteNotification("")
-                        fetchNotifications()
-                    }
-                }
-                .setNegativeButton("Annuleren", null)
-                .show()
-        }
     }
 
-    private fun fetchNotifications() {
-        binding.swipeRefreshNotifications.isRefreshing = true
-        lifecycleScope.launch {
-            val result = apiClient.getNotifications()
-            binding.swipeRefreshNotifications.isRefreshing = false
-
-            if (result.isSuccess) {
-                val response = result.getOrNull() ?: return@launch
-                notifAdapter.setItems(response.notifications)
-
-                binding.layoutEmptyNotifications.visibility =
-                    if (response.notifications.isEmpty()) View.VISIBLE else View.GONE
-                binding.rvNotifications.visibility =
-                    if (response.notifications.isEmpty()) View.GONE else View.VISIBLE
-
-                binding.tvUnreadBadge.text = "Ongelezen meldingen (${response.unreadCount})"
-                updateNotificationBadge(response.unreadCount)
-            }
-        }
-    }
-
-    private fun updateNotificationBadge(count: Int = -1) {
-        val badge = binding.bottomNavigation.getOrCreateBadge(R.id.nav_notifications)
-        if (count > 0) {
-            badge.isVisible = true
-            badge.number = count
-        } else if (count == 0) {
-            badge.isVisible = false
-        }
-    }
-
-    private fun setupSettingsView() {
-        binding.tvSettingsHost.text = prefs.baseUrl
-        binding.switchNotifications.isChecked = prefs.notificationsEnabled
-        binding.switchSound.isChecked = prefs.soundEnabled
-        binding.switchVibrate.isChecked = prefs.vibrationEnabled
-
-        binding.switchNotifications.setOnCheckedChangeListener { _, isChecked ->
-            prefs.notificationsEnabled = isChecked
-            if (isChecked) {
-                SpotnetNotificationWorker.schedule(this, prefs.notificationIntervalMinutes)
-            } else {
-                SpotnetNotificationWorker.cancel(this)
-            }
-        }
-
-        binding.switchSound.setOnCheckedChangeListener { _, isChecked ->
-            prefs.soundEnabled = isChecked
-        }
-
-        binding.switchVibrate.setOnCheckedChangeListener { _, isChecked ->
-            prefs.vibrationEnabled = isChecked
-        }
-
-        binding.btnTestNotification.setOnClickListener {
-            val testItem = NotificationItem(
-                id = "test_${System.currentTimeMillis()}",
-                ruleId = "test",
-                ruleName = "F1 Formule 1 (Test)",
-                ruleType = "Trefwoord",
-                title = "Testnotificatie Spotnet Companion",
-                body = "Het meldingsysteem is succesvol gekoppeld met uw Android-telefoon!",
-                spotCount = 1,
-                timeAgo = "Zojuist",
-                createdAtUtc = "",
-                isRead = false,
-                spots = listOf(
-                    NotificationSpot(
-                        id = 1,
-                        messageId = "test",
-                        title = "Formule 1 GP Nederland 2026 1080p",
-                        categoryName = "Sport",
-                        formattedSize = "4.2 GB",
-                        formattedDate = "Vandaag"
-                    )
+    fun sendTestNotification() {
+        val testItem = NotificationItem(
+            id = "test_${System.currentTimeMillis()}",
+            ruleId = "test",
+            ruleName = "F1 Formule 1 (Test)",
+            ruleType = "Trefwoord",
+            title = "Testnotificatie Spotnet Companion",
+            body = "Het meldingsysteem is succesvol gekoppeld met uw Android-telefoon!",
+            spotCount = 1,
+            timeAgo = "Zojuist",
+            createdAtUtc = "",
+            isRead = false,
+            spots = listOf(
+                NotificationSpot(
+                    id = 1,
+                    messageId = "test",
+                    title = "Formule 1 GP Nederland 2026 1080p",
+                    categoryName = "Sport",
+                    formattedSize = "4.2 GB",
+                    formattedDate = "Vandaag"
                 )
             )
-            NotificationHelper.showNotification(this, testItem)
-            Toast.makeText(this, "Testnotificatie verzonden!", Toast.LENGTH_SHORT).show()
-        }
+        )
+        NotificationHelper.showNotification(this, testItem)
+        Toast.makeText(this, "Testnotificatie verzonden!", Toast.LENGTH_SHORT).show()
+    }
 
-        binding.btnDisconnect.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Ontkoppelen")
-                .setMessage("Weet u zeker dat u dit mobiele apparaat wilt ontkoppelen van Spotnet?")
-                .setPositiveButton("Ontkoppelen") { _, _ ->
-                    prefs.disconnect()
-                    SpotnetNotificationWorker.cancel(this)
-                    val intent = Intent(this, ConnectActivity::class.java)
-                    intent.putExtra("EXTRA_FORCE_CONNECT", true)
-                    startActivity(intent)
-                    finish()
+    fun disconnectDevice() {
+        prefs.disconnect()
+        SpotnetNotificationWorker.cancel(this)
+        val intent = Intent(this, ConnectActivity::class.java).apply {
+            putExtra("EXTRA_FORCE_CONNECT", true)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+}
+
+class SpotnetNativeInterface(private val activity: MainActivity) {
+    @JavascriptInterface
+    fun isNativeApp(): Boolean = true
+
+    @JavascriptInterface
+    fun getNotificationSettings(): String {
+        val json = JSONObject()
+        json.put("notificationsEnabled", activity.prefs.notificationsEnabled)
+        json.put("soundEnabled", activity.prefs.soundEnabled)
+        json.put("vibrationEnabled", activity.prefs.vibrationEnabled)
+        return json.toString()
+    }
+
+    @JavascriptInterface
+    fun setNotificationSetting(key: String, value: Boolean) {
+        activity.runOnUiThread {
+            when (key) {
+                "notificationsEnabled" -> {
+                    activity.prefs.notificationsEnabled = value
+                    if (value) {
+                        SpotnetNotificationWorker.schedule(activity, activity.prefs.notificationIntervalMinutes)
+                    } else {
+                        SpotnetNotificationWorker.cancel(activity)
+                    }
                 }
-                .setNegativeButton("Annuleren", null)
-                .show()
+                "soundEnabled" -> activity.prefs.soundEnabled = value
+                "vibrationEnabled" -> activity.prefs.vibrationEnabled = value
+            }
         }
     }
 
-    private fun fetchStatus() {
-        lifecycleScope.launch {
-            val res = apiClient.getStatus()
-            if (res.isSuccess) {
-                val status = res.getOrNull() ?: return@launch
-                binding.tvSettingsStats.text =
-                    "Versie: v${status.version} • ${status.totalSpotsInDb} spots in database"
-            }
+    @JavascriptInterface
+    fun triggerTestNotification() {
+        activity.runOnUiThread {
+            activity.sendTestNotification()
+        }
+    }
+
+    @JavascriptInterface
+    fun disconnect() {
+        activity.runOnUiThread {
+            activity.disconnectDevice()
         }
     }
 }
