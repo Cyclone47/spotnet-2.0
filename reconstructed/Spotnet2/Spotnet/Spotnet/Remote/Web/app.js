@@ -109,16 +109,33 @@
   }
 
   // Toast Notification
-  function showToast(message) {
+  function showToast(message, actionText = null, actionCallback = null, durationMs = 2800) {
     const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
+    toast.className = actionText ? 'toast toast-action' : 'toast';
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = message;
+    toast.appendChild(textSpan);
+
+    if (actionText && actionCallback) {
+      const btn = document.createElement('button');
+      btn.className = 'toast-action-btn';
+      btn.type = 'button';
+      btn.innerHTML = `${escapeHtml(actionText)} &rarr;`;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        actionCallback();
+        toast.remove();
+      });
+      toast.appendChild(btn);
+    }
+
     toastContainer.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = '0';
       toast.style.transition = 'opacity 0.3s';
       setTimeout(() => toast.remove(), 300);
-    }, 2800);
+    }, durationMs);
   }
 
   // Quality Badges Extraction
@@ -199,9 +216,10 @@
 
     // Click to view details
     card.addEventListener('click', (e) => {
-      if (e.target.closest('[data-action="download"]')) {
+      const downloadBtn = e.target.closest('[data-action="download"]');
+      if (downloadBtn) {
         e.stopPropagation();
-        triggerDownload(spot.id, spot.messageId, spot.title);
+        triggerDownload(spot.id, spot.messageId, spot.title, downloadBtn);
         return;
       }
       openDetail(spot);
@@ -633,8 +651,13 @@
   }
 
   // Trigger Download
-  async function triggerDownload(spotId, messageId, title) {
+  async function triggerDownload(spotId, messageId, title, triggerBtn = null) {
     try {
+      if (triggerBtn) {
+        triggerBtn.dataset.originalHtml = triggerBtn.innerHTML;
+        triggerBtn.disabled = true;
+      }
+
       showToast(`Download aanvragen voor "${title.substring(0, 30)}..."`);
       const res = await apiFetch(`/api/v1/spots/${spotId}/download`, {
         method: 'POST',
@@ -643,13 +666,44 @@
       });
       const data = await res.json();
       if (data.success) {
-        showToast('✓ Toegevoegd aan Spotnet wachtrij op PC!');
+        showToast('✓ Toegevoegd aan downloadwachtrij!', 'Ga naar downloads', () => {
+          closeDetailModal();
+          switchView('view-queue');
+        }, 5000);
+
+        if (triggerBtn) {
+          triggerBtn.disabled = false;
+          triggerBtn.classList.add('btn-download-success');
+          triggerBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Ga naar downloads</span>
+          `;
+          const navHandler = (e) => {
+            e.stopPropagation();
+            closeDetailModal();
+            switchView('view-queue');
+          };
+          triggerBtn.addEventListener('click', navHandler, { once: true });
+
+          setTimeout(() => {
+            triggerBtn.removeEventListener('click', navHandler);
+            triggerBtn.classList.remove('btn-download-success');
+            if (triggerBtn.dataset.originalHtml) {
+              triggerBtn.innerHTML = triggerBtn.dataset.originalHtml;
+            }
+          }, 5000);
+        }
+
         updateQueue();
       } else {
+        if (triggerBtn) triggerBtn.disabled = false;
         showToast('Fout bij toevoegen aan wachtrij.');
       }
     } catch (err) {
       console.error(err);
+      if (triggerBtn) triggerBtn.disabled = false;
       showToast('Kon download niet starten.');
     }
   }
@@ -688,8 +742,16 @@
       return;
     }
 
+    // Sort downloads so the most recent / newest are at top, older at bottom
+    const sortedItems = [...items].sort((a, b) => {
+      const idA = parseInt(a.id, 10) || 0;
+      const idB = parseInt(b.id, 10) || 0;
+      if (idA !== idB) return idB - idA;
+      return 0;
+    });
+
     queueList.innerHTML = '';
-    items.forEach(item => {
+    sortedItems.forEach(item => {
       const isComplete = item.isComplete || item.progress >= 100 || item.status === 'Voltooid' || item.status === 'Compleet';
       const isPaused = !isComplete && item.isPaused;
       const card = document.createElement('div');
@@ -1034,9 +1096,9 @@
     if (e.target === detailModal) closeDetailModal();
   });
 
-  document.getElementById('btnDownloadSpot').addEventListener('click', () => {
+  document.getElementById('btnDownloadSpot').addEventListener('click', (e) => {
     if (activeDetailSpot) {
-      triggerDownload(activeDetailSpot.id, activeDetailSpot.messageId, activeDetailSpot.title);
+      triggerDownload(activeDetailSpot.id, activeDetailSpot.messageId, activeDetailSpot.title, e.currentTarget);
     }
   });
 

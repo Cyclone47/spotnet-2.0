@@ -78,6 +78,7 @@ public class RemoteQueueService
                         CanResume = canResume
                     });
                 }
+                list.Reverse();
                 dto.Items = list;
                 dto.ActiveCount = list.Count(i => !i.IsComplete);
             }
