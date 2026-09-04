@@ -1,10 +1,11 @@
-const CACHE_NAME = 'spotnet-remote-shell-v1';
+const CACHE_NAME = 'spotnet-remote-shell-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/app.css',
   '/app.js',
   '/manifest.json',
+  '/icon.png',
   '/icon.svg'
 ];
 

@@ -162,22 +162,11 @@ body {
     white-space: nowrap;
   }
   .header-right {
-    gap: 6px;
-  }
-  .btn-sync-spots {
-    padding: 0 !important;
-    width: 34px !important;
-    height: 34px !important;
-    border-radius: 50% !important;
-    justify-content: center !important;
-    margin-right: 0 !important;
-  }
-  .btn-sync-spots span {
-    display: none !important;
+    gap: 8px;
   }
   .btn-header-notif {
-    width: 34px !important;
-    height: 34px !important;
+    width: 34px;
+    height: 34px;
   }
   .global-speed-badge {
     padding: 4px 8px;
@@ -302,9 +291,16 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   font-size: 0.85rem;
   color: var(--text-muted);
+  gap: 8px;
+}
+
+.filter-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .sort-select-wrapper select {
