@@ -349,5 +349,15 @@ public class SpotnetRemoteTests
         Assert.NotNull(matchedDevice);
         Assert.Contains("admin", matchedDevice.Name);
     }
+
+    [Fact]
+    public void RemoteDiscoveryService_BuildDiscoveryPayload_GeneratesValidJson()
+    {
+        string json = RemoteDiscoveryService.BuildDiscoveryPayload(8770, false);
+        Assert.NotNull(json);
+        Assert.Contains("\"service\":\"spotnet-remote\"", json);
+        Assert.Contains("\"port\":8770", json);
+        Assert.Contains("\"name\":\"Spotnet Desktop\"", json);
+    }
 }
 

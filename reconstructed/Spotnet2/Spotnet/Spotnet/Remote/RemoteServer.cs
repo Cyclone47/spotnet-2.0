@@ -172,6 +172,10 @@ public class RemoteServer
                 {
                     SleepPreventer.UpdateState(true);
                 }
+                if (config.AllowLan)
+                {
+                    RemoteDiscoveryService.Instance.Start(ActivePort, config.RequireAuth);
+                }
                 StatusChanged?.Invoke();
                 Log.Info("Spotnet Remote Host started on port {0} (LAN={1}, KeepAwake={2})", ActivePort, config.AllowLan, config.KeepAwake);
             }
@@ -207,6 +211,7 @@ public class RemoteServer
             }
             finally
             {
+                RemoteDiscoveryService.Instance.Stop();
                 SleepPreventer.UpdateState(false);
                 IsRunning = false;
                 _app = null;
