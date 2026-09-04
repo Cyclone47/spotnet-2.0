@@ -50,6 +50,42 @@ class SpotnetApiClient(context: Context) {
             pairInternal(host, port, pin = null, token = token)
         }
 
+    suspend fun loginWithCredentials(host: String, port: Int, username: String, password: String): Result<PairResponse> =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = "http://$host:$port/api/v1/auth/login"
+                val deviceName = "Android (${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL})"
+
+                val jsonBody = JSONObject().apply {
+                    put("username", username.trim())
+                    put("password", password)
+                    put("deviceName", deviceName)
+                }
+
+                val request = Request.Builder()
+                    .url(url)
+                    .post(jsonBody.toString().toRequestBody(jsonMediaType))
+                    .build()
+
+                val response = client.newCall(request).execute()
+                val body = response.body?.string() ?: ""
+                val json = JSONObject(body)
+                val loginRes = PairResponse.fromJson(json)
+
+                if (loginRes.success && !loginRes.deviceToken.isNullOrBlank()) {
+                    prefs.serverHost = host
+                    prefs.serverPort = port
+                    prefs.deviceToken = loginRes.deviceToken
+                    prefs.deviceId = loginRes.deviceId ?: ""
+                    Result.success(loginRes)
+                } else {
+                    Result.failure(Exception(loginRes.errorMessage ?: "Inloggen mislukt. Controleer gebruikersnaam en wachtwoord."))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
     private fun pairInternal(host: String, port: Int, pin: String?, token: String?): Result<PairResponse> {
         try {
             val url = "http://$host:$port/api/v1/auth/pair"

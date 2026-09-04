@@ -8,8 +8,9 @@
     android:layout_marginVertical="6dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/bg_card"
     app:strokeWidth="1dp"
-    app:strokeColor="@color/divider_light">
+    app:strokeColor="@color/card_stroke">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,7 +50,7 @@
                 android:text="F1 Formule 1"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@color/spotnet_navy"
+                android:textColor="@color/text_header"
                 android:ellipsize="end"
                 android:maxLines="1" />
 
@@ -59,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:text="15m geleden"
                 android:textSize="12sp"
-                android:textColor="@color/text_secondary_light" />
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
 
         <TextView
@@ -69,7 +70,7 @@
             android:layout_marginTop="8dp"
             android:text="3 nieuwe spots gevonden"
             android:textSize="15sp"
-            android:textColor="@color/text_primary_light" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/tvSpotsPreview"
@@ -78,7 +79,7 @@
             android:layout_marginTop="6dp"
             android:text="• Spot 1\n• Spot 2\n• Spot 3"
             android:textSize="13sp"
-            android:textColor="@color/text_secondary_light"
+            android:textColor="@color/text_secondary"
             android:lineSpacingExtra="3dp" />
 
         <LinearLayout

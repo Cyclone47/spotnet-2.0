@@ -1,17 +1,22 @@
 package nl.spotnet.companion.ui
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.launch
+import nl.spotnet.companion.R
 import nl.spotnet.companion.data.*
 import nl.spotnet.companion.databinding.ActivityConnectBinding
 import nl.spotnet.companion.notifications.SpotnetNotificationWorker
@@ -34,6 +39,18 @@ class ConnectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityConnectBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Apply window insets for status bar (notch / cutout) and navigation bar
+        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
+            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            v.updatePadding(top = statusBars.top)
+            insets
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rootConnect) { _, insets ->
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            binding.rootConnect.updatePadding(bottom = navBars.bottom)
+            insets
+        }
 
         prefs = PreferencesManager(this)
         discoveryManager = DiscoveryManager(this)
@@ -126,15 +143,61 @@ class ConnectActivity : AppCompatActivity() {
         prefs.serverName = server.name
 
         if (server.requireAuth) {
-            // Pre-fill PIN screen and switch to it
-            binding.etHost.setText(server.host)
-            binding.etPort.setText(server.port.toString())
-            binding.tabLayout.getTabAt(2)?.select()
-            Toast.makeText(this, "Voer de 6-cijferige pincode van het Spotnet-scherm in", Toast.LENGTH_LONG).show()
+            showLoginDialog(server)
         } else {
-            // Direct connect without auth
             onConnectedSuccess()
         }
+    }
+
+    private fun showLoginDialog(server: DiscoveredServer) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_login, null)
+        val etUser = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etUsername)
+        val etPass = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etPassword)
+        val progress = dialogView.findViewById<View>(R.id.progressLogin)
+
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Inloggen op ${server.name}")
+            .setView(dialogView)
+            .setPositiveButton("Inloggen", null as DialogInterface.OnClickListener?)
+            .setNeutralButton("Koppelcode gebruiken") { _, _ ->
+                binding.etHost.setText(server.host)
+                binding.etPort.setText(server.port.toString())
+                binding.tabLayout.getTabAt(2)?.select()
+                binding.toggleAuthMode.check(R.id.btnAuthPin)
+            }
+            .setNegativeButton("Annuleren", null)
+            .create()
+
+        dialog.setOnShowListener {
+            val btnOk = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+            btnOk?.setOnClickListener {
+                val user = etUser.text?.toString()?.trim() ?: ""
+                val pass = etPass.text?.toString() ?: ""
+
+                if (user.isBlank() || pass.isBlank()) {
+                    Toast.makeText(this, "Vul zowel gebruikersnaam als wachtwoord in.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                progress.visibility = View.VISIBLE
+                btnOk.isEnabled = false
+
+                lifecycleScope.launch {
+                    val result = apiClient.loginWithCredentials(server.host, server.port, user, pass)
+                    progress.visibility = View.GONE
+                    btnOk.isEnabled = true
+
+                    if (result.isSuccess) {
+                        dialog.dismiss()
+                        onConnectedSuccess()
+                    } else {
+                        val err = result.exceptionOrNull()?.message ?: "Inloggen mislukt. Controleer gebruikersnaam en wachtwoord."
+                        Toast.makeText(this@ConnectActivity, err, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+        dialog.show()
     }
 
     private fun setupQrTab() {
@@ -183,8 +246,23 @@ class ConnectActivity : AppCompatActivity() {
             binding.etPort.setText(prefs.serverPort.toString())
         }
 
+        binding.btnAuthUserPass.isChecked = true
+
+        binding.toggleAuthMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                if (checkedId == R.id.btnAuthUserPass) {
+                    binding.layoutUserPassFields.visibility = View.VISIBLE
+                    binding.layoutPinField.visibility = View.GONE
+                    binding.btnConnectWithPin.text = "Inloggen & Verbinden"
+                } else {
+                    binding.layoutUserPassFields.visibility = View.GONE
+                    binding.layoutPinField.visibility = View.VISIBLE
+                    binding.btnConnectWithPin.text = "Koppelen & Verbinden"
+                }
+            }
+        }
+
         binding.btnConnectWithPin.setOnClickListener {
-            val pin = binding.etPin.text?.toString()?.trim() ?: ""
             val host = binding.etHost.text?.toString()?.trim() ?: ""
             val port = binding.etPort.text?.toString()?.toIntOrNull() ?: 8770
 
@@ -194,18 +272,40 @@ class ConnectActivity : AppCompatActivity() {
             }
             binding.tilHost.error = null
 
+            val isUserPassMode = binding.btnAuthUserPass.isChecked
+
             binding.progressPin.visibility = View.VISIBLE
             binding.btnConnectWithPin.isEnabled = false
 
             lifecycleScope.launch {
-                val result = apiClient.pairWithPin(host, port, pin)
+                val result = if (isUserPassMode) {
+                    val user = binding.etUsername.text?.toString()?.trim() ?: ""
+                    val pass = binding.etPassword.text?.toString() ?: ""
+                    if (user.isBlank() || pass.isBlank()) {
+                        binding.progressPin.visibility = View.GONE
+                        binding.btnConnectWithPin.isEnabled = true
+                        Toast.makeText(this@ConnectActivity, "Vul zowel gebruikersnaam als wachtwoord in.", Toast.LENGTH_SHORT).show()
+                        return@launch
+                    }
+                    apiClient.loginWithCredentials(host, port, user, pass)
+                } else {
+                    val pin = binding.etPin.text?.toString()?.trim() ?: ""
+                    if (pin.isBlank()) {
+                        binding.progressPin.visibility = View.GONE
+                        binding.btnConnectWithPin.isEnabled = true
+                        Toast.makeText(this@ConnectActivity, "Voer de 6-cijferige pincode in.", Toast.LENGTH_SHORT).show()
+                        return@launch
+                    }
+                    apiClient.pairWithPin(host, port, pin)
+                }
+
                 binding.progressPin.visibility = View.GONE
                 binding.btnConnectWithPin.isEnabled = true
 
                 if (result.isSuccess) {
                     onConnectedSuccess()
                 } else {
-                    val err = result.exceptionOrNull()?.message ?: "Koppelen mislukt"
+                    val err = result.exceptionOrNull()?.message ?: "Verbinden mislukt"
                     Toast.makeText(this@ConnectActivity, err, Toast.LENGTH_LONG).show()
                 }
             }
