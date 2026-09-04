@@ -391,7 +391,11 @@ public static class AppHelper
 
 	internal static string GetProviderDomainHtmlSave()
 	{
-		string server = GetServer(ServerType.Download).Server;
+		string server = GetServer(ServerType.Download)?.Server;
+		if (string.IsNullOrEmpty(server))
+		{
+			return null;
+		}
 		string[] array = server.Split('.');
 		if (array.Length == 4 && int.TryParse(array[array.Length - 1], out var result) && int.TryParse(array[array.Length - 2], out result))
 		{

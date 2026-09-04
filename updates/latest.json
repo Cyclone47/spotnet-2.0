@@ -5,7 +5,7 @@
   "minimumVersion": "3.0.0.0",
   "forced": 0,
   "url": "https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.7.0/Spotnet-3.0-x64-Setup.exe",
-  "size": 103352852,
-  "sha256": "98c55ff88fe458233b3f9a845a0fcce51358aec46918bfbe8a1226a6d98261f1",
+  "size": 103343017,
+  "sha256": "527aee2893a130c16499415c2b35bf97573f761942f4acd4d8d6bb5b3ec78d3c",
   "releaseNotesUrl": "https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.7.0"
 }

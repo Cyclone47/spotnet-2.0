@@ -133,6 +133,8 @@ public class Resources
 
 	public static string whatsnew => ResourceManager.GetString("whatsnew", resourceCulture);
 
+	public static string whatsnew_nl => ResourceManager.GetString("whatsnew_nl", resourceCulture);
+
 	internal Resources()
 	{
 	}

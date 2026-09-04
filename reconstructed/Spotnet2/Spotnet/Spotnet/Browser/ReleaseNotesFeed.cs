@@ -43,6 +43,23 @@ internal static class ReleaseNotesFeed
     /// </summary>
     internal static string GetNotesHtml(string bundledFallback)
     {
+        bool isDutch = UserLanguageHelper.Language == UserLanguageHelper.Dutch;
+        if (isDutch)
+        {
+            // For Dutch users, the bundled notes provide the complete, authoritative Dutch changelog.
+            string currentVer = AppHelper.AppVersion?.ToString() ?? "3.0.7.0";
+            string currentVerShort = AppHelper.AppVersion != null ? AppHelper.AppVersion.ToString(3) : "3.0.7";
+            if (!bundledFallback.Contains("Spotnet " + currentVer) && !bundledFallback.Contains("Spotnet " + currentVerShort))
+            {
+                string currentNotes = ExtractCurrentVersionSection(bundledFallback, currentVer, currentVerShort);
+                if (!string.IsNullOrWhiteSpace(currentNotes))
+                {
+                    bundledFallback = currentNotes + bundledFallback;
+                }
+            }
+            return bundledFallback;
+        }
+
         string changelog = null;
         try
         {
@@ -66,8 +83,8 @@ internal static class ReleaseNotesFeed
         // If the current running version is not yet in the GitHub releases list,
         // extract this build's notes from bundledFallback and prepend them so the user
         // immediately sees the what's new for the version they are actually running.
-        string currentVersion = AppHelper.AppVersion.ToString();
-        string currentVersionShort = AppHelper.AppVersion.ToString(3);
+        string currentVersion = AppHelper.AppVersion?.ToString() ?? "3.0.7.0";
+        string currentVersionShort = AppHelper.AppVersion != null ? AppHelper.AppVersion.ToString(3) : "3.0.7";
         if (!changelog.Contains(currentVersion) && !changelog.Contains(currentVersionShort))
         {
             string currentNotes = ExtractCurrentVersionSection(bundledFallback, currentVersion, currentVersionShort);

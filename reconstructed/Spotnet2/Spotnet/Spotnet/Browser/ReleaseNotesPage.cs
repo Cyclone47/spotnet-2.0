@@ -36,6 +36,9 @@ public class ReleaseNotesPage : WebView2Page
 				value = $"<script src=\"file:///{snowFallJsFile}\" type=\"text/javascript\"></script>";
 			}
 		}
+		bool isDutch = UserLanguageHelper.Language == UserLanguageHelper.Dutch;
+		string bundledNotes = isDutch ? Spotnet.Properties.Resources.whatsnew_nl : Spotnet.Properties.Resources.whatsnew;
+
 		Dictionary<string, string> valueDict = new Dictionary<string, string>
 		{
 			{
@@ -51,7 +54,7 @@ public class ReleaseNotesPage : WebView2Page
 				// The project's GitHub releases are the notes; the built-in list is what
 				// a client that has never reached GitHub falls back to.
 				"WHATSNEW",
-				ReleaseNotesFeed.GetNotesHtml(Spotnet.Properties.Resources.whatsnew)
+				ReleaseNotesFeed.GetNotesHtml(bundledNotes)
 			},
 			{
 				"THEMECLASS",

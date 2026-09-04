@@ -25,12 +25,26 @@ internal static class UserKeyHelper
 		RSACryptoServiceProvider rSACryptoServiceProvider = GetDbKey();
 		if (rSACryptoServiceProvider == null)
 		{
-			SetDbKey(storeKey);
+			try
+			{
+				SetDbKey(storeKey);
+			}
+			catch (Exception ex)
+			{
+				Log.Debug(ex.Message);
+			}
 			rSACryptoServiceProvider = storeKey;
 		}
 		else if (storeKey == null || !rSACryptoServiceProvider.ToXmlString(includePrivateParameters: false).Equals(storeKey.ToXmlString(includePrivateParameters: false)))
 		{
-			SetStoreKey(rSACryptoServiceProvider);
+			try
+			{
+				SetStoreKey(rSACryptoServiceProvider);
+			}
+			catch (Exception ex)
+			{
+				Log.Debug(ex.Message);
+			}
 		}
 		_rsaKeyProvider = rSACryptoServiceProvider;
 		return _rsaKeyProvider;
@@ -149,11 +163,24 @@ internal static class UserKeyHelper
 
 	internal static string GetModulus()
 	{
-		return _modulus ?? (_modulus = Convert.ToBase64String(GetKey().ExportParameters(includePrivateParameters: false).Modulus));
+		try
+		{
+			RSACryptoServiceProvider key = GetKey();
+			if (key == null)
+			{
+				return string.Empty;
+			}
+			return _modulus ?? (_modulus = Convert.ToBase64String(key.ExportParameters(includePrivateParameters: false).Modulus));
+		}
+		catch (Exception ex)
+		{
+			Log.Debug(ex.Message);
+			return string.Empty;
+		}
 	}
 
 	internal static string GetModulusUriCompatable()
 	{
-		return GetModulus().Replace("+", "-").Replace("/", ".");
+		return (GetModulus() ?? string.Empty).Replace("+", "-").Replace("/", ".");
 	}
 }
