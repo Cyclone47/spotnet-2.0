@@ -219,7 +219,7 @@ public partial class MainWindow : Window
                 Spacing = 12,
                 Children =
                 {
-                    new TextBlock { Text = "Spotnet 3.0 (macOS Edition)", FontSize = 18, FontWeight = FontWeight.Bold },
+                    new TextBlock { Text = "Spotnet 3.0 (macOS Alpha)", FontSize = 18, FontWeight = FontWeight.Bold },
                     new TextBlock
                     {
                         Text = $"Native macOS ({System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture}) Client\nGebouwd met Avalonia UI, .NET 8 en SQLite FTS5.",

@@ -210,6 +210,20 @@ dotnet publish reconstructed/Spotnet2/Spotnet.Mac/Spotnet.Mac.csproj \
 ./tools/make_app_bundle.sh arm64   # Explicit Apple Silicon
 ```
 
+### macOS Installer Creation (DMG & PKG):
+Generates compressed `.dmg` disk image and native `.pkg` installer package:
+```bash
+./tools/make_installer.sh          # Builds both DMG and PKG (auto architecture)
+./tools/make_installer.sh dmg      # Builds only DMG
+./tools/make_installer.sh pkg      # Builds only PKG
+./tools/make_installer.sh all arm64 # Explicit Apple Silicon
+./tools/make_installer.sh all x64   # Explicit Intel
+```
+Outputs in `artifacts/`:
+- `Spotnet-3.0.0-Alpha.dmg` (with `/Applications` symlink, Retina background)
+- `Spotnet-3.0.0-Alpha.pkg` (native macOS installer package)
+- `SHA256SUMS.txt` (SHA256 hashes)
+
 ### Apple Developer ID Signing & Notarization:
 ```bash
 # Code signing
