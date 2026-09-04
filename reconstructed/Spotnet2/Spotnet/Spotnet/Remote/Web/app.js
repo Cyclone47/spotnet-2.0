@@ -806,13 +806,35 @@
           const action = btn.dataset.action;
           const id = btn.dataset.id;
           if (action === 'pause') {
-            await apiFetch(`/api/v1/queue/${id}/pause`, { method: 'POST' });
+            btn.disabled = true;
+            try {
+              await apiFetch(`/api/v1/queue/${id}/pause`, { method: 'POST' });
+              showToast('Download gepauzeerd');
+            } catch (err) {
+              console.error(err);
+            }
           } else if (action === 'resume') {
-            await apiFetch(`/api/v1/queue/${id}/resume`, { method: 'POST' });
+            btn.disabled = true;
+            try {
+              await apiFetch(`/api/v1/queue/${id}/resume`, { method: 'POST' });
+              showToast('Download hervat');
+            } catch (err) {
+              console.error(err);
+            }
           } else if (action === 'cancel') {
-            const promptMsg = isComplete ? 'Wil je dit item uit de lijst verwijderen?' : 'Wil je deze download annuleren?';
-            if (confirm(promptMsg)) {
-              await apiFetch(`/api/v1/queue/${id}`, { method: 'DELETE' });
+            btn.disabled = true;
+            btn.style.opacity = '0.4';
+            try {
+              const res = await apiFetch(`/api/v1/queue/${id}`, { method: 'DELETE' });
+              const data = await res.json();
+              if (data && data.success) {
+                showToast(isComplete ? 'Download verwijderd uit lijst' : 'Download geannuleerd en verwijderd');
+              } else {
+                showToast('Kon download niet verwijderen');
+              }
+            } catch (err) {
+              console.error('Delete error:', err);
+              showToast('Fout bij verwijderen van download');
             }
           }
           updateQueue();
