@@ -27,6 +27,7 @@ using Spotnet.Properties;
 using Spotnet.Utilities;
 using Spotnet.ViewModel;
 using Spotnet.Views;
+using Spotnet.Notifications;
 
 namespace Spotnet.Controls;
 public partial class LeftPanelUserControl : UserControl
@@ -68,6 +69,16 @@ public partial class LeftPanelUserControl : UserControl
         }
 
         ExtensiveSearchCheckBox.IsChecked = Settings.Default.AdvancedSearch;
+
+        try
+        {
+            NotificationManager.Instance.UnreadCountChanged += NotificationManager_UnreadCountChanged;
+            UpdateUnreadNotificationsCount(NotificationManager.Instance.UnreadCount);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(ex, "Failed to hook NotificationManager in LeftPanel");
+        }
     }
 
     private void UpdateUseFilterCheckbox()
@@ -1317,5 +1328,67 @@ public partial class LeftPanelUserControl : UserControl
         FrameworkElement obj = (FrameworkElement)e.Source;
         obj.ContextMenu = headerFilterMenu;
         obj.ContextMenu.IsOpen = true;
+    }
+
+    private void NotificationManager_UnreadCountChanged()
+    {
+        this.DispatchAsync(() => UpdateUnreadNotificationsCount(NotificationManager.Instance.UnreadCount));
+    }
+
+    private void UpdateUnreadNotificationsCount(int unreadCount)
+    {
+        if (LeftPanelUnreadBadge == null || LeftPanelUnreadText == null) return;
+        if (unreadCount > 0)
+        {
+            LeftPanelUnreadText.Text = unreadCount > 99 ? "99+" : unreadCount.ToString();
+            LeftPanelUnreadBadge.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            LeftPanelUnreadBadge.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void OpenNotificationsButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            NotificationCenterWindow window = new NotificationCenterWindow(initialTabIndex: 0);
+            window.Owner = Sys.MainWindow;
+            window.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to open NotificationCenterWindow");
+        }
+    }
+
+    private void CreateNotificationRuleBtn_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            NotificationCenterWindow window = new NotificationCenterWindow(initialTabIndex: 1);
+            window.Owner = Sys.MainWindow;
+            window.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to open NotificationCenterWindow on rules tab");
+        }
+    }
+
+    private void NotificationExpander_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is TextBlock tb && string.Equals(tb.Text, "MELDINGEN", StringComparison.OrdinalIgnoreCase))
+        {
+            NotificationExpander.IsExpanded = !NotificationExpander.IsExpanded;
+            e.Handled = true;
+        }
+    }
+
+    private void NotificationExpander_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        OpenNotificationsButton_Click(sender, e);
+        e.Handled = true;
     }
 }

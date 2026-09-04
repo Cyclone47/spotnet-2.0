@@ -52,6 +52,10 @@ public class ReleaseNotesPage : WebView2Page
 				// a client that has never reached GitHub falls back to.
 				"WHATSNEW",
 				ReleaseNotesFeed.GetNotesHtml(Spotnet.Properties.Resources.whatsnew)
+			},
+			{
+				"THEMECLASS",
+				ThemeHelper.IsModernDark ? "theme-dark" : "theme-light"
 			}
 		};
 		string contents = ((UserLanguageHelper.Language == "en") ? Spotnet.Properties.Resources.ReleaseNotes_en : Spotnet.Properties.Resources.ReleaseNotes).FormatFromDictionary(valueDict).FormatFromDictionary(valueDict);

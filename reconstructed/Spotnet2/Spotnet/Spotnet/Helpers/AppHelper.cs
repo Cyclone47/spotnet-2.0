@@ -248,10 +248,9 @@ public static class AppHelper
 		{
 			try
 			{
-				// Spotnet 3.0 is installed by its own setup and was never published with
-				// ClickOnce, so IsNetworkDeployed was always false here. Reading it cost a
-				// reference to System.Deployment, which modern .NET does not have.
-				return Assembly.GetEntryAssembly().GetName().Version;
+				// Always use the Spotnet assembly's own version, ensuring correct behavior
+				// both in Spotnet.exe and in test runners where GetEntryAssembly is testhost.
+				return typeof(AppHelper).Assembly.GetName().Version ?? Assembly.GetEntryAssembly()?.GetName().Version;
 			}
 			catch (Exception ex)
 			{

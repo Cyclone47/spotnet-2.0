@@ -46,6 +46,9 @@
 
   <!-- Window & Surface Theme -->
   <SolidColorBrush x:Key="WindowTitleColorBrush" Color="#FF090D14" />
+  <SolidColorBrush x:Key="NonActiveWindowTitleBrush" Color="#FF111B27" />
+  <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle" Color="#FF090D14" />
+  <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle.NonActive" Color="#FF111B27" />
   <SolidColorBrush x:Key="AccentSelectedColorBrush" Color="#FFCBD5E1" />
 
   <LinearGradientBrush x:Key="MainWindowBackgroundBrush" EndPoint="1,0.5" StartPoint="0,0.5">

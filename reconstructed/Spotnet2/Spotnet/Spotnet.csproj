@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -19,6 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="QRCoder" Version="1.8.0" />
     <PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
     <!-- Edge WebView2 is the only browser engine. The x64 loader is selected by the build. -->
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
@@ -140,6 +142,10 @@
     </None>
     <None Include="Data\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Spotnet\Remote\Web\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Web\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </None>
     <None Include="Resources\ReleaseNotes\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

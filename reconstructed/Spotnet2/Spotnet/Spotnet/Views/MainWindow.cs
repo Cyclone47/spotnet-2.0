@@ -663,6 +663,7 @@ public partial class MainWindow : MetroWindow
             }
 
             _waitForMainWindowLoaded.Set();
+            Spotnet.Remote.RemoteServer.Instance.Start();
         }
         catch (Exception ex)
         {

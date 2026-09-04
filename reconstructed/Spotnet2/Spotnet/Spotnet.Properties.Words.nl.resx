@@ -284,6 +284,7 @@
   <data name="UsernamePasswordWrong" xml:space="preserve"><value>Gebruikersnaam en/of wachtwoord is onjuist</value></data>
   <data name="EndTime" xml:space="preserve"><value>Eindtijd</value></data>
   <data name="Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Save" xml:space="preserve"><value>Opslaan</value></data>
   <data name="Up" xml:space="preserve"><value>Omhoog</value></data>
   <data name="DownloadsAdvanced" xml:space="preserve"><value>Geavanceerd</value></data>
   <data name="ColumnSenderId" xml:space="preserve"><value>Afzender ID</value></data>

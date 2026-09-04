@@ -280,6 +280,7 @@
   <data name="UsernamePasswordWrong" xml:space="preserve"><value>Username and/or password is incorrect.</value></data>
   <data name="EndTime" xml:space="preserve"><value>End time</value></data>
   <data name="Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
   <data name="Up" xml:space="preserve"><value>Up</value></data>
   <data name="DownloadsAdvanced" xml:space="preserve"><value>Advanced</value></data>
   <data name="ColumnSenderId" xml:space="preserve"><value>Poster ID</value></data>

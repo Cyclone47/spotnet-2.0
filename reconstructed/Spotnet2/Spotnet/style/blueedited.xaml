@@ -23,7 +23,11 @@
   <SolidColorBrush x:Key="AccentColorBrush3" Color="{StaticResource AccentColor3}" />
   <SolidColorBrush x:Key="AccentColorBrush4" Color="{StaticResource AccentColor4}" />
   <SolidColorBrush x:Key="AccentColorBrush5" Color="{StaticResource AccentColor5}" />
-  <SolidColorBrush x:Key="WindowTitleColorBrush" Color="{StaticResource AccentColor}" />
+  <SolidColorBrush x:Key="WindowTitleColorBrush" Color="#FF102B46" />
+  <SolidColorBrush x:Key="NonActiveWindowTitleBrush" Color="#FF172B40" />
+  <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle" Color="#FF102B46" />
+  <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle.NonActive" Color="#FF172B40" />
+  <SolidColorBrush x:Key="WindowTitleForegroundBrush" Color="#FFFFFFFF" />
   <SolidColorBrush x:Key="AccentSelectedColorBrush" Color="White" />
   <LinearGradientBrush x:Key="ProgressBrush" EndPoint="0.001,0.5" StartPoint="1.002,0.5">
     <GradientStop Offset="0" Color="{StaticResource HighlightColor}" />

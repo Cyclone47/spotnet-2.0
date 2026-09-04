@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [string]$CompilerPath,
     [switch]$BootstrapCompiler,
@@ -201,6 +201,11 @@ try {
     foreach ($culture in @('nl', 'en', 'en-US')) {
         $cultureDir = Join-Path $appOutput $culture
         if (Test-Path -LiteralPath $cultureDir) { Copy-Item -LiteralPath $cultureDir -Destination $payload -Recurse }
+    }
+    # Preserve Spotnet Remote web assets
+    $webDir = Join-Path $appOutput 'Web'
+    if (Test-Path -LiteralPath $webDir) {
+        Copy-Item -LiteralPath $webDir -Destination (Join-Path $payload 'Web') -Recurse
     }
     $webview = Join-Path $toolRoot 'MicrosoftEdgeWebview2Setup.exe'
     Get-SignedDownload 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' $webview 'O=Microsoft Corporation'

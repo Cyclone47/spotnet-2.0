@@ -759,6 +759,8 @@ public class Words
 
 	public static string Ok => ResourceManager.GetString("Ok", resourceCulture);
 
+	public static string Save => ResourceManager.GetString("Save", resourceCulture) ?? "Opslaan";
+
 	public static string Oops => ResourceManager.GetString("Oops", resourceCulture);
 
 	public static string Open => ResourceManager.GetString("Open", resourceCulture);

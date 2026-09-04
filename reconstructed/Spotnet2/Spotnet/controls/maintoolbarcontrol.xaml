@@ -124,6 +124,11 @@
           </MenuItem.Icon>
         </MenuItem>
         <Separator />
+        <MenuItem Name="RemoteMenuItem" Header="Spotnet Remote..." Click="RemoteMenuItem_Click">
+          <MenuItem.Icon>
+            <TextBlock Text="" Style="{StaticResource FontAwesomeMenuPics}" />
+          </MenuItem.Icon>
+        </MenuItem>
         <MenuItem Name="AdvancedSettings" Header="{x:Static p:Words.MenuSettings}" Click="AdvancedSettings_OnClick">
           <MenuItem.Icon>
             <TextBlock Text="" Style="{StaticResource FontAwesomeMenuPics}" />

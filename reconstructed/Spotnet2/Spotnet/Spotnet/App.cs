@@ -51,6 +51,7 @@ public partial class App : Application
     private static void OnProcessExit(object sender, EventArgs e)
     {
         SquirrelStuff.DisposeUpdateManager();
+        Spotnet.Remote.RemoteServer.Instance.Stop();
     }
 
     private void CurrentOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

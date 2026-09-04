@@ -122,4 +122,21 @@ public sealed class ReleaseNotesFeedTests
         Assert.True(html.IndexOf("3.0.6.2", StringComparison.Ordinal)
             < html.IndexOf("3.0.6.1", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void GetNotesHtmlPrependsCurrentVersionWhenNotInChangelog()
+    {
+        string bundled = @"<section class=""notes-section"" id=""new-features"">
+<h3>What’s New</h3>
+<br><h5>3.0.7.0</h5>
+    <ul class=""section-items tagged"">
+        <li><b>Spotnet Remote</b></li>
+    </ul>
+<br><h5>3.0.6.8</h5>
+</section>";
+        string html = ReleaseNotesFeed.GetNotesHtml(bundled);
+        Assert.NotNull(html);
+        Assert.Contains("Spotnet 3.0.7.0", html, StringComparison.Ordinal);
+        Assert.Contains("Spotnet Remote", html, StringComparison.Ordinal);
+    }
 }

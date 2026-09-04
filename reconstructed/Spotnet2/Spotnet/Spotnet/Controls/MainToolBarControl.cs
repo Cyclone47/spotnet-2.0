@@ -444,6 +444,14 @@ public partial class MainToolBarControl : UserControl
         }
     }
 
+    private void RemoteMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        AdvancedSettings advancedSettings = new AdvancedSettings();
+        advancedSettings.Owner = Sys.MainWindow;
+        advancedSettings.HeaderItemIndex = 6;
+        advancedSettings.ShowDialog();
+    }
+
     private void AdvancedSettings_OnClick(object sender, RoutedEventArgs e)
     {
         AdvancedSettings advancedSettings = new AdvancedSettings();

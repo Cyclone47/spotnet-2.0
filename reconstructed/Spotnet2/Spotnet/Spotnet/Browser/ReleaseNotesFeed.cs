@@ -62,6 +62,21 @@ internal static class ReleaseNotesFeed
         }
 
         if (string.IsNullOrWhiteSpace(changelog)) return bundledFallback;
+
+        // If the current running version is not yet in the GitHub releases list,
+        // extract this build's notes from bundledFallback and prepend them so the user
+        // immediately sees the what's new for the version they are actually running.
+        string currentVersion = AppHelper.AppVersion.ToString();
+        string currentVersionShort = AppHelper.AppVersion.ToString(3);
+        if (!changelog.Contains(currentVersion) && !changelog.Contains(currentVersionShort))
+        {
+            string currentNotes = ExtractCurrentVersionSection(bundledFallback, currentVersion, currentVersionShort);
+            if (!string.IsNullOrWhiteSpace(currentNotes))
+            {
+                changelog = currentNotes + changelog;
+            }
+        }
+
         // Everything older than the releases on GitHub, kept but out of the way.
         return changelog + BuildArchive(bundledFallback);
     }
@@ -73,7 +88,17 @@ internal static class ReleaseNotesFeed
             var file = new FileInfo(CachePath);
             if (!file.Exists || file.Length == 0L) return null;
             if (DateTime.UtcNow - file.LastWriteTimeUtc > CacheLifetime) return null;
-            return File.ReadAllText(CachePath, Encoding.UTF8);
+            string cached = File.ReadAllText(CachePath, Encoding.UTF8);
+
+            // A cache created by an older version should not prevent fetching notes for the new version.
+            string currentVersion = AppHelper.AppVersion.ToString();
+            string currentVersionShort = AppHelper.AppVersion.ToString(3);
+            if (!cached.Contains(currentVersion) && !cached.Contains(currentVersionShort))
+            {
+                return null;
+            }
+
+            return cached;
         }
         catch (IOException)
         {
@@ -200,6 +225,59 @@ internal static class ReleaseNotesFeed
         }
         var culture = new CultureInfo(UserLanguageHelper.Language == UserLanguageHelper.Dutch ? "nl-NL" : "en-GB");
         return when.ToLocalTime().ToString("d MMMM yyyy", culture);
+    }
+
+    private static string ExtractCurrentVersionSection(string bundled, string version, string shortVersion)
+    {
+        if (string.IsNullOrWhiteSpace(bundled)) return null;
+        try
+        {
+            string[] searchTags = new[] { $"<h5>{version}</h5>", $"<h5>{shortVersion}</h5>" };
+            int idx = -1;
+            int tagLen = 0;
+            foreach (string tag in searchTags)
+            {
+                idx = bundled.IndexOf(tag, StringComparison.OrdinalIgnoreCase);
+                if (idx >= 0)
+                {
+                    tagLen = tag.Length;
+                    break;
+                }
+            }
+            if (idx < 0) return null;
+
+            int contentStart = idx + tagLen;
+            int nextIdx = bundled.IndexOf("<h5", contentStart, StringComparison.OrdinalIgnoreCase);
+            if (nextIdx < 0)
+            {
+                nextIdx = bundled.IndexOf("</section>", contentStart, StringComparison.OrdinalIgnoreCase);
+            }
+            string body = (nextIdx > contentStart)
+                ? bundled.Substring(contentStart, nextIdx - contentStart).Trim()
+                : bundled.Substring(contentStart).Trim();
+
+            while (body.EndsWith("<br>", StringComparison.OrdinalIgnoreCase) ||
+                   body.EndsWith("<br/>", StringComparison.OrdinalIgnoreCase) ||
+                   body.EndsWith("<br />", StringComparison.OrdinalIgnoreCase))
+            {
+                int br = body.LastIndexOf('<');
+                body = body.Substring(0, br).Trim();
+            }
+
+            bool dutch = UserLanguageHelper.Language == UserLanguageHelper.Dutch;
+            string tagLabel = dutch ? "Nieuw" : "New";
+            string dateLabel = dutch ? "Huidige versie" : "Current version";
+
+            return $"<section class=\"notes-section gh-release\">" +
+                   $"<h3>Spotnet {Escape(version)} <span class=\"gh-tag\">{tagLabel}</span><span class=\"gh-date\">{dateLabel}</span></h3>" +
+                   $"<div class=\"gh-body\">{body}</div>" +
+                   $"</section>";
+        }
+        catch (Exception ex)
+        {
+            Log.Debug("Could not extract current version notes: {0}", ex.Message);
+            return null;
+        }
     }
 
     /// <summary>Escapes the parts this class writes itself; body_html arrives ready.</summary>

@@ -33,7 +33,8 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
                     new KeyValuePair<string, UserControl>(Words.MenuAdvCommon, null),
                     new KeyValuePair<string, UserControl>(Words.MenuAdvSpotsList, null),
                     new KeyValuePair<string, UserControl>(Words.MenuAdvTabs, null),
-                    new KeyValuePair<string, UserControl>(Words.MenuAdvDatabase, null)
+                    new KeyValuePair<string, UserControl>(Words.MenuAdvDatabase, null),
+                    new KeyValuePair<string, UserControl>("Spotnet Remote", null)
                 };
                 List<KeyValuePair<string, UserControl>> list2 = obj;
                 _settingsDictionary = obj;
@@ -109,6 +110,9 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
                 case 5:
                     userControl = new SettingsForDatabase();
                     break;
+                case 6:
+                    userControl = new SettingsForRemote();
+                    break;
             }
 
             SettingsDictionary[selectedIndex] = new KeyValuePair<string, UserControl>(SettingsDictionary[selectedIndex].Key, userControl);
@@ -130,7 +134,7 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void OkButton_Click(object sender, RoutedEventArgs e)
+    private bool SaveAllSettings()
     {
         bool flag = false;
         for (int i = 0; i < SettingsDictionary.Count; i++)
@@ -146,7 +150,7 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
 
         if (flag)
         {
-            return;
+            return false;
         }
 
         CheckDownloaderRestartRequiredStep1();
@@ -182,7 +186,29 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
             }
         }
 
-        if (!flag)
+        Settings.Default.Save();
+        return !flag;
+    }
+
+    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (SaveAllSettings())
+        {
+            string originalText = Words.Save;
+            SaveButton.Content = "✓ Opgeslagen";
+            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
+            timer.Tick += (s, ev) =>
+            {
+                SaveButton.Content = originalText;
+                timer.Stop();
+            };
+            timer.Start();
+        }
+    }
+
+    private void OkButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (SaveAllSettings())
         {
             Close();
         }

@@ -173,6 +173,13 @@ public static class ThemeHelper
                             Log.Warn("Window theme notice: {0}", ex.Message);
                         }
 
+                        if (win is MahApps.Metro.Controls.MetroWindow metroWin)
+                        {
+                            metroWin.SetResourceReference(MahApps.Metro.Controls.MetroWindow.WindowTitleBrushProperty, "WindowTitleColorBrush");
+                            metroWin.SetResourceReference(MahApps.Metro.Controls.MetroWindow.NonActiveWindowTitleBrushProperty, "NonActiveWindowTitleBrush");
+                            metroWin.SetResourceReference(MahApps.Metro.Controls.MetroWindow.TitleForegroundProperty, "WindowTitleForegroundBrush");
+                        }
+
                         win.InvalidateVisual();
                     }
                     catch

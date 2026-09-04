@@ -45,6 +45,9 @@
   <SolidColorBrush x:Key="AccentColorBrush5" Color="{StaticResource AccentColor5}" />
 
   <SolidColorBrush x:Key="WindowTitleColorBrush" Color="#FF172554" />
+  <SolidColorBrush x:Key="NonActiveWindowTitleBrush" Color="#FF1E293B" />
+  <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle" Color="#FF172554" />
+  <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle.NonActive" Color="#FF1E293B" />
   <SolidColorBrush x:Key="AccentSelectedColorBrush" Color="White" />
 
   <LinearGradientBrush x:Key="MainWindowBackgroundBrush" EndPoint="1,0.5" StartPoint="0,0.5">

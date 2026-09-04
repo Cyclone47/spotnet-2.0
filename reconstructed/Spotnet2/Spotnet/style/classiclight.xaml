@@ -38,9 +38,11 @@
   <SolidColorBrush x:Key="AccentColorBrush4" Color="{StaticResource AccentColor4}" />
   <SolidColorBrush x:Key="AccentColorBrush5" Color="{StaticResource AccentColor5}" />
 
-  <!-- The MahApps stock title colour, so binding the window to this key leaves
-       Classic looking exactly as it did. -->
-  <SolidColorBrush x:Key="WindowTitleColorBrush" Color="#CC0078D7" />
+  <!-- Window title colors matching FILTERS banner and dark chrome -->
+  <SolidColorBrush x:Key="WindowTitleColorBrush" Color="#FF102B46" />
+  <SolidColorBrush x:Key="NonActiveWindowTitleBrush" Color="#FF172B40" />
+  <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle" Color="#FF102B46" />
+  <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle.NonActive" Color="#FF172B40" />
   <SolidColorBrush x:Key="AccentSelectedColorBrush" Color="White" />
 
   <LinearGradientBrush x:Key="MainWindowBackgroundBrush" EndPoint="1,0.5" StartPoint="0,0.5">
