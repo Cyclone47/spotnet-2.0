@@ -51,23 +51,33 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val isDownload = item.ruleType.equals("Download", ignoreCase = true) || item.ruleId.equals("download", ignoreCase = true)
+        val contentTitle = if (isDownload) {
+            item.title.ifBlank { "Download voltooid" }
+        } else {
+            item.title.ifBlank { "Spotnet: Nieuwe spots voor ${item.ruleName}" }
+        }
+
         // Build BigText with spot names
         val bigText = StringBuilder()
-        bigText.append(item.body).append("\n\n")
-        item.spots.take(4).forEach { spot ->
-            bigText.append("• ").append(spot.title)
-            if (spot.formattedSize.isNotBlank()) {
-                bigText.append(" (").append(spot.formattedSize).append(")")
+        bigText.append(item.body)
+        if (item.spots.isNotEmpty()) {
+            bigText.append("\n\n")
+            item.spots.take(4).forEach { spot ->
+                bigText.append("• ").append(spot.title)
+                if (spot.formattedSize.isNotBlank()) {
+                    bigText.append(" (").append(spot.formattedSize).append(")")
+                }
+                bigText.append("\n")
             }
-            bigText.append("\n")
-        }
-        if (item.spots.size > 4) {
-            bigText.append("... en nog ").append(item.spots.size - 4).append(" andere spot(s)")
+            if (item.spots.size > 4) {
+                bigText.append("... en nog ").append(item.spots.size - 4).append(" andere spot(s)")
+            }
         }
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notifications)
-            .setContentTitle(item.title.ifBlank { "Spotnet: Nieuwe spots voor ${item.ruleName}" })
+            .setContentTitle(contentTitle)
             .setContentText(item.body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(bigText.toString().trim()))
             .setPriority(NotificationCompat.PRIORITY_HIGH)

@@ -15,10 +15,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.*
 import nl.spotnet.companion.data.NotificationItem
 import nl.spotnet.companion.data.NotificationSpot
 import nl.spotnet.companion.data.PreferencesManager
+import nl.spotnet.companion.data.SpotnetApiClient
 import nl.spotnet.companion.databinding.ActivityMainBinding
 import nl.spotnet.companion.notifications.NotificationHelper
 import nl.spotnet.companion.notifications.SpotnetNotificationWorker
@@ -99,6 +102,50 @@ class MainActivity : AppCompatActivity() {
         setIntent(intent)
         if (intent?.getStringExtra("EXTRA_NAV_TAB") == "notifications") {
             openNotificationsInWeb()
+        }
+    }
+
+    private var foregroundPollJob: Job? = null
+
+    override fun onResume() {
+        super.onResume()
+        startForegroundNotifPolling()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        foregroundPollJob?.cancel()
+        if (prefs.isConnected && prefs.notificationsEnabled) {
+            SpotnetNotificationWorker.runOnce(this)
+        }
+    }
+
+    private fun startForegroundNotifPolling() {
+        foregroundPollJob?.cancel()
+        foregroundPollJob = lifecycleScope.launch {
+            while (isActive) {
+                delay(6000)
+                if (prefs.isConnected && prefs.notificationsEnabled) {
+                    try {
+                        val apiClient = SpotnetApiClient(this@MainActivity)
+                        val result = apiClient.getNotifications()
+                        if (result.isSuccess) {
+                            val response = result.getOrNull()
+                            if (response != null) {
+                                val shownIds = prefs.shownNotifIds
+                                for (notif in response.notifications) {
+                                    if (!notif.isRead && !shownIds.contains(notif.id)) {
+                                        NotificationHelper.showNotification(this@MainActivity, notif)
+                                        prefs.markNotifAsShown(notif.id)
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // Ignore transient network errors
+                    }
+                }
+            }
         }
     }
 
