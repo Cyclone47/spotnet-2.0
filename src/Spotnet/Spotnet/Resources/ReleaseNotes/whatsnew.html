@@ -1,5 +1,18 @@
 <section class="notes-section gh-release">
-<h3>Spotnet 3.0.10.0 <span class="gh-tag">New</span><span class="gh-date">Current version</span></h3>
+<h3>Spotnet 3.0.11.0 <span class="gh-tag">New</span><span class="gh-date">Current version</span></h3>
+<div class="gh-body"><ul class="section-items tagged">
+<li><strong>Safer spot view:</strong> The spot themes no longer load jQuery 1.8.3 and Bootstrap 2.2.0. Both date from 2012 and carry known cross-site scripting flaws, while the page they render is filled with titles, descriptions and comments written by strangers on Usenet. The parts the themes actually used &#8212; the tab switcher and the accordion &#8212; have been rewritten without them. The styling is untouched.</li>
+<li><strong>Outgoing connections limited:</strong> A content security policy now limits where a spot page may talk to. Apple's iTunes is the only outside address the themes call, and the only one still allowed.</li>
+<li><strong>External integrations:</strong> Settings has a new section, External integrations, holding the Newznab indexer and an OMDb key. Both start out empty, and empty means off. If you had entered your own indexer it moves across untouched.</li>
+<li><strong>Newznab default removed:</strong> It pointed at a server that no longer answers and shipped with an API key baked into the program. Searches no longer wait on a server that will not reply.</li>
+<li><strong>Film information works again:</strong> The film and series panel asked OMDb for data without a key, which that service has required since 2017 &#8212; so it had been silently empty for years. Enter a key and it works again; leave it empty and the panel says where to set one.</li>
+<li><strong>Cleanup after a download:</strong> New option to remove chosen file types once post-processing finishes, for the leftovers that come with a download. Off unless you fill it in.</li>
+<li><strong>Maintenance:</strong> Code from older versions that was no longer called anywhere has been removed, along with references to services that no longer exist. The build instructions and the alpha update channel are correct again.</li>
+</ul></div>
+</section>
+
+<section class="notes-section gh-release">
+<h3>Spotnet 3.0.10.0 <span class="gh-date">5 September 2026</span></h3>
 <div class="gh-body"><ul class="section-items tagged">
 <li><strong>Spot image close fixed:</strong> A spot image expanded to full size can now be closed again by pressing Escape or clicking anywhere outside the image.</li>
 </ul></div>

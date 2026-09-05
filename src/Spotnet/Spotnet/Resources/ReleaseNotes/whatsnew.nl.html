@@ -1,5 +1,18 @@
 <section class="notes-section gh-release">
-<h3>Spotnet 3.0.10.0 <span class="gh-tag">Nieuw</span><span class="gh-date">Huidige versie</span></h3>
+<h3>Spotnet 3.0.11.0 <span class="gh-tag">Nieuw</span><span class="gh-date">Huidige versie</span></h3>
+<div class="gh-body"><ul class="section-items tagged">
+<li><strong>Veiliger spotweergave:</strong> De spotthema's laden jQuery 1.8.3 en Bootstrap 2.2.0 niet meer. Beide stammen uit 2012 en dragen bekende XSS-lekken, terwijl de pagina die zij opbouwen juist vol staat met titels, omschrijvingen en reacties van onbekenden op Usenet. Wat de thema's er werkelijk van gebruikten &#8212; de tabwissel en het accordeon &#8212; is zonder die bibliotheken opnieuw geschreven. De opmaak is ongemoeid gebleven.</li>
+<li><strong>Beperkte uitgaande verbindingen:</strong> Een content security policy begrenst met wie een spotpagina nog mag praten. Apple's iTunes is het enige externe adres dat de thema's zelf aanroepen, en het enige dat toegestaan blijft.</li>
+<li><strong>Externe integraties:</strong> Instellingen heeft een nieuw kopje Externe integraties, met de Newznab-indexer en een OMDb-sleutel. Beide beginnen leeg, en leeg betekent uit. Had u een eigen indexer ingevuld, dan verhuist die ongewijzigd mee.</li>
+<li><strong>Newznab-standaardwaarde verwijderd:</strong> Die wees naar een server die niet meer antwoordt, met een API-sleutel die in het programma zelf zat. Zoekopdrachten wachten niet langer op een server die niet reageert.</li>
+<li><strong>Filminformatie werkt weer:</strong> Het film- en serieblok vroeg gegevens op bij OMDb zonder sleutel, terwijl die dienst er sinds 2017 een vereist &#8212; het was dus al jaren stil leeg. Vul een sleutel in en het werkt weer; laat u het leeg, dan zegt het blok waar u die instelt.</li>
+<li><strong>Opruimen na een download:</strong> Nieuwe optie om gekozen bestandstypen te verwijderen zodra de nabewerking klaar is, voor de restjes die met een download meekomen. Staat uit tot u hem invult.</li>
+<li><strong>Onderhoud:</strong> Code van oudere versies die nergens meer werd aangeroepen is verwijderd, samen met verwijzingen naar diensten die niet meer bestaan. De bouwinstructies en het alpha-updatekanaal kloppen weer.</li>
+</ul></div>
+</section>
+
+<section class="notes-section gh-release">
+<h3>Spotnet 3.0.10.0 <span class="gh-date">5 september 2026</span></h3>
 <div class="gh-body"><ul class="section-items tagged">
 <li><strong>Sluiten van spotafbeelding hersteld:</strong> Een spotafbeelding die op volledig scherm is vergroot, kan nu weer worden gesloten door op Escape te drukken of buiten de afbeelding te klikken.</li>
 </ul></div>

@@ -50,7 +50,20 @@
   </data>
   <data name="whatsnew" xml:space="preserve">
     <value>&lt;section class="notes-section gh-release"&gt;
-&lt;h3&gt;Spotnet 3.0.10.0 &lt;span class="gh-tag"&gt;New&lt;/span&gt;&lt;span class="gh-date"&gt;Current version&lt;/span&gt;&lt;/h3&gt;
+&lt;h3&gt;Spotnet 3.0.11.0 &lt;span class="gh-tag"&gt;New&lt;/span&gt;&lt;span class="gh-date"&gt;Current version&lt;/span&gt;&lt;/h3&gt;
+&lt;div class="gh-body"&gt;&lt;ul class="section-items tagged"&gt;
+&lt;li&gt;&lt;strong&gt;Safer spot view:&lt;/strong&gt; The spot themes no longer load jQuery 1.8.3 and Bootstrap 2.2.0. Both date from 2012 and carry known cross-site scripting flaws, while the page they render is filled with titles, descriptions and comments written by strangers on Usenet. The parts the themes actually used &amp;#8212; the tab switcher and the accordion &amp;#8212; have been rewritten without them. The styling is untouched.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Outgoing connections limited:&lt;/strong&gt; A content security policy now limits where a spot page may talk to. Apple's iTunes is the only outside address the themes call, and the only one still allowed.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;External integrations:&lt;/strong&gt; Settings has a new section, External integrations, holding the Newznab indexer and an OMDb key. Both start out empty, and empty means off. If you had entered your own indexer it moves across untouched.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Newznab default removed:&lt;/strong&gt; It pointed at a server that no longer answers and shipped with an API key baked into the program. Searches no longer wait on a server that will not reply.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Film information works again:&lt;/strong&gt; The film and series panel asked OMDb for data without a key, which that service has required since 2017 &amp;#8212; so it had been silently empty for years. Enter a key and it works again; leave it empty and the panel says where to set one.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cleanup after a download:&lt;/strong&gt; New option to remove chosen file types once post-processing finishes, for the leftovers that come with a download. Off unless you fill it in.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Maintenance:&lt;/strong&gt; Code from older versions that was no longer called anywhere has been removed, along with references to services that no longer exist. The build instructions and the alpha update channel are correct again.&lt;/li&gt;
+&lt;/ul&gt;&lt;/div&gt;
+&lt;/section&gt;
+
+&lt;section class="notes-section gh-release"&gt;
+&lt;h3&gt;Spotnet 3.0.10.0 &lt;span class="gh-date"&gt;5 September 2026&lt;/span&gt;&lt;/h3&gt;
 &lt;div class="gh-body"&gt;&lt;ul class="section-items tagged"&gt;
 &lt;li&gt;&lt;strong&gt;Spot image close fixed:&lt;/strong&gt; A spot image expanded to full size can now be closed again by pressing Escape or clicking anywhere outside the image.&lt;/li&gt;
 &lt;/ul&gt;&lt;/div&gt;
@@ -8106,7 +8119,20 @@ if (browserok) {
   </data>
   <data name="whatsnew_nl" xml:space="preserve">
     <value>&lt;section class="notes-section gh-release"&gt;
-&lt;h3&gt;Spotnet 3.0.10.0 &lt;span class="gh-tag"&gt;Nieuw&lt;/span&gt;&lt;span class="gh-date"&gt;Huidige versie&lt;/span&gt;&lt;/h3&gt;
+&lt;h3&gt;Spotnet 3.0.11.0 &lt;span class="gh-tag"&gt;Nieuw&lt;/span&gt;&lt;span class="gh-date"&gt;Huidige versie&lt;/span&gt;&lt;/h3&gt;
+&lt;div class="gh-body"&gt;&lt;ul class="section-items tagged"&gt;
+&lt;li&gt;&lt;strong&gt;Veiliger spotweergave:&lt;/strong&gt; De spotthema's laden jQuery 1.8.3 en Bootstrap 2.2.0 niet meer. Beide stammen uit 2012 en dragen bekende XSS-lekken, terwijl de pagina die zij opbouwen juist vol staat met titels, omschrijvingen en reacties van onbekenden op Usenet. Wat de thema's er werkelijk van gebruikten &amp;#8212; de tabwissel en het accordeon &amp;#8212; is zonder die bibliotheken opnieuw geschreven. De opmaak is ongemoeid gebleven.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Beperkte uitgaande verbindingen:&lt;/strong&gt; Een content security policy begrenst met wie een spotpagina nog mag praten. Apple's iTunes is het enige externe adres dat de thema's zelf aanroepen, en het enige dat toegestaan blijft.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Externe integraties:&lt;/strong&gt; Instellingen heeft een nieuw kopje Externe integraties, met de Newznab-indexer en een OMDb-sleutel. Beide beginnen leeg, en leeg betekent uit. Had u een eigen indexer ingevuld, dan verhuist die ongewijzigd mee.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Newznab-standaardwaarde verwijderd:&lt;/strong&gt; Die wees naar een server die niet meer antwoordt, met een API-sleutel die in het programma zelf zat. Zoekopdrachten wachten niet langer op een server die niet reageert.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Filminformatie werkt weer:&lt;/strong&gt; Het film- en serieblok vroeg gegevens op bij OMDb zonder sleutel, terwijl die dienst er sinds 2017 een vereist &amp;#8212; het was dus al jaren stil leeg. Vul een sleutel in en het werkt weer; laat u het leeg, dan zegt het blok waar u die instelt.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Opruimen na een download:&lt;/strong&gt; Nieuwe optie om gekozen bestandstypen te verwijderen zodra de nabewerking klaar is, voor de restjes die met een download meekomen. Staat uit tot u hem invult.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Onderhoud:&lt;/strong&gt; Code van oudere versies die nergens meer werd aangeroepen is verwijderd, samen met verwijzingen naar diensten die niet meer bestaan. De bouwinstructies en het alpha-updatekanaal kloppen weer.&lt;/li&gt;
+&lt;/ul&gt;&lt;/div&gt;
+&lt;/section&gt;
+
+&lt;section class="notes-section gh-release"&gt;
+&lt;h3&gt;Spotnet 3.0.10.0 &lt;span class="gh-date"&gt;5 september 2026&lt;/span&gt;&lt;/h3&gt;
 &lt;div class="gh-body"&gt;&lt;ul class="section-items tagged"&gt;
 &lt;li&gt;&lt;strong&gt;Sluiten van spotafbeelding hersteld:&lt;/strong&gt; Een spotafbeelding die op volledig scherm is vergroot, kan nu weer worden gesloten door op Escape te drukken of buiten de afbeelding te klikken.&lt;/li&gt;
 &lt;/ul&gt;&lt;/div&gt;

@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "clientUpdate": 1,
-  "version": "3.0.10.0",
+  "version": "3.0.11.0",
   "minimumVersion": "3.0.0.0",
   "forced": 0,
-  "url": "https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.10.0/Spotnet-3.0-x64-Setup.exe",
-  "size": 161854152,
-  "sha256": "e6811e23a76993f7b05ade28de0060fbdfb2ee7f0177756a213140d3cf50204c",
-  "releaseNotesUrl": "https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.10.0"
+  "url": "https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.11.0/Spotnet-3.0-x64-Setup.exe",
+  "size": 161425152,
+  "sha256": "db121a13db880c3055da19e4c25a96f2842af906145cdf0d28b51d7a713b7bb1",
+  "releaseNotesUrl": "https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.11.0"
 }
