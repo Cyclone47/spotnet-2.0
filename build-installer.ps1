@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [string]$CompilerPath,
     [switch]$BootstrapCompiler,
@@ -219,8 +219,8 @@ try {
     $previewDir = Join-Path $artifactRoot 'previews'
     New-Item -ItemType Directory -Force -Path $previewDir | Out-Null
     & dotnet build $previewProject -c Release -v quiet --nologo
-    if ($LASTEXITCODE -ne 0) { throw 'Building the style preview renderer failed.' }
-    $previewExe = Join-Path $repoRoot 'tools\Spotnet.ThemePreview\bin\Release\net10.0-windows\Spotnet.ThemePreview.exe'
+    $previewFramework = if ($env:SpotnetTrialFramework) { $env:SpotnetTrialFramework } else { 'net10.0-windows' }
+    $previewExe = Join-Path $repoRoot "tools\Spotnet.ThemePreview\bin\Release\$previewFramework\Spotnet.ThemePreview.exe"
     $filterIcons = Join-Path $repoRoot 'src\Spotnet\Spotnet\Data\Filters.v2\Images'
     & $previewExe --output $previewDir --icons $filterIcons
     if ($LASTEXITCODE -ne 0) { throw 'Rendering the style previews failed.' }

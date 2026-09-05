@@ -3,7 +3,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:metro="http://metro.mahapps.com/winfx/xaml/controls"
                     Title="Koppel Mobiel Apparaat - Spotnet Remote"
-                    Height="530" Width="480"
+                    Height="630" Width="490"
                     ResizeMode="NoResize"
                     WindowStartupLocation="CenterOwner"
                     ShowTitleBar="True"
@@ -21,23 +21,58 @@
     </Grid.RowDefinitions>
 
     <!-- Header -->
-    <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,14">
+    <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,10">
       <TextBlock Text="Koppel je smartphone of tablet" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" />
       <TextBlock Text="Scan de onderstaande QR-code met je camera om direct te verbinden." Opacity="0.8" FontSize="12" Margin="0,4,0,0" HorizontalAlignment="Center" />
     </StackPanel>
 
     <!-- QR Code & PIN Card -->
-    <Border Grid.Row="1" Background="{DynamicResource DialogPanelBackgroundBrush}" CornerRadius="10" Padding="16" BorderBrush="{DynamicResource HighlightBrush}" BorderThickness="1">
+    <Border Grid.Row="1" Background="{DynamicResource DialogPanelBackgroundBrush}" CornerRadius="10" Padding="14" BorderBrush="{DynamicResource HighlightBrush}" BorderThickness="1">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Border BorderThickness="4" BorderBrush="White" CornerRadius="8" Background="White" HorizontalAlignment="Center" Margin="0,0,0,14">
-          <Image Name="QrCodeImage" Width="200" Height="200" Stretch="Uniform" />
+
+        <!-- Network Selector (Always visible to toggle between Wi-Fi and Cloudflare) -->
+        <Border Background="{DynamicResource DialogBackgroundBrush}" CornerRadius="6" Padding="10,6" Margin="0,0,0,8">
+          <StackPanel Orientation="Vertical">
+            <StackPanel Name="ConnectionModePanel" Orientation="Horizontal" HorizontalAlignment="Center">
+              <RadioButton Name="LanModeRadio" Content="🏠 Thuisnetwerk (Wi-Fi)" FontWeight="SemiBold" Margin="0,0,16,0" Checked="ModeRadio_Checked" />
+              <RadioButton Name="TunnelModeRadio" Content="🌐 Buitenshuis (Cloudflare 4G/5G)" FontWeight="SemiBold" Checked="ModeRadio_Checked" />
+            </StackPanel>
+            <TextBlock Name="ConnectionModeHintTextBlock" Text="Verbind via hetzelfde Wi-Fi netwerk als deze computer." FontSize="11" Opacity="0.75" HorizontalAlignment="Center" Margin="0,4,0,0" />
+          </StackPanel>
         </Border>
 
-        <TextBlock Text="Of voer deze 6-cijferige koppelcode handmatig in:" FontSize="12" Opacity="0.75" HorizontalAlignment="Center" Margin="0,0,0,4" />
-        <TextBlock Name="PinCodeTextBlock" Text="--- ---" FontSize="26" FontWeight="ExtraBold" Foreground="{DynamicResource HighlightBrush}" HorizontalAlignment="Center" />
-        <TextBlock Name="ExpiryTextBlock" Text="Code is nog 5:00 minuten geldig" FontSize="11" Opacity="0.6" HorizontalAlignment="Center" Margin="0,4,0,0" />
+        <!-- Temporary Tunnel Warning Notice -->
+        <Border Name="TunnelNoticeBanner" Background="#2A2010" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="6" Padding="8,5" Margin="0,0,0,8" Visibility="Collapsed">
+          <TextBlock Text="⚠️ Tijdelijke link: Cloudflare links veranderen automatisch wanneer Spotnet opnieuw opstart." Foreground="#FCD34D" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+        </Border>
 
-        <Border Name="PairedSuccessBanner" Background="#10B981" CornerRadius="6" Padding="8" Margin="0,10,0,0" Visibility="Collapsed">
+        <!-- Tunnel Connecting Notice (when opened while tunnel is starting up) -->
+        <Border Name="TunnelConnectingBanner" Background="#1E293B" BorderBrush="{DynamicResource HighlightBrush}" BorderThickness="1" CornerRadius="6" Padding="8,5" Margin="0,0,0,8" Visibility="Collapsed">
+          <TextBlock Name="TunnelConnectingText" Text="⏳ Cloudflare Quick Tunnel opzetten... QR-code verschijnt zodra verbinding actief is." Foreground="{DynamicResource HighlightBrush}" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+        </Border>
+
+        <!-- QR Code Container with Loading Overlay -->
+        <Grid HorizontalAlignment="Center" Margin="0,0,0,10">
+          <Border Name="QrCodeBorder" BorderThickness="4" BorderBrush="White" CornerRadius="8" Background="White">
+            <Image Name="QrCodeImage" Width="185" Height="185" Stretch="Uniform" />
+          </Border>
+
+          <!-- Loading placeholder when tunnel is connecting -->
+          <Border Name="QrLoadingOverlay" Width="193" Height="193" CornerRadius="8" Background="#F1F5F9" BorderBrush="{DynamicResource HighlightBrush}" BorderThickness="2" Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
+              <TextBlock Text="⏳" FontSize="28" HorizontalAlignment="Center" Margin="0,0,0,6" />
+              <TextBlock Name="QrLoadingText" Text="Cloudflare tunnel verbinden..." FontWeight="SemiBold" FontSize="11" Foreground="#1E293B" TextWrapping="Wrap" TextAlignment="Center" />
+              <ProgressBar Name="QrLoadingProgressBar" IsIndeterminate="True" Height="4" Width="120" Margin="0,10,0,0" />
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <TextBlock Text="Of voer deze 6-cijferige koppelcode handmatig in:" FontSize="11" Opacity="0.75" HorizontalAlignment="Center" Margin="0,0,0,2" />
+        <TextBlock Name="PinCodeTextBlock" Text="--- ---" FontSize="24" FontWeight="ExtraBold" Foreground="{DynamicResource HighlightBrush}" HorizontalAlignment="Center" />
+        <TextBlock Name="ExpiryTextBlock" Text="Code is nog 5:00 minuten geldig" FontSize="11" Opacity="0.6" HorizontalAlignment="Center" Margin="0,2,0,2" />
+        <TextBlock Name="ActiveUrlTextBlock" Text="" FontSize="10" Opacity="0.5" TextAlignment="Center" Margin="0,2,0,0" TextWrapping="Wrap" MaxWidth="380" />
+
+        <Border Name="PairedSuccessBanner" Background="#10B981" CornerRadius="6" Padding="8" Margin="0,8,0,0" Visibility="Collapsed">
           <TextBlock Name="PairedSuccessText" Text="✓ Apparaat succesvol gekoppeld!" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" />
         </Border>
       </StackPanel>

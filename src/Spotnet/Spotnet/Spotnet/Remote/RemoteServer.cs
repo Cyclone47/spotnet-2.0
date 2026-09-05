@@ -40,6 +40,11 @@ public class RemoteServer
     public bool IsRunning { get; private set; }
     public int ActivePort { get; private set; } = 8770;
 
+    public RemoteServer()
+    {
+        CloudflareTunnelService.Instance.StateChanged += (state, msg) => StatusChanged?.Invoke();
+    }
+
     public bool IsClientActive
     {
         get
@@ -176,6 +181,10 @@ public class RemoteServer
                 {
                     RemoteDiscoveryService.Instance.Start(ActivePort, config.RequireAuth);
                 }
+                if (config.EnableCloudflareTunnel)
+                {
+                    _ = CloudflareTunnelService.Instance.StartAsync(ActivePort);
+                }
                 StatusChanged?.Invoke();
                 Log.Info("Spotnet Remote Host started on port {0} (LAN={1}, KeepAwake={2})", ActivePort, config.AllowLan, config.KeepAwake);
             }
@@ -212,6 +221,7 @@ public class RemoteServer
             finally
             {
                 RemoteDiscoveryService.Instance.Stop();
+                CloudflareTunnelService.Instance.Stop();
                 SleepPreventer.UpdateState(false);
                 IsRunning = false;
                 _app = null;
@@ -258,11 +268,36 @@ public class RemoteServer
             return Results.Json(res);
         });
 
+        // Logout endpoint: revokes session token immediately
+        api.MapPost("/auth/logout", (HttpContext ctx) =>
+        {
+            string rawToken = "";
+            if (ctx.Request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                string h = authHeader.ToString();
+                if (h.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    rawToken = h.Substring(7).Trim();
+                }
+            }
+            if (string.IsNullOrEmpty(rawToken) && ctx.Request.Query.TryGetValue("token", out var qToken))
+            {
+                rawToken = qToken.ToString();
+            }
+
+            if (!string.IsNullOrEmpty(rawToken))
+            {
+                RemoteAuthManager.Instance.RevokeToken(rawToken);
+            }
+            return Results.Json(new { success = true });
+        });
+
         // Server status endpoint
         api.MapGet("/status", (HttpContext ctx) =>
         {
             string clientIp = ctx.Connection.RemoteIpAddress?.ToString() ?? "";
             RegisterClientActivity(clientIp);
+            var currentConfig = RemoteConfig.Load();
             var queue = RemoteQueueService.Instance.GetQueue();
             return Results.Json(new ServerStatusDto
             {
@@ -273,13 +308,13 @@ public class RemoteServer
                 QueueCount = queue.ActiveCount,
                 DownloadSpeed = queue.OverallSpeedBytesPerSec,
                 DownloadSpeedFormatted = queue.OverallSpeedFormatted,
-                PairedDevicesCount = config.PairedDevices.Count,
+                PairedDevicesCount = currentConfig.PairedDevices.Count,
                 Port = ActivePort,
-                LanEnabled = config.AllowLan,
+                LanEnabled = currentConfig.AllowLan,
                 IsSyncing = DbUpdater.IsDbUpdateInProgress,
                 DefaultNickname = Settings.Default.Nickname ?? "",
-                RequireAuth = config.RequireAuth,
-                HasPasswordAuth = !string.IsNullOrEmpty(config.PasswordHash)
+                RequireAuth = currentConfig.RequireAuth,
+                HasPasswordAuth = !string.IsNullOrEmpty(currentConfig.PasswordHash)
             });
         });
 
@@ -289,8 +324,9 @@ public class RemoteServer
         {
             var ctx = invocationContext.HttpContext;
             string clientIp = ctx.Connection.RemoteIpAddress?.ToString() ?? "";
+            var currentConfig = RemoteConfig.Load();
 
-            if (config.RequireAuth)
+            if (currentConfig.RequireAuth)
             {
                 string rawToken = "";
                 if (ctx.Request.Headers.TryGetValue("Authorization", out var authHeader))
@@ -308,16 +344,7 @@ public class RemoteServer
 
                 if (!RemoteAuthManager.Instance.ValidateToken(rawToken, clientIp, out var matchedDevice))
                 {
-                    // Allow spot image requests if coming from an already paired device
-                    if (ctx.Request.Path.Value?.EndsWith("/image", StringComparison.OrdinalIgnoreCase) == true
-                        && config.PairedDevices.Any(d => d.IpAddress == clientIp))
-                    {
-                        RegisterClientActivity(clientIp);
-                    }
-                    else
-                    {
-                        return Results.Unauthorized();
-                    }
+                    return Results.Unauthorized();
                 }
                 else
                 {
@@ -598,8 +625,15 @@ public class RemoteServer
         return "127.0.0.1";
     }
 
-    public string GetRemoteUrl(bool useLanIp = true)
+    public string CloudflareTunnelUrl => CloudflareTunnelService.Instance.TunnelUrl;
+    public bool IsCloudflareTunnelRunning => CloudflareTunnelService.Instance.State == TunnelState.Running;
+
+    public string GetRemoteUrl(bool useLanIp = true, bool preferCloudflare = false)
     {
+        if (preferCloudflare && CloudflareTunnelService.Instance.State == TunnelState.Running && !string.IsNullOrEmpty(CloudflareTunnelService.Instance.TunnelUrl))
+        {
+            return CloudflareTunnelService.Instance.TunnelUrl;
+        }
         string host = useLanIp ? GetLocalIpAddress() : "127.0.0.1";
         return $"http://{host}:{ActivePort}";
     }

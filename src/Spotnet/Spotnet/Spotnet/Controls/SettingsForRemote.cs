@@ -21,6 +21,30 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         _requestPassword = requestPassword ?? ShowPasswordDialog;
         InitializeComponent();
         LoadConfig(config);
+
+        CloudflareTunnelService.Instance.StateChanged += OnTunnelStateChanged;
+        CloudflareTunnelService.Instance.DownloadProgressChanged += OnTunnelDownloadProgressChanged;
+        Unloaded += (s, e) =>
+        {
+            CloudflareTunnelService.Instance.StateChanged -= OnTunnelStateChanged;
+            CloudflareTunnelService.Instance.DownloadProgressChanged -= OnTunnelDownloadProgressChanged;
+        };
+    }
+
+    private void OnTunnelStateChanged(TunnelState state, string msg)
+    {
+        Dispatcher.InvokeAsync(UpdateCloudflareUiState);
+    }
+
+    private void OnTunnelDownloadProgressChanged(int pct)
+    {
+        Dispatcher.InvokeAsync(() =>
+        {
+            if (CloudflareDownloadProgressBar.Visibility == Visibility.Visible)
+            {
+                CloudflareDownloadProgressBar.Value = pct;
+            }
+        });
     }
 
     private void LoadConfig(RemoteConfig config)
@@ -31,8 +55,10 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         AllowLanCheckBox.IsChecked = _config.AllowLan;
         RequireAuthCheckBox.IsChecked = _config.RequireAuth;
         KeepAwakeCheckBox.IsChecked = _config.KeepAwake;
+        EnableCloudflareTunnelCheckBox.IsChecked = _config.EnableCloudflareTunnel;
 
         UpdateUiState();
+        UpdateCloudflareUiState();
         UpdateAuthUiState();
         UpdatePasswordHint();
         PairedDevicesListBox.ItemsSource = _config.PairedDevices.OrderByDescending(d => d.LastSeenAt).ToList();
@@ -75,6 +101,90 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         bool authRequired = RequireAuthCheckBox.IsChecked == true;
         AuthCredentialsPanel.Visibility = authRequired ? Visibility.Visible : Visibility.Collapsed;
         NoAuthWarningTextBlock.Visibility = authRequired ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void UpdateCloudflareUiState()
+    {
+        bool isTunnelChecked = EnableCloudflareTunnelCheckBox.IsChecked == true;
+        CloudflareTunnelPanel.Visibility = isTunnelChecked ? Visibility.Visible : Visibility.Collapsed;
+
+        if (!isTunnelChecked)
+        {
+            CloudflareStatusTextBlock.Text = "Uitgeschakeld";
+            CloudflareStatusTextBlock.Foreground = Brushes.Gray;
+            CloudflareDownloadProgressBar.Visibility = Visibility.Collapsed;
+            CloudflareUrlRow.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var state = CloudflareTunnelService.Instance.State;
+        switch (state)
+        {
+            case TunnelState.Downloading:
+                CloudflareStatusTextBlock.Text = $"Component downloaden... {CloudflareTunnelService.Instance.DownloadPercentage}%";
+                CloudflareStatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(245, 158, 11));
+                CloudflareDownloadProgressBar.Visibility = Visibility.Visible;
+                CloudflareDownloadProgressBar.Value = CloudflareTunnelService.Instance.DownloadPercentage;
+                CloudflareUrlRow.Visibility = Visibility.Collapsed;
+                break;
+
+            case TunnelState.Starting:
+                CloudflareStatusTextBlock.Text = "Verbinden met Cloudflare...";
+                CloudflareStatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(245, 158, 11));
+                CloudflareDownloadProgressBar.Visibility = Visibility.Collapsed;
+                CloudflareUrlRow.Visibility = Visibility.Collapsed;
+                break;
+
+            case TunnelState.Running:
+                CloudflareStatusTextBlock.Text = "● Actief";
+                CloudflareStatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(16, 185, 129));
+                CloudflareDownloadProgressBar.Visibility = Visibility.Collapsed;
+                CloudflareUrlRow.Visibility = Visibility.Visible;
+                CloudflareUrlTextBox.Text = CloudflareTunnelService.Instance.TunnelUrl;
+                break;
+
+            case TunnelState.Failed:
+                CloudflareStatusTextBlock.Text = $"● {CloudflareTunnelService.Instance.StatusMessage}";
+                CloudflareStatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(239, 68, 68));
+                CloudflareDownloadProgressBar.Visibility = Visibility.Collapsed;
+                CloudflareUrlRow.Visibility = Visibility.Collapsed;
+                break;
+
+            case TunnelState.Stopped:
+            default:
+                if (EnableRemoteCheckBox.IsChecked == true && RemoteServer.Instance.IsRunning)
+                {
+                    CloudflareStatusTextBlock.Text = "Niet gestart";
+                }
+                else
+                {
+                    CloudflareStatusTextBlock.Text = "Wacht op starten van Spotnet Remote...";
+                }
+                CloudflareStatusTextBlock.Foreground = Brushes.LightGray;
+                CloudflareDownloadProgressBar.Visibility = Visibility.Collapsed;
+                CloudflareUrlRow.Visibility = Visibility.Collapsed;
+                break;
+        }
+    }
+
+    private void EnableCloudflareTunnelCheckBox_Click(object sender, RoutedEventArgs e)
+    {
+        UpdateCloudflareUiState();
+
+        if (EnableCloudflareTunnelCheckBox.IsChecked == true)
+        {
+            // Auto-enable Spotnet Remote if disabled
+            if (EnableRemoteCheckBox.IsChecked != true)
+            {
+                EnableRemoteCheckBox.IsChecked = true;
+                UpdateUiState();
+            }
+        }
+
+        if (EnableRemoteCheckBox.IsChecked == true)
+        {
+            Save();
+        }
     }
 
     private void UpdatePasswordHint()
@@ -182,6 +292,12 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
 
     private void PairDeviceButton_Click(object sender, RoutedEventArgs e)
     {
+        if (EnableRemoteCheckBox.IsChecked != true)
+        {
+            EnableRemoteCheckBox.IsChecked = true;
+            UpdateUiState();
+        }
+
         // Save first so port & settings are up to date and server is active
         if (!VerifyFields()) return;
         Save();
@@ -249,6 +365,7 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         bool wasEnabled = _config.Enabled;
         int oldPort = _config.Port;
         bool oldLan = _config.AllowLan;
+        bool oldTunnel = _config.EnableCloudflareTunnel;
 
         _config.Enabled = EnableRemoteCheckBox.IsChecked == true;
         if (int.TryParse(PortTextBox.Text.Trim(), out int port))
@@ -258,6 +375,7 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         _config.AllowLan = AllowLanCheckBox.IsChecked == true;
         _config.RequireAuth = RequireAuthCheckBox.IsChecked == true;
         _config.KeepAwake = KeepAwakeCheckBox.IsChecked == true;
+        _config.EnableCloudflareTunnel = EnableCloudflareTunnelCheckBox.IsChecked == true;
         if (!string.IsNullOrEmpty(_pendingPassword))
         {
             _config.SetPassword(_pendingPassword);
@@ -281,8 +399,16 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
             }
             else
             {
-                // Server was already running, just update sleep preventer
+                // Server was already running, just update sleep preventer & tunnel
                 SleepPreventer.UpdateState(_config.KeepAwake);
+                if (_config.EnableCloudflareTunnel && (!oldTunnel || CloudflareTunnelService.Instance.State == TunnelState.Stopped))
+                {
+                    _ = CloudflareTunnelService.Instance.StartAsync(_config.Port);
+                }
+                else if (!_config.EnableCloudflareTunnel && oldTunnel)
+                {
+                    CloudflareTunnelService.Instance.Stop();
+                }
             }
         }
         else if (wasEnabled || RemoteServer.Instance.IsRunning)
@@ -295,6 +421,7 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         }
 
         UpdateUiState();
+        UpdateCloudflareUiState();
         return true;
     }
 }

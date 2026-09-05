@@ -28,6 +28,7 @@ public class RemoteConfig
     public bool AllowLan { get; set; } = true;
     public bool RequireAuth { get; set; } = true;
     public bool KeepAwake { get; set; } = false;
+    public bool EnableCloudflareTunnel { get; set; } = false;
     // Retained only so older configuration files/clients remain compatible.
     public string AuthUsername { get; set; } = "admin";
     public string PasswordHash { get; set; } = "";

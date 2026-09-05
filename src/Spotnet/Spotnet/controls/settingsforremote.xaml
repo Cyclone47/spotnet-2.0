@@ -4,58 +4,82 @@
              xmlns:p="clr-namespace:Spotnet.Properties"
              FontSize="{Binding ElementName=VisibilityVmProxy, Path=DataContext.FontSize, Mode=OneWay}">
   <StackPanel Orientation="Vertical" Margin="4">
-    <TextBlock Text="Spotnet Remote (Mobiele Companion)" FontWeight="Bold" FontSize="14" Margin="0,0,0,8" />
-    <TextBlock Text="Bedien Spotnet via je smartphone of tablet binnen je thuisnetwerk. Zoek spots, bekijk details en start downloads direct vanaf de bank." TextWrapping="Wrap" Opacity="0.8" Margin="0,0,0,14" />
+    <TextBlock Text="Spotnet Remote" FontWeight="Bold" FontSize="15" Margin="0,0,0,4" />
+    <TextBlock Text="Bedien Spotnet via je smartphone of tablet. Zoek spots, bekijk reacties en start downloads op afstand." TextWrapping="Wrap" Opacity="0.8" Margin="0,0,0,12" />
 
-    <CheckBox Name="EnableRemoteCheckBox" Content="Spotnet Remote inschakelen" FontWeight="SemiBold" Margin="0,4,0,10" Click="EnableRemoteCheckBox_Click" />
+    <CheckBox Name="EnableRemoteCheckBox" Content="Spotnet Remote inschakelen" FontWeight="SemiBold" FontSize="13" Margin="0,2,0,10" Click="EnableRemoteCheckBox_Click" />
 
-    <Border Name="RemoteConfigPanel" BorderBrush="{DynamicResource DialogPanelBackgroundBrush}" BorderThickness="1" Background="{DynamicResource DialogPanelBackgroundBrush}" CornerRadius="6" Padding="12" Margin="0,4,0,14">
+    <Border Name="RemoteConfigPanel" BorderBrush="{DynamicResource DialogPanelBackgroundBrush}" BorderThickness="1" Background="{DynamicResource DialogPanelBackgroundBrush}" CornerRadius="6" Padding="12" Margin="0,0,0,12">
       <StackPanel Orientation="Vertical">
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-          <TextBlock Text="Server Status:" FontWeight="SemiBold" Width="120" VerticalAlignment="Center" />
-          <TextBlock Name="ServerStatusTextBlock" Text="Gestopt" Foreground="LightGray" FontWeight="Bold" VerticalAlignment="Center" />
-        </StackPanel>
+        <!-- Quick Connect & Status Banner -->
+        <Border Background="{DynamicResource DialogBackgroundBrush}" CornerRadius="6" Padding="12,10" Margin="0,0,0,12">
+          <DockPanel LastChildFill="False">
+            <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <TextBlock Text="Status: " FontWeight="SemiBold" />
+                <TextBlock Name="ServerStatusTextBlock" Text="Gestopt" Foreground="LightGray" FontWeight="Bold" />
+              </StackPanel>
+              <TextBlock Name="ServerUrlTextBlock" Text="http://127.0.0.1:8770" Opacity="0.7" FontSize="11" />
+            </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-          <TextBlock Text="Web-Adres:" FontWeight="SemiBold" Width="120" VerticalAlignment="Center" />
-          <TextBlock Name="ServerUrlTextBlock" Text="http://127.0.0.1:8770" Foreground="{DynamicResource HighlightBrush}" FontWeight="Bold" VerticalAlignment="Center" />
-          <Button Name="OpenBrowserButton" Content="Open in Browser" Margin="14,0,0,0" Padding="8,2" Click="OpenBrowserButton_Click" />
-        </StackPanel>
-
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-          <TextBlock Text="Poort:" Width="120" VerticalAlignment="Center" />
-          <TextBox Name="PortTextBox" Text="8770" Width="70" VerticalAlignment="Center" LostFocus="PortTextBox_LostFocus" />
-        </StackPanel>
-
-        <CheckBox Name="AllowLanCheckBox" Content="Toegang toestaan vanaf lokaal netwerk (Wi-Fi)" Margin="0,4,0,8" Click="AllowLanCheckBox_Click" />
-
-        <CheckBox Name="RequireAuthCheckBox" Content="Authenticatie vereisen (aanbevolen bij port forwarding)" FontWeight="SemiBold" IsChecked="True" Margin="0,2,0,4" Click="RequireAuthCheckBox_Click" />
-
-        <Border Name="AuthCredentialsPanel" BorderBrush="{DynamicResource DialogPanelBackgroundBrush}" BorderThickness="1" Background="{DynamicResource DialogBackgroundBrush}" CornerRadius="4" Padding="10" Margin="0,2,0,8">
-          <StackPanel Orientation="Vertical">
-            <TextBlock Text="🛡️ Aanbevolen bij port forwarding: Beschermt Spotnet tegen toegang door onbevoegden vanaf internet. Zonder authenticatie kan iedereen met je IP-adres spots inzien en downloads starten." TextWrapping="Wrap" FontSize="11" Opacity="0.85" Margin="0,0,0,8" />
-
-            <TextBlock Name="AuthPasswordHintTextBlock" Margin="0,0,0,8" />
-            <Button Name="ChangePasswordButton" Content="Wachtwoord instellen…" HorizontalAlignment="Left" Padding="10,4" Click="ChangePasswordButton_Click" />
-          </StackPanel>
+            <Button Name="PairDeviceButton" Content="📱 Toon QR-code" DockPanel.Dock="Right" FontWeight="Bold" FontSize="13" Padding="16,8" VerticalAlignment="Center" Click="PairDeviceButton_Click" />
+          </DockPanel>
         </Border>
 
-        <TextBlock Name="NoAuthWarningTextBlock" Text="⚠️ Waarschuwing: Authenticatie staat uit. Iedereen met toegang tot je netwerk of openstaande poort heeft direct toegang!" Foreground="#F59E0B" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" Visibility="Collapsed" />
+        <!-- Simpele Verbindingsopties -->
+        <TextBlock Text="Verbindingsmogelijkheden" FontWeight="SemiBold" Margin="0,2,0,6" />
+        
+        <CheckBox Name="AllowLanCheckBox" Content="Toegang via thuisnetwerk (Wi-Fi)" Margin="0,4,0,8" Click="AllowLanCheckBox_Click" />
 
-        <CheckBox Name="KeepAwakeCheckBox" Content="Houd computer wakker (voorkomt slaapstand zolang Remote actief is)" Margin="0,2,0,10" Click="KeepAwakeCheckBox_Click" />
+        <CheckBox Name="EnableCloudflareTunnelCheckBox" Content="Toegang buitenshuis via Cloudflare (4G / 5G)" FontWeight="SemiBold" Margin="0,4,0,2" Click="EnableCloudflareTunnelCheckBox_Click" />
+        <TextBlock Text="Werkt direct zonder poorten openen in je router. Geen account nodig." Opacity="0.7" FontSize="11" Margin="22,0,0,4" TextWrapping="Wrap" />
 
-        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-          <Button Name="PairDeviceButton" Content="📱 Koppel Nieuw Mobiel Apparaat (PIN / QR)..." FontWeight="Bold" Padding="12,6" Click="PairDeviceButton_Click" />
+        <!-- Cloudflare Quick Status (Compact) -->
+        <StackPanel Name="CloudflareTunnelPanel" Margin="22,0,0,8" Visibility="Collapsed">
+          <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
+            <TextBlock Text="Cloudflare status: " FontSize="11" Opacity="0.8" />
+            <TextBlock Name="CloudflareStatusTextBlock" Text="Gestopt" FontSize="11" FontWeight="SemiBold" Foreground="LightGray" />
+          </StackPanel>
+          <ProgressBar Name="CloudflareDownloadProgressBar" Height="4" Margin="0,3,40,3" Visibility="Collapsed" Minimum="0" Maximum="100" />
+          <StackPanel Name="CloudflareUrlRow" Orientation="Horizontal" Margin="0,2,0,0" Visibility="Collapsed">
+            <TextBlock Text="Cloudflare URL: " FontSize="11" Opacity="0.8" />
+            <TextBox Name="CloudflareUrlTextBox" IsReadOnly="True" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource HighlightBrush}" FontWeight="Bold" FontSize="11" Text="" />
+          </StackPanel>
         </StackPanel>
+
+        <!-- Geavanceerde Instellingen (Inklapbaar zodat simpele gebruikers er geen last van hebben) -->
+        <Expander Header="Geavanceerde instellingen (poort, wachtwoord, browser)" Margin="0,8,0,4">
+          <Border Background="{DynamicResource DialogBackgroundBrush}" CornerRadius="4" Padding="10" Margin="0,4,0,0">
+            <StackPanel Orientation="Vertical">
+              <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                <TextBlock Text="Poort:" Width="110" VerticalAlignment="Center" />
+                <TextBox Name="PortTextBox" Text="8770" Width="70" VerticalAlignment="Center" LostFocus="PortTextBox_LostFocus" />
+                <Button Name="OpenBrowserButton" Content="Open in Browser" Margin="14,0,0,0" Padding="8,2" Click="OpenBrowserButton_Click" />
+              </StackPanel>
+
+              <CheckBox Name="RequireAuthCheckBox" Content="Wachtwoordbeveiliging inschakelen" FontWeight="SemiBold" IsChecked="True" Margin="0,4,0,4" Click="RequireAuthCheckBox_Click" />
+              <StackPanel Name="AuthCredentialsPanel" Orientation="Horizontal" Margin="22,2,0,6">
+                <TextBlock Name="AuthPasswordHintTextBlock" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="11" />
+                <Button Name="ChangePasswordButton" Content="Wachtwoord instellen…" Padding="8,2" FontSize="11" Click="ChangePasswordButton_Click" />
+              </StackPanel>
+
+              <TextBlock Name="NoAuthWarningTextBlock" Text="⚠️ Zonder wachtwoord kan iedereen op je netwerk Spotnet bedienen." Foreground="#F59E0B" FontSize="11" Margin="22,0,0,6" Visibility="Collapsed" />
+
+              <CheckBox Name="KeepAwakeCheckBox" Content="Houd computer wakker zolang Spotnet Remote actief is" Margin="0,4,0,2" Click="KeepAwakeCheckBox_Click" />
+            </StackPanel>
+          </Border>
+        </Expander>
+
       </StackPanel>
     </Border>
 
-    <TextBlock Text="Gekoppelde Mobiele Apparaten" FontWeight="SemiBold" Margin="0,8,0,6" />
-    <ListBox Name="PairedDevicesListBox" Height="140" BorderThickness="1" Background="{DynamicResource DialogBackgroundBrush}">
+    <!-- Gekoppelde apparaten -->
+    <TextBlock Text="Gekoppelde Mobiele Apparaten" FontWeight="SemiBold" Margin="0,4,0,6" />
+    <ListBox Name="PairedDevicesListBox" Height="130" BorderThickness="1" Background="{DynamicResource DialogBackgroundBrush}">
       <ListBox.ItemTemplate>
         <DataTemplate>
           <DockPanel Margin="4,2">
-            <Button Content="Intrekken" DockPanel.Dock="Right" Padding="8,2" Margin="10,0,0,0" Click="RevokeDevice_Click" Tag="{Binding Id}" />
+            <Button Content="Ontkoppelen" DockPanel.Dock="Right" Padding="8,2" Margin="10,0,0,0" Click="RevokeDevice_Click" Tag="{Binding Id}" />
             <StackPanel Orientation="Vertical">
               <TextBlock Text="{Binding Name}" FontWeight="Bold" />
               <TextBlock Opacity="0.7" FontSize="11">
@@ -73,6 +97,6 @@
       </ListBox.ItemTemplate>
     </ListBox>
 
-    <Button Name="RevokeAllButton" Content="Alle apparaten ontkoppelen" HorizontalAlignment="Right" Margin="0,8,0,0" Padding="8,3" Click="RevokeAllButton_Click" />
+    <Button Name="RevokeAllButton" Content="Alle apparaten ontkoppelen" HorizontalAlignment="Right" Margin="0,6,0,0" Padding="8,3" Click="RevokeAllButton_Click" />
   </StackPanel>
 </UserControl>

@@ -96,6 +96,7 @@ public class PairRequestDto
 {
     public string Pin { get; set; } = "";
     public string Token { get; set; } = "";
+    public string Password { get; set; } = "";
     public string DeviceName { get; set; } = "Mobiel Apparaat";
 }
 

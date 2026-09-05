@@ -114,6 +114,11 @@ public class RemoteAuthManager
         string user = string.IsNullOrWhiteSpace(_config.AuthUsername) ? "admin" : _config.AuthUsername.Trim();
         string displayName = deviceName;
 
+        // Clean up any existing pairing for this device or token to prevent duplicates
+        _config.PairedDevices.RemoveAll(d =>
+            (!string.IsNullOrEmpty(clientIp) && d.IpAddress == clientIp && d.Name == displayName) ||
+            d.TokenHash.Equals(tokenHash, StringComparison.OrdinalIgnoreCase));
+
         var device = new PairedDevice
         {
             Id = Guid.NewGuid().ToString("N"),
@@ -173,10 +178,17 @@ public class RemoteAuthManager
         string deviceToken = Convert.ToHexString(tokenBytes).ToLowerInvariant();
         string tokenHash = ComputeHash(deviceToken);
 
+        string deviceName = string.IsNullOrWhiteSpace(request.DeviceName) ? "Mobiel Apparaat" : request.DeviceName.Trim();
+
+        // Clean up any existing pairing for this device or token to prevent duplicates
+        _config.PairedDevices.RemoveAll(d =>
+            (!string.IsNullOrEmpty(clientIp) && d.IpAddress == clientIp && d.Name == deviceName) ||
+            d.TokenHash.Equals(tokenHash, StringComparison.OrdinalIgnoreCase));
+
         var device = new PairedDevice
         {
             Id = Guid.NewGuid().ToString("N"),
-            Name = string.IsNullOrWhiteSpace(request.DeviceName) ? "Mobiel Apparaat" : request.DeviceName.Trim(),
+            Name = deviceName,
             TokenHash = tokenHash,
             PairedAt = DateTime.UtcNow,
             LastSeenAt = DateTime.UtcNow,
@@ -225,12 +237,28 @@ public class RemoteAuthManager
         return false;
     }
 
+    public bool RevokeToken(string rawToken)
+    {
+        if (string.IsNullOrWhiteSpace(rawToken)) return false;
+        string tokenHash = ComputeHash(rawToken.Trim());
+        int count = _config.PairedDevices.RemoveAll(d => d.TokenHash.Equals(tokenHash, StringComparison.OrdinalIgnoreCase));
+        if (count > 0)
+        {
+            _config.Save();
+            Log.Info("Revoked token for paired device ({0} entries removed)", count);
+            return true;
+        }
+        return false;
+    }
+
     public bool RevokeDevice(string deviceId)
     {
         var device = _config.PairedDevices.FirstOrDefault(d => d.Id.Equals(deviceId, StringComparison.OrdinalIgnoreCase));
         if (device != null)
         {
-            _config.PairedDevices.Remove(device);
+            string tokenHash = device.TokenHash;
+            _config.PairedDevices.RemoveAll(d => d.Id.Equals(deviceId, StringComparison.OrdinalIgnoreCase) ||
+                (!string.IsNullOrEmpty(tokenHash) && d.TokenHash.Equals(tokenHash, StringComparison.OrdinalIgnoreCase)));
             _config.Save();
             Log.Info("Revoked access for device '{0}'", device.Name);
             return true;

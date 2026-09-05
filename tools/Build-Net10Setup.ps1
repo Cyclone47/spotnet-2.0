@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param([string]$DotnetPath, [string]$CompilerPath, [switch]$Release)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path $PSScriptRoot -Parent
@@ -40,6 +40,12 @@ try {
             Copy-Item -LiteralPath (Join-Path $repo $asset) -Destination $dest
         }
     }
+    $webSource = Join-Path $repo 'src/Spotnet/Spotnet/Spotnet/Remote/Web'
+    if (Test-Path -LiteralPath $webSource) {
+        $webDest = Join-Path $payload 'Web'
+        New-Item -ItemType Directory -Force -Path $webDest | Out-Null
+        Copy-Item -LiteralPath "$webSource\*" -Destination $webDest -Recurse -Force
+    }
     $config = Get-Content (Join-Path $payload 'Spotnet.runtimeconfig.json') -Raw | ConvertFrom-Json
     foreach ($framework in @('Microsoft.NETCore.App', 'Microsoft.WindowsDesktop.App', 'Microsoft.AspNetCore.App')) {
         if (-not ($config.runtimeOptions.includedFrameworks | Where-Object { $_.name -eq $framework -and $_.version -like '10.*' })) { throw "Missing bundled .NET 10 framework: $framework" }
@@ -51,7 +57,7 @@ try {
     & "$work/probe/Net10Probe.exe" *> "$work/probe-results.log"
     if ($LASTEXITCODE -ne 0) { throw "Published dependency probe failed: $work/probe-results.log" }
     Invoke-Build 'helper' @('build', 'tools/Spotnet.SetupHelper/Spotnet.SetupHelper.csproj', '-c', 'Release')
-    Invoke-Build 'preview' @('build', 'tools/Spotnet.ThemePreview/Spotnet.ThemePreview.csproj', '-c', 'Release')
+    Invoke-Build 'preview' @('build', 'tools/Spotnet.ThemePreview/Spotnet.ThemePreview.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows')
     & $DotnetPath './tools/Spotnet.ThemePreview/bin/Release/net10.0-windows/Spotnet.ThemePreview.dll' --output $preview --icons (Join-Path $repo 'src/Spotnet/Spotnet/Data/Filters.v2/Images')
     if ($LASTEXITCODE -ne 0) { throw 'Preview rendering failed' }
     $webview = Join-Path $repo 'artifacts/installer-tools/MicrosoftEdgeWebview2Setup.exe'

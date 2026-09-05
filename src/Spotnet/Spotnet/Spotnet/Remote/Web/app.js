@@ -102,6 +102,7 @@
     }
     const response = await fetch(url, options);
     if (response.status === 401) {
+      setToken('');
       showPairingModal();
       throw new Error('Niet geautoriseerd');
     }
@@ -1151,10 +1152,16 @@
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
+    logoutBtn.addEventListener('click', async () => {
       if (confirm('Weet je zeker dat je wilt uitloggen en dit toestel wilt ontkoppelen?')) {
+        try {
+          await apiFetch('/api/v1/auth/logout', { method: 'POST' });
+        } catch {}
         setToken('');
-        showToast('Je bent uitgelogd.');
+        try {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch {}
+        showToast('Je bent uitgelogd en het toestel is ontkoppeld.');
         if (window.SpotnetNative && typeof window.SpotnetNative.disconnect === 'function') {
           window.SpotnetNative.disconnect();
           return;
@@ -1298,12 +1305,7 @@
 
   document.getElementById('refreshQueueBtn').addEventListener('click', updateQueue);
 
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    if (confirm('Weet je zeker dat je dit apparaat wilt ontkoppelen?')) {
-      setToken('');
-      location.reload();
-    }
-  });
+
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -1568,30 +1570,15 @@
     }, 2500);
   }
 
-  // Check URL params for pairToken and authenticate silently without prompt
+  // Check URL params and initialize
   async function checkQrPairingAndStart() {
     const urlParams = new URLSearchParams(window.location.search);
     const qrPairToken = urlParams.get('pairToken') || urlParams.get('token');
 
     if (qrPairToken) {
-      // Bypassing login modal completely for QR scan
-      if (pairingModal) {
-        pairingModal.classList.remove('active');
-        pairingModal.style.display = 'none';
-      }
-      if (notifModal) {
-        notifModal.classList.remove('active');
-        notifModal.style.display = 'none';
-      }
-      try {
-        await submitPairing('', qrPairToken);
-      } catch (e) {
-        console.error('QR pairing failed:', e);
-      }
       try {
         window.history.replaceState({}, document.title, window.location.pathname);
       } catch {}
-      return;
     }
 
     if (!getToken()) {

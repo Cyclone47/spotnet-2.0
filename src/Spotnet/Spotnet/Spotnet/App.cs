@@ -136,7 +136,7 @@ public partial class App : Application
             }
 
             Log.Info("Start Spotnet {0} {1} channel", AppHelper.AppVersion, SquirrelStuff.UpdateChannel);
-            Log.Debug("OS version: " + Sys.StatsReporter.OsVersion);
+            Log.Debug("OS version: " + Environment.OSVersion.Version);
 
             // Show our custom SplashWindow (replaces the plain WPF SplashScreen).
             // Language is initialized before showing so the step labels are already localized.
