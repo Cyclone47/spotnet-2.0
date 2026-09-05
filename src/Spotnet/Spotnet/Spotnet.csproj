@@ -56,7 +56,6 @@
     <!-- Framework assemblies on .NET Framework, packages from .NET Core onward. -->
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
     <PackageReference Include="System.Security.Permissions" Version="8.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
     <!-- The legacy Windows code pages, which .NET no longer carries in the box. The

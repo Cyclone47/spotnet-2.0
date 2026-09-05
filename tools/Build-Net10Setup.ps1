@@ -44,7 +44,9 @@ try {
     if (Test-Path -LiteralPath $webSource) {
         $webDest = Join-Path $payload 'Web'
         New-Item -ItemType Directory -Force -Path $webDest | Out-Null
-        Copy-Item -LiteralPath "$webSource\*" -Destination $webDest -Recurse -Force
+        Get-ChildItem -LiteralPath $webSource -Force | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $webDest -Recurse -Force
+        }
     }
     $config = Get-Content (Join-Path $payload 'Spotnet.runtimeconfig.json') -Raw | ConvertFrom-Json
     foreach ($framework in @('Microsoft.NETCore.App', 'Microsoft.WindowsDesktop.App', 'Microsoft.AspNetCore.App')) {

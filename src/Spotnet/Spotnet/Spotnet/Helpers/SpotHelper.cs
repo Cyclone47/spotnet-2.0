@@ -473,11 +473,6 @@ internal sealed class SpotHelper
 		return GetBinary(headerPhuse, thumbsGroup, xMsgId, out imageBytes, out sError);
 	}
 
-	private static string GetBinsearch()
-	{
-		return "binsearch.net";
-	}
-
 	internal static int TryToExtractCodeFromResponse(string sResponse)
 	{
 		int result = 0;
@@ -559,42 +554,6 @@ internal sealed class SpotHelper
 		{
 			return null;
 		}
-	}
-
-	private static string GetNzb(string zPostData, string orgUrl, ref string zError)
-	{
-		byte[] array = MakeLatin(zPostData);
-		try
-		{
-			HttpWebRequest obj = (HttpWebRequest)WebRequest.Create("http://" + GetBinsearch() + "/fcgi/nzb.fcgi?" + orgUrl);
-			obj.Proxy = null;
-			obj.ServicePoint.Expect100Continue = false;
-			obj.Method = "POST";
-			obj.ContentType = "application/x-www-form-urlencoded";
-			obj.ContentLength = array.Length;
-			Stream requestStream = obj.GetRequestStream();
-			requestStream.Write(array, 0, array.Length);
-			requestStream.Close();
-			Stream responseStream = obj.GetResponse().GetResponseStream();
-			if (responseStream == null)
-			{
-				zError = "GetNZB from binsearch response is empty";
-				AppHelper.Error(zError);
-				return null;
-			}
-			string text = UnGzip(MakeLatin(new StreamReader(responseStream, LatinEnc()).ReadToEnd()));
-			long sSize = 0L;
-			if (IsNzb(text, ref sSize))
-			{
-				return text;
-			}
-		}
-		catch (Exception ex)
-		{
-			Log.Exception(ex, showToClient: true);
-			zError = ex.Message;
-		}
-		return null;
 	}
 
 	internal static RSACryptoServiceProvider[] GetRsa(string[] trustedKeys)
@@ -842,133 +801,6 @@ internal sealed class SpotHelper
 			return "<" + sMes + ">";
 		}
 		return sMes.Substring(1, sMes.Length - 2);
-	}
-
-	public static string MakeNzbs(string sTitle, string sGroup, bool secondServer, bool looser, bool onlyCol, long maxDays, ref bool stopSearch, bool allowIncomplete, ref bool noResults, bool exCheck)
-	{
-		long num = 0L;
-		bool flag = false;
-		try
-		{
-			if (Strings.Len(sTitle) > 0)
-			{
-				string text = "q=" + UrlEncode((looser ? "" : "\"") + sTitle + (looser ? "" : "\"")) + "&m=&max=250" + ((sGroup.Length > 0) ? ("&adv_g=" + sGroup) : "") + "&adv_age=" + ((maxDays == 0L) ? "1400" : Conversions.ToString(maxDays)) + "&adv_sort=subject" + (onlyCol ? "&adv_col=on" : "") + (secondServer ? "&server=2" : "");
-				string text2;
-				while (true)
-				{
-					try
-					{
-						text2 = new WebClient().DownloadString("http://" + GetBinsearch() + "/index.php?" + text);
-					}
-					catch (Exception ex)
-					{
-						if (ex.Message.Contains("404"))
-						{
-							return null;
-						}
-						num++;
-						if (num > 3)
-						{
-							stopSearch = true;
-							return null;
-						}
-						Wait(1100);
-						continue;
-					}
-					break;
-				}
-				text2 = text2.ToLower();
-				if (text2.Length == 0)
-				{
-					stopSearch = true;
-					return null;
-				}
-				if (text2.Contains("group <b></b> does not exist.."))
-				{
-					return null;
-				}
-				if (exCheck && !text2.Contains("2010 binsearch"))
-				{
-					Interaction.MsgBox(text2, MsgBoxStyle.Critical, "Binsearch Error (3) - " + Conversions.ToString(text2.Length));
-					stopSearch = true;
-					return null;
-				}
-				if (text2.Contains("<font color='red'>") && !allowIncomplete)
-				{
-					stopSearch = true;
-					return null;
-				}
-				while (text2.Contains("<!--") & text2.Contains("-->"))
-				{
-					string text3 = text2.Substring(0, text2.IndexOf("<!--", StringComparison.Ordinal));
-					string text4 = text2.Substring(text2.IndexOf("-->", text3.Length, StringComparison.Ordinal) + 3);
-					text2 = text3 + text4;
-				}
-				if (text2.Contains("<td><input type=\"checkbox\" name="))
-				{
-					string[] array = Strings.Split(text2, "<td><input type=\"checkbox\" name=");
-					if (Information.UBound(array) == 1)
-					{
-						if (text2.Contains("&amp;g=free.pt"))
-						{
-							noResults = true;
-							return null;
-						}
-					}
-					else
-					{
-						string text5 = sGroup.ToLower() + "&amp;a=";
-						if (!text2.Contains(text5))
-						{
-							return null;
-						}
-						string[] array2 = Strings.Split(text2, text5);
-						array2[1] = array2[1].Substring(array2[1].IndexOf(">", StringComparison.Ordinal) + 1);
-						array2[1] = array2[1].Substring(0, array2[1].IndexOf("<", StringComparison.Ordinal));
-						string[] array3 = Strings.Split(text2, ">" + array2[1] + "<");
-						if (array3.Length != array.Length)
-						{
-							if (!text2.Contains("&amp;g=free.pt"))
-							{
-								return null;
-							}
-							flag = true;
-							if (array3.Length != array.Length - 1)
-							{
-								return null;
-							}
-						}
-					}
-					string text6 = "";
-					for (int i = 1; i < array.Length; i++)
-					{
-						if (!array[i].StartsWith("\""))
-						{
-							return null;
-						}
-						if (!flag || !array[i].Contains("&amp;g=free.pt"))
-						{
-							text6 = text6 + array[i].Substring(1, array[i].IndexOf('"', 2) - 1) + "=on&";
-						}
-					}
-					if (text6.IsNullOrEmpty())
-					{
-						return null;
-					}
-					string zError = "";
-					return GetNzb(text6 + "action=nzb", text, ref zError);
-				}
-				noResults = true;
-				return null;
-			}
-			return null;
-		}
-		catch (Exception ex2)
-		{
-			Interaction.MsgBox(ex2.Message, MsgBoxStyle.Critical, "Binsearch Error");
-			stopSearch = true;
-			return null;
-		}
 	}
 
 	internal static string MakeP(string sIn)
@@ -1493,11 +1325,26 @@ internal sealed class SpotHelper
 		return true;
 	}
 
+	// Old spots used a separate Binsearch scraper. Only references carried by the
+	// spot itself are supported now; NZR retains priority and its decryption key.
+	internal static bool TryGetDownloadReference(SpotEx spot, out string location, out int nzrKey)
+	{
+		bool hasNzr = !spot.NZR.IsNullOrEmpty();
+		location = hasNzr ? spot.NZR : spot.NZB;
+		nzrKey = hasNzr ? spot.NZRKey : -1;
+		return !location.IsNullOrWhiteSpace();
+	}
+
 	public static void DownloadNzbAndStartDownloadItem(SpotEx spot)
 	{
 		DownloaderItemViewModel item = null;
 		try
 		{
+			if (!TryGetDownloadReference(spot, out string location, out int nzrKey))
+			{
+				AppHelper.ShowPopupMessage(spot.OldInfo != null ? Words.NZBCannotBeFound : Words.NoSegments);
+				return;
+			}
 			if (Settings.Default.DownloadAction <= 1 && !spot.Title.IsNullOrEmpty())
 			{
 				if (Sys.Downloader.IsDownloadInQueueAlready(spot.MessageId, out item))
@@ -1507,7 +1354,7 @@ internal sealed class SpotHelper
 				}
 				item = Sys.Downloader.AddFakeItemBeforeNzbDownloaded(spot.Title, spot.MessageId, spot.Category);
 			}
-			string text = ((spot.OldInfo != null) ? AppHelper.FindNzb(AppHelper.HtmlDecode(spot.OldInfo.FileName), spot.OldInfo.Groups.Split('|')[0], spot.Title) : (spot.NZR.IsNullOrEmpty() ? OpenNzb(spot.NZB, spot.Title) : OpenNzb(spot.NZR, spot.Title, spot.NZRKey)));
+			string text = OpenNzb(location, spot.Title, nzrKey);
 			if (!text.IsNullOrEmpty())
 			{
 				if (item == null)

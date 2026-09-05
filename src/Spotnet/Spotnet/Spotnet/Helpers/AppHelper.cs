@@ -1632,30 +1632,6 @@ public static class AppHelper
 		}
 	}
 
-	public static string FindNzb(string sName, string sNewsGroup, string sTitle)
-	{
-		string text = Spots.FindNzb(sName, 600, sNewsGroup, 1400, allowIncomplete: true, extraChecks: false);
-		if (text.IsNullOrEmpty())
-		{
-			ShowPopupMessage(Words.NZBCannotBeFound);
-			return null;
-		}
-		string text2 = GenerateNzbFilePath(MakeFilename(sTitle).Trim() + ".nzb");
-		try
-		{
-			StreamWriter streamWriter = new StreamWriter(text2, append: false, LatinEnc());
-			streamWriter.Write(text);
-			streamWriter.Close();
-			return text2;
-		}
-		catch (Exception ex)
-		{
-			Log.Exception(ex);
-			Error(Words.ErrorOnWriting);
-			return null;
-		}
-	}
-
 	public static byte GetBaseChar(byte lIndex)
 	{
 		if ((uint)lIndex <= 25u)

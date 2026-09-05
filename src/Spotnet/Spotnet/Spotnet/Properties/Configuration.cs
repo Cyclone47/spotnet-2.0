@@ -45,8 +45,6 @@ internal static class Configuration
 
 	internal const string UpdatesPublicKeyXml = "<RSAKeyValue><Modulus>xJ8rOq1i0xsDWuHgRDbCngSyrYGBsamWnKzlFxHQXyPrNo9UjpFU4hONPTnzo5JJlX7SVnbVvY9k64xe3KbTQmXRnU+0GZQ0ikz0XjJgfHTpI+4MmSILx12ZMbN50rDDWHa6Mda/6O/xwV2Tcpi+dFxL63UoGnIW+13pEHg/Dfc=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
 
-	internal static string UpdaterServiceName = "Spotnet Updater";
-
 	internal const int ThumbMaxWidth = 143;
 
 	internal const int ThumbMaxHeight = 210;
