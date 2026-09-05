@@ -310,10 +310,13 @@
   <data name="AboutVersion" xml:space="preserve"><value>Versie {0}</value></data>
   <data name="AboutOriginHeader" xml:space="preserve"><value>Waar dit vandaan komt</value></data>
   <data name="AboutOriginBody" xml:space="preserve"><value>Spotnet 3.0 is gebouwd op de broncode van Spotnet 1.8 en 2.0. De oorspronkelijke client is geschreven door de Spotnet-gemeenschap; deze versie zet dat werk voort en houdt hetzelfde spotformaat, dezelfde filters en dezelfde profielen aan.</value></data>
-  <data name="AboutChangesHeader" xml:space="preserve"><value>De belangrijkste wijzigingen in 3.0</value></data>
-  <data name="AboutChangeRuntime" xml:space="preserve"><value>Draait op .NET 8. Setup installeert de runtime als deze ontbreekt.</value></data>
+  <data name="AboutChangesHeader" xml:space="preserve"><value>De belangrijkste wijzigingen ten opzichte van Spotnet 2</value></data>
+  <data name="AboutChangeRuntime" xml:space="preserve"><value>Draait 64-bits op .NET 10. De runtime zit in de installatiemap van Spotnet zelf, dus los installeren is niet nodig.</value></data>
   <data name="AboutChangeBrowser" xml:space="preserve"><value>Spotpagina's en reacties worden weergegeven in Edge WebView2; het oude Windows-browseronderdeel is verdwenen.</value></data>
   <data name="AboutChangeSearch" xml:space="preserve"><value>Zoeken gebruikt SQLite FTS5; de index wordt eenmalig opgebouwd bij de eerste start.</value></data>
+  <data name="AboutChangeRemote" xml:space="preserve"><value>Spotnet Remote: bedien Spotnet vanaf uw telefoon of tablet, via de browser of de Android-app, gekoppeld met een QR-code.</value></data>
+  <data name="AboutChangeNotifications" xml:space="preserve"><value>Meldingen en alerts op opgeslagen filters, trefwoorden en voltooide downloads, verzameld in een meldingencentrum in de titelbalk.</value></data>
+  <data name="AboutChangeUpdates" xml:space="preserve"><value>Spotnet controleert zelf op nieuwe versies en installeert die na uw akkoord.</value></data>
   <data name="AboutChangeStyles" xml:space="preserve"><value>Drie stijlen: Klassiek, Modern licht en Modern donker, met de filterpictogrammen als glyphs in beide Moderne stijlen.</value></data>
   <data name="AboutChangeVpn" xml:space="preserve"><value>De VPN Nederland-promotie en de bijbehorende integratie zijn verwijderd.</value></data>
   <data name="AboutChangeSetup" xml:space="preserve"><value>Een nieuwe Setup die oudere installaties herkent en uw profiel overzet zonder het origineel aan te raken.</value></data>

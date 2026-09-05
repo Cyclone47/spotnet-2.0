@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Navigation;
@@ -33,6 +33,9 @@ public partial class AboutWindow : MetroWindow
             Words.AboutChangeRuntime,
             Words.AboutChangeBrowser,
             Words.AboutChangeSearch,
+            Words.AboutChangeRemote,
+            Words.AboutChangeNotifications,
+            Words.AboutChangeUpdates,
             Words.AboutChangeStyles,
             Words.AboutChangeVpn,
             Words.AboutChangeSetup,

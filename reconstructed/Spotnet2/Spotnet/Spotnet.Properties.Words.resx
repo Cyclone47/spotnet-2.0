@@ -306,10 +306,13 @@
   <data name="AboutVersion" xml:space="preserve"><value>Version {0}</value></data>
   <data name="AboutOriginHeader" xml:space="preserve"><value>Where this comes from</value></data>
   <data name="AboutOriginBody" xml:space="preserve"><value>Spotnet 3.0 is built on the source of Spotnet 1.8 and 2.0. The original client was written by the Spotnet community; this release continues that work and keeps the same spot format, filters and profiles.</value></data>
-  <data name="AboutChangesHeader" xml:space="preserve"><value>The main changes in 3.0</value></data>
-  <data name="AboutChangeRuntime" xml:space="preserve"><value>Runs on .NET 8. Setup installs the runtime when it is missing.</value></data>
+  <data name="AboutChangesHeader" xml:space="preserve"><value>The main changes compared with Spotnet 2</value></data>
+  <data name="AboutChangeRuntime" xml:space="preserve"><value>Runs 64-bit on .NET 10. The runtime ships inside Spotnet&apos;s own installation folder, so nothing has to be installed separately.</value></data>
   <data name="AboutChangeBrowser" xml:space="preserve"><value>Spot pages and comments render in Edge WebView2; the old Windows browser control is gone.</value></data>
   <data name="AboutChangeSearch" xml:space="preserve"><value>Search uses SQLite FTS5, with the index rebuilt once on first start.</value></data>
+  <data name="AboutChangeRemote" xml:space="preserve"><value>Spotnet Remote: run Spotnet from your phone or tablet, through the browser or the Android companion app, paired with a QR code.</value></data>
+  <data name="AboutChangeNotifications" xml:space="preserve"><value>Notifications and alerts for saved filters, keywords and finished downloads, collected in a notification centre in the title bar.</value></data>
+  <data name="AboutChangeUpdates" xml:space="preserve"><value>Spotnet checks for new versions itself and installs them once you agree.</value></data>
   <data name="AboutChangeStyles" xml:space="preserve"><value>Three styles: Classic, Modern Light and Modern Dark, with the filter icons drawn as glyphs in both Modern styles.</value></data>
   <data name="AboutChangeVpn" xml:space="preserve"><value>The VPN Nederland promotion and its integration have been removed.</value></data>
   <data name="AboutChangeSetup" xml:space="preserve"><value>A new Setup that detects older installations and copies your profile across without touching the original.</value></data>

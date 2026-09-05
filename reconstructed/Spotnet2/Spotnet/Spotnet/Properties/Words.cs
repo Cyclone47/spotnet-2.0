@@ -1,4 +1,4 @@
-using System.CodeDom.Compiler;
+﻿using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -57,6 +57,12 @@ public class Words
 	public static string AboutChangeBrowser => ResourceManager.GetString("AboutChangeBrowser", resourceCulture);
 
 	public static string AboutChangeSearch => ResourceManager.GetString("AboutChangeSearch", resourceCulture);
+
+	public static string AboutChangeRemote => ResourceManager.GetString("AboutChangeRemote", resourceCulture);
+
+	public static string AboutChangeNotifications => ResourceManager.GetString("AboutChangeNotifications", resourceCulture);
+
+	public static string AboutChangeUpdates => ResourceManager.GetString("AboutChangeUpdates", resourceCulture);
 
 	public static string AboutChangeStyles => ResourceManager.GetString("AboutChangeStyles", resourceCulture);
 

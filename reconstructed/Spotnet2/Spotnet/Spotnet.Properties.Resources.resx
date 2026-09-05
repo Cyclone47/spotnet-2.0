@@ -64,7 +64,7 @@
 &lt;/section&gt;
 
 &lt;section class=&quot;notes-section gh-release&quot;&gt;
-    &lt;h3&gt;Spotnet 3.0.7.0 &lt;span class=&quot;gh-tag&quot;&gt;New&lt;/span&gt;&lt;/h3&gt;
+    &lt;h3&gt;Spotnet 3.0.7.0 &lt;span class=&quot;gh-date&quot;&gt;4 September 2026&lt;/span&gt;&lt;/h3&gt;
     &lt;div class=&quot;gh-body&quot;&gt;
         &lt;div class=&quot;feature-highlight&quot; style=&quot;background: rgba(2, 132, 199, 0.08); border-left: 4px solid #0284c7; padding: 14px 18px; margin-bottom: 18px; border-radius: 4px;&quot;&gt;
             &lt;h4 style=&quot;margin: 0 0 6px 0; color: #0284c7; font-size: 16px; font-weight: 700;&quot;&gt;🚀 Highlight: Spotnet Remote (Mobile Companion)&lt;/h4&gt;
@@ -8098,7 +8098,7 @@ if (browserok) {
 &lt;/section&gt;
 
 &lt;section class=&quot;notes-section gh-release&quot;&gt;
-    &lt;h3&gt;Spotnet 3.0.7.0 &lt;span class=&quot;gh-tag&quot;&gt;Nieuw&lt;/span&gt;&lt;/h3&gt;
+    &lt;h3&gt;Spotnet 3.0.7.0 &lt;span class=&quot;gh-date&quot;&gt;4 september 2026&lt;/span&gt;&lt;/h3&gt;
     &lt;div class=&quot;gh-body&quot;&gt;
         &lt;div class=&quot;feature-highlight&quot; style=&quot;background: rgba(2, 132, 199, 0.08); border-left: 4px solid #0284c7; padding: 14px 18px; margin-bottom: 18px; border-radius: 4px;&quot;&gt;
             &lt;h4 style=&quot;margin: 0 0 6px 0; color: #0284c7; font-size: 16px; font-weight: 700;&quot;&gt;🚀 Uitgelicht: Spotnet Remote (Mobiele Companion)&lt;/h4&gt;

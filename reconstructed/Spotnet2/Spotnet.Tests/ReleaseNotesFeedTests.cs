@@ -10,6 +10,8 @@ namespace Spotnet.Tests;
 /// Turning the GitHub releases feed into the markup the notes page renders. No network:
 /// the API's answer is the input, which is the part that has to survive a bad day.
 /// </summary>
+// Shares the global UserLanguageHelper.Culture with AboutWindowContentTests.
+[Collection("UserLanguage")]
 public sealed class ReleaseNotesFeedTests
 {
     private const string Body = "<p>Something changed.</p>";
