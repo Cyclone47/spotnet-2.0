@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Caching;
+
 using NLog;
 using Spotnet.Extensions;
 using Spotnet.Model;
@@ -13,34 +13,14 @@ internal static class FileCacheManager
 {
 	private static readonly Logger Log;
 
-	private static readonly FileCache FileCache;
+	private static readonly JsonSpotCache FileCache;
 
 	internal static KeyValuePair<string, SpotEx> PreviewData;
-
-	private static bool _isMessageAboutSizeLimitReachedShown;
 
 	static FileCacheManager()
 	{
 		Log = LogManager.GetCurrentClassLogger();
-		FileCache = new FileCache(AppHelper.SettingsFolder, new ObjectBinder())
-		{
-			MaxCacheSize = 52428800L
-		};
-		FileCache.MaxCacheSizeReached += FileCacheOnMaxCacheSizeReached;
-	}
-
-	private static void FileCacheOnMaxCacheSizeReached(object sender, FileCacheEventArgs fileCacheEventArgs)
-	{
-		if (!_isMessageAboutSizeLimitReachedShown)
-		{
-			Log.Debug("Max cache size is reached");
-			_isMessageAboutSizeLimitReachedShown = true;
-		}
-	}
-
-	private static string Key(string messageId)
-	{
-		return "Spot" + messageId;
+		FileCache = new JsonSpotCache(AppHelper.SettingsFolder);
 	}
 
 	public static bool Contains(string messageId)
@@ -53,7 +33,7 @@ internal static class FileCacheManager
 		{
 			throw new ArgumentNullException("messageId");
 		}
-		return FileCache.Contains(Key(messageId));
+		return FileCache.Get(messageId) != null;
 	}
 
 	public static SpotEx Get(string messageId)
@@ -72,7 +52,7 @@ internal static class FileCacheManager
 			{
 				throw new ArgumentNullException("messageId");
 			}
-			return FileCache[Key(messageId)] as SpotEx;
+			return FileCache.Get(messageId);
 		}
 		catch (Exception ex)
 		{
@@ -109,7 +89,7 @@ internal static class FileCacheManager
 		}
 		if (spotEx2.Body.IsNullOrEmpty() || spotEx2.ImageSource.IsNullOrEmpty())
 		{
-			SpotEx spotEx3 = FileCache[Key(spotEx.MessageId)] as SpotEx;
+			SpotEx spotEx3 = FileCache.Get(spotEx.MessageId);
 			if (spotEx3 != null && !spotEx3.Body.IsNullOrEmpty() && spotEx2.Body.IsNullOrEmpty())
 			{
 				spotEx2.Body = spotEx3.Body;
@@ -123,6 +103,6 @@ internal static class FileCacheManager
 				return;
 			}
 		}
-		FileCache[Key(spotEx.MessageId)] = spotEx2;
+		FileCache.Save(spotEx2);
 	}
 }

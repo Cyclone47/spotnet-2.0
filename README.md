@@ -9,7 +9,7 @@ Spotnet is a client, not a Usenet service — you supply access to a news server
 | | |
 | --- | --- |
 | **Version** | 3.0.6.0 |
-| **Platform** | Windows 10/11 x64 · C# / WPF · .NET 8 |
+| **Platform** | Windows 10/11 x64 · C# / WPF · .NET 10 |
 | **Tests** | 243 passing on the x64 Release host |
 | **Based on** | Spotnet 2.0 (build 2.0.0.284), with Spotnet 1.8.1 as reference |
 
@@ -25,7 +25,7 @@ closes Spotnet safely, copies your selected profile into a separate 3.0 data fol
 updates your existing Desktop and Start Menu shortcuts. Old application files and source
 profiles are left untouched; active download queues are not imported.
 
-Setup installs the .NET 8 Desktop Runtime and Microsoft Edge WebView2 if they are missing.
+Setup includes .NET 10 inside the Spotnet installation folder. No separate .NET installation is needed. Setup installs Microsoft Edge WebView2 if it is missing.
 
 > **The installer is unsigned.** Windows may show an unknown-publisher warning. No
 > publisher certificate exists for this project yet.
@@ -70,7 +70,7 @@ See the [source provenance record](docs/reference/SOURCE_PROVENANCE.md) and the
 
 Full history lives in the [release notes](docs/releases/). The headline changes:
 
-- **Runs on .NET 8** (from .NET Framework). Setup installs the runtime when missing.
+- **Runs on .NET 10** with the runtime included in Setup.
 - **Edge WebView2** replaces the Windows browser control everywhere, spot pages and
   comments included. The MSHTML control is gone from the source tree.
 - **SQLite FTS5** search, with the index rebuilt once on first start.
@@ -157,19 +157,19 @@ and media preview with docking/tab behavior.
 ### Requirements
 
 - Windows x64 (development target: Windows 10/11).
-- The **.NET 8 SDK** with the Windows desktop workload.
+- The **.NET 10 SDK** with the Windows desktop workload.
 - **Microsoft Edge WebView2 Evergreen Runtime** for WebView2-backed pages.
 - NuGet access for package restore; news-server access for live Usenet use.
 
 The setup helper targets `net472`, which every supported Windows already has, so it can run
-before the .NET 8 runtime is installed.
+without requiring the bundled .NET 10 runtime to be installed separately.
 
 ### Application
 
 ```powershell
 dotnet build reconstructed/Spotnet2/Spotnet.sln -c Release
 dotnet test reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj -c Release --no-build
-& "./reconstructed/Spotnet2/Spotnet/bin/Release/net8.0-windows/Spotnet.exe"
+& "./reconstructed/Spotnet2/Spotnet/bin/Release/net10.0-windows/Spotnet.exe"
 ```
 
 Keep the **entire output directory** together when running or copying a build.

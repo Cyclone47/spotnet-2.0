@@ -3,6 +3,9 @@
   #error PayloadDir must be supplied by build-installer.ps1
 #endif
 #define AppVersion GetVersionNumbersString(PayloadDir + "\Spotnet.exe")
+#ifndef SetupSuffix
+  #define SetupSuffix ""
+#endif
 
 [Setup]
 AppId={{76851D20-501E-45B0-9869-853F814BE60E}
@@ -35,7 +38,7 @@ OutputDir={#OutputDir}
 OutputBaseFilename=Spotnet-3.0-x64-Setup-smoke
 CreateUninstallRegKey=no
 #else
-OutputBaseFilename=Spotnet-3.0-x64-Setup
+OutputBaseFilename=Spotnet-3.0-x64-Setup{#SetupSuffix}
 #endif
 SetupIconFile=..\reconstructed\Spotnet2\Spotnet\Resources\ImagesInternal\spotnet.ico
 UninstallDisplayIcon={app}\Spotnet.exe
@@ -57,7 +60,7 @@ VersionInfoCopyright=Copyright (C) 2014-2026 Spotnet 3.0 contributors
 #ifdef SmokeTestRoot
 VersionInfoOriginalFileName=Spotnet-3.0-x64-Setup-smoke.exe
 #else
-VersionInfoOriginalFileName=Spotnet-3.0-x64-Setup.exe
+VersionInfoOriginalFileName=Spotnet-3.0-x64-Setup{#SetupSuffix}.exe
 #endif
 UninstallDisplayName=Spotnet 3.0 (64-bit)
 ; Authenticode signing is opt-in: build-installer.ps1 defines SignSetup and supplies the
@@ -298,7 +301,9 @@ Source: "{#PreviewDir}\style-modern-light.bmp"; Flags: dontcopy
 Source: "{#PreviewDir}\style-modern-dark.bmp"; Flags: dontcopy
 Source: "{#PreviewDir}\style-classic.bmp"; Flags: dontcopy
 Source: "{#WebViewBootstrapper}"; DestName: "MicrosoftEdgeWebview2Setup.exe"; Flags: dontcopy
+#ifndef SelfContained
 Source: "{#DotNetBootstrapper}"; DestName: "windowsdesktop-runtime.exe"; Flags: dontcopy
+#endif
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "Spotnet.install"; DestDir: "{app}"; Flags: ignoreversion
 
@@ -791,6 +796,7 @@ begin
     exit;
   end;
 #endif
+#ifndef SelfContained
   if ShowProgress then begin
     ProgressPage.SetProgress(1, 4);
     ProgressPage.SetText(CM('StatusDotNet'), CM('ProgressDetail'));
@@ -816,6 +822,7 @@ begin
     if ShowProgress then SetBusy(False);
 #endif
   end;
+#endif
   if ShowProgress then begin
     ProgressPage.SetProgress(2, 4);
     ProgressPage.SetText(CM('StatusWebView'), CM('ProgressDetail'));

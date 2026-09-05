@@ -48,7 +48,7 @@
   const tabBtnPin = document.getElementById('tabBtnPin');
   const authViewPassword = document.getElementById('authViewPassword');
   const authViewPin = document.getElementById('authViewPin');
-  const loginUsername = document.getElementById('loginUsername');
+
   const loginPassword = document.getElementById('loginPassword');
   const btnToggleLoginPassword = document.getElementById('btnToggleLoginPassword');
   const btnSubmitLogin = document.getElementById('btnSubmitLogin');
@@ -1027,13 +1027,13 @@
   }
 
   async function submitLogin() {
-    if (!loginUsername || !loginPassword) return;
-    const username = loginUsername.value.trim();
+    if (!loginPassword) return;
+
     const password = loginPassword.value;
 
-    if (!username || !password) {
+    if (!password) {
       if (loginError) {
-        loginError.textContent = 'Vul zowel gebruikersnaam als wachtwoord in.';
+        loginError.textContent = 'Vul je wachtwoord in.';
         loginError.style.display = 'block';
       }
       return;
@@ -1050,7 +1050,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: username,
+
           password: password,
           deviceName: navigator.userAgent.includes('iPhone') ? 'iPhone' : (navigator.userAgent.includes('Android') ? 'Android' : 'Mobiele Browser')
         })
@@ -1066,7 +1066,7 @@
         initApp();
       } else {
         if (loginError) {
-          loginError.textContent = data.errorMessage || 'Onjuiste gebruikersnaam of wachtwoord.';
+          loginError.textContent = data.errorMessage || 'Onjuist wachtwoord.';
           loginError.style.display = 'block';
         }
       }
@@ -1116,18 +1116,6 @@
   // Event Listeners for Authentication
   if (btnSubmitLogin) {
     btnSubmitLogin.addEventListener('click', submitLogin);
-  }
-
-  if (loginUsername) {
-    loginUsername.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        if (loginPassword && !loginPassword.value) {
-          loginPassword.focus();
-        } else {
-          submitLogin();
-        }
-      }
-    });
   }
 
   if (loginPassword) {

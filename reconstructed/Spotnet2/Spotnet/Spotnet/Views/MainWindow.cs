@@ -635,22 +635,27 @@ public partial class MainWindow : MetroWindow
         }
     }
 
-    private void OnLoad()
+    private readonly TaskCompletionSource<bool> _startupSettingsReady =
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private bool _loadStarted;
+
+    private async void OnLoad()
     {
+        if (_loadStarted) return;
+        _loadStarted = true;
         try
         {
+            // Loaded may be raised before the background startup work completes
+            // (for example when another window activates this one).
+            if (!await _startupSettingsReady.Task || Sys.IsShutdownRequested) return;
             // Step 6: Interface ready â€” animate to 100% then fade splash
             Views.SplashWindow.SetProgress(6);
             System.Threading.Thread.Sleep(200); // brief pause so user sees the step
-            // Ask about a new version while the splash is still up, so an update is
-            // offered as Spotnet opens instead of a minute into using it. Bounded, so an
-            // unreachable server delays the start by a moment and nothing more.
-            AppUpdater.CheckOnStartup(Views.SplashWindow.SetMessage);
             Views.SplashWindow.SetProgress(7); // "Ready!"
             System.Threading.Thread.Sleep(300); // let the bar fill animate
             App.CloseSplash();
 
-            if (AppHelper.ServersDb.ODown.Server.Trim().IsNullOrEmpty())
+            if (string.IsNullOrWhiteSpace(AppHelper.ServersDb.ODown.Server))
             {
                 if (SelectProvider())
                 {
@@ -1898,6 +1903,8 @@ public partial class MainWindow : MetroWindow
                     return;
                 }
 
+                _startupSettingsReady.TrySetResult(true);
+
                 if (AppHelper.ServersDb.ODown.Server.IsNullOrEmpty())
                 {
                     Log.Info("Provider is not selected");
@@ -1925,6 +1932,11 @@ public partial class MainWindow : MetroWindow
             {
                 Log.Exception(ex2, showToClient: true);
                 Sys.Shutdown();
+            }
+            finally
+            {
+                // Release any early Loaded handler on failed/timed-out startup too.
+                _startupSettingsReady.TrySetResult(false);
             }
         }).ContinueWith(delegate
         {
@@ -2100,11 +2112,6 @@ public partial class MainWindow : MetroWindow
         AppUpdater.CleanupOldDownloads();
         AppUpdater.UpdateOffered += OnUpdateOffered;
         AppUpdater.StartPeriodicCheck();
-        // What the splash-screen check found, now that there is a window to own the dialog.
-        if (AppUpdater.TryTakePendingOffer(out UpdateManifest pending, out UpdateDecision decision))
-        {
-            base.Dispatcher.BeginInvoke(new Action(() => ShowUpdateWindow(pending, decision)));
-        }
     }
 
     private void OnUpdateOffered(UpdateManifest manifest, UpdateDecision decision)

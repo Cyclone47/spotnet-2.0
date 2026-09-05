@@ -11,37 +11,37 @@ namespace Spotnet.Controls;
 public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
 {
     private RemoteConfig _config;
+    private string _pendingPassword;
+    private readonly Func<string> _requestPassword;
 
-    public SettingsForRemote()
+    public SettingsForRemote() : this(null, null) { }
+
+    internal SettingsForRemote(RemoteConfig config, Func<string> requestPassword)
     {
+        _requestPassword = requestPassword ?? ShowPasswordDialog;
         InitializeComponent();
-        LoadConfig();
+        LoadConfig(config);
     }
 
-    private void LoadConfig()
+    private void LoadConfig(RemoteConfig config)
     {
-        _config = RemoteConfig.Load();
+        _config = config ?? RemoteConfig.Load();
         EnableRemoteCheckBox.IsChecked = _config.Enabled;
         PortTextBox.Text = _config.Port.ToString();
         AllowLanCheckBox.IsChecked = _config.AllowLan;
         RequireAuthCheckBox.IsChecked = _config.RequireAuth;
         KeepAwakeCheckBox.IsChecked = _config.KeepAwake;
 
-        AuthUsernameTextBox.Text = string.IsNullOrWhiteSpace(_config.AuthUsername) ? "admin" : _config.AuthUsername;
-        AuthPasswordBox.Password = "";
-        AuthPasswordVisibleTextBox.Text = "";
-        ShowPasswordCheckBox.IsChecked = false;
-
         UpdateUiState();
         UpdateAuthUiState();
         UpdatePasswordHint();
-        RefreshDevicesList();
+        PairedDevicesListBox.ItemsSource = _config.PairedDevices.OrderByDescending(d => d.LastSeenAt).ToList();
     }
 
     private void UpdateUiState()
     {
         bool isEnabled = EnableRemoteCheckBox.IsChecked == true;
-        RemoteConfigPanel.IsEnabled = isEnabled;
+        RemoteConfigPanel.IsEnabled = true; // Allow configuration while Remote is off.
 
         if (isEnabled && RemoteServer.Instance.IsRunning)
         {
@@ -77,55 +77,38 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         NoAuthWarningTextBlock.Visibility = authRequired ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private string GetEnteredPassword()
-    {
-        if (ShowPasswordCheckBox.IsChecked == true)
-        {
-            return AuthPasswordVisibleTextBox.Text;
-        }
-        return AuthPasswordBox.Password;
-    }
-
-    private void FocusPasswordBox()
-    {
-        if (ShowPasswordCheckBox.IsChecked == true)
-        {
-            AuthPasswordVisibleTextBox.Focus();
-        }
-        else
-        {
-            AuthPasswordBox.Focus();
-        }
-    }
-
     private void UpdatePasswordHint()
     {
-        string pwd = GetEnteredPassword();
-        if (string.IsNullOrEmpty(pwd))
-        {
-            if (!string.IsNullOrEmpty(_config.PasswordHash))
-            {
-                AuthPasswordHintTextBlock.Text = "✓ Wachtwoord ingesteld (laat leeg om te behouden)";
-                AuthPasswordHintTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(16, 185, 129));
-            }
-            else
-            {
-                AuthPasswordHintTextBlock.Text = "⚠️ Voer een nieuw wachtwoord in (minimaal 6 tekens)";
-                AuthPasswordHintTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(245, 158, 11));
-            }
-        }
-        else if (pwd.Length < 6)
-        {
-            AuthPasswordHintTextBlock.Text = $"⚠️ Te kort ({pwd.Length}/6 tekens - minimaal 6 tekens vereist)";
-            AuthPasswordHintTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(239, 68, 68));
-        }
-        else
-        {
-            AuthPasswordHintTextBlock.Text = "✓ Wachtwoord voldoet aan minimale lengte";
-            AuthPasswordHintTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(16, 185, 129));
-        }
+        bool configured = !string.IsNullOrEmpty(_pendingPassword) || !string.IsNullOrEmpty(_config.PasswordHash);
+        AuthPasswordHintTextBlock.Text = configured ? "Wachtwoord ingesteld" : "Nog geen wachtwoord ingesteld";
+        ChangePasswordButton.Content = configured ? "Wachtwoord wijzigen…" : "Wachtwoord instellen…";
     }
 
+    private string ShowPasswordDialog()
+    {
+        var dialog = new RemotePasswordWindow { Owner = Window.GetWindow(this) };
+        return dialog.ShowDialog() == true ? dialog.Password : null;
+    }
+
+    private bool AskForPassword()
+    {
+        string password = _requestPassword();
+        if (password == null) return false;
+        _pendingPassword = password;
+        UpdatePasswordHint();
+        return true;
+    }
+
+    private bool EnsurePassword()
+    {
+        return !string.IsNullOrEmpty(_pendingPassword) ||
+            (!string.IsNullOrEmpty(_config.PasswordHash) && !string.IsNullOrEmpty(_config.PasswordSalt)) || AskForPassword();
+    }
+
+    private void ChangePasswordButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (AskForPassword()) Save();
+    }
     private void RefreshDevicesList()
     {
         _config = RemoteConfig.Load();
@@ -137,9 +120,10 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
     {
         if (EnableRemoteCheckBox.IsChecked == true)
         {
-            if (!VerifyFields())
+            if ((RequireAuthCheckBox.IsChecked == true && !EnsurePassword()) || !VerifyFields())
             {
                 EnableRemoteCheckBox.IsChecked = false;
+                UpdateUiState();
                 return;
             }
         }
@@ -158,16 +142,12 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
     private void RequireAuthCheckBox_Click(object sender, RoutedEventArgs e)
     {
         UpdateAuthUiState();
-        if (RequireAuthCheckBox.IsChecked == true)
+        if (RequireAuthCheckBox.IsChecked == true && !EnsurePassword())
         {
-            // If turning on auth and no password configured yet, focus password box
-            if (string.IsNullOrEmpty(_config.PasswordHash) && string.IsNullOrEmpty(GetEnteredPassword()))
-            {
-                FocusPasswordBox();
-                return;
-            }
+            RequireAuthCheckBox.IsChecked = _config.RequireAuth;
+            UpdateAuthUiState();
+            return;
         }
-
         if (VerifyFields())
         {
             Save();
@@ -185,49 +165,6 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         {
             Save();
         }
-    }
-
-    private void AuthUsernameTextBox_LostFocus(object sender, RoutedEventArgs e)
-    {
-        if (RequireAuthCheckBox.IsChecked == true && VerifyFields())
-        {
-            Save();
-        }
-    }
-
-    private void AuthPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-    {
-        if (ShowPasswordCheckBox.IsChecked != true)
-        {
-            UpdatePasswordHint();
-        }
-    }
-
-    private void AuthPasswordVisibleTextBox_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        if (ShowPasswordCheckBox.IsChecked == true)
-        {
-            UpdatePasswordHint();
-        }
-    }
-
-    private void ShowPasswordCheckBox_Click(object sender, RoutedEventArgs e)
-    {
-        if (ShowPasswordCheckBox.IsChecked == true)
-        {
-            AuthPasswordVisibleTextBox.Text = AuthPasswordBox.Password;
-            AuthPasswordVisibleTextBox.Visibility = Visibility.Visible;
-            AuthPasswordBox.Visibility = Visibility.Collapsed;
-            AuthPasswordVisibleTextBox.Focus();
-        }
-        else
-        {
-            AuthPasswordBox.Password = AuthPasswordVisibleTextBox.Text;
-            AuthPasswordBox.Visibility = Visibility.Visible;
-            AuthPasswordVisibleTextBox.Visibility = Visibility.Collapsed;
-            AuthPasswordBox.Focus();
-        }
-        UpdatePasswordHint();
     }
 
     private void OpenBrowserButton_Click(object sender, RoutedEventArgs e)
@@ -290,26 +227,11 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
 
             if (RequireAuthCheckBox.IsChecked == true)
             {
-                string username = AuthUsernameTextBox.Text.Trim();
-                if (string.IsNullOrWhiteSpace(username))
+                if (string.IsNullOrEmpty(_pendingPassword) &&
+                    (string.IsNullOrEmpty(_config.PasswordHash) || string.IsNullOrEmpty(_config.PasswordSalt)))
                 {
-                    MessageBox.Show("Voer een gebruikersnaam in voor authenticatie.", "Gebruikersnaam vereist", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    AuthUsernameTextBox.Focus();
-                    return false;
-                }
-
-                string enteredPassword = GetEnteredPassword();
-                if (string.IsNullOrEmpty(_config.PasswordHash) && string.IsNullOrEmpty(enteredPassword))
-                {
-                    MessageBox.Show("Voer een wachtwoord in (minimaal 6 tekens) om authenticatie in te schakelen.", "Wachtwoord vereist", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    FocusPasswordBox();
-                    return false;
-                }
-
-                if (!string.IsNullOrEmpty(enteredPassword) && enteredPassword.Length < 6)
-                {
-                    MessageBox.Show("Het wachtwoord moet minimaal 6 tekens lang zijn om veilig te zijn tegen kraken.", "Wachtwoord te kort", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    FocusPasswordBox();
+                    MessageBox.Show("Stel eerst een wachtwoord in voor Spotnet Remote.", "Wachtwoord vereist", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ChangePasswordButton.Focus();
                     return false;
                 }
             }
@@ -336,16 +258,11 @@ public partial class SettingsForRemote : UserControl, IAdvancedSettingsControl
         _config.AllowLan = AllowLanCheckBox.IsChecked == true;
         _config.RequireAuth = RequireAuthCheckBox.IsChecked == true;
         _config.KeepAwake = KeepAwakeCheckBox.IsChecked == true;
-        _config.AuthUsername = string.IsNullOrWhiteSpace(AuthUsernameTextBox.Text) ? "admin" : AuthUsernameTextBox.Text.Trim();
-
-        string enteredPassword = GetEnteredPassword();
-        if (!string.IsNullOrEmpty(enteredPassword))
+        if (!string.IsNullOrEmpty(_pendingPassword))
         {
-            _config.SetPassword(enteredPassword);
-            AuthPasswordBox.Password = "";
-            AuthPasswordVisibleTextBox.Text = "";
+            _config.SetPassword(_pendingPassword);
+            _pendingPassword = null;
         }
-
         _config.Save();
         RemoteAuthManager.Instance.ReloadConfig();
 

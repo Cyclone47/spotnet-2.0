@@ -38,15 +38,9 @@ internal static class AppUpdater
     /// </summary>
     private static readonly TimeSpan StartupBudget = TimeSpan.FromSeconds(3.0);
 
-    /// <summary>The message stays up this long even when the answer comes back at once.</summary>
-    private static readonly TimeSpan StartupMinimumDwell = TimeSpan.FromMilliseconds(900.0);
-
     private static Timer _timer;
     private static int _busy;
     private static bool _startupCheckAnswered;
-
-    /// <summary>What the startup check found, waiting for the main window to be up.</summary>
-    internal static (UpdateManifest Manifest, UpdateDecision Decision)? PendingOffer { get; private set; }
 
     /// <summary>
     /// Set once Setup has been started and is waiting for this process to let go of its
@@ -95,61 +89,17 @@ internal static class AppUpdater
         Log.Debug("Update checks scheduled: first in {0}, then every {1}.", first, CheckInterval);
     }
 
-    /// <summary>
-    /// The check that runs while the splash screen is still up, so an update is offered as
-    /// the application opens rather than a minute into using it. Blocks the caller for at
-    /// most <see cref="StartupBudget"/>; a server that is slow or unreachable costs that
-    /// and no more, and the periodic timer picks the answer up later.
-    ///
-    /// The result is parked in <see cref="PendingOffer"/> rather than shown here: a modal
-    /// prompt belongs over the main window, not over a splash screen that is about to
-    /// close underneath it.
-    /// </summary>
-    internal static void CheckOnStartup(Action<string, string> showMessage)
+    /// <summary>Ask before any main-window, provider or database initialization.</summary>
+    internal static async Task<bool> CheckOnStartupAsync(Action<string, string> showMessage,
+        Func<UpdateManifest, UpdateDecision, Task<bool>> prompt)
     {
-        if (!IsSupported || !Settings.Default.AutoUpdateEnabled) return;
-        try
-        {
-            showMessage?.Invoke("Controleren op updates...", "Checking for updates...");
-            var clock = Stopwatch.StartNew();
-            Task<(UpdateManifest, UpdateDecision, string)> check = Task.Run(() => CheckAsync(CancellationToken.None));
-            if (!check.Wait(StartupBudget))
-            {
-                Log.Debug("Update check did not answer within {0}; leaving it to the timer.", StartupBudget);
-                return;
-            }
-
-            (UpdateManifest manifest, UpdateDecision decision, string error) = check.Result;
-            _startupCheckAnswered = true;
-            if (error != null)
-            {
-                Log.Debug("Update check: {0}", error);
-                return;
-            }
-            Log.Debug("Update check: {0}", decision.Reason);
-            if (decision.ShouldPrompt) PendingOffer = (manifest, decision);
-
-            // Without this the message can flash by too quickly to read on a fast answer.
-            TimeSpan remaining = StartupMinimumDwell - clock.Elapsed;
-            if (remaining > TimeSpan.Zero) Thread.Sleep(remaining);
-        }
-        catch (Exception ex)
-        {
-            // Nothing about an update check is worth delaying or breaking a start over.
-            Log.Debug("Update check on startup failed: {0}", ex.Message);
-        }
+        if (!IsSupported || !Settings.Default.AutoUpdateEnabled) return true;
+        showMessage?.Invoke("Controleren op updates...", "Checking for updates...");
+        var gate = new StartupUpdateGate();
+        bool proceed = await gate.RunAsync(CheckAsync, prompt, StartupBudget);
+        _startupCheckAnswered = gate.Answered;
+        return proceed;
     }
-
-    /// <summary>Hands the startup result over once, so a later call does not prompt again.</summary>
-    internal static bool TryTakePendingOffer(out UpdateManifest manifest, out UpdateDecision decision)
-    {
-        (UpdateManifest Manifest, UpdateDecision Decision)? offer = PendingOffer;
-        PendingOffer = null;
-        manifest = offer?.Manifest;
-        decision = offer?.Decision ?? default;
-        return offer.HasValue;
-    }
-
     internal static void StopPeriodicCheck()
     {
         Timer timer = Interlocked.Exchange(ref _timer, null);

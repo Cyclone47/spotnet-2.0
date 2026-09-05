@@ -70,7 +70,7 @@ public partial class App : Application
         Log.Exception(e.Exception);
     }
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         try
         {
@@ -141,25 +141,40 @@ public partial class App : Application
             // Show our custom SplashWindow (replaces the plain WPF SplashScreen).
             // Language is initialized before showing so the step labels are already localized.
             UserLanguageHelper.Initialize(Settings.Default.UserLanguage);
+            ThemeHelper.Initialize();
+            Views.SplashWindow.ShowSplash();
+            bool proceed = await AppUpdater.CheckOnStartupAsync(Views.SplashWindow.SetMessage,
+                (manifest, decision) =>
+                {
+                    new Views.UpdateWindow(manifest, decision)
+                    {
+                        Owner = Views.SplashWindow.Current,
+                        ShowInTaskbar = true
+                    }.ShowDialog();
+                    return Task.FromResult(!AppUpdater.HandoverInProgress && !Sys.IsShutdownRequested);
+                });
+            if (!proceed || Sys.IsShutdownRequested) return;
+
+            Views.SplashWindow.SetProgress(1); // "Loading settings..."
             if (InstalledProfile.Enabled && !Settings.Default.FiltersAreInitialized)
             {
                 if (!Filters.InitializeDefaultFilters()) throw new IOException("Unable to initialize the Spotnet 3.0 filters.");
                 Settings.Default.FiltersAreInitialized = true;
                 Settings.Default.Save();
             }
-            ThemeHelper.Initialize();
-            Views.SplashWindow.ShowSplash();
-            Views.SplashWindow.SetProgress(1); // "Loading settings..."
-
             SquirrelStuff.AfterDeploymentActions();
             Settings.Default.IsNewVersion = false;
             Settings.Default.MaxResults = 250;
             Settings.Default.Save();
             ThreadPool.SetMaxThreads(256, 1000);
+            // No StartupUri: WPF must not construct this while the asynchronous gate
+            // is waiting. Its initialization opens databases and starts provider setup.
+            Views.StartupWindowLauncher.CreateMainWindow(this, () => new Views.MainWindow());
         }
         catch (Exception ex)
         {
             Log.Exception(ex, showToClient: true);
+            Sys.Shutdown();
         }
         finally
         {

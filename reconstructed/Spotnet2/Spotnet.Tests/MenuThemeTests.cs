@@ -73,6 +73,83 @@ public sealed class MenuThemeTests
         return border;
     }
 
+    private static void CheckDeferredStartupWindow(Application app)
+    {
+        Window previous = app.MainWindow;
+        bool ready = false;
+        bool loadedBeforeReady = false;
+        int loaded = 0;
+        // Real WPF lifecycle, without a Spotnet profile or visible desktop window.
+        var window = new Window {
+            Visibility = Visibility.Hidden, Opacity = 0, ShowInTaskbar = false,
+            Width = 1, Height = 1, Left = -10000, Top = -10000
+        };
+        window.Loaded += (_, _) => {
+            loadedBeforeReady |= !ready;
+            loaded++;
+        };
+        try
+        {
+            Spotnet.Views.StartupWindowLauncher.CreateMainWindow(app, () => window);
+            Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+            Assert.False(loadedBeforeReady, "Loaded ran before server settings were available.");
+            Assert.Equal(0, loaded);
+            Assert.False(window.IsVisible);
+            ready = true;
+            window.Visibility = Visibility.Visible;
+            Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+            Assert.Equal(1, loaded);
+        }
+        finally
+        {
+            window.Close();
+            app.MainWindow = previous;
+        }
+    }
+
+    private static void CheckRemotePasswordSetup()
+    {
+        var config = new Spotnet.Remote.RemoteConfig { Enabled = false, RequireAuth = true };
+        int prompts = 0;
+        var settings = new SettingsForRemote(config, () => { prompts++; return null; });
+        Layout(settings);
+        Assert.True(((Border)settings.FindName("RemoteConfigPanel")).IsEnabled);
+        Assert.True(((Button)settings.FindName("ChangePasswordButton")).IsEnabled);
+        var enable = (CheckBox)settings.FindName("EnableRemoteCheckBox");
+        enable.IsChecked = true;
+        enable.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+        Assert.Equal(1, prompts);
+        Assert.False(enable.IsChecked);
+        Assert.False(config.Enabled);
+        Assert.Empty(config.PasswordHash);
+
+        var dialog = new RemotePasswordWindow();
+        try
+        {
+            Layout(dialog);
+            Assert.IsType<PasswordBox>(dialog.FindName("PasswordInput"));
+            Assert.IsType<PasswordBox>(dialog.FindName("ConfirmInput"));
+            string output = Environment.GetEnvironmentVariable("SPOTNET_REMOTE_PREVIEW_DIR");
+            if (!string.IsNullOrEmpty(output))
+            {
+                var content = (FrameworkElement)dialog.Content;
+                dialog.Content = null;
+                content.Margin = new Thickness(0);
+                content.Width = 382;
+                var surface = new Border { Background = Brushes.White, Padding = new Thickness(24), Child = content };
+                Layout(surface);
+                var bitmap = new RenderTargetBitmap((int)Math.Ceiling(surface.ActualWidth), (int)Math.Ceiling(surface.ActualHeight), 96, 96, PixelFormats.Pbgra32);
+                bitmap.Render(surface);
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                Directory.CreateDirectory(output);
+                using var file = File.Create(System.IO.Path.Combine(output, "remote-password.png"));
+                encoder.Save(file);
+            }
+        }
+        finally { dialog.Close(); }
+    }
+
     private static void CheckRow(MenuItem item, Brush background)
     {
         item.ApplyTemplate();
@@ -183,6 +260,8 @@ public sealed class MenuThemeTests
                     SavePreview(parent, theme);
                 }
                 CheckSpotSurfaces(app);
+                CheckDeferredStartupWindow(app);
+                CheckRemotePasswordSetup();
             }
             catch (Exception ex) { error = ex; }
             finally { app?.Shutdown(); }

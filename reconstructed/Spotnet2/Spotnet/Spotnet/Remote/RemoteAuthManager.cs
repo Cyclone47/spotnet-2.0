@@ -64,9 +64,9 @@ public class RemoteAuthManager
 
     public async System.Threading.Tasks.Task<LoginResponseDto> TryLoginAsync(LoginRequestDto request, string clientIp)
     {
-        if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrEmpty(request.Password))
+        if (request == null || string.IsNullOrEmpty(request.Password))
         {
-            return new LoginResponseDto { Success = false, ErrorMessage = "Gebruikersnaam en wachtwoord zijn verplicht." };
+            return new LoginResponseDto { Success = false, ErrorMessage = "Vul je wachtwoord in." };
         }
 
         if (PasswordSecurity.IsIpLockedOut(clientIp, out TimeSpan lockRemaining))
@@ -80,7 +80,7 @@ public class RemoteAuthManager
         }
 
         // If auth is not required, or credentials match
-        bool credentialsOk = !_config.RequireAuth || _config.VerifyCredentials(request.Username, request.Password);
+        bool credentialsOk = !_config.RequireAuth || _config.VerifyPassword(request.Password);
         if (!credentialsOk)
         {
             var (isLocked, remaining) = await PasswordSecurity.RecordFailedAttemptAsync(clientIp);
@@ -97,7 +97,7 @@ public class RemoteAuthManager
             return new LoginResponseDto
             {
                 Success = false,
-                ErrorMessage = "Onjuiste gebruikersnaam of wachtwoord."
+                ErrorMessage = "Onjuist wachtwoord."
             };
         }
 
@@ -112,7 +112,7 @@ public class RemoteAuthManager
 
         string deviceName = string.IsNullOrWhiteSpace(request.DeviceName) ? "Mobiel Apparaat" : request.DeviceName.Trim();
         string user = string.IsNullOrWhiteSpace(_config.AuthUsername) ? "admin" : _config.AuthUsername.Trim();
-        string displayName = $"{deviceName} ({user})";
+        string displayName = deviceName;
 
         var device = new PairedDevice
         {
@@ -127,7 +127,7 @@ public class RemoteAuthManager
         _config.PairedDevices.Add(device);
         _config.Save();
 
-        Log.Info("User '{0}' logged in successfully from device '{1}' ({2})", user, device.Name, device.IpAddress);
+        Log.Info("Remote login from device '{0}' ({1})", device.Name, device.IpAddress);
 
         return new LoginResponseDto
         {

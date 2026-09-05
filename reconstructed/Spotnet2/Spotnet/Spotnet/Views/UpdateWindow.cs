@@ -56,7 +56,10 @@ public partial class UpdateWindow : MetroWindow
         {
             if (Owner is not MainWindow mainWindow)
             {
-                Log.Warn("The update release-notes link has no Spotnet main window owner.");
+                // Startup has no main window yet. Keep the decision open and show
+                // the validated release-notes URL in the user's default browser.
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(
+                    _manifest.ReleaseNotesUrl.AbsoluteUri) { UseShellExecute = true });
                 return;
             }
 
@@ -157,6 +160,7 @@ public partial class UpdateWindow : MetroWindow
 
     private void ResetAfterFailure(string message)
     {
+        _handedOver = false;
         _working = false;
         _cancellation?.Dispose();
         _cancellation = null;

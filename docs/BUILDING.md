@@ -8,8 +8,8 @@ This document provides complete instructions for building and testing Spotnet 3.
 
 - **Operating System:** Windows 10 / 11 x64
 - **SDK / Build Tools:**
-  - .NET SDK (6.0, 8.0, 9.0+)
-  - Visual Studio 2022 / Visual Studio Build Tools with:
+  - .NET 10 SDK
+  - Visual Studio / Build Tools compatible with .NET 10, with:
     - .NET desktop development workload
     - .NET Framework 4.7.2 targeting pack
 - **Platform Architecture:** `x64` (the application, tests, SQLite interop, WebView2 loader, and LibVLC runtime are all 64-bit)

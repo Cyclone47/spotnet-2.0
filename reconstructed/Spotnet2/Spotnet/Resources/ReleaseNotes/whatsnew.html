@@ -1,5 +1,19 @@
-﻿<section class="notes-section gh-release">
-    <h3>Spotnet 3.0.7.0 <span class="gh-tag">New</span><span class="gh-date">Current version</span></h3>
+<section class="notes-section gh-release">
+<h3>Spotnet 3.0.8.0 <span class="gh-tag">New</span><span class="gh-date">Current version</span></h3>
+<div class="gh-body"><ul class="section-items tagged">
+<li><strong>.NET 10 included:</strong> Setup includes the Windows x64 .NET 10 runtime inside Spotnet&#39;s installation folder. No separate .NET installation is required; it does not appear as a separate entry in Installed Apps.</li>
+<li><strong>Remote password setup fixed:</strong> Enabling Remote for the first time asks for a password twice. Cancel keeps Remote disabled. Password settings remain accessible while Remote is off.</li>
+<li><strong>Password-only Remote login:</strong> The mobile login page no longer asks for a username. Existing passwords, paired devices and failed-login protection continue to work.</li>
+<li><strong>Updates before startup:</strong> The splash screen checks for updates before provider setup and database initialization. When an update is offered, startup waits for your choice. An unavailable update server times out after three seconds.</li>
+<li><strong>Startup crash fixed:</strong> The main window waits for server settings instead of firing its load handler too early.</li>
+<li><strong>New JSON spot cache:</strong> Replaces the obsolete binary cache for details and images. Old cached content is fetched again when needed. Corrupt cache entries no longer interrupt normal retrieval.</li>
+<li><strong>Existing profiles preserved:</strong> Upgrades keep databases and settings in place and do not create large automatic database backups.</li>
+<li>Updated English and Dutch release notes inside Spotnet.</li>
+</ul></div>
+</section>
+
+<section class="notes-section gh-release">
+    <h3>Spotnet 3.0.7.0 <span class="gh-tag">New</span></h3>
     <div class="gh-body">
         <div class="feature-highlight" style="background: rgba(2, 132, 199, 0.08); border-left: 4px solid #0284c7; padding: 14px 18px; margin-bottom: 18px; border-radius: 4px;">
             <h4 style="margin: 0 0 6px 0; color: #0284c7; font-size: 16px; font-weight: 700;">🚀 Highlight: Spotnet Remote (Mobile Companion)</h4>

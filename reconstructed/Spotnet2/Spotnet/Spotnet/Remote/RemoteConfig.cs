@@ -28,6 +28,7 @@ public class RemoteConfig
     public bool AllowLan { get; set; } = true;
     public bool RequireAuth { get; set; } = true;
     public bool KeepAwake { get; set; } = false;
+    // Retained only so older configuration files/clients remain compatible.
     public string AuthUsername { get; set; } = "admin";
     public string PasswordHash { get; set; } = "";
     public string PasswordSalt { get; set; } = "";
@@ -48,14 +49,11 @@ public class RemoteConfig
     }
 
     public bool VerifyCredentials(string username, string password)
-    {
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
-        {
-            return false;
-        }
+        => VerifyPassword(password);
 
-        string configuredUser = string.IsNullOrWhiteSpace(AuthUsername) ? "admin" : AuthUsername.Trim();
-        if (!configuredUser.Equals(username.Trim(), StringComparison.OrdinalIgnoreCase))
+    public bool VerifyPassword(string password)
+    {
+        if (string.IsNullOrEmpty(password))
         {
             return false;
         }

@@ -136,9 +136,11 @@ public sealed class ReleaseNotesFeedTests
     </ul>
 <br><h5>3.0.6.8</h5>
 </section>";
+        string currentVersion = AppHelper.AppVersion.ToString();
+        bundled = bundled.Replace("3.0.7.0", currentVersion);
         string html = ReleaseNotesFeed.GetNotesHtml(bundled);
         Assert.NotNull(html);
-        Assert.Contains("Spotnet 3.0.7.0", html, StringComparison.Ordinal);
+        Assert.Contains("Spotnet " + currentVersion, html, StringComparison.Ordinal);
         Assert.Contains("Spotnet Remote", html, StringComparison.Ordinal);
     }
 

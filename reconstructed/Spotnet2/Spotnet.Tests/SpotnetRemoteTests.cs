@@ -6,8 +6,30 @@ using Xunit;
 
 namespace Spotnet.Tests;
 
-public class SpotnetRemoteTests
+[CollectionDefinition("Remote configuration", DisableParallelization = true)]
+public class RemoteConfigurationCollection { }
+
+[Collection("Remote configuration")]
+public class SpotnetRemoteTests : IDisposable
 {
+    private readonly string previousFolder = Spotnet.Helpers.AppHelper.SettingsFolder;
+    private readonly RemoteConfig previousConfig = RemoteAuthManager.Instance.Config;
+    private readonly string testFolder = Path.Combine(Path.GetTempPath(), "SpotnetRemoteTests-" + Guid.NewGuid().ToString("N"));
+
+    public SpotnetRemoteTests()
+    {
+        Directory.CreateDirectory(testFolder);
+        Spotnet.Helpers.AppHelper.SettingsFolder = testFolder;
+        RemoteAuthManager.Instance.Config = new RemoteConfig();
+    }
+
+    public void Dispose()
+    {
+        Spotnet.Helpers.AppHelper.SettingsFolder = previousFolder;
+        RemoteAuthManager.Instance.Config = previousConfig;
+        Directory.Delete(testFolder, true);
+    }
+
     [Fact]
     public void RemoteAuthManager_CreatePairingSession_GeneratesValidPinAndToken()
     {
@@ -304,8 +326,8 @@ public class SpotnetRemoteTests
         Assert.False(string.IsNullOrWhiteSpace(config.PasswordSalt));
 
         Assert.True(config.VerifyCredentials("spotuser", "MySafePass@2026"));
-        Assert.True(config.VerifyCredentials("SPOTUSER", "MySafePass@2026")); // case insensitive username
-        Assert.False(config.VerifyCredentials("wronguser", "MySafePass@2026"));
+        Assert.True(config.VerifyCredentials(null, "MySafePass@2026"));
+        Assert.True(config.VerifyCredentials("old-client-username", "MySafePass@2026"));
         Assert.False(config.VerifyCredentials("spotuser", "WrongPassword"));
     }
 
@@ -329,12 +351,11 @@ public class SpotnetRemoteTests
             DeviceName = "Test Mobile"
         }, ip);
         Assert.False(failRes.Success);
-        Assert.Equal("Onjuiste gebruikersnaam of wachtwoord.", failRes.ErrorMessage);
+        Assert.Equal("Onjuist wachtwoord.", failRes.ErrorMessage);
 
         // Try login with correct credentials
         var successRes = await auth.TryLoginAsync(new LoginRequestDto
         {
-            Username = "admin",
             Password = "SuperGeheim123",
             DeviceName = "Test Mobile"
         }, ip);
@@ -347,7 +368,32 @@ public class SpotnetRemoteTests
         bool isValid = auth.ValidateToken(successRes.DeviceToken, ip, out var matchedDevice);
         Assert.True(isValid);
         Assert.NotNull(matchedDevice);
-        Assert.Contains("admin", matchedDevice.Name);
+        Assert.Equal("Test Mobile", matchedDevice.Name);
+    }
+
+    [Theory]
+    [InlineData("", "", false)]
+    [InlineData("short", "short", false)]
+    [InlineData("      ", "      ", false)]
+    [InlineData("abcdef", "ABCDEF", false)]
+    [InlineData("abcdef", "abcdef", true)]
+    public void RemotePasswordConfirmationRequiresTwoMatchingValidEntries(string password, string confirmation, bool valid)
+    {
+        Assert.Equal(valid, Spotnet.Controls.RemotePasswordWindow.ValidatePasswords(password, confirmation) == null);
+    }
+
+    [Fact]
+    public void ExistingConfigHashWorksWithoutUsernameAfterReload()
+    {
+        var config = new RemoteConfig { AuthUsername = "previous-name", RequireAuth = true };
+        config.SetPassword("ExistingSecret");
+        string hash = config.PasswordHash;
+        config.Save();
+        var reloaded = RemoteConfig.Load();
+        Assert.Equal(hash, reloaded.PasswordHash);
+        Assert.True(reloaded.VerifyPassword("ExistingSecret"));
+        Assert.False(reloaded.VerifyPassword("incorrect"));
+        Assert.False(reloaded.VerifyPassword(null));
     }
 
     [Fact]
@@ -360,4 +406,3 @@ public class SpotnetRemoteTests
         Assert.Contains("\"name\":\"Spotnet Desktop\"", json);
     }
 }
-
