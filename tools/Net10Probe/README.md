@@ -1,4 +1,4 @@
-# .NET 10 migration trial
+﻿# .NET 10 migration trial
 
 Run from the repository root:
 
@@ -64,7 +64,7 @@ merging/releasing: seven seconds is too little to justify a second maintained
 light suite. For a tight edit/debug loop, xUnit class filters are sufficient:
 
 ```powershell
-dotnet test reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj -c Release --filter 'FullyQualifiedName~SpotnetRemoteTests'
+dotnet test src/Spotnet/Spotnet.Tests/Spotnet.Tests.csproj -c Release --filter 'FullyQualifiedName~SpotnetRemoteTests'
 ```
 
 Use the full suite after changes to shared code, dependencies or framework

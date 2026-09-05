@@ -194,21 +194,21 @@ public sealed class ProviderDialogTests
     [Fact]
     public void TheAffiliateLinkIsNoLongerShownInTheDialog()
     {
-        string source = File.ReadAllText(SolutionFile(Path.Combine("reconstructed", "Spotnet2", "Spotnet", "views", "selectproviderwindow.xaml")));
+        string source = File.ReadAllText(SolutionFile(Path.Combine("src", "Spotnet", "Spotnet", "views", "selectproviderwindow.xaml")));
         Assert.DoesNotContain("TextWithTheLink", source);
-        string code = File.ReadAllText(SolutionFile(Path.Combine("reconstructed", "Spotnet2", "Spotnet", "Spotnet", "Views", "SelectProviderWindow.cs")));
+        string code = File.ReadAllText(SolutionFile(Path.Combine("src", "Spotnet", "Spotnet", "Spotnet", "Views", "SelectProviderWindow.cs")));
         Assert.DoesNotContain("SelectProviderLinkURL", code);
     }
 
     [Fact]
     public void TheDialogCanShrinkAndKeepsItsActionsVisibleOnSmallScreens()
     {
-        string source = File.ReadAllText(SolutionFile(Path.Combine("reconstructed", "Spotnet2", "Spotnet", "views", "selectproviderwindow.xaml")));
+        string source = File.ReadAllText(SolutionFile(Path.Combine("src", "Spotnet", "Spotnet", "views", "selectproviderwindow.xaml")));
         Assert.Contains("ResizeMode=\"CanResizeWithGrip\"", source);
         Assert.Contains("MinHeight=\"360\"", source);
         Assert.Contains("HorizontalScrollBarVisibility=\"Auto\"", source);
 
-        string code = File.ReadAllText(SolutionFile(Path.Combine("reconstructed", "Spotnet2", "Spotnet", "Spotnet", "Views", "SelectProviderWindow.cs")));
+        string code = File.ReadAllText(SolutionFile(Path.Combine("src", "Spotnet", "Spotnet", "Spotnet", "Views", "SelectProviderWindow.cs")));
         Assert.Contains("FitToWorkingArea();", code);
         Assert.Contains("MaxHeight = availableHeight;", code);
     }
@@ -216,7 +216,7 @@ public sealed class ProviderDialogTests
     [Fact]
     public void ProviderFilteringIsDeferredUntilTheComboBoxFinishesItsEdit()
     {
-        string code = File.ReadAllText(SolutionFile(Path.Combine("reconstructed", "Spotnet2", "Spotnet", "Spotnet", "Views", "SelectProviderWindow.cs")));
+        string code = File.ReadAllText(SolutionFile(Path.Combine("src", "Spotnet", "Spotnet", "Spotnet", "Views", "SelectProviderWindow.cs")));
         int handler = code.IndexOf("private void ProviderBox_OnTextChanged", StringComparison.Ordinal);
         int refreshMethod = code.IndexOf("private void RefreshProviderFilter", handler, StringComparison.Ordinal);
         string handlerBody = code.Substring(handler, refreshMethod - handler);

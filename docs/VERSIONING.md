@@ -1,4 +1,4 @@
-# Version numbers
+﻿# Version numbers
 
 One version number is edited by hand. Everything that *can* read it back does so; what is
 left over is prose and published data, which no reference can generate for you.
@@ -6,7 +6,7 @@ left over is prose and published data, which no reference can generate for you.
 ## The single source
 
 ```
-reconstructed/Spotnet2/Spotnet/Properties/AssemblyInfo.cs
+src/Spotnet/Spotnet/Properties/AssemblyInfo.cs
 
     [assembly: AssemblyVersion("3.0.8.0")]
     [assembly: AssemblyFileVersion("3.0.8.0")]

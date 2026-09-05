@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using Spotnet.Helpers;
@@ -54,8 +54,8 @@ public sealed class VersionConsistencyTests
     {
         // Resources\ReleaseNotes\*.html is the source the resx entries are written from.
         // They drift silently when only one of the two is edited.
-        Assert.Equal(CurrentVersion, NewestSection(RepoFile("reconstructed", "Spotnet2", "Spotnet", "Resources", "ReleaseNotes", "whatsnew.html")));
-        Assert.Equal(CurrentVersion, NewestSection(RepoFile("reconstructed", "Spotnet2", "Spotnet", "Resources", "ReleaseNotes", "whatsnew.nl.html")));
+        Assert.Equal(CurrentVersion, NewestSection(RepoFile("src", "Spotnet", "Spotnet", "Resources", "ReleaseNotes", "whatsnew.html")));
+        Assert.Equal(CurrentVersion, NewestSection(RepoFile("src", "Spotnet", "Spotnet", "Resources", "ReleaseNotes", "whatsnew.nl.html")));
     }
 
     [Fact]

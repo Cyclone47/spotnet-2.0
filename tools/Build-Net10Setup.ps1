@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([string]$DotnetPath, [string]$CompilerPath, [switch]$Release)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path $PSScriptRoot -Parent
@@ -24,18 +24,18 @@ function Invoke-Build([string]$Name, [string[]]$Arguments) {
 }
 Push-Location $repo
 try {
-    Invoke-Build 'tests' @('test', 'reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '--logger', 'trx;LogFileName=net10.trx', '--results-directory', $work)
-    Invoke-Build 'publish' @('publish', 'reconstructed/Spotnet2/Spotnet/Spotnet.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '-r', 'win-x64', '--self-contained', 'true', '-p:PublishSingleFile=false', '-p:PublishTrimmed=false', '-o', $payload)
+    Invoke-Build 'tests' @('test', 'src/Spotnet/Spotnet.Tests/Spotnet.Tests.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '--logger', 'trx;LogFileName=net10.trx', '--results-directory', $work)
+    Invoke-Build 'publish' @('publish', 'src/Spotnet/Spotnet/Spotnet.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '-r', 'win-x64', '--self-contained', 'true', '-p:PublishSingleFile=false', '-p:PublishTrimmed=false', '-o', $payload)
     # Only version-controlled defaults may enter the installer, never local profile data.
     foreach ($relative in @('Data', 'Resources/ReleaseNotes')) {
         $target = [IO.Path]::GetFullPath((Join-Path $payload $relative))
         $allowed = [IO.Path]::GetFullPath($payload) + '\'
         if (-not $target.StartsWith($allowed, [StringComparison]::OrdinalIgnoreCase)) { throw 'Invalid staging path' }
         if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
-        $assets = @(git ls-files -- "reconstructed/Spotnet2/Spotnet/$relative")
+        $assets = @(git ls-files -- "src/Spotnet/Spotnet/$relative")
         if ($LASTEXITCODE -ne 0 -or $assets.Count -eq 0) { throw "Missing tracked assets: $relative" }
         foreach ($asset in $assets) {
-            $dest = Join-Path $payload $asset.Substring('reconstructed/Spotnet2/Spotnet/'.Length)
+            $dest = Join-Path $payload $asset.Substring('src/Spotnet/Spotnet/'.Length)
             New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent) | Out-Null
             Copy-Item -LiteralPath (Join-Path $repo $asset) -Destination $dest
         }
@@ -52,7 +52,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Published dependency probe failed: $work/probe-results.log" }
     Invoke-Build 'helper' @('build', 'tools/Spotnet.SetupHelper/Spotnet.SetupHelper.csproj', '-c', 'Release')
     Invoke-Build 'preview' @('build', 'tools/Spotnet.ThemePreview/Spotnet.ThemePreview.csproj', '-c', 'Release')
-    & $DotnetPath './tools/Spotnet.ThemePreview/bin/Release/net10.0-windows/Spotnet.ThemePreview.dll' --output $preview --icons (Join-Path $repo 'reconstructed/Spotnet2/Spotnet/Data/Filters.v2/Images')
+    & $DotnetPath './tools/Spotnet.ThemePreview/bin/Release/net10.0-windows/Spotnet.ThemePreview.dll' --output $preview --icons (Join-Path $repo 'src/Spotnet/Spotnet/Data/Filters.v2/Images')
     if ($LASTEXITCODE -ne 0) { throw 'Preview rendering failed' }
     $webview = Join-Path $repo 'artifacts/installer-tools/MicrosoftEdgeWebview2Setup.exe'
     $signature = Get-AuthenticodeSignature -LiteralPath $webview

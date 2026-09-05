@@ -1,4 +1,4 @@
-# Spotnet 3.0
+﻿# Spotnet 3.0
 
 *[Nederlandse versie](README.md)*
 
@@ -135,8 +135,10 @@ workflow or breaking compatibility with the Spotnet network. This is an incremen
 modernization, not a from-scratch rewrite.
 
 **Spotnet 3.0** is the name of the modernized application in this repository, not a claim
-of an official upstream release. The source folder `reconstructed/Spotnet2/` keeps its
-historical name; references to 1.8.1 or 2.0 describe those original versions.
+of an official upstream release. References to 1.8.1 or 2.0 describe the original
+versions this was recovered from; the original release package sits in
+[`reference/`](reference/). The working notes under `docs/internal/` still call the source
+tree `reconstructed/Spotnet2/` — that is the former name of `src/Spotnet/`.
 
 Background: [source provenance](docs/reference/SOURCE_PROVENANCE.md) ·
 [original binary inventory](docs/reference/INVENTORY.md).
@@ -181,9 +183,9 @@ You need Windows x64, the **.NET 10 SDK** with the Windows desktop workload, the
 **Microsoft Edge WebView2 Evergreen Runtime**, and NuGet access for package restore.
 
 ```powershell
-dotnet build reconstructed/Spotnet2/Spotnet.sln -c Release
-dotnet test reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj -c Release --no-build
-& "./reconstructed/Spotnet2/Spotnet/bin/Release/net10.0-windows/Spotnet.exe"
+dotnet build src/Spotnet/Spotnet.sln -c Release
+dotnet test src/Spotnet/Spotnet.Tests/Spotnet.Tests.csproj -c Release --no-build
+& "./src/Spotnet/Spotnet/bin/Release/net10.0-windows/Spotnet.exe"
 ```
 
 Keep the **entire output directory** together. `Spotnet.exe` alone is not a working
@@ -226,7 +228,7 @@ build-installer.ps1           Builds the x64 Setup
 providers.json                Usenet provider list, fetched by clients on launch
 updates/latest.json           Update feed for installed clients
 
-reconstructed/Spotnet2/
+src/Spotnet/
     Spotnet.sln               Main solution
     Spotnet/                  WPF application, XAML, resources and data
     Spotnet.Enc/              Managed yEnc decoder
@@ -234,11 +236,12 @@ reconstructed/Spotnet2/
 
 android/                      Android companion app (Kotlin)
 installer/                    Inno Setup script and smoke test
+reference/                    The original Spotnet 2.0.0.284 release package
 tools/                        Setup helper, theme preview, database tools, build scripts
 docs/                         Documentation, release notes and reference material
 ```
 
-For development, edit `reconstructed/Spotnet2/` and launch its build output.
+For development, edit `src/Spotnet/` and launch its build output.
 
 ---
 

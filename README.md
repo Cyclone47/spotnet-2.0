@@ -1,4 +1,4 @@
-# Spotnet 3.0
+﻿# Spotnet 3.0
 
 *[English version](README_EN.md)*
 
@@ -139,9 +139,10 @@ zonder de bestaande workflow overboord te gooien of de compatibiliteit met het
 Spotnet-netwerk te breken. Het is een stapsgewijze modernisering, geen herbouw vanaf nul.
 
 **Spotnet 3.0** is de naam van de gemoderniseerde applicatie in deze repository, geen
-officiële uitgave van het oorspronkelijke project. De bronmap `reconstructed/Spotnet2/`
-houdt haar historische naam; verwijzingen naar 1.8.1 of 2.0 gaan over die originele
-versies.
+officiële uitgave van het oorspronkelijke project. Verwijzingen naar 1.8.1 of 2.0 gaan
+over de originele versies waaruit dit is teruggehaald; het originele releasepakket ligt in
+[`reference/`](reference/). De werknotities in `docs/internal/` noemen de broncode nog
+`reconstructed/Spotnet2/` — dat is de oude naam van `src/Spotnet/`.
 
 Achtergrond: [herkomst van de broncode](docs/reference/SOURCE_PROVENANCE.md) ·
 [inventaris van de originele binaries](docs/reference/INVENTORY.md).
@@ -186,9 +187,9 @@ Je hebt Windows x64 nodig, de **.NET 10 SDK** met de Windows desktop-workload, d
 **Microsoft Edge WebView2 Evergreen Runtime**, en NuGet-toegang voor package restore.
 
 ```powershell
-dotnet build reconstructed/Spotnet2/Spotnet.sln -c Release
-dotnet test reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj -c Release --no-build
-& "./reconstructed/Spotnet2/Spotnet/bin/Release/net10.0-windows/Spotnet.exe"
+dotnet build src/Spotnet/Spotnet.sln -c Release
+dotnet test src/Spotnet/Spotnet.Tests/Spotnet.Tests.csproj -c Release --no-build
+& "./src/Spotnet/Spotnet/bin/Release/net10.0-windows/Spotnet.exe"
 ```
 
 Houd de **hele uitvoermap** bij elkaar. `Spotnet.exe` alleen is geen werkende distributie:
@@ -230,7 +231,7 @@ build-installer.ps1           Bouwt de x64-setup
 providers.json                Lijst met Usenet-providers, opgehaald bij het starten
 updates/latest.json           Updatefeed voor geïnstalleerde clients
 
-reconstructed/Spotnet2/
+src/Spotnet/
     Spotnet.sln               Hoofdsolution
     Spotnet/                  WPF-applicatie, XAML, resources en data
     Spotnet.Enc/              Beheerde yEnc-decoder
@@ -238,11 +239,12 @@ reconstructed/Spotnet2/
 
 android/                      Android companion-app (Kotlin)
 installer/                    Inno Setup-script en rooktest
+reference/                    Het originele Spotnet 2.0.0.284-releasepakket
 tools/                        Setup-helper, thema-preview, databasetools, bouwscripts
 docs/                         Documentatie, release notes en referentiemateriaal
 ```
 
-Voor ontwikkeling werk je in `reconstructed/Spotnet2/` en start je de build-uitvoer
+Voor ontwikkeling werk je in `src/Spotnet/` en start je de build-uitvoer
 daarvan.
 
 ---

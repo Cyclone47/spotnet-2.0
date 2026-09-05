@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Checks - or sets - the version number across every place it is written by hand.
 
@@ -33,15 +33,15 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $repo = Split-Path -Parent $PSScriptRoot
-$assemblyInfo = Join-Path $repo 'reconstructed/Spotnet2/Spotnet/Properties/AssemblyInfo.cs'
+$assemblyInfo = Join-Path $repo 'src/Spotnet/Spotnet/Properties/AssemblyInfo.cs'
 $readmeNl = Join-Path $repo 'README.md'
 $readmeEn = Join-Path $repo 'README_EN.md'
 $feed = Join-Path $repo 'updates/latest.json'
 $notesFiles = @(
-    (Join-Path $repo 'reconstructed/Spotnet2/Spotnet/Resources/ReleaseNotes/whatsnew.html'),
-    (Join-Path $repo 'reconstructed/Spotnet2/Spotnet/Resources/ReleaseNotes/whatsnew.nl.html')
+    (Join-Path $repo 'src/Spotnet/Spotnet/Resources/ReleaseNotes/whatsnew.html'),
+    (Join-Path $repo 'src/Spotnet/Spotnet/Resources/ReleaseNotes/whatsnew.nl.html')
 )
-$resx = Join-Path $repo 'reconstructed/Spotnet2/Spotnet/Spotnet.Properties.Resources.resx'
+$resx = Join-Path $repo 'src/Spotnet/Spotnet/Spotnet.Properties.Resources.resx'
 
 function Get-AssemblyVersion {
     $content = Get-Content -LiteralPath $assemblyInfo -Raw

@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([string]$DotnetPath)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path $PSScriptRoot -Parent
@@ -16,8 +16,8 @@ function Invoke-Stage([string]$Name, [string[]]$Arguments) {
 }
 Push-Location $repo
 try {
-    Invoke-Stage 'tests' @('test', 'reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '--logger', 'trx;LogFileName=net10.trx', '--results-directory', $root)
-    Invoke-Stage 'publish' @('publish', 'reconstructed/Spotnet2/Spotnet/Spotnet.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '-r', 'win-x64', '--self-contained', 'true', '-p:PublishSingleFile=false', '-p:PublishTrimmed=false', '-o', "$root/publish")
+    Invoke-Stage 'tests' @('test', 'src/Spotnet/Spotnet.Tests/Spotnet.Tests.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '--logger', 'trx;LogFileName=net10.trx', '--results-directory', $root)
+    Invoke-Stage 'publish' @('publish', 'src/Spotnet/Spotnet/Spotnet.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '-r', 'win-x64', '--self-contained', 'true', '-p:PublishSingleFile=false', '-p:PublishTrimmed=false', '-o', "$root/publish")
     Invoke-Stage 'probe-build' @('publish', 'tools/Net10Probe/Net10Probe.csproj', '-c', 'Release', '-p:SpotnetTrialFramework=net10.0-windows', '-r', 'win-x64', '--self-contained', 'true', '-p:PublishSingleFile=false', '-p:PublishTrimmed=false', '-o', "$root/probe")
     & "$root/probe/Net10Probe.exe" *> "$root/probe.log"
     $code = $LASTEXITCODE

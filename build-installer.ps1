@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$CompilerPath,
     [switch]$BootstrapCompiler,
@@ -115,15 +115,15 @@ if (-not $CompilerPath -or -not (Test-Path -LiteralPath $CompilerPath)) {
 Push-Location $repoRoot
 try {
     if (-not $SkipBuild) {
-        & dotnet build reconstructed/Spotnet2/Spotnet.sln -c Release -v minimal
+        & dotnet build src/Spotnet/Spotnet.sln -c Release -v minimal
         if ($LASTEXITCODE -ne 0) { throw 'Application build failed.' }
-        & dotnet test reconstructed/Spotnet2/Spotnet.Tests/Spotnet.Tests.csproj -c Release --no-build -v minimal
+        & dotnet test src/Spotnet/Spotnet.Tests/Spotnet.Tests.csproj -c Release --no-build -v minimal
         if ($LASTEXITCODE -ne 0) { throw 'Tests failed; refusing to package.' }
     }
     & dotnet build tools/Spotnet.SetupHelper/Spotnet.SetupHelper.csproj -c Release -v minimal
     if ($LASTEXITCODE -ne 0) { throw 'Migration helper build failed.' }
     $appOutput = Join-Path $artifactRoot ('publish-' + [Guid]::NewGuid().ToString('N'))
-    & dotnet publish reconstructed/Spotnet2/Spotnet/Spotnet.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=false -o $appOutput
+    & dotnet publish src/Spotnet/Spotnet/Spotnet.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=false -o $appOutput
     if ($LASTEXITCODE -ne 0) { throw 'Self-contained application publish failed.' }
     $helperOutput = Join-Path $repoRoot 'tools\Spotnet.SetupHelper\bin\Release\net472'
     # Nothing 32-bit or ARM may reach an x64 package. Native payloads have to be AMD64
@@ -140,7 +140,7 @@ try {
     # A fresh staging directory prevents stale DLLs or personal runtime data entering the package.
     $payload = Join-Path $artifactRoot ('payload-' + [Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $payload | Out-Null
-    $trackedAssets = @(git ls-files -- reconstructed/Spotnet2/Spotnet/Data reconstructed/Spotnet2/Spotnet/Resources/ReleaseNotes)
+    $trackedAssets = @(git ls-files -- src/Spotnet/Spotnet/Data src/Spotnet/Spotnet/Resources/ReleaseNotes)
     if ($LASTEXITCODE -ne 0) { throw 'Cannot enumerate tracked application assets.' }
     foreach ($file in Get-ChildItem -LiteralPath $appOutput -File) {
         if ($file.Extension -in @('.dll', '.exe', '.json') -or $file.Name -in @('Spotnet.dll.config', 'NLog.config')) {
@@ -159,7 +159,7 @@ try {
         Copy-Item -LiteralPath (Join-Path $appOutput $directory) -Destination $target -Recurse
     }
     foreach ($asset in $trackedAssets) {
-        $relative = $asset.Substring('reconstructed/Spotnet2/Spotnet/'.Length)
+        $relative = $asset.Substring('src/Spotnet/Spotnet/'.Length)
         $destination = Join-Path $payload $relative
         New-Item -ItemType Directory -Force -Path (Split-Path $destination -Parent) | Out-Null
         Copy-Item -LiteralPath (Join-Path $repoRoot $asset) -Destination $destination
@@ -221,7 +221,7 @@ try {
     & dotnet build $previewProject -c Release -v quiet --nologo
     if ($LASTEXITCODE -ne 0) { throw 'Building the style preview renderer failed.' }
     $previewExe = Join-Path $repoRoot 'tools\Spotnet.ThemePreview\bin\Release\net10.0-windows\Spotnet.ThemePreview.exe'
-    $filterIcons = Join-Path $repoRoot 'reconstructed\Spotnet2\Spotnet\Data\Filters.v2\Images'
+    $filterIcons = Join-Path $repoRoot 'src\Spotnet\Spotnet\Data\Filters.v2\Images'
     & $previewExe --output $previewDir --icons $filterIcons
     if ($LASTEXITCODE -ne 0) { throw 'Rendering the style previews failed.' }
     foreach ($tile in @('style-modern-light.bmp', 'style-modern-dark.bmp', 'style-classic.bmp')) {

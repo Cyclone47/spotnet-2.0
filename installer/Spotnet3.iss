@@ -40,7 +40,7 @@ CreateUninstallRegKey=no
 #else
 OutputBaseFilename=Spotnet-3.0-x64-Setup{#SetupSuffix}
 #endif
-SetupIconFile=..\reconstructed\Spotnet2\Spotnet\Resources\ImagesInternal\spotnet.ico
+SetupIconFile=..\src\Spotnet\Spotnet\Resources\ImagesInternal\spotnet.ico
 UninstallDisplayIcon={app}\Spotnet.exe
 Compression=lzma2/normal
 SolidCompression=yes
