@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +13,7 @@ namespace Spotnet.Tests;
 /// and the user types their Usenet credentials into whichever one they pick. These tests pin the
 /// rejection behaviour, because the failure that matters is a bad document being partly accepted.
 /// </summary>
+[Collection("ProviderCatalogue")]
 public sealed class PublishedProviderCatalogueTests
 {
     private static readonly Type CatalogueType =
@@ -247,6 +248,7 @@ public sealed class PublishedProviderCatalogueTests
 /// The cache is what makes an edit to providers.json reach users, so these cover the disk path:
 /// a good cache is used, a bad one is discarded rather than shrinking the list to nothing.
 /// </summary>
+[Collection("ProviderCatalogue")]
 public sealed class ProviderCatalogueCacheTests : IDisposable
 {
     private static readonly Assembly App = typeof(Spotnet.Deployment.ProfileSettingsFile).Assembly;
