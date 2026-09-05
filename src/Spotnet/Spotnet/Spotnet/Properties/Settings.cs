@@ -48,51 +48,6 @@ internal sealed class Settings : ApplicationSettingsBase
 
 	[UserScopedSetting]
 	[DebuggerNonUserCode]
-	[DefaultSettingValue("0")]
-	public long LastRun
-	{
-		get
-		{
-			return (long)this["LastRun"];
-		}
-		set
-		{
-			this["LastRun"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("0")]
-	public long FirstRun
-	{
-		get
-		{
-			return (long)this["FirstRun"];
-		}
-		set
-		{
-			this["FirstRun"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("0")]
-	public long NumberOfRuns
-	{
-		get
-		{
-			return (long)this["NumberOfRuns"];
-		}
-		set
-		{
-			this["NumberOfRuns"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
 	[DefaultSettingValue("free.pt")]
 	public string HeaderGroup
 	{
@@ -343,21 +298,6 @@ internal sealed class Settings : ApplicationSettingsBase
 		set
 		{
 			this["LastFolder"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("")]
-	public string Moderator
-	{
-		get
-		{
-			return (string)this["Moderator"];
-		}
-		set
-		{
-			this["Moderator"] = value;
 		}
 	}
 
@@ -760,21 +700,6 @@ internal sealed class Settings : ApplicationSettingsBase
 
 	[UserScopedSetting]
 	[DebuggerNonUserCode]
-	[DefaultSettingValue("0")]
-	public string ApplicationVersion
-	{
-		get
-		{
-			return (string)this["ApplicationVersion"];
-		}
-		set
-		{
-			this["ApplicationVersion"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
 	[DefaultSettingValue("10")]
 	public int DbAutoUpdateIntervalMin
 	{
@@ -860,36 +785,6 @@ internal sealed class Settings : ApplicationSettingsBase
 		set
 		{
 			this["LoadComments"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("Blue")]
-	public string UIColor
-	{
-		get
-		{
-			return (string)this["UIColor"];
-		}
-		set
-		{
-			this["UIColor"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("True")]
-	public bool FiltersMode2
-	{
-		get
-		{
-			return (bool)this["FiltersMode2"];
-		}
-		set
-		{
-			this["FiltersMode2"] = value;
 		}
 	}
 
@@ -1346,66 +1241,6 @@ internal sealed class Settings : ApplicationSettingsBase
 	[UserScopedSetting]
 	[DebuggerNonUserCode]
 	[DefaultSettingValue("-")]
-	public string NzbGetTempDir
-	{
-		get
-		{
-			return (string)this["NzbGetTempDir"];
-		}
-		set
-		{
-			this["NzbGetTempDir"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("-")]
-	public string NzbGetWebDir
-	{
-		get
-		{
-			return (string)this["NzbGetWebDir"];
-		}
-		set
-		{
-			this["NzbGetWebDir"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("-")]
-	public string NzbGetScriptDir
-	{
-		get
-		{
-			return (string)this["NzbGetScriptDir"];
-		}
-		set
-		{
-			this["NzbGetScriptDir"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("-")]
-	public string NzbGetLockFile
-	{
-		get
-		{
-			return (string)this["NzbGetLockFile"];
-		}
-		set
-		{
-			this["NzbGetLockFile"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("-")]
 	public string NzbGetServer1Host
 	{
 		get
@@ -1490,36 +1325,6 @@ internal sealed class Settings : ApplicationSettingsBase
 		set
 		{
 			this["ShowFavorites"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("False")]
-	public bool StartXamarinServer
-	{
-		get
-		{
-			return (bool)this["StartXamarinServer"];
-		}
-		set
-		{
-			this["StartXamarinServer"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("9581")]
-	public int XamarinServerPort
-	{
-		get
-		{
-			return (int)this["XamarinServerPort"];
-		}
-		set
-		{
-			this["XamarinServerPort"] = value;
 		}
 	}
 
@@ -1655,21 +1460,6 @@ internal sealed class Settings : ApplicationSettingsBase
 		set
 		{
 			this["PlayerVolume"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("20")]
-	public int DownloaderCacheSizeMb
-	{
-		get
-		{
-			return (int)this["DownloaderCacheSizeMb"];
-		}
-		set
-		{
-			this["DownloaderCacheSizeMb"] = value;
 		}
 	}
 
@@ -1866,6 +1656,15 @@ internal sealed class Settings : ApplicationSettingsBase
 		{
 			this["RemovePar2FilesAfterDownload"] = value;
 		}
+	}
+
+	[UserScopedSetting]
+	[DebuggerNonUserCode]
+	[DefaultSettingValue("")]
+	public string DownloadCleanupExtensions
+	{
+		get => (string)this["DownloadCleanupExtensions"];
+		set => this["DownloadCleanupExtensions"] = value;
 	}
 
 	[UserScopedSetting]

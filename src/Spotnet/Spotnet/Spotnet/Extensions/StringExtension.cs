@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
-using Spotnet.Helpers;
 using System.Text;
 using Microsoft.VisualBasic;
 
@@ -117,25 +116,6 @@ public static class StringExtension
 		return Strings.Replace(s, oldValue, newValue, 1, -1, CompareMethod.Text);
 	}
 
-	public static string DecodeFromUtf8(this string utf8String)
-	{
-		if (utf8String.IsNullOrWhiteSpace())
-		{
-			return utf8String;
-		}
-		byte[] array = new byte[utf8String.Length];
-		for (int i = 0; i < utf8String.Length; i++)
-		{
-			if ('\0' <= utf8String[i] && utf8String[i] <= 'ÿ')
-			{
-				array[i] = (byte)utf8String[i];
-				continue;
-			}
-			throw new Exception("The char must be in byte's range");
-		}
-		return AppHelper.AnsiEnc().GetString(array, 0, array.Length);
-	}
-
 	public static string ReadLine(this string text, int lineNumber)
 	{
 		StringReader stringReader = new StringReader(text);
@@ -173,6 +153,9 @@ public static class StringExtension
 		return num2 + 1;
 	}
 
+	// DPAPI-wrappers, machine- en gebruikergebonden. Nog niet aangesloten: dit is de
+	// beoogde vervanger voor de hardgecodeerde 3DES-sleutel in EncPass (rapport S-01).
+	// Niet verwijderen als "dode code" - zie docs/opruimrapport.
 	public static string EncryptString(SecureString input)
 	{
 		return Convert.ToBase64String(ProtectedData.Protect(Encoding.Unicode.GetBytes(input.ToInsecureString()), Entropy, DataProtectionScope.CurrentUser));

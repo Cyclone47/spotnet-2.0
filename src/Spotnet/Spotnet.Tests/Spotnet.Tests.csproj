@@ -9,6 +9,11 @@
     <LangVersion>11.0</LangVersion>
     <IsPackable>false</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Vervangt de kale <Reference>-regels in .NET Framework-stijl: die resolveden niet
+         (MSB3245/MSB3243) en MSBuild koos zelf een alternatief. De overige assemblies
+         (Microsoft.VisualBasic, System.Configuration, Microsoft.CSharp,
+         System.IO.Compression) zitten in de shared framework van .NET 10. -->
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,18 +30,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Spotnet.Enc\Spotnet.Enc.csproj" />
     <ProjectReference Include="..\Spotnet\Spotnet.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.IO.Compression" />
-    <!-- Needed to name WPF-derived types from Spotnet (e.g. the browser pages). -->
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="System.Xaml" />
   </ItemGroup>
 
   <ItemGroup>

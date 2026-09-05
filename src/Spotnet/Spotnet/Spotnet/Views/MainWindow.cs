@@ -1122,6 +1122,7 @@ public partial class MainWindow : MetroWindow
         container.Spots.SelectedItem = null;
         if (!flag || virtualList.Count <= 50 || force)
         {
+            SpotProvider?.ResetCache();
             virtualList.Clear();
             if (flag)
             {

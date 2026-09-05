@@ -67,6 +67,17 @@ public class PostProcessCoordinator
 			{
 				parRecover.RemovePar2FilesAndWaitForDeleted();
 			}
+			if (flag)
+			{
+				try
+				{
+					DownloadCleanup.Run(_downloaderItem.IncompleteDir, Settings.Default.DownloadCleanupExtensions,
+						_cToken, message => _logQueue.Debug(message));
+				}
+				catch (IOException ex) { _logQueue.Warn("Opruimen mislukt: " + ex.Message); }
+				catch (UnauthorizedAccessException ex) { _logQueue.Warn("Opruimen mislukt: " + ex.Message); }
+				catch (FormatException ex) { _logQueue.Warn("Ongeldige opruimlijst: " + ex.Message); }
+			}
 			try
 			{
 				MoveFilesToCompleteDir();

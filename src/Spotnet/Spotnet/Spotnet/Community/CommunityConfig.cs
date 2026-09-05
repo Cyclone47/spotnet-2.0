@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using NLog;
@@ -62,14 +64,27 @@ public class CommunityServices
     public string PromoFolderUrl { get; set; } = "http://spotcloud.spotnet.wf/spotnet/promo/";
 }
 
-/// <summary>The Newznab index used for the non-Usenet spot source.</summary>
-public class CommunityIndexer
+/// <summary>
+/// Diensten van derden waar de client optioneel gebruik van maakt. Alles hier is standaard
+/// leeg: een integratie doet pas iets zodra de gebruiker zijn eigen adres of sleutel invult.
+/// Zo draagt de repository geen sleutels meer met zich mee en wacht de client niet op een
+/// server waar hij geen recht op heeft.
+/// </summary>
+public class CommunityIntegrations
 {
-    public string NewznabBaseUrl { get; set; } = "http://51.15.59.166";
-    public string NewznabApiKey { get; set; } = "dc08a7bb0371bee90a767a822e68cb07";
+    /// <summary>Newznab-index voor de niet-Usenet spotbron. Leeg = uit.</summary>
+    public string NewznabBaseUrl { get; set; } = "";
 
-    public bool IsConfigured =>
+    public string NewznabApiKey { get; set; } = "";
+
+    /// <summary>OMDb-sleutel voor het filminfoblok in de spotthema's. Leeg = blok verbergen.</summary>
+    public string OmdbApiKey { get; set; } = "";
+
+    /// <summary>Newznab wordt alleen bevraagd als zowel de URL als de sleutel ingevuld zijn.</summary>
+    public bool IsNewznabConfigured =>
         !string.IsNullOrWhiteSpace(NewznabBaseUrl) && !string.IsNullOrWhiteSpace(NewznabApiKey);
+
+    public bool IsOmdbConfigured => !string.IsNullOrWhiteSpace(OmdbApiKey);
 }
 
 /// <summary>
@@ -102,7 +117,16 @@ public class CommunityConfig
     public CommunityNewsgroups Newsgroups { get; set; } = new CommunityNewsgroups();
     public CommunityModeration Moderation { get; set; } = new CommunityModeration();
     public CommunityServices Services { get; set; } = new CommunityServices();
-    public CommunityIndexer Indexer { get; set; } = new CommunityIndexer();
+    public CommunityIntegrations Integrations { get; set; } = new CommunityIntegrations();
+
+    /// <summary>
+    /// Leespad voor configuratiebestanden van voor de verhuizing naar <see cref="Integrations"/>.
+    /// Wordt nooit weggeschreven; <see cref="Deserialize"/> neemt de waarden over.
+    /// </summary>
+    [JsonPropertyName("Indexer")]
+    [JsonInclude]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LegacyIndexerSection LegacyIndexer { get; set; }
 
     [JsonIgnore]
     public static string ConfigPath => Path.Combine(AppHelper.SettingsFolder, FileName);
@@ -171,9 +195,61 @@ public class CommunityConfig
         config.Newsgroups ??= new CommunityNewsgroups();
         config.Moderation ??= new CommunityModeration();
         config.Services ??= new CommunityServices();
-        config.Indexer ??= new CommunityIndexer();
+        config.Integrations ??= new CommunityIntegrations();
+        config.MigrateLegacyIndexer();
         return config;
     }
+
+    /// <summary>
+    /// Neemt een oude "Indexer"-sectie over in <see cref="Integrations"/>. De dode
+    /// standaardwaarden uit de 2.0-reconstructie (een IP zonder TLS en een sleutel die in
+    /// de broncode stond) worden daarbij bewust niet overgenomen: die server is onbereikbaar
+    /// en de sleutel is publiek geworden.
+    /// </summary>
+    private void MigrateLegacyIndexer()
+    {
+        LegacyIndexerSection legacy = LegacyIndexer;
+        LegacyIndexer = null;
+        if (legacy == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(Integrations.NewznabBaseUrl)
+            && !IsRetiredIndexerDefault(legacy.NewznabBaseUrl, legacy.NewznabApiKey))
+        {
+            Integrations.NewznabBaseUrl = legacy.NewznabBaseUrl ?? "";
+            Integrations.NewznabApiKey = legacy.NewznabApiKey ?? "";
+        }
+    }
+
+    private static bool IsRetiredIndexerDefault(string url, string key)
+    {
+        return string.Equals(url, RetiredIndexerUrl, StringComparison.OrdinalIgnoreCase)
+            || IsRetiredIndexerKey(key);
+    }
+
+    /// <summary>
+    /// De ingetrokken sleutel staat hier als SHA-256 en niet als tekst. Hij moet herkend
+    /// worden om hem uit oude configuratiebestanden te kunnen weren, maar hij hoeft daarvoor
+    /// niet leesbaar in de repository te staan - hij is publiek geworden en geldt als
+    /// gecompromitteerd.
+    /// </summary>
+    private static bool IsRetiredIndexerKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return false;
+        }
+
+        byte[] digest = SHA256.HashData(Encoding.ASCII.GetBytes(key.Trim()));
+        return string.Equals(Convert.ToHexString(digest), RetiredIndexerKeySha256, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private const string RetiredIndexerUrl = "http://51.15.59.166";
+
+    private const string RetiredIndexerKeySha256 =
+        "BFD2F124B8DE62DF6D2957E2EE634BF82A6E17D57E40A18EFB578D090E72D9CA";
 
     public string Serialize()
     {
@@ -337,7 +413,7 @@ public class CommunityConfig
         RequireUrl(errors, Services.LogUploadUrl, "Log-upload-URL", required: false);
         RequireUrl(errors, Services.UpgradeFailuresUrl, "Update-foutmelding-URL", required: false);
         RequireUrl(errors, Services.PromoFolderUrl, "Promo-map-URL", required: false);
-        RequireUrl(errors, Indexer.NewznabBaseUrl, "Newznab-URL", required: false);
+        RequireUrl(errors, Integrations.NewznabBaseUrl, "Newznab-URL", required: false);
 
         if (Moderation.UpdateIntervalMinutes < 0 || Moderation.UpdateIntervalMinutes > 10080)
         {
@@ -392,4 +468,14 @@ public class CommunityConfig
             errors.Add(label + " is geen geldige http(s)-URL: " + value);
         }
     }
+}
+
+/// <summary>
+/// De vorm van de oude "Indexer"-sectie, uitsluitend om bestaande
+/// <c>community_config.json</c>-bestanden te kunnen lezen.
+/// </summary>
+public class LegacyIndexerSection
+{
+    public string NewznabBaseUrl { get; set; }
+    public string NewznabApiKey { get; set; }
 }

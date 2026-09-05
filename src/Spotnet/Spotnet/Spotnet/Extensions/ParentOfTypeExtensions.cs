@@ -17,28 +17,6 @@ public static class ParentOfTypeExtensions
 		return element.GetParents().OfType<T>().FirstOrDefault();
 	}
 
-	public static bool IsAncestorOf(this DependencyObject element, DependencyObject descendant)
-	{
-		if (element == null)
-		{
-			throw new ArgumentNullException("element");
-		}
-		if (descendant == null)
-		{
-			throw new ArgumentNullException("descendant");
-		}
-		if (descendant != element)
-		{
-			return descendant.GetParents().Contains(element);
-		}
-		return true;
-	}
-
-	public static T GetVisualParent<T>(this DependencyObject element) where T : DependencyObject
-	{
-		return element.ParentOfType<T>();
-	}
-
 	internal static IEnumerable<T> GetAncestors<T>(this DependencyObject element) where T : class
 	{
 		return element.GetParents().OfType<T>();

@@ -79,14 +79,14 @@ public class CommunityConfigTests : IDisposable
         };
         original.Newsgroups.Spots = "free.test";
         original.Moderation.UpdateIntervalMinutes = 45;
-        original.Indexer.NewznabApiKey = "abcdef";
+        original.Integrations.NewznabApiKey = "abcdef";
 
         CommunityConfig restored = CommunityConfig.Deserialize(original.Serialize());
 
         Assert.Equal("Testgemeenschap", restored.Name);
         Assert.Equal("free.test", restored.Newsgroups.Spots);
         Assert.Equal(45, restored.Moderation.UpdateIntervalMinutes);
-        Assert.Equal("abcdef", restored.Indexer.NewznabApiKey);
+        Assert.Equal("abcdef", restored.Integrations.NewznabApiKey);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class CommunityConfigTests : IDisposable
         Assert.Equal("free.usenet", config.Newsgroups.Comments);
         Assert.Equal(120, config.Moderation.UpdateIntervalMinutes);
         Assert.NotNull(config.Services);
-        Assert.NotNull(config.Indexer);
+        Assert.NotNull(config.Integrations);
     }
 
     [Fact]
@@ -245,7 +245,7 @@ public class CommunityConfigTests : IDisposable
         CommunityConfig config = new CommunityConfig();
         config.Moderation.ModeratorKeysUrl = "";
         config.Services.PromoFolderUrl = "";
-        config.Indexer.NewznabBaseUrl = "";
+        config.Integrations.NewznabBaseUrl = "";
 
         Assert.Empty(config.Validate());
     }
@@ -253,9 +253,61 @@ public class CommunityConfigTests : IDisposable
     [Fact]
     public void AnIndexerIsOnlyUsableWithBothAUrlAndAKey()
     {
-        Assert.True(new CommunityIndexer().IsConfigured);
-        Assert.False(new CommunityIndexer { NewznabBaseUrl = "" }.IsConfigured);
-        Assert.False(new CommunityIndexer { NewznabApiKey = "  " }.IsConfigured);
+        // Standaard leeg: een integratie doet pas iets als de gebruiker hem invult.
+        Assert.False(new CommunityIntegrations().IsNewznabConfigured);
+        Assert.False(new CommunityIntegrations { NewznabBaseUrl = "https://idx.example" }.IsNewznabConfigured);
+        Assert.False(new CommunityIntegrations { NewznabApiKey = "abcdef" }.IsNewznabConfigured);
+        Assert.True(new CommunityIntegrations
+        {
+            NewznabBaseUrl = "https://idx.example",
+            NewznabApiKey = "abcdef"
+        }.IsNewznabConfigured);
+    }
+
+    [Fact]
+    public void OmdbIsOffUntilAKeyIsEntered()
+    {
+        Assert.False(new CommunityIntegrations().IsOmdbConfigured);
+        Assert.False(new CommunityIntegrations { OmdbApiKey = "   " }.IsOmdbConfigured);
+        Assert.True(new CommunityIntegrations { OmdbApiKey = "abc123" }.IsOmdbConfigured);
+    }
+
+    [Fact]
+    public void TheRetiredIndexerDefaultsAreNotCarriedOverFromAnOldConfigFile()
+    {
+        // De oude sectie heette "Indexer" en droeg een onbereikbaar IP plus een sleutel die
+        // in de broncode stond. Die mogen niet meeverhuizen naar Integrations.
+        // De sleutel staat alleen hier nog letterlijk: de productiecode herkent hem via een
+        // SHA-256 en draagt hem niet meer mee. Deze test bewaakt precies dat gedrag, en
+        // testcode wordt niet meegeleverd met de applicatie.
+        CommunityConfig migrated = CommunityConfig.Deserialize(
+            "{\"Indexer\":{\"NewznabBaseUrl\":\"http://51.15.59.166\"," +
+            "\"NewznabApiKey\":\"dc08a7bb0371bee90a767a822e68cb07\"}}");
+
+        Assert.Equal("", migrated.Integrations.NewznabBaseUrl);
+        Assert.Equal("", migrated.Integrations.NewznabApiKey);
+        Assert.False(migrated.Integrations.IsNewznabConfigured);
+    }
+
+    [Fact]
+    public void AnOwnIndexerFromAnOldConfigFileIsCarriedOver()
+    {
+        CommunityConfig migrated = CommunityConfig.Deserialize(
+            "{\"Indexer\":{\"NewznabBaseUrl\":\"https://eigen.example\",\"NewznabApiKey\":\"mijnsleutel\"}}");
+
+        Assert.Equal("https://eigen.example", migrated.Integrations.NewznabBaseUrl);
+        Assert.Equal("mijnsleutel", migrated.Integrations.NewznabApiKey);
+        Assert.True(migrated.Integrations.IsNewznabConfigured);
+    }
+
+    [Fact]
+    public void TheLegacyIndexerSectionIsNotWrittenBackOut()
+    {
+        CommunityConfig migrated = CommunityConfig.Deserialize(
+            "{\"Indexer\":{\"NewznabBaseUrl\":\"https://eigen.example\",\"NewznabApiKey\":\"mijnsleutel\"}}");
+
+        Assert.DoesNotContain("\"Indexer\"", migrated.Serialize());
+        Assert.Contains("\"Integrations\"", migrated.Serialize());
     }
 
     [Fact]

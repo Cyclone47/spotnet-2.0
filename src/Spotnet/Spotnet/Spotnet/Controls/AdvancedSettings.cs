@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
@@ -35,7 +36,8 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
                     new KeyValuePair<string, UserControl>(Words.MenuAdvTabs, null),
                     new KeyValuePair<string, UserControl>(Words.MenuAdvDatabase, null),
                     new KeyValuePair<string, UserControl>("Spotnet Remote", null),
-                    new KeyValuePair<string, UserControl>("Community", null)
+                    new KeyValuePair<string, UserControl>("Community", null),
+                    new KeyValuePair<string, UserControl>("Externe integraties", null)
                 };
                 List<KeyValuePair<string, UserControl>> list2 = obj;
                 _settingsDictionary = obj;
@@ -117,6 +119,9 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
                 case 7:
                     userControl = new SettingsForCommunity();
                     break;
+                case 8:
+                    userControl = new SettingsForIntegrations();
+                    break;
             }
 
             SettingsDictionary[selectedIndex] = new KeyValuePair<string, UserControl>(SettingsDictionary[selectedIndex].Key, userControl);
@@ -138,7 +143,7 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private bool SaveAllSettings()
+    private async Task<bool> SaveAllSettingsAsync()
     {
         bool flag = false;
         for (int i = 0; i < SettingsDictionary.Count; i++)
@@ -175,7 +180,7 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
             bool flag2 = true;
             if (!externalNzbGet)
             {
-                flag2 = Sys.Downloader.ShutdownProcessAsync().Result;
+                flag2 = await Sys.Downloader.ShutdownProcessAsync().ConfigureAwait(true);
             }
 
             if (!flag2)
@@ -186,7 +191,7 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
             {
                 AppHelper.ResetAllUsenetConnections();
                 Sys.MainWindow.InitializeDownloader();
-                Sys.Downloader.StartProcessAsync();
+                await Sys.Downloader.StartProcessAsync().ConfigureAwait(true);
             }
         }
 
@@ -194,27 +199,54 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
         return !flag;
     }
 
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        if (SaveAllSettings())
+        SaveButton.IsEnabled = false;
+        try
         {
-            string originalText = Words.Save;
-            SaveButton.Content = "✓ Opgeslagen";
-            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
-            timer.Tick += (s, ev) =>
+            if (await SaveAllSettingsAsync())
             {
-                SaveButton.Content = originalText;
-                timer.Stop();
-            };
-            timer.Start();
+                string originalText = Words.Save;
+                SaveButton.Content = "✓ Opgeslagen";
+                var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
+                timer.Tick += (s, ev) =>
+                {
+                    SaveButton.Content = originalText;
+                    SaveButton.IsEnabled = true;
+                    timer.Stop();
+                };
+                timer.Start();
+            }
+            else
+            {
+                SaveButton.IsEnabled = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            SaveButton.IsEnabled = true;
+            AppHelper.Error($"Error saving settings: {ex.Message}");
         }
     }
 
-    private void OkButton_Click(object sender, RoutedEventArgs e)
+    private async void OkButton_Click(object sender, RoutedEventArgs e)
     {
-        if (SaveAllSettings())
+        OkButton.IsEnabled = false;
+        try
         {
-            Close();
+            if (await SaveAllSettingsAsync())
+            {
+                Close();
+            }
+            else
+            {
+                OkButton.IsEnabled = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            OkButton.IsEnabled = true;
+            AppHelper.Error($"Error saving settings: {ex.Message}");
         }
     }
 

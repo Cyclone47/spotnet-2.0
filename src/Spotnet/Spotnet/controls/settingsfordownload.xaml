@@ -47,5 +47,25 @@
     <CheckBox Name="RemovePar2Files" Content="{x:Static p:Words.RemovePar2Files}" Margin="0,7,0,0" />
     <CheckBox Name="ShutdownPcAfterDownloads" Content="{x:Static p:Words.MenuShutdownPCAfterDownloads}" Margin="0,7,0,0" />
     <CheckBox Name="NotifyAboutDownloadComplete" Content="{x:Static p:Words.MenuNotifyAboutDownloadComplete}" Margin="0,7,0,0" />
+    <StackPanel Name="CleanupPanel" Margin="0,18,0,0">
+      <TextBlock Text="Opruimen van bestanden" FontWeight="SemiBold" />
+      <TextBlock Text="Verwijder deze bestandstypen na een geslaagde download en het uitpakken. Een lege lijst schakelt opruimen uit." TextWrapping="Wrap" Margin="0,5,0,8" />
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBox Name="CleanupExtensionInput" ToolTip="Bijvoorbeeld txt, .jpg of docx" KeyDown="CleanupExtensionInput_OnKeyDown" />
+        <Button Grid.Column="1" Content="Toevoegen" Click="CleanupAdd_OnClick" Margin="6,0,0,0" />
+      </Grid>
+      <TextBlock Name="CleanupError" TextWrapping="Wrap" Foreground="{DynamicResource NoticeForegroundBrush}" Margin="0,4,0,0" Visibility="Collapsed" />
+      <ListBox Name="CleanupExtensionsList" Height="110" Margin="0,6,0,6" SelectionMode="Extended" />
+      <WrapPanel>
+        <Button Content="Verwijderen" Click="CleanupRemove_OnClick" Margin="0,0,6,0" />
+        <Button Content="Suggesties toevoegen" Click="CleanupSuggestions_OnClick" />
+      </WrapPanel>
+      <TextBlock Text="Suggesties: nfo, sfv, srr, url, lnk, txt, doc, docx, htm en html. Afbeeldingen kun je zelf toevoegen; ook covers worden dan verwijderd." TextWrapping="Wrap" Margin="0,6,0,0" />
+      <TextBlock Name="CleanupExternalNotice" Text="Bij externe NZBGet stel je het opruimen in NZBGet in." TextWrapping="Wrap" Visibility="Collapsed" />
+    </StackPanel>
   </StackPanel>
 </UserControl>

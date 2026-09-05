@@ -22,16 +22,7 @@ public partial class SettingsForCommunity : UserControl, IAdvancedSettingsContro
 {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    /// <summary>Shown in place of the API key until the user chooses to replace it.</summary>
-    private const string MaskedKeyPlaceholder = "••••••••";
-
     private CommunityConfig _working;
-
-    /// <summary>
-    /// The key as loaded. While it is non-null the box is showing a mask, and the stored
-    /// key is kept rather than whatever the mask happens to read as.
-    /// </summary>
-    private string _originalApiKey;
 
     public SettingsForCommunity()
     {
@@ -84,20 +75,8 @@ public partial class SettingsForCommunity : UserControl, IAdvancedSettingsContro
         UpgradeFailuresUrlTextBox.Text = c.Services.UpgradeFailuresUrl;
         PromoFolderUrlTextBox.Text = c.Services.PromoFolderUrl;
 
-        NewznabUrlTextBox.Text = c.Indexer.NewznabBaseUrl;
-        ShowKeyMasked(c.Indexer.NewznabApiKey);
 
         ApplyModerationEnabledState();
-    }
-
-    private void ShowKeyMasked(string key)
-    {
-        _originalApiKey = key ?? "";
-        NewznabKeyTextBox.IsReadOnly = true;
-        ReplaceKeyButton.IsEnabled = true;
-        NewznabKeyTextBox.Text = _originalApiKey.Length <= 4
-            ? (_originalApiKey.Length == 0 ? "(niet ingesteld)" : MaskedKeyPlaceholder)
-            : MaskedKeyPlaceholder + _originalApiKey.Substring(_originalApiKey.Length - 4);
     }
 
     /// <summary>Reads the pane back into <paramref name="c"/>.</summary>
@@ -124,11 +103,6 @@ public partial class SettingsForCommunity : UserControl, IAdvancedSettingsContro
         c.Services.UpgradeFailuresUrl = UpgradeFailuresUrlTextBox.Text.Trim();
         c.Services.PromoFolderUrl = PromoFolderUrlTextBox.Text.Trim();
 
-        c.Indexer.NewznabBaseUrl = NewznabUrlTextBox.Text.Trim();
-        // A read-only box is still showing the mask, so the stored key stands.
-        c.Indexer.NewznabApiKey = NewznabKeyTextBox.IsReadOnly
-            ? _originalApiKey
-            : NewznabKeyTextBox.Text.Trim();
     }
 
     private static int ParseInterval(string text, int fallback)
@@ -205,14 +179,6 @@ public partial class SettingsForCommunity : UserControl, IAdvancedSettingsContro
     private void ModerationEnabledCheckBox_Click(object sender, RoutedEventArgs e)
     {
         ApplyModerationEnabledState();
-    }
-
-    private void ReplaceKeyButton_Click(object sender, RoutedEventArgs e)
-    {
-        NewznabKeyTextBox.IsReadOnly = false;
-        NewznabKeyTextBox.Text = "";
-        NewznabKeyTextBox.Focus();
-        ReplaceKeyButton.IsEnabled = false;
     }
 
     private void RefreshListsButton_Click(object sender, RoutedEventArgs e)

@@ -64,6 +64,7 @@ public partial class SettingsForSpotsList : UserControl, IAdvancedSettingsContro
             }
 
             Settings.Default.HideBlacklistedSpots = HideBlacklistedSpots.IsChecked.GetValueOrDefault();
+            bool trustedOnlyChanged = Settings.Default.ShowTrustedOnlyEnabled != ShowTrustedOnly.IsChecked.GetValueOrDefault();
             MainWindowVm.ShowTrustedOnlyMode = ShowTrustedOnly.IsChecked.GetValueOrDefault();
             Settings.Default.AutoShowNewSpotsInTheList = AutoShowNewSpotsInTheList.IsChecked.GetValueOrDefault();
             bool coloringSpots = Settings.Default.ColoringSpots;
@@ -74,7 +75,7 @@ public partial class SettingsForSpotsList : UserControl, IAdvancedSettingsContro
             bool num = coloringFilters != Settings.Default.ColoringFilters;
             bool num2 = !settingsToRefreshSpotsList.Equals(GetSettingsToRefreshSpotsList());
             Settings.Default.Save();
-            if (num2)
+            if (num2 && !trustedOnlyChanged)
             {
                 Sys.MainWindow.RefreshSpotsList(force: true);
             }

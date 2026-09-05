@@ -97,32 +97,6 @@ public static class PromotionHelper
 		Sys.MainWindow.OpenPromo(tab);
 	}
 
-	private static string GenerateTestConfig()
-	{
-		PromotionTabInfo promotionTabInfo = new PromotionTabInfo
-		{
-			Title = "Example Promotion",
-			Url = "http://www.google.com/",
-			IsActivatedOnOpen = false,
-			IsTabClosable = true
-		};
-		PromotionTabInfo promotionTabInfo2 = new PromotionTabInfo
-		{
-			Title = "Example Promotion that cannot be closed",
-			Url = "https://www.5eurousenet.com/en",
-			IsActivatedOnOpen = false,
-			IsTabClosable = false
-		};
-		PromotionTabs promotionTabs = new PromotionTabs();
-		promotionTabs.Tabs = new PromotionTabInfo[2] { promotionTabInfo, promotionTabInfo2 };
-		PromotionTabs o = promotionTabs;
-		string tempFileName = AppHelper.GetTempFileName();
-		XmlSerializer xmlSerializer = new XmlSerializer(typeof(PromotionTabs));
-		using StreamWriter textWriter = new StreamWriter(tempFileName);
-		xmlSerializer.Serialize(textWriter, o);
-		return tempFileName;
-	}
-
 	private static PromotionTabs ParseConfig(string file)
 	{
 		XmlSerializer xmlSerializer = new XmlSerializer(typeof(PromotionTabs));

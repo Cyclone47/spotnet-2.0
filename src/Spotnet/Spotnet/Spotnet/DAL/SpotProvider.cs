@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
@@ -767,6 +767,7 @@ public class SpotProvider : IVirtualListLoader<ISpotRow>
 	internal void ResetCache()
 	{
 		ResetCount();
+		_lastRowFilter = "";
 		_cacheQueryCounts = new Dictionary<string, int>();
 	}
 

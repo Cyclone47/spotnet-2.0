@@ -132,7 +132,11 @@ internal static class SquirrelStuff
 		{
 			throw new Exception("Unknown app parent path");
 		}
-		UpdateManager = new UpdateManager((UpdateChannel != "alpha") ? deploymentPackagesFolder : "D:\\ShuMisha.GoogleNet\\Work\\oDesk\\workwithjanton.SpotNet\\Scripts\\Squirrel\\Releases\\", "Spotnet", FrameworkVersion.Net45);
+		// Het alpha-kanaal wees naar een absoluut pad op de machine van de oorspronkelijke
+		// inhuurontwikkelaar; dat is verwijderd. Alle kanalen lezen nu uit de deployment-map.
+		// FrameworkVersion blijft Net45: Squirrel 0.9.2 kent geen nieuwere waarde, en de
+		// prerequisite wordt alleen bij een verse Squirrel-installatie geraadpleegd.
+		UpdateManager = new UpdateManager(deploymentPackagesFolder, "Spotnet", FrameworkVersion.Net45);
 	}
 
 	internal static void DisposeUpdateManager()

@@ -3,7 +3,6 @@
 <head>
 
   <!--[if lt IE 9]>
-  <script src="[SN:THEME]/js/html5.js"></script>
   <![endif]-->
 
   
@@ -37,11 +36,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="[SN:THEME]/css/bootstrap.css">
 		<link rel="stylesheet" href="[SN:THEME]/css/style.css">
-		<script type="text/javascript" src="[SN:THEME]/js/jquery.js"></script>
-		<script type="text/javascript" src="[SN:THEME]/js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="[SN:THEME]/js/html5.js"></script>
-
-		
 		<script type="text/javascript">
 			var eigenid = 'Enter ID';
 var dir = '[SN:PATH]' + "/Images";
@@ -1637,7 +1631,15 @@ addLoadEvent(function() {
         var strend = '</td></tr>';
         if ('[SN:CAT]' == 'Films' || '[SN:CAT]' == 'Series') {
                 //document.getElementById('imdbblock').style.display = 'block';
-                JSONP('http://www.omdbapi.com/?i=&t=' + Setimdb(), function(json) {
+                // OMDb vereist sinds 2017 een sleutel. Zonder sleutel het blok niet leeg laten,
+                // maar zeggen waar hij ingesteld wordt. Zie Instellingen > Externe integraties.
+                var omdbKey = '[SN:OMDBKEY]';
+                if (omdbKey === '') {
+                    var omdbTitleEl = document.getElementById('title');
+                    if (omdbTitleEl) {
+                        omdbTitleEl.innerHTML = strsta + 'Film-info: ' + strmid + 'Uitgeschakeld. Vul een OMDb-sleutel in bij Instellingen &gt; Externe integraties.' + strend;
+                    }
+                } else JSONP('https://www.omdbapi.com/?apikey=' + omdbKey + '&i=&t=' + Setimdb(), function(json) {
                         var url1 = 'link:http://www.imdb.com/title/' + json.imdbID;
                         var strURL = SetYouTube();
                         var s1 = String(json.Title);
@@ -1706,8 +1708,7 @@ addLoadEvent(function() {
                         re = new RegExp("\\+{2}", 'g');
                         Music2 = Music2.replace(re, "+")
                         urliTunes = 'https://itunes.apple.com/search?term=' + Music2 + '&country=NL&media=music&entity=album&callback=handleiTunesSearchAlbum'
-                        var html = '<script src="' + urliTunes + '"><\/script>';
-                        jQuery('head').append(html);
+                        spotnetLoadScript(urliTunes);
                 }
         }
 });
@@ -1724,8 +1725,7 @@ function handleiTunesSearchAlbum(arg) {
                 if (cntrun == 0) {
                         cntrun = 1;
                         urliTunes = urliTunes.replace('NL&media', 'US&media');
-                        var html = '<script src="' + urliTunes + '"><\/script>';
-                        jQuery('head').append(html);
+                        spotnetLoadScript(urliTunes);
                 }
         } else {
                 for (var i = 0; i < resultsT.length; i++) {
@@ -1873,8 +1873,7 @@ function GetTracks(id) {
         };
         var params = urlEncode(params);
         var url = 'https://itunes.apple.com/lookup?' + params;
-        var html = '<script src="' + url + '"><\/script>';
-        jQuery('head').append(html);
+        spotnetLoadScript(url);
 };
 //If tracklist is loaded toggle between visible and invisible 
 function toggleDiv() {
@@ -2044,6 +2043,7 @@ function regexstr(string) {
 })(window);
 	</script>
 		
+    <script src="[SN:THEME]/js/theme-ui.js"></script>
 </head>
 <body>
    <noscript>

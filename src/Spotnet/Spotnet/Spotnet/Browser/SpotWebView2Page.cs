@@ -1624,6 +1624,11 @@ internal class SpotWebView2Page : WebView2Page, ISpotPage
 			});
 			SpotMenu.IsOpen = true;
 			SpotMenu.PreviewMouseUp += SpotMenu_PreviewMouseUp;
+			// WebView2 keeps its own HWND, so a light-dismiss click that lands back on the
+			// page still reaches it underneath this popup. Without clearing the selection
+			// here, that same click is seen by the page as a new mouseup over the old
+			// selection, which reopens this menu instead of dismissing it.
+			SpotMenu.Closed += (_, _) => ExecuteJavascript("window.spotnet.clearSelection();");
 		});
 	}
 

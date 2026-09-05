@@ -253,6 +253,7 @@ public class VirtualList<T> : IDisposable, IList, ICollection, IEnumerable, ILis
 
 	public void Clear()
 	{
+		_cts?.Cancel();
 		_list = new ObservableCollection<VirtualListItem<T>>();
 		LoadPage(0);
 	}
@@ -261,7 +262,10 @@ public class VirtualList<T> : IDisposable, IList, ICollection, IEnumerable, ILis
 	{
 		if (isNewQuery)
 		{
-			_list = new ObservableCollection<VirtualListItem<T>>();
+			DispatcherHelper.UIDispatcher.Invoke(delegate
+			{
+				_list = new ObservableCollection<VirtualListItem<T>>();
+			});
 		}
 		if (overallCount > 0)
 		{
@@ -373,8 +377,17 @@ public class VirtualList<T> : IDisposable, IList, ICollection, IEnumerable, ILis
 		{
 			timer = new Timer(delegate
 			{
-				SpotsListVm.IsSpotsListLoading = true;
-			}, null, TimeSpan.FromMilliseconds(500.0), TimeSpan.FromDays(1.0));
+				if (!newCts.Token.IsCancellationRequested && !Sys.IsShutdownRequested && (minRowId == -1 ? _cts == newCts : _ctsNew == newCts))
+				{
+					DispatcherHelper.CheckBeginInvokeOnUI(delegate
+					{
+						if (!newCts.Token.IsCancellationRequested && !Sys.IsShutdownRequested && (minRowId == -1 ? _cts == newCts : _ctsNew == newCts))
+						{
+							SpotsListVm.IsSpotsListLoading = true;
+						}
+					});
+				}
+			}, null, TimeSpan.FromMilliseconds(500.0), Timeout.InfiniteTimeSpan);
 			if (cancellationTokenSource != null)
 			{
 				cancellationTokenSource.Cancel();
@@ -427,11 +440,17 @@ public class VirtualList<T> : IDisposable, IList, ICollection, IEnumerable, ILis
 			if (timer != null)
 			{
 				timer.Dispose();
-				if (!Sys.IsShutdownRequested && !newCts.Token.IsCancellationRequested)
-				{
-					SpotsListVm.IsSpotsListLoading = false;
-				}
 			}
+			DispatcherHelper.CheckBeginInvokeOnUI(delegate
+			{
+				if (!Sys.IsShutdownRequested)
+				{
+					if ((minRowId == -1 && _cts == newCts) || (minRowId != -1 && _ctsNew == newCts) || newCts.Token.IsCancellationRequested)
+					{
+						SpotsListVm.IsSpotsListLoading = false;
+					}
+				}
+			});
 		}
 	}
 

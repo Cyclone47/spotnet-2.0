@@ -235,7 +235,15 @@ function loadImdb() {
 	var strend = '</td></tr>';
 	if ('[SN:CAT]' == 'Films' || '[SN:CAT]' == 'Series') {
 		document.getElementById('imdbheader').innerHTML = '<b>IMDb</b>';
-		JSONP('http://www.omdbapi.com/?i=&t=' + Setimdb(), function(json) {
+		// OMDb vereist sinds 2017 een sleutel. Zonder sleutel het blok niet leeg laten,
+		// maar zeggen waar hij ingesteld wordt. Zie Instellingen > Externe integraties.
+		var omdbKey = '[SN:OMDBKEY]';
+		if (omdbKey === '') {
+		    var omdbTitleEl = document.getElementById('title');
+		    if (omdbTitleEl) {
+		        omdbTitleEl.innerHTML = strsta + 'Film-info: ' + strmid + 'Uitgeschakeld. Vul een OMDb-sleutel in bij Instellingen &gt; Externe integraties.' + strend;
+		    }
+		} else JSONP('https://www.omdbapi.com/?apikey=' + omdbKey + '&i=&t=' + Setimdb(), function(json) {
 			var url1 = 'link:http://www.imdb.com/title/' + json.imdbID;
 			var strURL = SetYouTube();
 			var s1 = String(json.Title);

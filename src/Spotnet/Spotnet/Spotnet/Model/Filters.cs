@@ -461,6 +461,12 @@ internal class Filters
 		{
 			return;
 		}
+		// Zonder ingevulde indexer levert elke categorie hieronder toch niets op; dan is een
+		// lege tak beter dan een tak die belooft te werken. Zie Instellingen > Externe integraties.
+		if (!NewznabHelper.IsConfigured)
+		{
+			return;
+		}
 		foreach (KeyValuePair<int, string> category in NewznabHelper.Categories)
 		{
 			AddFilter(newznabFilterRoot.FullPathString + "/" + category.Value, "cat=" + category.Key, "");

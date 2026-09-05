@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,6 +13,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using NLog;
 using Spotnet.Downloader;
+using Spotnet.Downloader.PostProcessing;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
 using Spotnet.Model;
@@ -24,6 +26,7 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
     private Brush _fieldInvalidBackground => (Brush)FindResource("NoticeBackgroundBrush");
     private Brush _fieldValidBackground => (Brush)FindResource("WhiteColorBrush");
     private readonly Action<string> _onDownloadFolderChanged;
+    private readonly ObservableCollection<string> _cleanupExtensions = new ObservableCollection<string>();
     private DateTime DownloaderScheduleStartDateTime
     {
         get
@@ -65,6 +68,7 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
     {
         try
         {
+            if (!AddCleanupExtensions(CleanupExtensionInput.Text)) return false;
             if (!VerifyFields())
             {
                 return false;
@@ -104,6 +108,7 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
             }
 
             Settings.Default.RemovePar2FilesAfterDownload = RemovePar2Files.IsChecked.GetValueOrDefault();
+            Settings.Default.DownloadCleanupExtensions = string.Join(",", _cleanupExtensions);
             Sys.ShutdownPCAfterDownloads = ShutdownPcAfterDownloads.IsChecked.GetValueOrDefault();
             Settings.Default.NotifyAboutDownloadComplete = NotifyAboutDownloadComplete.IsChecked.GetValueOrDefault();
             Settings.Default.Save();
@@ -118,6 +123,10 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
 
     private void SettingsForDownload_Initialized(object sender, EventArgs e)
     {
+        CleanupExtensionsList.ItemsSource = _cleanupExtensions;
+        AddCleanupExtensions(Settings.Default.DownloadCleanupExtensions);
+        CleanupPanel.IsEnabled = !Settings.Default.ExternalNzbGet;
+        CleanupExternalNotice.Visibility = Settings.Default.ExternalNzbGet ? Visibility.Visible : Visibility.Collapsed;
         SpeedLimitCheckBox.IsChecked = Settings.Default.SpeedLimit > 0;
         SpeedLimitTextBox.IsEnabled = SpeedLimitCheckBox.IsChecked.GetValueOrDefault();
         if (SpeedLimitTextBox.IsEnabled)
@@ -175,6 +184,46 @@ public partial class SettingsForDownload : System.Windows.Controls.UserControl, 
         }
 
         return false;
+    }
+
+    private bool AddCleanupExtensions(string value)
+    {
+        try
+        {
+            string[] parsed = DownloadCleanup.Parse(value);
+            foreach (string extension in parsed)
+                if (!_cleanupExtensions.Contains(extension)) _cleanupExtensions.Add(extension);
+            CleanupExtensionInput.Clear();
+            CleanupError.Visibility = Visibility.Collapsed;
+            return true;
+        }
+        catch (FormatException ex)
+        {
+            CleanupError.Text = ex.Message;
+            CleanupError.Visibility = Visibility.Visible;
+            return false;
+        }
+    }
+
+    private void CleanupAdd_OnClick(object sender, RoutedEventArgs e) => AddCleanupExtensions(CleanupExtensionInput.Text);
+
+    private void CleanupSuggestions_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (AddCleanupExtensions(CleanupExtensionInput.Text))
+            AddCleanupExtensions(DownloadCleanup.Suggestions);
+    }
+
+    private void CleanupRemove_OnClick(object sender, RoutedEventArgs e)
+    {
+        foreach (string extension in CleanupExtensionsList.SelectedItems.Cast<string>().ToArray())
+            _cleanupExtensions.Remove(extension);
+    }
+
+    private void CleanupExtensionInput_OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != System.Windows.Input.Key.Enter) return;
+        e.Handled = true;
+        AddCleanupExtensions(CleanupExtensionInput.Text);
     }
 
     private void BrowseDownloaderPath_OnClick(object sender, RoutedEventArgs e)

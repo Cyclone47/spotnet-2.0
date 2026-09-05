@@ -119,24 +119,6 @@
       </Border>
     </Expander>
 
-    <!-- Indexer -->
-    <Expander Header="Indexer (Newznab)" Margin="0,4,0,4">
-      <Border Background="{DynamicResource DialogBackgroundBrush}" CornerRadius="4" Padding="10" Margin="0,4,0,0">
-        <StackPanel Orientation="Vertical">
-          <StackPanel Style="{StaticResource FieldRow}">
-            <TextBlock Text="Server:" Style="{StaticResource FieldLabel}" />
-            <TextBox Name="NewznabUrlTextBox" Width="420" />
-          </StackPanel>
-          <StackPanel Style="{StaticResource FieldRow}">
-            <TextBlock Text="API-sleutel:" Style="{StaticResource FieldLabel}" />
-            <TextBox Name="NewznabKeyTextBox" Width="300" IsReadOnly="True" />
-            <Button Name="ReplaceKeyButton" Content="Vervangen" Margin="10,0,0,0" Padding="10,2" Click="ReplaceKeyButton_Click" />
-          </StackPanel>
-          <TextBlock Text="De sleutel wordt afgeschermd weergegeven. Klik op Vervangen om een eigen sleutel in te voeren."
-                     TextWrapping="Wrap" Opacity="0.7" FontSize="11" Margin="150,2,0,0" />
-        </StackPanel>
-      </Border>
-    </Expander>
 
     <!-- Raw editor -->
     <Border Name="RawPanel" Visibility="Collapsed" Background="{DynamicResource DialogBackgroundBrush}"

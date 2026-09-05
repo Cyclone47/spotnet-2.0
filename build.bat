@@ -20,7 +20,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo [1/3] Restoring and building Spotnet 3.0 Solution Release x86...
+echo [1/3] Restoring and building Spotnet 3.0 Solution Release x64...
 echo.
 dotnet build "%SOLUTION_DIR%\Spotnet.sln" -c Release -v minimal
 if %ERRORLEVEL% NEQ 0 (
@@ -44,7 +44,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo [3/3] Build Verification
-set "OUTPUT_EXE=%SOLUTION_DIR%\Spotnet\bin\Release\net472\Spotnet.exe"
+set "OUTPUT_EXE=%SOLUTION_DIR%\Spotnet\bin\Release\net10.0-windows\Spotnet.exe"
 
 if exist "%OUTPUT_EXE%" (
     echo ======================================================================

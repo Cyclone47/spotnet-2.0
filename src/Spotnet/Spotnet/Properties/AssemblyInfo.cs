@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Resources;
 
-[assembly: InternalsVisibleTo("Spotnet.AutoTests")]
 [assembly: InternalsVisibleTo("Spotnet.Tests")]
 [assembly: AssemblyCompany("Spotnet")]
 [assembly: AssemblyCopyright("Copyright (C) 2014-2026")]

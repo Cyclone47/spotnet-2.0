@@ -103,14 +103,13 @@ public sealed class SettingsForCommunityTests : IDisposable
             Spotnet.Controls.SettingsForCommunity pane = new Spotnet.Controls.SettingsForCommunity();
             TextBox spots = (TextBox)pane.FindName("SpotsGroupTextBox");
             TextBox whitelist = (TextBox)pane.FindName("WhitelistUrlTextBox");
-            TextBox key = (TextBox)pane.FindName("NewznabKeyTextBox");
 
             Assert.Equal("free.pt", spots.Text);
             Assert.Equal("http://spotcloud.spotnet.wf/spotnet/lists.new/whitelist.csv", whitelist.Text);
 
-            // The API key is masked down to its last four characters.
-            Assert.DoesNotContain("dc08a7bb", key.Text);
-            Assert.EndsWith("cb07", key.Text);
+            // De indexer hoort niet meer op deze pagina thuis; die staat nu onder
+            // Externe integraties. Zie SettingsForIntegrationsTests.
+            Assert.Null(pane.FindName("NewznabKeyTextBox"));
         });
     }
 

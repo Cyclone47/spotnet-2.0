@@ -20,11 +20,6 @@ public static class ObjectExtension
 {
 	private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-	public static void Async(Action action)
-	{
-		action?.BeginInvoke(null, null);
-	}
-
 	public static void DispatchAsync(this DispatcherObject thisInstance, Action action)
 	{
 		if (action != null)
@@ -43,14 +38,6 @@ public static class ObjectExtension
 	public static string ToStringSafely(this object target)
 	{
 		return target?.ToString() ?? "";
-	}
-
-	public static string SerializeObject<T>(this T toSerialize)
-	{
-		XmlSerializer xmlSerializer = new XmlSerializer(toSerialize.GetType());
-		StringWriter stringWriter = new StringWriter();
-		xmlSerializer.Serialize(stringWriter, toSerialize);
-		return stringWriter.ToString();
 	}
 
 	public static void Forget(this Task task)
@@ -78,25 +65,9 @@ public static class ObjectExtension
 		return jObject.GetValue("name").Value<string>() + ": " + jObject.GetValue("message").Value<string>();
 	}
 
-	public static void Sort<T>(this ObservableCollection<T> collection) where T : IComparable
-	{
-		List<T> list = collection.OrderBy((T x) => x).ToList();
-		for (int i = 0; i < list.Count(); i++)
-		{
-			collection.Move(collection.IndexOf(list[i]), i);
-		}
-	}
-
-	public static byte[] ToByteArray(this Image img)
-	{
-		using MemoryStream memoryStream = new MemoryStream();
-		img.Save(memoryStream, ImageFormat.Png);
-		return memoryStream.ToArray();
-	}
-
 	public static Bitmap Resize(this Image image, int width, int height)
 	{
-		Rectangle destRect = new Rectangle(0, 0, width, height);
+		Rectangle rect = new Rectangle(0, 0, width, height);
 		Bitmap bitmap = new Bitmap(width, height);
 		bitmap.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 		using Graphics graphics = Graphics.FromImage(bitmap);
@@ -107,7 +78,15 @@ public static class ObjectExtension
 		graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 		using ImageAttributes imageAttributes = new ImageAttributes();
 		imageAttributes.SetWrapMode(WrapMode.TileFlipXY);
-		graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, imageAttributes);
+		graphics.DrawImage(image, rect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, imageAttributes);
 		return bitmap;
 	}
+
+	public static byte[] ToByteArray(this Image img)
+	{
+		using MemoryStream memoryStream = new MemoryStream();
+		img.Save(memoryStream, ImageFormat.Png);
+		return memoryStream.ToArray();
+	}
+
 }

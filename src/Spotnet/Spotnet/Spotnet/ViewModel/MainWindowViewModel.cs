@@ -76,16 +76,35 @@ public class MainWindowViewModel : ViewModelBase
 		}
 		set
 		{
+			bool settingChanged = Settings.Default.ShowTrustedOnlyEnabled != value;
+			bool modeBefore = ShowTrustedOnlyMode;
 			Settings.Default.ShowTrustedOnlyEnabled = value;
 			Settings.Default.Save();
 			if (value)
 			{
+				if (BlackAndWhite.NumberOfUsersTrusted() < 500)
+				{
+					_isShowTrustedTemporaryDisabled = true;
+					BlackAndWhite.OnTrustedListUploaded -= CheckShowTrustedOnlyModeShouldBeRestored;
+					BlackAndWhite.OnTrustedListUploaded += CheckShowTrustedOnlyModeShouldBeRestored;
+				}
+				else
+				{
+					_isShowTrustedTemporaryDisabled = false;
+				}
+			}
+			else
+			{
 				_isShowTrustedTemporaryDisabled = false;
 			}
-			Sys.MainWindow.RefreshSpotsList(force: true);
-			RaisePropertyChanged("ShowTrustedOnlyMode");
-			RaisePropertyChanged("ShowTrustedOnlyIcon");
-			RaisePropertyChanged("ShowTrustedOnlyTooltip");
+			bool modeAfter = ShowTrustedOnlyMode;
+			if (settingChanged || modeBefore != modeAfter)
+			{
+				Sys.MainWindow.RefreshSpotsList(force: true);
+				RaisePropertyChanged("ShowTrustedOnlyMode");
+				RaisePropertyChanged("ShowTrustedOnlyIcon");
+				RaisePropertyChanged("ShowTrustedOnlyTooltip");
+			}
 		}
 	}
 

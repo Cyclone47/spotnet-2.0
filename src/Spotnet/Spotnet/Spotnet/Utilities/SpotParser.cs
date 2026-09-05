@@ -12,6 +12,7 @@ using System.Web;
 using Microsoft.VisualBasic;
 using NLog;
 using Spotnet.Extensions;
+using Spotnet.Community;
 using Spotnet.Helpers;
 using Spotnet.Model;
 using Spotnet.Properties;
@@ -298,6 +299,48 @@ internal class SpotParser
 			}
 		}
 		return stringBuilder.ToStringSafely();
+	}
+
+	/// <summary>
+	/// Tweede verdedigingslaag rond de spotweergave. De pagina toont tekst die door
+	/// onbekenden op Usenet is geschreven; de eerste laag is dat die tekst HTML-geëncodeerd
+	/// binnenkomt en dat de kwetsbare jQuery 1.8 en Bootstrap 2 uit de thema's verdwenen zijn.
+	/// Deze policy legt daar bovenop vast waar de pagina nog naartoe mag praten.
+	///
+	/// <para>
+	/// <c>'unsafe-inline'</c> staat er noodgedwongen in: alle zeven thema's bestaan uit inline
+	/// script- en style-blokken. Deze policy stopt dus geen injectie die puur inline is, maar
+	/// wel het stuk dat een aanvaller nodig heeft om iets buiten de pagina te bereiken:
+	/// een script van een eigen host laden, een formulier posten, een frame openen of een
+	/// verbinding opzetten. iTunes staat expliciet toe, want dat is de enige externe host die
+	/// de thema's zelf aanroepen (JSONP voor albumgegevens).
+	/// </para>
+	/// </summary>
+	private static string AddContentSecurityPolicy(string html)
+	{
+		const string policy = "<meta http-equiv=\"Content-Security-Policy\" content=\""
+			+ "default-src 'none'; "
+			+ "script-src 'unsafe-inline' 'self' file: https://itunes.apple.com; "
+			+ "style-src 'unsafe-inline' 'self' file:; "
+			+ "img-src 'self' file: data: https: http:; "
+			+ "media-src 'self' file: data:; "
+			+ "font-src 'self' file: data:; "
+			+ "connect-src 'none'; "
+			+ "frame-src 'none'; "
+			+ "object-src 'none'; "
+			+ "base-uri 'none'; "
+			+ "form-action 'none'\">";
+
+		// Een meta-policy geldt pas voor wat erna geparsed wordt, dus hij moet direct achter
+		// <head> staan en niet vlak voor </head>.
+		int head = html.IndexOf("<head>", StringComparison.OrdinalIgnoreCase);
+		if (head < 0)
+		{
+			return policy + html;
+		}
+
+		int insertAt = head + "<head>".Length;
+		return html.Substring(0, insertAt) + policy + html.Substring(insertAt);
 	}
 
 	private static string MakeDesc(string text, bool oldInfo, bool ubbSimple = true, bool ubbAdvanced = true)
@@ -777,6 +820,8 @@ internal class SpotParser
 			.Replace("[SN:BGCOLOR]", "#F9F9F9")
 			.Replace("[SN:DESC]", MakeDesc(spotEx.Body.Trim(), spotEx.OldInfo != null))
 			.Replace("[SN:SMILEYS]", AppHelper.SmileysPath)
+			// Leeg als er geen OMDb-sleutel is ingesteld; het thema verbergt het filmblok dan.
+			.Replace("[SN:OMDBKEY]", AppHelper.UrlEncode(CommunityConfig.Current.Integrations.OmdbApiKey ?? ""))
 			.Replace("[SN:SPOTLINK]", GenerateSpotUrl(spotEx.MessageId, text2))
 			.Replace("[WORD:DOWNLOAD]", Words.SpotThemeDownload)
 			.Replace("[WORD:LOADINGCOMMENTS]", Words.SpotThemeLoadingComments)
@@ -798,6 +843,7 @@ internal class SpotParser
 			.Replace("[WORD:OPENCLOSETRACKS]", Words.OpenCloseiTunesTracks)
 			.Replace("[WORD:PIECES]", Words.Pieces)
 			.Replace("[WORD:EXTERNALLINKS]", Words.ExternalLinks);
+		text4 = AddContentSecurityPolicy(text4);
 		if (Settings.Default.ActiveTheme.Equals("Default"))
 		{
 			text4 = text4.Replace("=".Repeat(60), "=".Repeat(50)).Replace("-".Repeat(60), "-".Repeat(50));

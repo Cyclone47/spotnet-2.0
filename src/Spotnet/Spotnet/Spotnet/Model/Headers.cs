@@ -56,11 +56,6 @@ internal static class Headers
 		}
 	}
 
-	internal static void InitializeForAutoTests(BlockingCollection<List<Spot>> spotsToAddAndRemove)
-	{
-		_workXmls = spotsToAddAndRemove;
-	}
-
 	internal static Task FindHeadersAsync(BlockingCollection<List<Spot>> spotsToAddAndRemove, Engine tPhuse, NntpSettings xParam, CancellationToken cToken)
 	{
 		lock (SyncRoot)

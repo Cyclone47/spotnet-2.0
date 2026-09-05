@@ -21,9 +21,16 @@ public static class NewznabHelper
 	/// <summary>Builds an API call against the indexer named in the community configuration.</summary>
 	private static string ApiUrl(string query)
 	{
-		CommunityIndexer indexer = CommunityConfig.Current.Indexer;
-		return string.Concat(indexer.NewznabBaseUrl.TrimEnd('/'), "/api?o=json&apikey=", indexer.NewznabApiKey, "&", query);
+		CommunityIntegrations integrations = CommunityConfig.Current.Integrations;
+		return string.Concat(integrations.NewznabBaseUrl.TrimEnd('/'), "/api?o=json&apikey=", integrations.NewznabApiKey, "&", query);
 	}
+
+	/// <summary>
+	/// Of er een indexer is om te bevragen. Zonder URL en sleutel is er niets om heen te gaan;
+	/// de aanroepers vallen dan terug op de gewone Usenet-bron in plaats van op een timeout
+	/// te wachten.
+	/// </summary>
+	internal static bool IsConfigured => CommunityConfig.Current.Integrations.IsNewznabConfigured;
 
 	private static readonly Logger Log;
 
@@ -109,12 +116,12 @@ public static class NewznabHelper
 
 	public static bool IsNewznabQuery(string query)
 	{
-		return GetCategoryFromQuery(query) >= 1000;
+		return IsConfigured && GetCategoryFromQuery(query) >= 1000;
 	}
 
 	public static bool IsNewznabMessageId(string msgId)
 	{
-		return msgId.ToLower().StartsWith(MessageIdPrefix);
+		return IsConfigured && msgId.ToLower().StartsWith(MessageIdPrefix);
 	}
 
 	internal static IList<ISpotRow> ExecuteQuery(string query, int offset, int limit, out int overallCount, CancellationToken cancellationToken)
