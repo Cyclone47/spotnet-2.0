@@ -304,21 +304,6 @@ internal sealed class Settings : ApplicationSettingsBase
 	[UserScopedSetting]
 	[DebuggerNonUserCode]
 	[DefaultSettingValue("True")]
-	public bool GoogleAnalytics
-	{
-		get
-		{
-			return (bool)this["GoogleAnalytics"];
-		}
-		set
-		{
-			this["GoogleAnalytics"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("True")]
 	public bool ShowComments
 	{
 		get
@@ -1100,21 +1085,6 @@ internal sealed class Settings : ApplicationSettingsBase
 		set
 		{
 			this["SpotBlacklistURL"] = value;
-		}
-	}
-
-	[UserScopedSetting]
-	[DebuggerNonUserCode]
-	[DefaultSettingValue("True")]
-	public bool PromoteSpotnetInComment
-	{
-		get
-		{
-			return (bool)this["PromoteSpotnetInComment"];
-		}
-		set
-		{
-			this["PromoteSpotnetInComment"] = value;
 		}
 	}
 

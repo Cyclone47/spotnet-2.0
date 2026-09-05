@@ -6,6 +6,7 @@ using System.Threading;
 using NLog;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spotnet.Community;
 using Spotnet.DataVirtualization;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -15,13 +16,14 @@ namespace Spotnet.Model.Newznab;
 
 public static class NewznabHelper
 {
-	private const string ApiKey = "dc08a7bb0371bee90a767a822e68cb07";
-
 	private const string AttrsToRequest = "size,guid,poster,usenetdate";
 
-	private const string QueryJsonSearchCat = "http://51.15.59.166/api?o=json&t=search&attrs=size,guid,poster,usenetdate&apikey=dc08a7bb0371bee90a767a822e68cb07&cat={0}&limit={1}&offset={2}";
-
-	private const string QueryJsonDetails = "http://51.15.59.166/api?o=json&t=details&apikey=dc08a7bb0371bee90a767a822e68cb07&id={0}";
+	/// <summary>Builds an API call against the indexer named in the community configuration.</summary>
+	private static string ApiUrl(string query)
+	{
+		CommunityIndexer indexer = CommunityConfig.Current.Indexer;
+		return string.Concat(indexer.NewznabBaseUrl.TrimEnd('/'), "/api?o=json&apikey=", indexer.NewznabApiKey, "&", query);
+	}
 
 	private static readonly Logger Log;
 
@@ -187,7 +189,7 @@ public static class NewznabHelper
 		try
 		{
 			using WebClient webClient = new WebClient();
-			string address = $"http://51.15.59.166/api?o=json&t=search&attrs=size,guid,poster,usenetdate&apikey=dc08a7bb0371bee90a767a822e68cb07&cat={cat}&limit={limit}&offset={offset}";
+			string address = ApiUrl($"t=search&attrs={AttrsToRequest}&cat={cat}&limit={limit}&offset={offset}");
 			response = webClient.DownloadString(address);
 		}
 		catch (WebException ex)
@@ -385,7 +387,7 @@ public static class NewznabHelper
 		try
 		{
 			using WebClient webClient = new WebClient();
-			string address = $"http://51.15.59.166/api?o=json&t=details&apikey=dc08a7bb0371bee90a767a822e68cb07&id={arg}";
+			string address = ApiUrl($"t=details&id={arg}");
 			response = webClient.DownloadString(address);
 		}
 		catch (WebException ex)

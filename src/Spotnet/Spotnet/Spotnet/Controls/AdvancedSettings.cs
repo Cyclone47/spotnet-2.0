@@ -34,7 +34,8 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
                     new KeyValuePair<string, UserControl>(Words.MenuAdvSpotsList, null),
                     new KeyValuePair<string, UserControl>(Words.MenuAdvTabs, null),
                     new KeyValuePair<string, UserControl>(Words.MenuAdvDatabase, null),
-                    new KeyValuePair<string, UserControl>("Spotnet Remote", null)
+                    new KeyValuePair<string, UserControl>("Spotnet Remote", null),
+                    new KeyValuePair<string, UserControl>("Community", null)
                 };
                 List<KeyValuePair<string, UserControl>> list2 = obj;
                 _settingsDictionary = obj;
@@ -112,6 +113,9 @@ public partial class AdvancedSettings : MetroWindow, INotifyPropertyChanged
                     break;
                 case 6:
                     userControl = new SettingsForRemote();
+                    break;
+                case 7:
+                    userControl = new SettingsForCommunity();
                     break;
             }
 

@@ -1208,6 +1208,8 @@ public class Words
 
 	public static string Warning => ResourceManager.GetString("Warning", resourceCulture);
 
+	public static string WebPCodecMissing => ResourceManager.GetString("WebPCodecMissing", resourceCulture);
+
 	public static string Website => ResourceManager.GetString("Website", resourceCulture);
 
 	public static string WebsiteNotFoundCheckURL => ResourceManager.GetString("WebsiteNotFoundCheckURL", resourceCulture);

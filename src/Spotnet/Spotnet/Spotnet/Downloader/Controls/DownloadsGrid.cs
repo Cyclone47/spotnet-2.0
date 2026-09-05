@@ -874,21 +874,17 @@ public partial class DownloadsGrid : UserControl, IDisposable
         }
     }
 
-    private void StatusLinkRequestNavigate(object sender, RequestNavigateEventArgs e)
+    private void StatusLinkClick(object sender, RoutedEventArgs e)
     {
-        Hyperlink hyperlink = (Hyperlink)e.Source;
-        DownloaderItemViewModel vm = (DownloaderItemViewModel)hyperlink.DataContext;
-        if (vm.RawStatus == DownloadStatus.WrongPassword)
+        if (((Hyperlink)sender).DataContext is not DownloaderItemViewModel vm || vm.RawStatus != DownloadStatus.WrongPassword)
         {
-            DispatcherHelper.UIDispatcher.InvokeAsync(delegate
-            {
-                SetUnpackPassword(vm);
-                vm.DownloadResume();
-            });
+            return;
         }
-        else
+
+        DispatcherHelper.UIDispatcher.InvokeAsync(delegate
         {
-            Process.Start(e.Uri.AbsoluteUri);
-        }
+            SetUnpackPassword(vm);
+            vm.DownloadResume();
+        });
     }
 }

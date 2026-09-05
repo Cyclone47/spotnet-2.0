@@ -405,7 +405,8 @@ De spot wordt verwijderd uit de database van alle Spotnet 3.0 gebruikers.
 Schrijf de reden waarom u deze wilt verwijderen:</value></data>
   <data name="MenuVisibleControlsStatusBar" xml:space="preserve"><value>Statusbalk</value></data>
   <data name="ShutdownDialogComputerToBeShutdownDownloadsCompleted" xml:space="preserve"><value>Alle downloads zijn voltooid, de PC wordt afgesloten.</value></data>
-  <data name="FilterToPicture" xml:space="preserve"><value>Afbeeldingen|*.jpg;*.gif;*.png;*.bmp|JPG Bestand (*.jpg)|*.jpg|GIF Bestand (*.gif)|*.gif|PNG Bestand (*.png)|*.png|BMP Bestand (*.bmp)|*.bmp</value></data>
+  <data name="FilterToPicture" xml:space="preserve"><value>Afbeeldingen|*.jpg;*.gif;*.png;*.bmp;*.webp|JPG Bestand (*.jpg)|*.jpg|GIF Bestand (*.gif)|*.gif|PNG Bestand (*.png)|*.png|BMP Bestand (*.bmp)|*.bmp|WebP Bestand (*.webp)|*.webp</value></data>
+  <data name="WebPCodecMissing" xml:space="preserve"><value>Dit systeem kan geen WebP-afbeeldingen lezen. Installeer "Webp Image Extensions" uit de Microsoft Store, of kies een JPG- of PNG-bestand.</value></data>
   <data name="MenuView" xml:space="preserve"><value>Beeld</value></data>
   <data name="MenuSpam" xml:space="preserve"><value>Spam</value></data>
   <data name="MenuPost" xml:space="preserve"><value>_Toevoegen...</value></data>

@@ -37,13 +37,7 @@ public partial class SettingsForCommon : UserControl, IAdvancedSettingsControl
                 SocksProxy.ChangeState(UseSocks5Proxy.IsChecked.GetValueOrDefault());
             }
 
-            bool downloadExternalLists = Settings.Default.DownloadExternalLists;
-            Settings.Default.DownloadExternalLists = DownloadExternalLists.IsChecked.GetValueOrDefault();
             Settings.Default.Save();
-            if (Settings.Default.DownloadExternalLists != downloadExternalLists && Settings.Default.DownloadExternalLists)
-            {
-                BlackAndWhite.UpdateExternalListsAsync();
-            }
 
             return true;
         }
@@ -59,7 +53,6 @@ public partial class SettingsForCommon : UserControl, IAdvancedSettingsControl
         ShowSug.IsChecked = Settings.Default.GoogleSuggest;
         SystemTray.IsChecked = Settings.Default.SystemTray;
         ShowDesktopNotifications.IsChecked = Settings.Default.ShowDesktopNotifications;
-        DownloadExternalLists.IsChecked = Settings.Default.DownloadExternalLists;
         UseSocks5Proxy.IsChecked = Settings.Default.UseSocksProxy;
         UseSocks5Proxy.Visibility = ((!SocksProxy.GlobalyEnabled) ? Visibility.Collapsed : Visibility.Visible);
     }

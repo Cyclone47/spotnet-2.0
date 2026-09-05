@@ -521,11 +521,9 @@ public abstract class DownloaderItemViewModel : INotifyPropertyChanged, ICompara
 	{
 		get
 		{
-			if (_rawStatus == DownloadStatus.WrongPassword || (_rawStatus == DownloadStatus.FailureNoSuchArticle && !AppHelper.IsSnelNlProvider && !AppHelper.Is5EuroProvider))
-			{
-				return Visibility.Visible;
-			}
-			return Visibility.Collapsed;
+			// Only the wrong-password row is actionable; clicking it opens the password
+			// dialog. Every other status is plain text.
+			return (_rawStatus == DownloadStatus.WrongPassword) ? Visibility.Visible : Visibility.Collapsed;
 		}
 	}
 
@@ -546,8 +544,6 @@ public abstract class DownloaderItemViewModel : INotifyPropertyChanged, ICompara
 			return Visibility.Visible;
 		}
 	}
-
-	public string PromoLink => Configuration.DownloadsTabPromoLink;
 
 	public string Time
 	{

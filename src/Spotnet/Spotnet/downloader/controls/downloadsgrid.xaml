@@ -89,7 +89,7 @@
                   <Image Grid.Column="0" Source="/Resources/ImagesInternal/warning.ico" Width="16" VerticalAlignment="Center" Margin="3,0,3,0" Visibility="{Binding VisibilityOfStatusWarningIcon}" />
                   <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="3,0,5,0" Visibility="{Binding StatusVisibility}" Text="{Binding Path=Status, Mode=OneWay}" />
                   <TextBlock Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap" Margin="3,0,5,0" Visibility="{Binding StatusWithLinkVisibility}">
-                    <Hyperlink NavigateUri="{Binding PromoLink}" RequestNavigate="StatusLinkRequestNavigate">
+                    <Hyperlink Click="StatusLinkClick">
                       <Run Text="{Binding Path=Status, Mode=OneWay}" />
                     </Hyperlink>
                   </TextBlock>

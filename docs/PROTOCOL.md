@@ -14,6 +14,10 @@ Spotnet organizes its distributed data across three primary standard Usenet news
 | `free.usenet` | **Comments & Ratings** | User text comments, ratings (1–10), and replies linked via `References: <spot-msgid>`. |
 | `free.willey` | **Spam Reports & Dispositions** | Moderation/spam reports with target spot Message-ID and reason. |
 
+These are defaults rather than constants: the groups a client uses, along with the
+moderation lists and community services it talks to, are set in
+[COMMUNITY-CONFIG.md](COMMUNITY-CONFIG.md).
+
 ---
 
 ## 2. Spot Article Format
@@ -90,3 +94,25 @@ The article body contains the XML definition of the release:
 4. **NZB Parsing & Binary Segment Downloading:**
    - The NZB file specifies the actual Usenet binaries (`.rar`, `.par2`) across groups such as `alt.binaries.movies`.
    - Multi-connection worker pools download the file chunks in parallel.
+
+## 5. Spot Image Formats
+
+Spot images travel as raw bytes in the `<Image>` segments, with no format field: every client
+sniffs the bytes itself. That makes the format a compatibility concern rather than a local choice.
+
+**Reading.** Spotnet 3.0 decodes spot images and thumbnails through the Windows Imaging Component
+(`BitmapDecoder`), so it reads whatever codecs Windows has registered — JPEG, PNG, GIF and BMP
+always, and WebP wherever the codec is present. The codec ships in-box on Windows 11; on Windows 10
+it is the free "Webp Image Extensions" package from the Microsoft Store. Spotnet bundles no decoder
+of its own, so `ImageHelper.IsWebPDecodingAvailable` probes for one at runtime and the UI degrades
+with a message that names the fix.
+
+The spot toolbar needs a GDI+ bitmap for its "copy image" button, and GDI+ knows only BMP, GIF,
+JPEG, PNG and TIFF. `ImageHelper.LoadDrawingImage` therefore falls back to the WIC decoders and
+returns `null` rather than throwing, so an image the toolbar cannot copy is still shown in the spot.
+
+**Writing.** Posting is deliberately more conservative than reading. Spotnet 2.x reads spot images
+with GDI+ and Spotweb with PHP-GD, and neither knows WebP, so `ImageHelper.EnsurePostableFormat`
+re-encodes a WebP the user picked to JPEG before it is signed and posted. Nothing but JPEG, PNG,
+GIF and BMP goes out on the wire, and the spot stays readable in every client. Note that this
+re-encode drops transparency.

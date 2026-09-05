@@ -183,7 +183,6 @@ public partial class MainWindow : MetroWindow
             Sys.DownloadsPlayer.Dispose();
         }
 
-        Task<bool> task = Sys.StatsReporter.ReportOnStopAsync();
         Task task2 = null;
         if (Sys.Downloader != null)
         {
@@ -196,13 +195,12 @@ public partial class MainWindow : MetroWindow
         DbUpdater.DbUpdateTimerStop();
         DbUpdater.Stop();
         PagesFactory.DisposeAllPages();
-        task?.Wait(TimeSpan.FromSeconds(3.0));
         task2?.Wait(TimeSpan.FromSeconds(3.0));
         System.Windows.Application.Current.Shutdown();
         Log.Debug("Shutdown complete");
 
         // Handing over to Setup: end the process now. Everything that must be finished is
-        // finished above - downloads stopped, the database closed, statistics reported -
+        // finished above - downloads stopped and the database closed -
         // but download and browser threads outlive the window by around half a minute,
         // and Setup can do nothing but wait for them behind a window with no progress on
         // it. Only on this path; an ordinary exit is left exactly as it was.
@@ -859,7 +857,6 @@ public partial class MainWindow : MetroWindow
                     }
                 }
 
-                Sys.StatsReporter.ReportOnSpotOpenAsync(spotEx.MessageId);
                 OpenPage(PageTypeEnum.SpotLoaded, spotEx.Title, saveParrentTab: false, closeableTabItem, spotEx).Forget();
             }
             catch (Exception ex)
@@ -2093,7 +2090,6 @@ public partial class MainWindow : MetroWindow
 
             SquirrelStuff.StartNewVersionCheckTimer();
             StartAutoUpdates();
-            Sys.StatsReporter.ReportOnStartAsync();
             CheckFreeSpaceOnTheDisk();
         }
         catch (Exception ex)

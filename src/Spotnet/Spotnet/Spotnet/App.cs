@@ -138,6 +138,10 @@ public partial class App : Application
             Log.Info("Start Spotnet {0} {1} channel", AppHelper.AppVersion, SquirrelStuff.UpdateChannel);
             Log.Debug("OS version: " + Environment.OSVersion.Version);
 
+            // The community configuration decides which newsgroups and which moderation
+            // lists this client uses, so it has to be in place before anything reads them.
+            Spotnet.Community.CommunityConfig.Initialize();
+
             // Show our custom SplashWindow (replaces the plain WPF SplashScreen).
             // Language is initialized before showing so the step labels are already localized.
             UserLanguageHelper.Initialize(Settings.Default.UserLanguage);

@@ -1,5 +1,20 @@
 <section class="notes-section gh-release">
-<h3>Spotnet 3.0.8.0 <span class="gh-tag">New</span><span class="gh-date">Current version</span></h3>
+<h3>Spotnet 3.0.9.0 <span class="gh-tag">New</span><span class="gh-date">Current version</span></h3>
+<div class="gh-body"><ul class="section-items tagged">
+<li><strong>Community settings:</strong> A new Settings &gt; Community page brings together the Spotnet community servers, newsgroups, moderation lists and Newznab indexer. View list counts, refresh lists, change the refresh interval, and import or export a community profile. Existing community defaults are preserved.</li>
+<li><strong>Moderation support:</strong> Configure moderator keys and optional verification of signed moderation lists. Communities can require valid signatures; signature checking is not enabled by default.</li>
+<li><strong>Remote away from home:</strong> Create a Cloudflare Quick Tunnel from the Remote settings or pairing window and connect through an HTTPS link without port forwarding. The required component downloads on first use. The link is temporary and can change when the tunnel restarts; Spotnet and the PC must remain running.</li>
+<li><strong>Remote login and pairing:</strong> Choose local Wi-Fi or Cloudflare when pairing by QR code. Logging out now revokes the session token on the server, authentication changes take effect without restarting Remote, and spot images require a valid token when authentication is enabled.</li>
+<li><strong>WebP images:</strong> Open WebP spot images and choose .webp files or image/webp URLs when adding a spot. Decoding uses the Windows WIC codec; a missing codec produces an installation hint. WebP is converted to JPEG before posting for compatibility with other clients, which removes transparency.</li>
+<li><strong>Legacy telemetry removed:</strong> Removed Google Analytics reporting for startup, shutdown, opened spots and updates, together with its device identifier.</li>
+<li><strong>Promotional links removed:</strong> Missing-article download errors no longer link to a provider promotion, and new comments no longer receive an automatic promotional footer. The wrong-password action remains available.</li>
+<li><strong>Maintenance:</strong> Updated the About information and project documentation, standardized the source folder as src/Spotnet, and corrected shared-state interference in regression tests.</li>
+</ul></div>
+</section>
+
+
+<section class="notes-section gh-release">
+<h3>Spotnet 3.0.8.0 <span class="gh-date">5 September 2026</span></h3>
 <div class="gh-body"><ul class="section-items tagged">
 <li><strong>.NET 10 included:</strong> Setup includes the Windows x64 .NET 10 runtime inside Spotnet&#39;s installation folder. No separate .NET installation is required; it does not appear as a separate entry in Installed Apps.</li>
 <li><strong>Remote password setup fixed:</strong> Enabling Remote for the first time asks for a password twice. Cancel keeps Remote disabled. Password settings remain accessible while Remote is off.</li>

@@ -30,6 +30,7 @@ using NLog;
 using Spotnet.Controls;
 using Spotnet.DAL;
 using Spotnet.Downloader;
+using Spotnet.Community;
 using Spotnet.Extensions;
 using Spotnet.Model;
 using Spotnet.Phuse;
@@ -114,8 +115,6 @@ public static class AppHelper
 	private static bool _keysLoaded;
 
 	private static bool _translateInfoLoaded;
-
-	private static string _hostUniqueId;
 
 	public static bool IsLocalSettingsFolder;
 
@@ -235,12 +234,6 @@ public static class AppHelper
 			}
 		}
 	}
-
-	public static string HostUniqueId => LazyInitializer.EnsureInitialized(ref _hostUniqueId, () => Sha1(MacAddress));
-
-	public static string MacAddress => (from nic in NetworkInterface.GetAllNetworkInterfaces()
-		where nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback
-		select nic.GetPhysicalAddress().ToString()).FirstOrDefault();
 
 	public static Version AppVersion
 	{
@@ -1321,9 +1314,10 @@ public static class AppHelper
 		string text = System.IO.Path.Combine(SettingsFolder, "keys.xml");
 		try
 		{
-			if (!Settings.Default.KeysURL.IsNullOrEmpty())
+			string keysUrl = CommunityConfig.Current.Moderation.ModeratorKeysUrl;
+			if (!keysUrl.IsNullOrEmpty())
 			{
-				UpdateKeysFileFromTheNet(AddHttp(Settings.Default.KeysURL), text);
+				UpdateKeysFileFromTheNet(AddHttp(keysUrl), text);
 			}
 			if (!System.IO.File.Exists(text))
 			{

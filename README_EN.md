@@ -1,4 +1,4 @@
-﻿# Spotnet 3.0
+# Spotnet 3.0
 
 *[Nederlandse versie](README.md)*
 
@@ -10,7 +10,7 @@ Spotnet is a *client*, not a Usenet service — you supply access to a news serv
 
 | | |
 | --- | --- |
-| **Version** | 3.0.8.0 |
+| **Version** | 3.0.9.0 |
 | **Platform** | Windows 10/11 x64 · C# / WPF · .NET 10 (shipped inside Setup) |
 | **Tests** | 470 passing on the x64 Release host |
 | **Based on** | Spotnet 2.0 (build 2.0.0.284), with Spotnet 1.8.1 as reference |
@@ -19,8 +19,8 @@ Spotnet is a *client*, not a Usenet service — you supply access to a news serv
 
 ## Download
 
-**[Download Spotnet 3.0.8.0 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.8.0/Spotnet-3.0-x64-Setup.exe)**
-· [Release notes and SHA-256](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.8.0)
+**[Download Spotnet 3.0.9.0 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.9.0/Spotnet-3.0-x64-Setup.exe)**
+· [Release notes and SHA-256](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.9.0)
 
 Setup handles both fresh installs and upgrades from a compatible Spotnet 2.x profile. It
 closes Spotnet safely, copies your selected profile into a separate 3.0 data folder, and
@@ -73,8 +73,20 @@ to a home screen and used like an app.
   Remote is running.
 
 Remote listens on port **8770** by default, with network discovery on UDP port **8771**.
-It is off by default and enabled under *Settings ▸ Remote*. Reaching Spotnet from outside
-your home means setting up port forwarding yourself — set a strong password before you do.
+It is off by default and enabled under *Settings ▸ Remote*. The optional **Cloudflare
+Quick Tunnel** creates an HTTPS link for access away from home without port forwarding.
+You can also select this connection in the QR pairing window. The link can change when
+the tunnel restarts; Spotnet and the PC must remain running.
+
+### Community and WebP
+
+Use *Settings ▸ Community* to manage community servers, newsgroups, moderation lists and
+the Newznab indexer. Import or export profiles and optionally verify signed moderation
+lists. See [Community configuration (Dutch)](docs/COMMUNITY-CONFIG.md).
+
+Spot images now support WebP through the Windows codec. You can also choose a WebP image
+when adding a spot; it is converted to JPEG before posting for compatibility with other
+clients. This removes transparency.
 
 ### Android companion app
 
@@ -88,7 +100,7 @@ newer) that talks to the same Remote server:
 - viewing and managing the download queue.
 
 The APK (`SpotnetCompanion.apk`) is attached to
-[release v3.0.7.0](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.7.0); the
+[release v3.0.7.0](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.9.0); the
 source lives in [`android/`](android/).
 
 ### Notifications and alerts

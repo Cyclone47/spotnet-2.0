@@ -101,6 +101,168 @@ internal class ImageHelper
 		return (array.Length > imageBytes.Length) ? imageBytes : array;
 	}
 
+	/// <summary>
+	/// The 34 byte lossless WebP the browsers use for feature detection - a single pixel.
+	/// Decoding it is the cheapest way to ask WIC whether a WebP codec is registered at all.
+	/// </summary>
+	private static readonly byte[] WebPProbe = new byte[34]
+	{
+		0x52, 0x49, 0x46, 0x46, 0x1A, 0x00, 0x00, 0x00, 0x57, 0x45,
+		0x42, 0x50, 0x56, 0x50, 0x38, 0x4C, 0x0D, 0x00, 0x00, 0x00,
+		0x2F, 0x00, 0x00, 0x00, 0x10, 0x07, 0x10, 0x11, 0x11, 0x88,
+		0x88, 0xFE, 0x07, 0x00
+	};
+
+	/// <summary>Content types we accept for a spot image.</summary>
+	/// <remarks>
+	/// WebP only decodes when Windows has the codec (see <see cref="IsWebPDecodingAvailable" />),
+	/// and <see cref="EnsurePostableFormat" /> normalises it away again before anything is posted.
+	/// </remarks>
+	private static readonly string[] ImageMimeTypes = new string[5] { "image/png", "image/gif", "image/jpeg", "image/bmp", "image/webp" };
+
+	private static bool? _isWebPDecodingAvailable;
+
+	/// <summary>
+	/// Whether Windows can decode WebP. The codec is in-box on Windows 11 and a free
+	/// "Webp Image Extensions" download from the Store on Windows 10; we ship none of our own,
+	/// so every WebP path in the client hangs off this.
+	/// </summary>
+	internal static bool IsWebPDecodingAvailable
+	{
+		get
+		{
+			if (!_isWebPDecodingAvailable.HasValue)
+			{
+				_isWebPDecodingAvailable = ProbeWebPCodec();
+			}
+			return _isWebPDecodingAvailable.Value;
+		}
+	}
+
+	private static bool ProbeWebPCodec()
+	{
+		try
+		{
+			BitmapFrame bitmapFrame = BitmapDecoder.Create(new MemoryStream(WebPProbe), BitmapCreateOptions.None, BitmapCacheOption.OnLoad).Frames[0];
+			bool flag = bitmapFrame.PixelWidth == 1 && bitmapFrame.PixelHeight == 1;
+			Log.Info("WebP decoding is " + (flag ? "available" : "not available") + " on this system");
+			return flag;
+		}
+		catch (Exception ex)
+		{
+			Log.Info("No WebP codec registered on this system: " + ex.Message);
+			return false;
+		}
+	}
+
+	/// <summary>A WebP file is a RIFF container whose form type is "WEBP".</summary>
+	internal static bool IsWebP(byte[] imageBytes)
+	{
+		if (imageBytes == null || imageBytes.Length < 12)
+		{
+			return false;
+		}
+		return imageBytes[0] == (byte)'R' && imageBytes[1] == (byte)'I' && imageBytes[2] == (byte)'F' && imageBytes[3] == (byte)'F' && imageBytes[8] == (byte)'W' && imageBytes[9] == (byte)'E' && imageBytes[10] == (byte)'B' && imageBytes[11] == (byte)'P';
+	}
+
+	internal static bool IsSupportedImageMimeType(string contentType)
+	{
+		if (contentType.IsNullOrEmpty())
+		{
+			return false;
+		}
+		// "image/jpeg; charset=binary" and friends - the parameters are not ours to care about.
+		string mime = contentType.Split(';')[0].Trim();
+		return ImageMimeTypes.Any((string t) => string.Equals(t, mime, StringComparison.OrdinalIgnoreCase));
+	}
+
+	/// <summary>
+	/// Decodes an image into a GDI+ bitmap, falling back to the WIC decoders for anything GDI+
+	/// cannot open itself. GDI+ knows BMP, GIF, JPEG, PNG and TIFF and nothing beyond that, so
+	/// WebP needs the detour.
+	/// </summary>
+	/// <returns>Null when the image cannot be decoded at all - callers have to cope.</returns>
+	internal static System.Drawing.Image LoadDrawingImage(string file)
+	{
+		try
+		{
+			return System.Drawing.Image.FromFile(file);
+		}
+		catch (Exception ex)
+		{
+			Log.Debug("GDI+ cannot read " + file + ": " + ex.Message + " - retrying with the WIC decoders");
+		}
+		try
+		{
+			return WicDecodeToDrawingImage(File.ReadAllBytes(file));
+		}
+		catch (Exception ex2)
+		{
+			Log.Warn("Failed to decode " + file + ": " + ex2.Message);
+			return null;
+		}
+	}
+
+	private static System.Drawing.Image WicDecodeToDrawingImage(byte[] imageBytes)
+	{
+		if (IsWebP(imageBytes) && !IsWebPDecodingAvailable)
+		{
+			throw new NotSupportedException(Words.WebPCodecMissing);
+		}
+		BitmapFrame bitmapFrame = BitmapDecoder.Create(new MemoryStream(imageBytes), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];
+		PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+		pngBitmapEncoder.Frames.Add(BitmapFrame.Create(bitmapFrame));
+		using MemoryStream memoryStream = new MemoryStream();
+		pngBitmapEncoder.Save(memoryStream);
+		memoryStream.Position = 0L;
+		// Image.FromStream keeps reading from the stream it was handed, so return a copy that owns
+		// its own pixels - the stream is long gone by the time the toolbar draws it.
+		using System.Drawing.Image image = System.Drawing.Image.FromStream(memoryStream);
+		return new System.Drawing.Bitmap(image);
+	}
+
+	/// <summary>
+	/// Normalises an image to something every Spotnet client can read before it goes out on
+	/// Usenet. Spotnet 2.x reads spot images with GDI+ and Spotweb with PHP-GD, neither of which
+	/// knows WebP, so a WebP the user picked is re-encoded to JPEG rather than posted as-is.
+	/// </summary>
+	/// <returns>Null when the image cannot be decoded, so the caller can refuse the post.</returns>
+	internal static byte[] EnsurePostableFormat(byte[] imageBytes)
+	{
+		if (imageBytes.IsNullOrEmpty() || !IsWebP(imageBytes))
+		{
+			return imageBytes;
+		}
+		if (!IsWebPDecodingAvailable)
+		{
+			Log.Warn("Cannot convert the WebP image: no WebP codec on this system");
+			return null;
+		}
+		try
+		{
+			return ToJpeg(imageBytes);
+		}
+		catch (Exception ex)
+		{
+			Log.Exception(ex);
+			return null;
+		}
+	}
+
+	/// <summary>Re-encodes an image as JPEG at its original size. Transparency is lost.</summary>
+	internal static byte[] ToJpeg(byte[] imageBytes, int quality = 90)
+	{
+		BitmapFrame bitmapFrame = BitmapDecoder.Create(new MemoryStream(imageBytes), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];
+		JpegBitmapEncoder jpegBitmapEncoder = new JpegBitmapEncoder
+		{
+			QualityLevel = quality
+		};
+		jpegBitmapEncoder.Frames.Add(BitmapFrame.Create(bitmapFrame));
+		using MemoryStream memoryStream = new MemoryStream();
+		jpegBitmapEncoder.Save(memoryStream);
+		return memoryStream.ToArray();
+	}
+
 	internal static byte[] LoadSpotThumb(SpotEx spotEx)
 	{
 		try

@@ -1,5 +1,20 @@
 <section class="notes-section gh-release">
-<h3>Spotnet 3.0.8.0 <span class="gh-tag">Nieuw</span><span class="gh-date">Huidige versie</span></h3>
+<h3>Spotnet 3.0.9.0 <span class="gh-tag">Nieuw</span><span class="gh-date">Huidige versie</span></h3>
+<div class="gh-body"><ul class="section-items tagged">
+<li><strong>Community-instellingen:</strong> Een nieuw paneel Instellingen &gt; Community bundelt de Spotnet-communityservers, nieuwsgroepen, moderatielijsten en Newznab-indexer. Bekijk lijstaantallen, werk lijsten bij, stel het bijwerkinterval in en importeer of exporteer een communityprofiel. De bestaande community blijft de standaard.</li>
+<li><strong>Ondersteuning voor moderatie:</strong> Configureer moderatorsleutels en optionele controle van ondertekende moderatielijsten. Communities kunnen geldige handtekeningen verplicht stellen; deze controle staat standaard uit.</li>
+<li><strong>Remote buiten de deur:</strong> Maak vanuit de Remote-instellingen of het koppelvenster een Cloudflare Quick Tunnel en verbind via een HTTPS-link zonder port forwarding. Het benodigde onderdeel wordt bij het eerste gebruik gedownload. De link is tijdelijk en kan veranderen wanneer de tunnel opnieuw start; Spotnet en de pc moeten aan blijven.</li>
+<li><strong>Remote-inloggen en koppelen:</strong> Kies bij koppelen met een QR-code tussen lokale wifi en Cloudflare. Uitloggen trekt nu het sessietoken op de server in, gewijzigde authenticatie-instellingen werken zonder Remote opnieuw te starten en spotafbeeldingen vereisen een geldig token wanneer authenticatie aanstaat.</li>
+<li><strong>WebP-afbeeldingen:</strong> Bekijk WebP-spotafbeeldingen en kies .webp-bestanden of image/webp-URL's bij het toevoegen van een spot. Het lezen gebruikt de Windows WIC-codec; bij een ontbrekende codec verschijnt een installatiehint. Voor compatibiliteit met andere clients wordt WebP vóór het posten naar JPEG omgezet, waardoor transparantie vervalt.</li>
+<li><strong>Oude telemetrie verwijderd:</strong> Google Analytics-rapportage over opstarten, afsluiten, geopende spots en updates is verwijderd, samen met de bijbehorende apparaatidentificatie.</li>
+<li><strong>Promotielinks verwijderd:</strong> Downloadfouten door ontbrekende artikelen linken niet meer naar een providerpromotie en nieuwe reacties krijgen geen automatische promotietekst meer. De actie om een verkeerd uitpakwachtwoord te wijzigen blijft beschikbaar.</li>
+<li><strong>Onderhoud:</strong> Het Over-venster en de projectdocumentatie zijn bijgewerkt, de broncodemap heet nu src/Spotnet en conflicten door gedeelde toestand in regressietests zijn opgelost.</li>
+</ul></div>
+</section>
+
+
+<section class="notes-section gh-release">
+<h3>Spotnet 3.0.8.0 <span class="gh-date">5 september 2026</span></h3>
 <div class="gh-body"><ul class="section-items tagged">
 <li><strong>.NET 10 inbegrepen:</strong> De setup levert de Windows x64-runtime van .NET 10 mee in de Spotnet-installatiemap. Apart installeren is niet nodig; .NET 10 verschijnt daarom niet als afzonderlijke app bij Ge&#239;nstalleerde apps.</li>
 <li><strong>Wachtwoord instellen voor Remote hersteld:</strong> Bij de eerste keer inschakelen vul je het wachtwoord twee keer in. Met Annuleren blijft Remote uit. Wachtwoordinstellingen blijven bereikbaar terwijl Remote uitstaat.</li>

@@ -402,7 +402,8 @@ Please write the reason why you want to remove it:</value></data>
   <data name="RestartNow" xml:space="preserve"><value>Restart Now</value></data>
   <data name="MenuVisibleControlsStatusBar" xml:space="preserve"><value>Status Bar</value></data>
   <data name="ShutdownDialogComputerToBeShutdownDownloadsCompleted" xml:space="preserve"><value>All downloads are completed, so PC scheduled to Shut Down.</value></data>
-  <data name="FilterToPicture" xml:space="preserve"><value>Images|*.jpg;*.gif;*.png;*.bmp|JPG File (*.jpg)|*.jpg|GIF File (*.gif)|*.gif|PNG File (*.png)|*.png|BMP File (*.bmp)|*.bmp</value></data>
+  <data name="FilterToPicture" xml:space="preserve"><value>Images|*.jpg;*.gif;*.png;*.bmp;*.webp|JPG File (*.jpg)|*.jpg|GIF File (*.gif)|*.gif|PNG File (*.png)|*.png|BMP File (*.bmp)|*.bmp|WebP File (*.webp)|*.webp</value></data>
+  <data name="WebPCodecMissing" xml:space="preserve"><value>This system cannot read WebP images. Install "Webp Image Extensions" from the Microsoft Store, or pick a JPG or PNG file instead.</value></data>
   <data name="MenuView" xml:space="preserve"><value>_View</value></data>
   <data name="MenuSpam" xml:space="preserve"><value>Spam</value></data>
   <data name="MenuPost" xml:space="preserve"><value>_New Spot...</value></data>

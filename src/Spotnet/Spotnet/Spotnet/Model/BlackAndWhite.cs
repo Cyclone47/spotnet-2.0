@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using NLog;
+using Spotnet.Community;
 using Spotnet.DAL;
 using Spotnet.Extensions;
 using Spotnet.Helpers;
@@ -42,7 +43,7 @@ internal static class BlackAndWhite
 
 	private static readonly HashSet<UserModulusPair> WhiteFakesList;
 
-	private static readonly Timer UpdateListsFromTheNetTimer;
+	private static Timer _updateListsFromTheNetTimer;
 
 	private static readonly object LockWhitelist;
 
@@ -62,14 +63,35 @@ internal static class BlackAndWhite
 		LockBlacklist = new object();
 		LockSpotWhitelist = new object();
 		LockSpotBlacklist = new object();
-		int num = Convert.ToInt32(Settings.Default.ExternalListsUpdateInterval);
-		if (num > 0)
+		RescheduleExternalListUpdates();
+	}
+
+	/// <summary>
+	/// Puts the periodic refresh on the interval the community configuration asks for.
+	/// Called at startup and again whenever the user changes the interval, so a new value
+	/// takes effect without a restart. An interval of zero leaves only the refresh that
+	/// runs when the application starts.
+	/// </summary>
+	internal static void RescheduleExternalListUpdates()
+	{
+		int minutes = CommunityConfig.Current.Moderation.UpdateIntervalMinutes;
+		if (minutes <= 0)
 		{
-			UpdateListsFromTheNetTimer = new Timer(delegate
+			_updateListsFromTheNetTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+			return;
+		}
+
+		TimeSpan period = TimeSpan.FromMinutes(minutes);
+		if (_updateListsFromTheNetTimer == null)
+		{
+			_updateListsFromTheNetTimer = new Timer(delegate
 			{
 				UpdateExternalListsAsync();
-			}, null, TimeSpan.Zero, TimeSpan.FromMinutes(num));
+			}, null, TimeSpan.Zero, period);
+			return;
 		}
+
+		_updateListsFromTheNetTimer.Change(period, period);
 	}
 
 	internal static void UpdateExternalListsAsync()
@@ -236,19 +258,16 @@ internal static class BlackAndWhite
 
 	private static void UpdateWhiteFromTheNetAsync()
 	{
-		if (!Settings.Default.DownloadExternalLists)
+		if (!CommunityConfig.Current.Moderation.Enabled)
 		{
 			return;
 		}
 		string sFile = System.IO.Path.Combine(AppHelper.SettingsFolder, "whitelist.srv.csv");
-		string url = Settings.Default.WhitelistURL;
-		if (url.IsNullOrWhiteSpace())
-		{
-			url = Configuration.RemoteWhitelistUrl;
-		}
+		string url = Configuration.RemoteWhitelistUrl;
 		Task.Run(delegate
 		{
-			if (AppHelper.UpdateKeysFileFromTheNet(AppHelper.AddHttp(url), sFile + ".new"))
+			if (AppHelper.UpdateKeysFileFromTheNet(AppHelper.AddHttp(url), sFile + ".new") &&
+				CommunityListVerifier.MayUse(sFile + ".new", AppHelper.AddHttp(url)))
 			{
 				lock (LockWhitelist)
 				{
@@ -278,21 +297,18 @@ internal static class BlackAndWhite
 
 	private static void UpdateBlackFromTheNetAsync()
 	{
-		if (!Settings.Default.DownloadExternalLists)
+		if (!CommunityConfig.Current.Moderation.Enabled)
 		{
 			return;
 		}
 		string listFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.csv");
 		string listForRemovedFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "blacklist.srv.removed.xml");
-		string url = Settings.Default.BlacklistURL;
-		if (url.IsNullOrWhiteSpace())
-		{
-			url = Configuration.RemoteBlacklistUrl;
-		}
+		string url = Configuration.RemoteBlacklistUrl;
 		Task.Run(delegate
 		{
 			BlackList();
-			if (AppHelper.UpdateKeysFileFromTheNet(AppHelper.AddHttp(url), listFullPath + ".new"))
+			if (AppHelper.UpdateKeysFileFromTheNet(AppHelper.AddHttp(url), listFullPath + ".new") &&
+				CommunityListVerifier.MayUse(listFullPath + ".new", AppHelper.AddHttp(url)))
 			{
 				lock (LockBlacklist)
 				{
@@ -305,21 +321,18 @@ internal static class BlackAndWhite
 
 	private static void UpdateSpotWhiteFromTheNetAsync()
 	{
-		if (!Settings.Default.DownloadExternalLists)
+		if (!CommunityConfig.Current.Moderation.Enabled)
 		{
 			return;
 		}
 		string listFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.csv");
 		string listForRemovedFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_whitelist.srv.removed.xml");
-		string url = Settings.Default.SpotWhitelistURL;
-		if (url.IsNullOrWhiteSpace())
-		{
-			url = Configuration.RemoteSpotWhitelistUrl;
-		}
+		string url = Configuration.RemoteSpotWhitelistUrl;
 		Task.Run(delegate
 		{
 			LoadServerSpotWhite();
-			if (AppHelper.UpdateKeysFileFromTheNet(AppHelper.AddHttp(url), listFullPath + ".new"))
+			if (AppHelper.UpdateKeysFileFromTheNet(AppHelper.AddHttp(url), listFullPath + ".new") &&
+				CommunityListVerifier.MayUse(listFullPath + ".new", AppHelper.AddHttp(url)))
 			{
 				lock (LockSpotWhitelist)
 				{
@@ -332,21 +345,18 @@ internal static class BlackAndWhite
 
 	private static void UpdateSpotBlackFromTheNetAsync()
 	{
-		if (!Settings.Default.DownloadExternalLists)
+		if (!CommunityConfig.Current.Moderation.Enabled)
 		{
 			return;
 		}
 		string listFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.csv");
 		string listForRemovedFullPath = System.IO.Path.Combine(AppHelper.SettingsFolder, "spot_blacklist.srv.removed.xml");
-		string url = Settings.Default.SpotBlacklistURL;
-		if (url.IsNullOrWhiteSpace())
-		{
-			url = Configuration.RemoteSpotBlacklistUrl;
-		}
+		string url = Configuration.RemoteSpotBlacklistUrl;
 		Task.Run(delegate
 		{
 			LoadServerSpotBlack();
-			if (AppHelper.UpdateKeysFileFromTheNet(AppHelper.AddHttp(url), listFullPath + ".new"))
+			if (AppHelper.UpdateKeysFileFromTheNet(AppHelper.AddHttp(url), listFullPath + ".new") &&
+				CommunityListVerifier.MayUse(listFullPath + ".new", AppHelper.AddHttp(url)))
 			{
 				lock (LockSpotBlacklist)
 				{

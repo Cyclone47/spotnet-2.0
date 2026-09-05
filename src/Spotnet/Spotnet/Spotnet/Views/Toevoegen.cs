@@ -55,18 +55,7 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
 
             WebClient webClient = new WebClient();
             rez = webClient.DownloadData(sUrl);
-            bool flag = false;
-            foreach (object key in webClient.ResponseHeaders.Keys)
-            {
-                string name = key.ToStringSafely();
-                string a = webClient.ResponseHeaders[name];
-                if (string.Equals(a, "image/png", StringComparison.OrdinalIgnoreCase) || string.Equals(a, "image/gif", StringComparison.OrdinalIgnoreCase) || string.Equals(a, "image/jpeg", StringComparison.OrdinalIgnoreCase) || string.Equals(a, "image/bmp", StringComparison.OrdinalIgnoreCase))
-                {
-                    flag = rez.GetUpperBound(0) > 10;
-                }
-            }
-
-            if (!flag)
+            if (!ImageHelper.IsSupportedImageMimeType(webClient.ResponseHeaders?["Content-Type"]) || rez.GetUpperBound(0) <= 10)
             {
                 return false;
             }
@@ -78,7 +67,8 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
                 sizeX = bitmapFrame.PixelWidth;
                 sizeY = bitmapFrame.PixelHeight;
                 memoryStream.Close();
-                return true;
+                rez = ImageHelper.EnsurePostableFormat(rez);
+                return rez != null;
             }
 
             memoryStream.Close();
@@ -100,17 +90,15 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
                 return false;
             }
 
-            using FileStream fileStream = System.IO.File.Open(path, FileMode.Open, FileAccess.Read);
-            BitmapFrame bitmapFrame = BitmapFrame.Create(fileStream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None);
+            rez = System.IO.File.ReadAllBytes(path);
+            using MemoryStream memoryStream = new MemoryStream(rez);
+            BitmapFrame bitmapFrame = BitmapFrame.Create(memoryStream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None);
             if (bitmapFrame.PixelWidth > 10 && bitmapFrame.PixelHeight > 10)
             {
                 sizeX = bitmapFrame.PixelWidth;
                 sizeY = bitmapFrame.PixelHeight;
-                int num = checked((int)fileStream.Length);
-                rez = new byte[num];
-                fileStream.Position = 0L;
-                fileStream.Read(rez, 0, num);
-                return true;
+                rez = ImageHelper.EnsurePostableFormat(rez);
+                return rez != null;
             }
         }
         catch (Exception ex)
@@ -119,6 +107,15 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// A WebP this system cannot decode is the one image failure with a fix the user can act on,
+    /// so it gets its own message instead of the generic "cannot add picture".
+    /// </summary>
+    private static string WebPHint(byte[] imageBytes)
+    {
+        return (!ImageHelper.IsWebPDecodingAvailable && ImageHelper.IsWebP(imageBytes)) ? Words.WebPCodecMissing : null;
     }
 
     private bool CheckUrl(string sUrl)
@@ -261,13 +258,13 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
         {
             if (!CheckRemoteImage(AppHelper.AddHttp(ImageTextBox.Text.Trim()), ref rez, ref sizeX, ref sizeY))
             {
-                zErr = Words.PictureNotFoundCheckURL;
+                zErr = WebPHint(rez) ?? Words.PictureNotFoundCheckURL;
                 return false;
             }
         }
         else if (!CheckLocalFileImage(ImageTextBox.Text.Trim(), ref rez, ref sizeX, ref sizeY))
         {
-            zErr = Words.CannotAddPicture;
+            zErr = WebPHint(rez) ?? Words.CannotAddPicture;
             return false;
         }
 
@@ -666,13 +663,13 @@ public partial class Toevoegen : System.Windows.Controls.UserControl
             {
                 if (!CheckRemoteImage(AppHelper.AddHttp(text), ref rez, ref sizeX, ref sizeY))
                 {
-                    zErr = Words.PictureNotFoundCheckURL;
+                    zErr = WebPHint(rez) ?? Words.PictureNotFoundCheckURL;
                     return;
                 }
             }
             else if (!CheckLocalFileImage(text, ref rez, ref sizeX, ref sizeY))
             {
-                zErr = Words.CannotAddPicture;
+                zErr = WebPHint(rez) ?? Words.CannotAddPicture;
                 return;
             }
 

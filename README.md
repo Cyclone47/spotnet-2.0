@@ -1,4 +1,4 @@
-﻿# Spotnet 3.0
+# Spotnet 3.0
 
 *[English version](README_EN.md)*
 
@@ -10,7 +10,7 @@ Spotnet is een *client*, geen Usenet-dienst. Je regelt zelf toegang tot een news
 
 | | |
 | --- | --- |
-| **Versie** | 3.0.8.0 |
+| **Versie** | 3.0.9.0 |
 | **Platform** | Windows 10/11 x64 · C# / WPF · .NET 10 (meegeleverd in de setup) |
 | **Tests** | 470 geslaagd op de x64 Release-host |
 | **Gebaseerd op** | Spotnet 2.0 (build 2.0.0.284), met Spotnet 1.8.1 als referentie |
@@ -19,8 +19,8 @@ Spotnet is een *client*, geen Usenet-dienst. Je regelt zelf toegang tot een news
 
 ## Downloaden
 
-**[Download Spotnet 3.0.8.0 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.8.0/Spotnet-3.0-x64-Setup.exe)**
-· [Release notes en SHA-256](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.8.0)
+**[Download Spotnet 3.0.9.0 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.9.0/Spotnet-3.0-x64-Setup.exe)**
+· [Release notes en SHA-256](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.9.0)
 
 De setup werkt zowel voor een nieuwe installatie als voor een upgrade vanaf een bestaand
 Spotnet 2.x-profiel. Spotnet wordt netjes afgesloten, je gekozen profiel wordt naar een
@@ -75,9 +75,20 @@ op je beginscherm zetten en als app gebruiken.
   gaat zolang Remote actief is.
 
 Remote draait standaard op poort **8770**, met netwerkdetectie op UDP-poort **8771**. Het
-staat standaard uit; je zet het aan via *Instellingen ▸ Remote*. Wil je Spotnet ook van
-buitenshuis bereiken, dan regel je zelf port-forwarding — stel dan zeker een sterk
-wachtwoord in.
+staat standaard uit; je zet het aan via *Instellingen ▸ Remote*. Met de optionele
+**Cloudflare Quick Tunnel** maak je een HTTPS-link voor toegang buitenshuis, zonder
+port forwarding. Je kunt deze verbinding ook kiezen in het QR-koppelvenster. De link
+kan veranderen wanneer de tunnel opnieuw start; Spotnet en de pc moeten aan blijven.
+
+### Community en WebP
+
+Onder *Instellingen ▸ Community* beheer je communityservers, nieuwsgroepen, moderatielijsten
+en de Newznab-indexer. Je kunt profielen importeren en exporteren en optioneel ondertekende
+moderatielijsten controleren. Zie [Community-configuratie](docs/COMMUNITY-CONFIG.md).
+
+Spotafbeeldingen ondersteunen nu WebP via de Windows-codec. Je kunt ook een WebP-afbeelding
+kiezen bij het toevoegen van een spot; deze wordt vóór het posten naar JPEG omgezet voor
+compatibiliteit met andere clients. Daarbij vervalt transparantie.
 
 ### Android companion-app
 
@@ -91,7 +102,7 @@ die dezelfde Remote-server gebruikt:
 - de downloadwachtrij bekijken en beheren.
 
 De APK (`SpotnetCompanion.apk`) staat als bijlage bij
-[release v3.0.7.0](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.7.0); de
+[release v3.0.7.0](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.9.0); de
 broncode staat in [`android/`](android/).
 
 ### Meldingen en alerts
@@ -258,6 +269,7 @@ daarvan.
 - [Providerlijst bijwerken](docs/PROVIDERS.md)
 - [Databaseschema en herstel](docs/DATABASE.md)
 - [NNTP, spot-XML en handtekeningen](docs/PROTOCOL.md)
+- [Community-configuratie: servers, lijsten en moderatie](docs/COMMUNITY-CONFIG.md)
 - [Release notes per versie](docs/releases/)
 
 Referentie over de versies waaruit dit is teruggehaald staat in
@@ -269,7 +281,7 @@ achterhaald zijn — deze README is het actuele overzicht.
 
 ## Wat nog open staat
 
-De Release-build slaagt met **470 automatische tests** op de x64-host, zonder bouwfouten.
+De Release-build slaagt met **496 automatische tests** op de x64-host, zonder bouwfouten.
 Dat is een lokaal ijkpunt, geen CI-badge, en zegt niets over productiegereedheid.
 
 Nog te doen:

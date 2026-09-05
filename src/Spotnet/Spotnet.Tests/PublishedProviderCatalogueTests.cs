@@ -13,6 +13,14 @@ namespace Spotnet.Tests;
 /// and the user types their Usenet credentials into whichever one they pick. These tests pin the
 /// rejection behaviour, because the failure that matters is a bad document being partly accepted.
 /// </summary>
+// These tests swap AppHelper.SettingsFolder, a process-wide static that other test
+// classes swap too. Without a definition the collection is implicit and still runs in
+// parallel with the rest, which surfaces as a rare failure here.
+[CollectionDefinition("ProviderCatalogue", DisableParallelization = true)]
+public class ProviderCatalogueCollection
+{
+}
+
 [Collection("ProviderCatalogue")]
 public sealed class PublishedProviderCatalogueTests
 {

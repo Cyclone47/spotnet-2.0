@@ -4,7 +4,6 @@ using Spotnet.Controls;
 using Spotnet.Downloader;
 using Spotnet.Downloader.ViewModel;
 using Spotnet.Extensions;
-using Spotnet.Model.StatsReporter;
 using Spotnet.Views;
 
 namespace Spotnet.Model;
@@ -12,8 +11,6 @@ namespace Spotnet.Model;
 internal static class Sys
 {
 	internal static volatile bool IsShutdownRequested;
-
-	internal static readonly IStatsReport StatsReporter;
 
 	internal static IDownloader Downloader;
 
@@ -29,7 +26,6 @@ internal static class Sys
 
 	static Sys()
 	{
-		StatsReporter = new GoogleAnalyticsStatsReporter();
 		ShutdownPCAfterDownloads = false;
 		EuroUsenetRetention = 0;
 	}

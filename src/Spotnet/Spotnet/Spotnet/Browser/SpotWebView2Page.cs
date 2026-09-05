@@ -853,7 +853,15 @@ internal class SpotWebView2Page : WebView2Page, ISpotPage
 	private void ShowLocalImage(string file, bool removeOnClose)
 	{
 		SetAttribute("SpotImage", "SRC", "file://" + file.Replace("\\", "/"));
-		Toolbar.SetImageAsync(System.Drawing.Image.FromFile(file));
+		// WebView2 renders every format Chromium knows, which is more than GDI+ does - the toolbar
+		// copy is the only thing that needs a System.Drawing image, so a format it cannot decode
+		// costs us the clipboard button and nothing else. It must never cost us the spot image:
+		// UpdateWithFullImageFromTheNet blanks SpotImage when this method throws.
+		System.Drawing.Image image = ImageHelper.LoadDrawingImage(file);
+		if (image != null)
+		{
+			Toolbar.SetImageAsync(image);
+		}
 		ExecuteJavascript("window.spotnet.prependStyle('SpotImage', 'cursor:pointer;');");
 		_isImageResizeable = true;
 		if (removeOnClose)

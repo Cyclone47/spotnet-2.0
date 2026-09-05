@@ -66,9 +66,17 @@ public class Comment
 		}
 	}
 
+	/// <summary>
+	/// The advert older clients append to one in every hundred comments. This client no
+	/// longer posts it, but comments carrying it keep arriving from the network, so the
+	/// literal stays here to strip them on display.
+	/// </summary>
+	private const string LegacyPromoteSpotnetText =
+		"\r\n---\r\nDeze reactie is geplaatst via Spotnet 3.0, deze kan worden gedownload via: http://spotnet.tk/\r\n";
+
 	public void RemovePromoteSpotnetMessageFromBody()
 	{
-		Body = Body.Replace(Configuration.PromoteSpotnetText, "");
+		Body = Body.Replace(LegacyPromoteSpotnetText, "");
 	}
 
 	internal bool GetCommentDateFromTheNet(Engine phuse, NntpSettings xParam, out string errorMsg)

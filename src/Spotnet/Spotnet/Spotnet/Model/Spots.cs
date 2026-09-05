@@ -112,10 +112,6 @@ public class Spots
 			text = text.Substring(0, text.Length - 2);
 		}
 		text += "\r\n";
-		if (Settings.Default.PromoteSpotnetInComment && new Random().Next(100) == 1)
-		{
-			text += Configuration.PromoteSpotnetText;
-		}
 		string subject = "Re: " + cOrgTitle;
 		List<string> data = SpotHelper.SplitLines(text, allowBlankLines: true, 911);
 		string text3 = SpotHelper.CreateUserSignature(SpotHelper.MakeMsg(hashMessageId), cRsa);

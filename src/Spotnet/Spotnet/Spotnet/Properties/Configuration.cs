@@ -1,33 +1,31 @@
 using System;
+using Spotnet.Community;
 using Spotnet.Helpers;
 
 namespace Spotnet.Properties;
 
 internal static class Configuration
 {
-	internal static string DownloadsTabPromoLink = ((UserLanguageHelper.Language == "en") ? "https://www.5eurousenet.com/en/packages/free-test?a=14161" : "https://www.5eurousenet.com/nl/pakketten/gratis-test?a=14161");
+	/// <summary>
+	/// Community-bound endpoints. These are read from <see cref="CommunityConfig"/> rather
+	/// than compiled in, so a build can be pointed at a different community - or a
+	/// community can move its server - without a new release.
+	/// </summary>
+	internal static string ResponseSiteUrl => CommunityConfig.Current.Services.ResponseSiteUrl;
 
-	internal const string ReportsScriptUrl = "http://spotcloud.spotnet.wf/spotnet/hello.html";
+	internal static string ResponseSiteUploadLogsUrl => CommunityConfig.Current.Services.LogUploadUrl;
 
-	internal static string ResponseSiteUrl = "https://spotcloud.spotnet.wf/spotnet/response/";
+	internal static string UpgradeFailuresUploadUrl => CommunityConfig.Current.Services.UpgradeFailuresUrl;
 
-	internal static string ResponseSiteUploadLogsUrl = "http://spotcloud.spotnet.wf/upload/";
+	internal static string RemoteWhitelistUrl => CommunityConfig.Current.Moderation.WhitelistUrl;
 
-	internal static string UpgradeFailuresUploadUrl = "https://spotcloud.spotnet.wf/spotnet/upgrade.failures/";
+	internal static string RemoteBlacklistUrl => CommunityConfig.Current.Moderation.BlacklistUrl;
 
-	internal static string RemoteWhitelistUrl = "http://spotcloud.spotnet.wf/spotnet/lists.new/whitelist.csv";
+	internal static string RemoteSpotWhitelistUrl => CommunityConfig.Current.Moderation.SpotWhitelistUrl;
 
-	internal static string RemoteBlacklistUrl = "http://spotcloud.spotnet.wf/spotnet/lists.new/blacklist.csv";
+	internal static string RemoteSpotBlacklistUrl => CommunityConfig.Current.Moderation.SpotBlacklistUrl;
 
-	internal static string RemoteSpotWhitelistUrl = "http://spotcloud.spotnet.wf/spotnet/lists.new/spot_whitelist.csv";
-
-	internal static string RemoteSpotBlacklistUrl = "http://spotcloud.spotnet.wf/spotnet/lists.new/spot_blacklist.csv";
-
-	internal static string RemotePromoFolder = "http://spotcloud.spotnet.wf/spotnet/promo/";
-
-	internal static string PromoteSpotnetUrl = "http://spotnet.tk/";
-
-	internal static string PromoteSpotnetText = "\r\n---\r\nDeze reactie is geplaatst via Spotnet 3.0, deze kan worden gedownload via: " + PromoteSpotnetUrl + "\r\n";
+	internal static string RemotePromoFolder => CommunityConfig.Current.Services.PromoFolderUrl;
 
 	internal static string[] UpdateUrls = new string[1] { "https://spotcloud.spotnet.wf/spotnet/" };
 

@@ -159,17 +159,12 @@ internal static class SquirrelStuff
 
 	private static void OnUpgradeSuccess(Version version)
 	{
-		Sys.StatsReporter.ReportOnSpotnetUpdatePerformedAsync(version, isSuccess: true);
 		MainWindowVm.AddNewWarningOnce(Words.NewVersionIsReadyWarning);
 	}
 
 	private static UpdateInfoEx OnUpgradeFailed(Version version, string errorMsg, bool reportFailure, bool uploadLogs)
 	{
 		Log.Error(errorMsg + ", server " + AppHelper.ServersDb.OHeader.Server);
-		if (reportFailure && version != null)
-		{
-			Sys.StatsReporter.ReportOnSpotnetUpdatePerformedAsync(version, isSuccess: false);
-		}
 		if (uploadLogs)
 		{
 			AppHelper.UploadFile(LogHelper.ZipLogFiles(), Spotnet.Properties.Configuration.UpgradeFailuresUploadUrl, null);
