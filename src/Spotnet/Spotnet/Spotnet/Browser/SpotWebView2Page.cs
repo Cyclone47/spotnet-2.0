@@ -275,6 +275,12 @@ internal class SpotWebView2Page : WebView2Page, ISpotPage
 			case "reply":
 				InsertReply(Text(message, "sender"));
 				break;
+			case "imageclose":
+				if (_isImageResizeable && _isImageFullSized)
+				{
+					ToggleImageSize();
+				}
+				break;
 			default:
 				Log.Debug("Ignoring an unrecognized web message from the spot page.");
 				break;

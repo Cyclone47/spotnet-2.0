@@ -42,6 +42,8 @@ internal static class SpotPageBridge
         'smiley:', 'ubb:', 'show:', 'addtoblack:', 'spamreports:'
     ];
 
+    var _imageIsFullSize = false;
+
     // Buttons the host reacts to that are not plain links.
     var CLICK_IDS = [
         'AddComment', 'DownloadButton', 'SpotImage', 'ReportButton', 'FavButton',
@@ -318,6 +320,7 @@ internal static class SpotPageBridge
             if (!fullSize) {
                 img.setAttribute('style', '');
                 img.className = name;
+                _imageIsFullSize = false;
                 return false;
             }
             var height = img.height || img.naturalHeight || 1;
@@ -332,6 +335,7 @@ internal static class SpotPageBridge
             img.className = name + ' full';
             var tall = (window.innerHeight / window.innerWidth) > (height / width);
             img.setAttribute('style', tall ? 'min-width: 90%' : 'min-height: 90%');
+            _imageIsFullSize = true;
             return true;
         },
 
@@ -481,6 +485,34 @@ internal static class SpotPageBridge
             post({ type: 'select', text: selected });
         }
     }, true);
+
+    document.addEventListener('keydown', function (e) {
+        if (_imageIsFullSize && (e.key === 'Escape' || e.keyCode === 27)) {
+            e.preventDefault();
+            e.stopPropagation();
+            post({ type: 'imageclose' });
+        }
+    }, true);
+
+    document.addEventListener('click', function (e) {
+        if (!_imageIsFullSize) {
+            return;
+        }
+        var img = byId('SpotImage');
+        if (!img) {
+            return;
+        }
+        // If the click target is not the image itself (or a child of it),
+        // the user clicked on the background - close the full-size view.
+        var el = e.target;
+        while (el && el !== document) {
+            if (el === img) {
+                return;
+            }
+            el = el.parentNode;
+        }
+        post({ type: 'imageclose' });
+    }, false);
 })();
 ";
 }
