@@ -1,17 +1,17 @@
-# Spotnet 3.0
+﻿# Spotnet 3.0
 
 *[English version](README_EN.md)*
 
 Een gemoderniseerde Windows Usenet-client, gebouwd rond de vertrouwde Spotnet-ervaring:
 spots doorbladeren, zoeken in een lokale index, reacties lezen en plaatsen, NZB-downloads
-beheren en media bekijken — in één desktopapplicatie.
+beheren en media bekijken â€” in Ã©Ã©n desktopapplicatie.
 
 Spotnet is een *client*, geen Usenet-dienst. Je regelt zelf toegang tot een newsserver.
 
 | | |
 | --- | --- |
-| **Versie** | 3.0.9.0 |
-| **Platform** | Windows 10/11 x64 · C# / WPF · .NET 10 (meegeleverd in de setup) |
+| **Versie** | 3.0.10.0 |
+| **Platform** | Windows 10/11 x64 Â· C# / WPF Â· .NET 10 (meegeleverd in de setup) |
 | **Tests** | 470 geslaagd op de x64 Release-host |
 | **Gebaseerd op** | Spotnet 2.0 (build 2.0.0.284), met Spotnet 1.8.1 als referentie |
 
@@ -19,8 +19,8 @@ Spotnet is een *client*, geen Usenet-dienst. Je regelt zelf toegang tot een news
 
 ## Downloaden
 
-**[Download Spotnet 3.0.9.0 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.9.0/Spotnet-3.0-x64-Setup.exe)**
-· [Release notes en SHA-256](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.9.0)
+**[Download Spotnet 3.0.10.0 Setup](https://github.com/Cyclone47/spotnet-3.0/releases/download/v3.0.10.0/Spotnet-3.0-x64-Setup.exe)**
+Â· [Release notes en SHA-256](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.10.0)
 
 De setup werkt zowel voor een nieuwe installatie als voor een upgrade vanaf een bestaand
 Spotnet 2.x-profiel. Spotnet wordt netjes afgesloten, je gekozen profiel wordt naar een
@@ -29,7 +29,7 @@ applicatiebestanden en het bronprofiel blijven ongemoeid; actieve downloadwachtr
 worden niet overgenomen.
 
 **.NET 10 zit in de setup**, in de installatiemap van Spotnet zelf. Je hoeft .NET niet
-apart te installeren en het verschijnt niet als losse vermelding bij *Geïnstalleerde apps*.
+apart te installeren en het verschijnt niet als losse vermelding bij *GeÃ¯nstalleerde apps*.
 Ontbreekt Microsoft Edge WebView2, dan haalt de setup dat bij Microsoft op.
 
 > **De installer is niet ondertekend.** Windows kan een waarschuwing over een onbekende
@@ -43,18 +43,18 @@ Lees de [installatie- en migratiegids](docs/INSTALLER.md) voordat je upgradet.
 
 ### Spots en downloads
 
-De vertrouwde WPF-schil met spots doorbladeren, categorieën, filters, favorieten en
+De vertrouwde WPF-schil met spots doorbladeren, categorieÃ«n, filters, favorieten en
 reacties; lokale SQLite-databases; de Phuse NNTP-engine met het Spotnet-metadata- en
-handtekeningprotocol; de geïntegreerde downloader met meerdere verbindingen; en
+handtekeningprotocol; de geÃ¯ntegreerde downloader met meerdere verbindingen; en
 mediavoorbeelden met dock- en tabgedrag.
 
 Zoeken loopt via **SQLite FTS5**, met een index die bij de eerste start eenmalig wordt
 opgebouwd. Spotpagina's en reacties worden overal weergegeven met **Edge WebView2**.
 
-Er zijn drie stijlen — **Klassiek**, **Modern licht** en **Modern donker** — te kiezen
-tijdens de setup of via *Bewerken ▸ Stijl*.
+Er zijn drie stijlen â€” **Klassiek**, **Modern licht** en **Modern donker** â€” te kiezen
+tijdens de setup of via *Bewerken â–¸ Stijl*.
 
-### Spotnet Remote — bedien Spotnet vanaf je telefoon
+### Spotnet Remote â€” bedien Spotnet vanaf je telefoon
 
 Spotnet draait een eigen webserver waarmee je de applicatie bedient vanaf elke telefoon,
 tablet of computer in je netwerk. De pagina is een PWA met service worker, dus je kunt hem
@@ -62,10 +62,10 @@ op je beginscherm zetten en als app gebruiken.
 
 - **Koppelen met een QR-code.** Scan de code op je scherm; het apparaat krijgt een
   pairing-token, zodat je op je telefoon geen wachtwoord hoeft in te typen.
-- **Inloggen met alleen een wachtwoord** — sinds 3.0.8.0 zonder gebruikersnaam — gehasht
+- **Inloggen met alleen een wachtwoord** â€” sinds 3.0.8.0 zonder gebruikersnaam â€” gehasht
   met PBKDF2-SHA256, met bescherming tegen herhaalde mislukte pogingen en een overzicht
   van gekoppelde apparaten.
-- **Volledige bediening:** zoeken, categorieën en filters, spots en posters bekijken,
+- **Volledige bediening:** zoeken, categorieÃ«n en filters, spots en posters bekijken,
   reacties lezen en plaatsen, de downloadwachtrij beheren, de snelheidslimiet aanpassen en
   handmatig een Usenet-synchronisatie starten.
 - **Meldingen** uit de meldingenmodule zijn ook op je telefoon zichtbaar.
@@ -75,19 +75,19 @@ op je beginscherm zetten en als app gebruiken.
   gaat zolang Remote actief is.
 
 Remote draait standaard op poort **8770**, met netwerkdetectie op UDP-poort **8771**. Het
-staat standaard uit; je zet het aan via *Instellingen ▸ Remote*. Met de optionele
+staat standaard uit; je zet het aan via *Instellingen â–¸ Remote*. Met de optionele
 **Cloudflare Quick Tunnel** maak je een HTTPS-link voor toegang buitenshuis, zonder
 port forwarding. Je kunt deze verbinding ook kiezen in het QR-koppelvenster. De link
 kan veranderen wanneer de tunnel opnieuw start; Spotnet en de pc moeten aan blijven.
 
 ### Community en WebP
 
-Onder *Instellingen ▸ Community* beheer je communityservers, nieuwsgroepen, moderatielijsten
+Onder *Instellingen â–¸ Community* beheer je communityservers, nieuwsgroepen, moderatielijsten
 en de Newznab-indexer. Je kunt profielen importeren en exporteren en optioneel ondertekende
 moderatielijsten controleren. Zie [Community-configuratie](docs/COMMUNITY-CONFIG.md).
 
 Spotafbeeldingen ondersteunen nu WebP via de Windows-codec. Je kunt ook een WebP-afbeelding
-kiezen bij het toevoegen van een spot; deze wordt vóór het posten naar JPEG omgezet voor
+kiezen bij het toevoegen van een spot; deze wordt vÃ³Ã³r het posten naar JPEG omgezet voor
 compatibiliteit met andere clients. Daarbij vervalt transparantie.
 
 ### Android companion-app
@@ -102,7 +102,7 @@ die dezelfde Remote-server gebruikt:
 - de downloadwachtrij bekijken en beheren.
 
 De APK (`SpotnetCompanion.apk`) staat als bijlage bij
-[release v3.0.7.0](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.9.0); de
+[release v3.0.7.0](https://github.com/Cyclone47/spotnet-3.0/releases/tag/v3.0.10.0); de
 broncode staat in [`android/`](android/).
 
 ### Meldingen en alerts
@@ -113,30 +113,30 @@ ongelezen meldingen toont en het meldingencentrum opent.
 
 Er zijn drie soorten regels:
 
-- **Filter-alert** — meldt nieuwe spots die aan een van je opgeslagen filters voldoen.
-- **Trefwoord-alert** — meldt spots met bepaalde trefwoorden, eventueel beperkt tot één
+- **Filter-alert** â€” meldt nieuwe spots die aan een van je opgeslagen filters voldoen.
+- **Trefwoord-alert** â€” meldt spots met bepaalde trefwoorden, eventueel beperkt tot Ã©Ã©n
   categorie.
-- **Download-melding** — meldt wanneer een download klaar is.
+- **Download-melding** â€” meldt wanneer een download klaar is.
 
 Per regel kies je hoe vaak er gecontroleerd wordt: direct bij elke synchronisatie, elke 15
 of 30 minuten, elk uur, elke 8 of 24 uur, of een eigen interval van minimaal 5 minuten.
 Een regel is los aan en uit te zetten en je kunt hem meteen testen om te zien wat hij zou
 opleveren.
 
-Meldingen komen binnen in het meldingencentrum — met de bijbehorende spots erbij — en
+Meldingen komen binnen in het meldingencentrum â€” met de bijbehorende spots erbij â€” en
 optioneel ook als Windows-melding in het systeemvak. Gelezen markeren, per stuk
 verwijderen of alles wissen kan vanuit hetzelfde venster. Dezelfde meldingen zie je terug
 in Spotnet Remote en in de Android-app.
 
 ### Automatische updates
 
-Een geïnstalleerde Spotnet controleert zelf op een nieuwere versie, biedt die aan met de
+Een geÃ¯nstalleerde Spotnet controleert zelf op een nieuwere versie, biedt die aan met de
 release notes erbij en laat de setup zichzelf vervangen. De controle draait op het
-splashscherm, vóór de databases opengaan; is de updateserver onbereikbaar, dan wacht
+splashscherm, vÃ³Ã³r de databases opengaan; is de updateserver onbereikbaar, dan wacht
 Spotnet maximaal drie seconden. Downloads worden op grootte en SHA-256 gecontroleerd
 voordat er iets wordt uitgevoerd, en een afgebroken download wordt hervat.
 
-Handmatig kan het via *Help ▸ Controleren op updates*; uitzetten kan met
+Handmatig kan het via *Help â–¸ Controleren op updates*; uitzetten kan met
 `AutoUpdateEnabled` in je profiel. Zie [docs/UPDATES.md](docs/UPDATES.md) voor hoe een
 release wordt gepubliceerd.
 
@@ -145,17 +145,17 @@ release wordt gepubliceerd.
 ## Waar dit project vandaan komt
 
 Het doel is Spotnet bruikbaar en onderhoudbaar houden: de broncode van de applicatie is
-teruggehaald, verouderde onderdelen zijn vervangen en de betrouwbaarheid is verbeterd —
+teruggehaald, verouderde onderdelen zijn vervangen en de betrouwbaarheid is verbeterd â€”
 zonder de bestaande workflow overboord te gooien of de compatibiliteit met het
 Spotnet-netwerk te breken. Het is een stapsgewijze modernisering, geen herbouw vanaf nul.
 
 **Spotnet 3.0** is de naam van de gemoderniseerde applicatie in deze repository, geen
-officiële uitgave van het oorspronkelijke project. Verwijzingen naar 1.8.1 of 2.0 gaan
+officiÃ«le uitgave van het oorspronkelijke project. Verwijzingen naar 1.8.1 of 2.0 gaan
 over de originele versies waaruit dit is teruggehaald; het originele releasepakket ligt in
 [`reference/`](reference/). De werknotities in `docs/internal/` noemen de broncode nog
-`reconstructed/Spotnet2/` — dat is de oude naam van `src/Spotnet/`.
+`reconstructed/Spotnet2/` â€” dat is de oude naam van `src/Spotnet/`.
 
-Achtergrond: [herkomst van de broncode](docs/reference/SOURCE_PROVENANCE.md) ·
+Achtergrond: [herkomst van de broncode](docs/reference/SOURCE_PROVENANCE.md) Â·
 [inventaris van de originele binaries](docs/reference/INVENTORY.md).
 
 ### De belangrijkste vervangingen
@@ -168,18 +168,18 @@ Achtergrond: [herkomst van de broncode](docs/reference/SOURCE_PROVENANCE.md) ·
 | SQLite | Losse legacy-provider en interop-DLL's | **System.Data.SQLite.Core 1.0.119** via NuGet |
 | yEnc-decoder | Mixed-mode x86 `Spotnet.Enc.dll` | Beheerde C#-implementatie `Spotnet.Enc` (x64) |
 | ZIP-archieven | Ionic.Zip / DotNetZip | `System.IO.Compression` achter de padgecontroleerde `SafeZip` |
-| Overige bibliotheken | Losse legacy-DLL's | SharpZipLib 1.4.2 · Newtonsoft.Json 13.0.3 · NLog 5.5.1 · HtmlAgilityPack 1.12.4 |
+| Overige bibliotheken | Losse legacy-DLL's | SharpZipLib 1.4.2 Â· Newtonsoft.Json 13.0.3 Â· NLog 5.5.1 Â· HtmlAgilityPack 1.12.4 |
 
 `phpar2.exe`, `UnRAR.exe` en `7za.exe` zijn nog 32-bits hulpprogramma's. Ze draaien als
 losse processen en dwingen Spotnet zelf niet naar 32-bits. Dit is een Windows x64-build,
-geen native ARM64- of cross-platformversie — WPF bindt de applicatie aan Windows.
+geen native ARM64- of cross-platformversie â€” WPF bindt de applicatie aan Windows.
 
 ### Betrouwbaarheid en beveiliging
 
 De schrijfbare database gebruikt **write-ahead logging (WAL)** met `synchronous=NORMAL` in
 plaats van het oude `synchronous=OFF`, met een busy-timeout en respect voor read-only
 gebruik. **Database herstellen** kopieert leesbare records naar een verse database en
-bewaart het origineel als back-up — een herstelpoging, geen garantie. WAL is geen
+bewaart het origineel als back-up â€” een herstelpoging, geen garantie. WAL is geen
 vervanging voor je eigen back-ups.
 
 Verder: NNTP vereist versleuteling bij TLS-verbindingen en valideert servercertificaten;
@@ -187,7 +187,7 @@ SQL-waarden en -identifiers zijn geparameteriseerd en gecontroleerd; ZIP-extract
 paden die buiten de doelmap wijzen; externe XML-resolutie staat uit. Dat zijn gerichte
 verbeteringen, geen bewijs van een doorstane security-audit.
 
-Details: [database en herstel](docs/DATABASE.md) ·
+Details: [database en herstel](docs/DATABASE.md) Â·
 [NNTP, spot-XML en handtekeningen](docs/PROTOCOL.md).
 
 ---
@@ -222,7 +222,7 @@ Meer detail: [bouw- en setupgids](docs/BUILDING.md).
 
 ### Een nieuwe versie uitbrengen
 
-Het versienummer staat op één plek — `AssemblyInfo.cs` — en alles wat de gebruiker ziet
+Het versienummer staat op Ã©Ã©n plek â€” `AssemblyInfo.cs` â€” en alles wat de gebruiker ziet
 moet daarmee meelopen. Welke plekken dat zijn en in welke volgorde je ze bijwerkt, staat
 in [docs/VERSIONING.md](docs/VERSIONING.md). Controleren of alles klopt:
 
@@ -240,7 +240,7 @@ of de updatefeed mee te nemen laat `VersionConsistencyTests` falen.
 ```text
 build-installer.ps1           Bouwt de x64-setup
 providers.json                Lijst met Usenet-providers, opgehaald bij het starten
-updates/latest.json           Updatefeed voor geïnstalleerde clients
+updates/latest.json           Updatefeed voor geÃ¯nstalleerde clients
 
 src/Spotnet/
     Spotnet.sln               Hoofdsolution
@@ -275,7 +275,7 @@ daarvan.
 Referentie over de versies waaruit dit is teruggehaald staat in
 [`docs/reference/`](docs/reference/), chronologische werknotities in
 [`docs/internal/`](docs/internal/). Die notities bevatten tussenstanden die soms
-achterhaald zijn — deze README is het actuele overzicht.
+achterhaald zijn â€” deze README is het actuele overzicht.
 
 ---
 
